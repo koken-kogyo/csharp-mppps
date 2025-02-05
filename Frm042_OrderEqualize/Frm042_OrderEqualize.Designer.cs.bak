@@ -1,0 +1,201 @@
+﻿using System.Drawing;
+using System.Windows.Forms;
+
+namespace MPPPS
+{
+    partial class Frm042_OrderEqualize
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm042_OrderEqualize));
+            this.Dgv_MpOrderTbl = new System.Windows.Forms.DataGridView();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.Btn_SaveCsvFile = new System.Windows.Forms.Button();
+            this.Btn_ReadCsvFile = new System.Windows.Forms.Button();
+            this.Btn_Search = new System.Windows.Forms.Button();
+            this.Btn_Delete = new System.Windows.Forms.Button();
+            this.Btn_Close = new System.Windows.Forms.Button();
+            this.Btn_Clear = new System.Windows.Forms.Button();
+            this.Btn_InsUpd = new System.Windows.Forms.Button();
+            this.Tsl_Msg = new System.Windows.Forms.ToolStripStatusLabel();
+            ((System.ComponentModel.ISupportInitialize)(this.Dgv_MpOrderTbl)).BeginInit();
+            this.statusStrip1.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // Dgv_MpOrderTbl
+            // 
+            this.Dgv_MpOrderTbl.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.Dgv_MpOrderTbl.Location = new System.Drawing.Point(22, 14);
+            this.Dgv_MpOrderTbl.Name = "Dgv_MpOrderTbl";
+            this.Dgv_MpOrderTbl.RowHeadersWidth = 51;
+            this.Dgv_MpOrderTbl.RowTemplate.Height = 24;
+            this.Dgv_MpOrderTbl.Size = new System.Drawing.Size(756, 453);
+            this.Dgv_MpOrderTbl.TabIndex = 0;
+            this.Dgv_MpOrderTbl.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.Dgv_CellValidating);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Tsl_Msg});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 538);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(800, 26);
+            this.statusStrip1.TabIndex = 1;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // Btn_SaveCsvFile
+            // 
+            this.Btn_SaveCsvFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.Btn_SaveCsvFile.Enabled = false;
+            this.Btn_SaveCsvFile.Location = new System.Drawing.Point(128, 491);
+            this.Btn_SaveCsvFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_SaveCsvFile.Name = "Btn_SaveCsvFile";
+            this.Btn_SaveCsvFile.Size = new System.Drawing.Size(100, 30);
+            this.Btn_SaveCsvFile.TabIndex = 9;
+            this.Btn_SaveCsvFile.Text = "CSV 保存";
+            this.Btn_SaveCsvFile.UseVisualStyleBackColor = true;
+            this.Btn_SaveCsvFile.Click += new System.EventHandler(this.Btn_SaveCsvFile_Click);
+            // 
+            // Btn_ReadCsvFile
+            // 
+            this.Btn_ReadCsvFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.Btn_ReadCsvFile.Location = new System.Drawing.Point(22, 491);
+            this.Btn_ReadCsvFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_ReadCsvFile.Name = "Btn_ReadCsvFile";
+            this.Btn_ReadCsvFile.Size = new System.Drawing.Size(100, 30);
+            this.Btn_ReadCsvFile.TabIndex = 8;
+            this.Btn_ReadCsvFile.Text = "CSV 読込";
+            this.Btn_ReadCsvFile.UseVisualStyleBackColor = true;
+            this.Btn_ReadCsvFile.Click += new System.EventHandler(this.Btn_ReadCsvFile_Click);
+            // 
+            // Btn_Search
+            // 
+            this.Btn_Search.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.Btn_Search.Location = new System.Drawing.Point(360, 491);
+            this.Btn_Search.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_Search.Name = "Btn_Search";
+            this.Btn_Search.Size = new System.Drawing.Size(100, 30);
+            this.Btn_Search.TabIndex = 11;
+            this.Btn_Search.Text = "検索";
+            this.Btn_Search.UseVisualStyleBackColor = true;
+            this.Btn_Search.Click += new System.EventHandler(this.Btn_Search_Click);
+            // 
+            // Btn_Delete
+            // 
+            this.Btn_Delete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.Btn_Delete.Location = new System.Drawing.Point(572, 491);
+            this.Btn_Delete.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_Delete.Name = "Btn_Delete";
+            this.Btn_Delete.Size = new System.Drawing.Size(100, 30);
+            this.Btn_Delete.TabIndex = 13;
+            this.Btn_Delete.Text = "削除";
+            this.Btn_Delete.UseVisualStyleBackColor = true;
+            this.Btn_Delete.Click += new System.EventHandler(this.Btn_Delete_Click);
+            // 
+            // Btn_Close
+            // 
+            this.Btn_Close.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.Btn_Close.Location = new System.Drawing.Point(678, 491);
+            this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_Close.Name = "Btn_Close";
+            this.Btn_Close.Size = new System.Drawing.Size(100, 30);
+            this.Btn_Close.TabIndex = 14;
+            this.Btn_Close.Text = "閉じる";
+            this.Btn_Close.UseVisualStyleBackColor = true;
+            this.Btn_Close.Click += new System.EventHandler(this.Btn_Close_Click);
+            // 
+            // Btn_Clear
+            // 
+            this.Btn_Clear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.Btn_Clear.Location = new System.Drawing.Point(254, 491);
+            this.Btn_Clear.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_Clear.Name = "Btn_Clear";
+            this.Btn_Clear.Size = new System.Drawing.Size(100, 30);
+            this.Btn_Clear.TabIndex = 10;
+            this.Btn_Clear.Text = "クリア";
+            this.Btn_Clear.UseVisualStyleBackColor = true;
+            this.Btn_Clear.Click += new System.EventHandler(this.Btn_Clear_Click);
+            // 
+            // Btn_InsUpd
+            // 
+            this.Btn_InsUpd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.Btn_InsUpd.Location = new System.Drawing.Point(466, 491);
+            this.Btn_InsUpd.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_InsUpd.Name = "Btn_InsUpd";
+            this.Btn_InsUpd.Size = new System.Drawing.Size(100, 30);
+            this.Btn_InsUpd.TabIndex = 12;
+            this.Btn_InsUpd.Text = "登録/更新";
+            this.Btn_InsUpd.UseVisualStyleBackColor = true;
+            this.Btn_InsUpd.Click += new System.EventHandler(this.Btn_InsUpd_Click);
+            // 
+            // Tsl_Msg
+            // 
+            this.Tsl_Msg.Name = "Tsl_Msg";
+            this.Tsl_Msg.Size = new System.Drawing.Size(59, 20);
+            this.Tsl_Msg.Text = "Tsl_Msg";
+            // 
+            // Frm042_OrderEqualize
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(800, 564);
+            this.Controls.Add(this.Btn_SaveCsvFile);
+            this.Controls.Add(this.Btn_ReadCsvFile);
+            this.Controls.Add(this.Btn_Search);
+            this.Controls.Add(this.Btn_Delete);
+            this.Controls.Add(this.Btn_Close);
+            this.Controls.Add(this.Btn_Clear);
+            this.Controls.Add(this.Btn_InsUpd);
+            this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.Dgv_MpOrderTbl);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Name = "Frm042_OrderEqualize";
+            this.Text = "[KMD004SF] オーダー管理 - 切削オーダーの平準化 - Ver.203418.02a";
+            ((System.ComponentModel.ISupportInitialize)(this.Dgv_MpOrderTbl)).EndInit();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private DataGridView Dgv_MpOrderTbl;
+        private StatusStrip statusStrip1;
+        private Button Btn_SaveCsvFile;
+        private Button Btn_ReadCsvFile;
+        private Button Btn_Search;
+        private Button Btn_Delete;
+        private Button Btn_Close;
+        private Button Btn_Clear;
+        private Button Btn_InsUpd;
+        private ToolStripStatusLabel Tsl_Msg;
+    }
+}

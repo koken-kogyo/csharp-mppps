@@ -1,0 +1,620 @@
+﻿using System;
+using System.Data;
+using System.Diagnostics;
+using System.Reflection;
+using System.Windows.Forms;
+
+namespace MPPPS
+{
+    public partial class Frm042_OrderEqualize
+    {
+        ///
+        /// 単票形式
+        /// 
+
+        ///
+        /// 単票形式: フォーム制御
+        /// 
+
+        /// <summary>
+        /// [単票形式] タブ選択変更時のイベント ハンドラー
+        /// </summary>
+        /// <param name="sender">送信オブジェクト</param>
+        /// <param name="e">イベント引数</param>
+        /// 89
+        private void Rbt_Slip_CheckedChanged(object sender, EventArgs e)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            RadioButton rb;
+            if (sender is RadioButton)
+            {
+                rb = (RadioButton)sender;
+                if (rb.Checked) // 選択時のイベントで処理する
+                {
+                    // コントロール状態設定
+                    cmn.SetControlStatus(this, Common.REG_FORM_SINGLE_SHEET);
+                }
+                else
+                {
+                    // 選択解除時のイベントには反応しない
+                    ;
+                }
+            }
+        }
+
+        /// <summary>
+        /// [手配日付] デイトタイム ピッカー日付選択時のイベント ハンドラー★
+        /// </summary>
+        /// <param name="sender">送信オブジェクト</param>
+        /// <param name="e">イベント引数</param>
+        private void Dtp_EdDt_CloseUp(object sender, EventArgs e)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            // 後続コントロール初期化
+            InitSubseqCtrls((int)Common.Frm042DgvIdx.EdDt);
+
+            // 切削生産計画情報、切削生産計画日程情報取得
+            cmn.IkD0415 = new IkD0415();
+            cmn.IkD0445 = new IkD0445();
+
+            // 指定日時で検索
+            cmn.IkD0415.EdDt = Convert.ToDateTime(Dtp_EdDt.Value.ToShortDateString());
+            cmn.IkD0415.McGCd = "";
+            cmn.IkD0415.McCd = "";
+
+            cmn.IkD0445.EdDt = cmn.IkD0415.EdDt;
+            cmn.IkD0445.McGCd = cmn.IkD0415.McGCd;
+            cmn.IkD0445.McCd = cmn.IkD0415.McCd;
+
+
+            // 検索してコンボ ボックスに追加
+            DataSet dataSet = new DataSet();
+            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.D0415_TARGET_MCGCD) > 0)
+            {
+                // [グループ] にグループ コード＋グループ名称を追加
+                Cbx_McGCd.BeginUpdate();
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    int rowIndex = dataSet.Tables[0].Rows.IndexOf(row);
+                    string mcGCd = dataSet.Tables[0].Rows[rowIndex].ItemArray[0].ToString() + ": " + dataSet.Tables[0].Rows[rowIndex].ItemArray[1].ToString();
+                    Cbx_McGCd.Items.Add(mcGCd);
+                }
+                Cbx_McGCd.EndUpdate();
+            }
+        }
+
+        /// <summary>
+        /// [グループ] コンポ ボックス選択変更時のイベント ハンドラー
+        /// </summary>
+        /// <param name="sender">送信オブジェクト</param>
+        /// <param name="e">イベント引数</param>
+        private void Cbx_McGCd_TextChanged(object sender, EventArgs e)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            // 後続コントロール初期化
+            InitSubseqCtrls((int)Common.Frm042DgvIdx.McGCd);
+
+            // 切削生産計画情報、切削生産計画日程情報取得
+            cmn.IkD0415 = new IkD0415();
+            cmn.IkD0445 = new IkD0445();
+
+            // 指定日時で検索
+            string[] mcGCdArr = Cbx_McGCd.Text.Split(' ');
+
+            cmn.IkD0415.EdDt = Convert.ToDateTime(Dtp_EdDt.Text);
+            cmn.IkD0415.McGCd = mcGCdArr[0].Replace(":", "");
+            cmn.IkD0415.McCd = "";
+
+            cmn.IkD0445.EdDt = cmn.IkD0415.EdDt;
+            cmn.IkD0445.McGCd = cmn.IkD0415.McGCd;
+            cmn.IkD0445.McCd = cmn.IkD0415.McCd;
+
+            // 検索してコンボ ボックスに追加
+            DataSet dataSet = new DataSet();
+            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.D0415_TARGET_MCCD) > 0)
+            {
+                // [設備] に設備コード＋設備名称を追加
+                Cbx_McCd.BeginUpdate();
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    int rowIndex = dataSet.Tables[0].Rows.IndexOf(row);
+                    string mcCd = dataSet.Tables[0].Rows[rowIndex].ItemArray[0].ToString() + ": " + dataSet.Tables[0].Rows[rowIndex].ItemArray[1].ToString();
+                    Cbx_McCd.Items.Add(mcCd);
+                }
+                Cbx_McCd.EndUpdate();
+            }
+        }
+
+        /// <summary>
+        /// [設備] コンボ ボックス変更時のイベント ハンドラー
+        /// </summary>
+        /// <param name="sender">送信オブジェクト</param>
+        /// <param name="e">イベント引数</param>
+        private void Cbx_McCd_TextChanged(object sender, EventArgs e)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            // 後続コントロール初期化
+            InitSubseqCtrls((int)Common.Frm042DgvIdx.McCd);
+
+            // 切削生産計画情報、切削生産計画日程情報取得
+            cmn.IkD0415 = new IkD0415();
+            cmn.IkD0445 = new IkD0445();
+
+            // 指定日時で検索
+            string[] mcGCdArr = Cbx_McGCd.Text.Split(' ');
+            string[] mcCdArr = Cbx_McCd.Text.Split(' ');
+
+            cmn.IkD0415.EdDt = Convert.ToDateTime(Dtp_EdDt.Text);
+            cmn.IkD0415.McGCd = mcGCdArr[0].Replace(":", "");
+            cmn.IkD0415.McCd = mcCdArr[0].Replace(":", "");
+
+            cmn.IkD0445.EdDt = cmn.IkD0415.EdDt;
+            cmn.IkD0445.McGCd = cmn.IkD0415.McGCd;
+            cmn.IkD0445.McCd = cmn.IkD0415.McCd;
+
+            // 検索してコンボ ボックスに追加
+            DataSet dataSet = new DataSet();
+            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.D0415_TARGET_MCTM) > 0)
+            {
+                // 設備稼働時間を表示
+                Tbx_McOnTime.Text = dataSet.Tables[0].Rows[0].ItemArray[2].ToString();
+
+                // 設備段取り時間 1～3 の合計を表示
+                int.TryParse(dataSet.Tables[0].Rows[0].ItemArray[3].ToString(), out int mcSetupTm1);
+                int.TryParse(dataSet.Tables[0].Rows[0].ItemArray[4].ToString(), out int mcSetupTm2);
+                int.TryParse(dataSet.Tables[0].Rows[0].ItemArray[5].ToString(), out int mcSetupTm3);
+                Tbx_McSetupTm.Text = Convert.ToString(mcSetupTm1 + mcSetupTm2 + mcSetupTm3);
+
+                // テキスト ボックス再表示
+                Tbx_McOnTime.Update();
+                Tbx_McSetupTm.Update();
+            }
+
+            // 更新系ボタン有効無効再設定
+            SetEnableDisableUpdatingButtons();
+        }
+
+        /// <summary>
+        /// [設備] コンボ ボックス フォーカス喪失時のイベント ハンドラー
+        /// </summary>
+        /// <param name="sender">送信オブジェクト</param>
+        /// <param name="e">イベント引数</param>
+        private void Cbx_McCd_LostFocus(object sender, EventArgs e)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            // 後続コントロール初期化
+            InitSubseqCtrls((int)Common.Frm042DgvIdx.McOnTime);
+        }
+
+
+        ///
+        /// 単票形式: 処理
+        /// 
+
+        /// <summary>
+        /// 後続コントロール初期化
+        /// </summary>
+        /// <param name="pKeyNo">主キー番号 (0～4)</param>
+        private void InitSubseqCtrls(int pKeyNo)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            // 後続のコントロールを初期化
+
+            if (pKeyNo <= (int)Common.Frm042DgvIdx.EdDt) // 手配日付
+            {
+                // グループ
+                Cbx_McGCd.Items.Clear();
+                Cbx_McGCd.Text = string.Empty;
+            }
+
+            if (pKeyNo <= (int)Common.Frm042DgvIdx.McGCd) // グループ
+            {
+                // 設備
+                Cbx_McCd.Items.Clear();
+                Cbx_McCd.Text = string.Empty;
+            }
+
+            if (pKeyNo <= (int)Common.Frm042DgvIdx.McCd) // 設備コード
+            {
+                // 設備稼働時間
+                Tbx_McOnTime.Text = string.Empty;
+                // 設備段取り時間
+                Tbx_McSetupTm.Text = string.Empty;
+            }
+
+            if (pKeyNo <= (int)Common.Frm042DgvIdx.McOnTime) // 設備稼働時間
+            {
+                // 切削オーダー データ (現在)
+                cmn.RemoveDagaGridViewRows(Dgv_MpCurOdrTbl);
+                cmn.RemoveDagaGridViewRows(Dgv_MpCurOdrTbl);
+
+                // 切削オーダー データ (変更後)
+                cmn.RemoveDagaGridViewRows(Dgv_MpModOdrTbl);
+                cmn.RemoveDagaGridViewRows(Dgv_MpModOdrTbl);
+                // D0415 切削生産計画ファイル (確定) のテーブル情報取得
+                int dataCount = 0;
+                DataSet dataSetTblInfo = new DataSet();
+                dataCount = cmn.Dbm.GetMySqlTableInfo(ref dataSetTblInfo, Common.TABLE_ID_D0415);
+                if (dataCount <= 0)
+                {
+                    // テーブル情報なし
+                    Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                    string msgBodyExtStr = string.Format(Common.MSG_BODY_EXT_STR_TABLE_ID, Common.TABLE_ID_D0415);
+                    cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_803, Common.MSG_TYPE_F, MessageBoxButtons.OK,
+                                       Common.MSGBOX_TXT_FATAL, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, msgBodyExtStr);
+
+                    // 件数表示クリア
+                    Tsl_Msg.Text = null;
+                }
+                else
+                {
+                    //// 書式チェックと数値補正
+                    //bool isValid = true;
+                    //CheckCsvData(dataTable, dataSetTblInfo, ref isValid);
+
+                    //// データ テーブルを DataGridView に反映して再描画
+                    //Dgv_MpCurOdrTbl.DataSource = dataTable;
+
+                    //// 再描画
+                    //Dgv_MpCurOdrTbl.Refresh();
+
+                    //if (isValid)
+                    //{
+                    //    // 更新系ボタンを有効化
+                    //    SetEnableDisableUpdatingButtons();
+
+                    //    // 読み込み完了メッセージ表示
+                    //    Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                    //    cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_405, Common.MSG_TYPE_I, MessageBoxButtons.OK,
+                    //                       Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+
+                    //    // 読み込み件数表示
+                    //    Tsl_Msg.Text = csvCount + Common.TSL_TEXT_READ_FILE_COUNT;
+                }
+            }
+
+            // 稼働時間 (現在)
+            Tbx_CurOpeTm.Text = string.Empty;
+            // 稼働率 (現在)
+            Tbx_CurOpeRate.Text = string.Empty;
+            // 可動率 (現在)
+            Tbx_CurOpeAvail.Text = string.Empty;
+
+            // 切削オーダー データ (変更後)
+            cmn.RemoveDagaGridViewRows(Dgv_MpSimOdrTbl);
+            // 稼働時間 (変更後)
+            Tbx_SimOpeTm.Text = string.Empty;
+            // 稼働率 (変更後)
+            Tbx_SimOpeRate.Text = string.Empty;
+            // 可動率 (変更後)
+            Tbx_SimOpeAvail.Text = string.Empty;
+        }
+    }
+
+    /////
+    ///// 単票形式: データベース アクセス
+    ///// 
+
+    ///// <summary>
+    ///// データ更新あり (D0415 切削生産計画ファイル)
+    ///// </summary>
+    ///// <param name="dataRow">データ行</param>
+    ///// <returns>結果 (false: 更新なし, true: 更新あり)</returns>
+    //private bool IsDataUpdated(DataRow dataRow)
+    //{
+    //    bool ret = false;
+
+    //    while (true)
+    //    {
+    //        // サイクルタイム
+    //        if (Convert.ToDouble(dataRow.ItemArray[(int)Common.D0415ClmIdx.CT]) != cmn.DrD0415.CT)
+    //        {
+    //            ret = true;
+    //            break;
+    //        }
+
+    //        // 備考
+    //        if (dataRow.ItemArray[(int)Common.D0415ClmIdx.Note].ToString() != cmn.DrD0415.Note)
+    //        {
+    //            ret = true;
+    //            break;
+    //        }
+    //        break;
+    //    }
+
+    //    return ret;
+    //}
+
+    ///// <summary>
+    ///// D0415 切削生産計画ファイル主キー設定 (単票形式)
+    ///// </summary>
+    //private void SetCycleTimeMstPKey()
+    //{
+    //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+    //    // 主キーを設定
+    //    cmn.PkD0415 = new PkD0415();
+
+    //    // グループ コード
+    //    string[] odArr = Cbx_McGCd.Text.Split(' ');
+    //    cmn.PkD0415.OdCd = odArr[0];
+
+    //    // 切削刃具 コード
+    //    string[] wkGrArr = Cbx_McGCd.Text.Split(' ');
+    //    cmn.PkD0415.WkGrCd = wkGrArr[0];
+
+    //    // 品番
+    //    string[] hmArr = Cbx_McCd.Text.Split(' ');
+    //    cmn.PkD0415.HmCd = hmArr[0];
+
+    //    // 適用開始日
+    //    if (Rbt_RegDt.Checked) // 登録済日付選択中
+    //    {
+    //        // 登録済日付を設定
+    //        if (string.IsNullOrEmpty(Cbx_RegDt.Text) || string.IsNullOrWhiteSpace(Cbx_RegDt.Text))
+    //        {
+    //            cmn.PkD0415.ValDtFF = Convert.ToDateTime(Common.MIN_DATETIME);
+    //            cmn.PkD0415.ValDtFT = Convert.ToDateTime(Common.MAX_DATETIME);
+    //        }
+    //        else
+    //        {
+    //            cmn.PkD0415.ValDtFF = Convert.ToDateTime(Cbx_RegDt.Text);
+    //            cmn.PkD0415.ValDtFT = Convert.ToDateTime(Cbx_RegDt.Text);
+    //        }
+    //    }
+    //    else // 登録済日付非選択中
+    //    {
+    //        // 指定日付を設定
+    //        // 登録済日付を設定
+    //        if (string.IsNullOrEmpty(Cbx_RegDt.Text) || string.IsNullOrWhiteSpace(Cbx_RegDt.Text))
+    //        {
+    //            cmn.PkD0415.ValDtFF = Convert.ToDateTime(Common.MIN_DATE);
+    //            cmn.PkD0415.ValDtFT = Convert.ToDateTime(Common.MAX_DATE);
+    //        }
+    //        else
+    //        {
+    //            cmn.PkD0415.ValDtFF = Convert.ToDateTime(Dtp_EdDt.Value.ToString("yyyy/MM/dd"));
+    //            cmn.PkD0415.ValDtFT = Convert.ToDateTime(Dtp_EdDt.Value.ToString("yyyy/MM/dd"));
+    //        }
+    //    }
+
+    //    // 作業順序
+    //    string[] wkSeqArr = Cbx_WkSeq.Text.Split(' ');
+    //    int result;
+    //    int.TryParse(wkSeqArr[0], out result);
+    //    cmn.PkD0415.WkSeq = result;
+    //}
+
+    ///// <summary>
+    ///// D0415 切削生産計画ファイル データ項目設定 (単票形式)
+    ///// </summary>
+    ///// <param name="opeCd">処理種別</param>
+    //private void SetCycleTimeMstData(char opeCd)
+    //{
+    //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+    //    // データ項目設定
+    //    cmn.DrD0415 = new DrD0415();
+
+    //    // サイクルタイム
+    //    cmn.DrD0415.CT = Convert.ToDouble(Tbx_CT.Text);
+
+    //    // 備考
+    //    cmn.DrD0415.Note = Tbx_Note.Text;
+
+    //    // 現在日時取得
+    //    string now = DateTime.Now.ToString();
+
+    //    // 新規登録のときは登録情報を更新
+    //    if (opeCd == Common.OPE_CD_INS)
+    //    {
+    //        // 登録者
+    //        cmn.DrCommon.InstID = cmn.PkKM5000.UserId;
+
+    //        // 登録日時
+    //        cmn.DrCommon.InstDT = now;
+    //    }
+
+    //    // 更新者
+    //    cmn.DrCommon.UpdtID = cmn.PkKM5000.UserId;
+    //    // 更新日時
+    //    cmn.DrCommon.UpdtDT = now;
+    //}
+
+    ///// <summary>
+    ///// 単票形式データ取得 (D0415 切削生産計画ファイル)
+    ///// </summary>
+    //private void GetSlipData()
+    //{
+    //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+    //    // 切削生産計画ファイル主キー設定
+    //    SetCycleTimeMstPKey();
+
+    //    // 検索
+    //    DataSet dataSet = new DataSet();
+    //    int ret = cmn.Dba.GetCycleTimeInfo(ref dataSet);
+
+    //    if (ret > 0) // データあり
+    //    {
+    //        // 詳細項目設定
+    //        DataRow dr = dataSet.Tables[0].Rows[0];
+    //        Tbx_CT.Text = dr.ItemArray[(int)Common.Frm042DgvIdx.CT].ToString();
+    //        Tbx_Note.Text = dr.ItemArray[(int)Common.Frm042DgvIdx.Note].ToString();
+
+    //        // 更新系ボタンを有効化
+    //        SetEnableDisableUpdatingButtons();
+    //    }
+    //    else // データなし
+    //    {
+    //        // 更新系ボタンを無効化
+    //        SetEnableDisableUpdatingButtons();
+
+    //        // 該当データなし
+    //        Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+    //        cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_305, Common.MSG_TYPE_W,
+    //            MessageBoxButtons.OK, Common.MSGBOX_TXT_WARN, MessageBoxIcon.Warning);
+    //    }
+    //}
+
+    ///// <summary>
+    ///// 単票形式データ併合 (D0415 切削生産計画ファイル)
+    ///// </summary>
+    //private void MergeSlipData()
+    //{
+    //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+    //    // 切削生産計画ファイル主キー設定
+    //    SetCycleTimeMstPKey();
+
+    //    // 既存データの有無を確認
+    //    DataSet dataSet = new DataSet();
+    //    cmn.Dba.GetCycleTimeInfo(ref dataSet);
+
+    //    if (dataSet.Tables[0].Rows.Count > 0) // データあり
+    //    {
+    //        // D0415 切削生産計画ファイル データ項目設定
+    //        SetCycleTimeMstData(Common.OPE_CD_UPD);
+
+    //        // 項目値が変更されているか確認
+    //        if (!IsDataUpdated(dataSet.Tables[0].Rows[0])) // 変更項目なし
+    //        {
+    //            // 変更項目なし
+    //            Debug.WriteLine(Common.MSGBOX_TXT_INFO + ": " + MethodBase.GetCurrentMethod().Name);
+    //            cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_326, Common.MSG_TYPE_I,
+    //                MessageBoxButtons.OK, Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information);
+    //        }
+    //        else // 変更項目あり
+    //        {
+    //            // 更新確認
+    //            Debug.WriteLine(Common.MEGBOX_TXT_QUESTION + ": " + MethodBase.GetCurrentMethod().Name);
+    //            DialogResult dialogResult = cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_307, Common.MSG_TYPE_Q,
+    //                MessageBoxButtons.OKCancel, Common.MSGBOX_TXT_CONF, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+
+    //            if (dialogResult == DialogResult.OK) // [OK] クリック時
+    //            {
+    //                // データを更新
+    //                if (cmn.Dba.MergeCycleTimeInfo() > 0)
+    //                {
+    //                    // 更新成功
+    //                    Debug.WriteLine(Common.MSGBOX_TXT_INFO + ": " + MethodBase.GetCurrentMethod().Name);
+    //                    cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_313, Common.MSG_TYPE_I,
+    //                        MessageBoxButtons.OK, Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information);
+    //                }
+    //                else
+    //                {
+    //                    // 更新失敗
+    //                    Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+    //                    cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_316, Common.MSG_TYPE_E,
+    //                        MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+    //                }
+    //            }
+    //            else // [キャンセル] クリック時
+    //            {
+    //                // 更新中止
+    //                Debug.WriteLine(Common.MSGBOX_TXT_INFO + ": " + MethodBase.GetCurrentMethod().Name);
+    //                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_310, Common.MSG_TYPE_I,
+    //                    MessageBoxButtons.OK, Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information);
+    //            }
+    //        }
+    //    }
+    //    else // データなし
+    //    {
+    //        // 登録確認
+    //        Debug.WriteLine(Common.MEGBOX_TXT_QUESTION + ": " + MethodBase.GetCurrentMethod().Name);
+    //        DialogResult dialogResult = cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_306, Common.MSG_TYPE_Q,
+    //            MessageBoxButtons.OKCancel, Common.MSGBOX_TXT_CONF, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+
+    //        if (dialogResult == DialogResult.OK) // [OK] クリック時
+    //        {
+    //            // D0415 切削生産計画ファイル データ項目設定
+    //            SetCycleTimeMstData(Common.OPE_CD_INS);
+
+    //            // データを登録
+    //            if (cmn.Dba.MergeCycleTimeInfo() > 0)
+    //            {
+    //                // 登録成功
+    //                Debug.WriteLine(Common.MSGBOX_TXT_INFO + ": " + MethodBase.GetCurrentMethod().Name);
+    //                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_312, Common.MSG_TYPE_I,
+    //                    MessageBoxButtons.OK, Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information);
+    //            }
+    //            else
+    //            {
+    //                // 登録失敗
+    //                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+    //                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_315, Common.MSG_TYPE_E,
+    //                    MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+    //            }
+    //        }
+    //        else // [キャンセル] クリック時
+    //        {
+    //            // 登録中止
+    //            Debug.WriteLine(Common.MSGBOX_TXT_INFO + ": " + MethodBase.GetCurrentMethod().Name);
+    //            cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_309, Common.MSG_TYPE_I,
+    //                MessageBoxButtons.OK, Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information);
+    //        }
+    //    }
+    //    // 更新系ボタン有効無効再設定
+    //    SetEnableDisableUpdatingButtons();
+    //}
+
+    ///// <summary>
+    ///// 単票形式データ削除 (D0415 切削生産計画ファイル)
+    ///// </summary>
+    //private void DeleteSlipData()
+    //{
+    //    // 切削生産計画ファイル主キー設定
+    //    SetCycleTimeMstPKey();
+
+    //    // 既存データの有無を確認
+    //    DataSet dataSet = new DataSet();
+    //    cmn.Dba.GetCycleTimeInfo(ref dataSet);
+
+    //    if (dataSet.Tables[0].Rows.Count > 0) // データあり
+    //    {
+    //        // 削除確認
+    //        Debug.WriteLine(Common.MEGBOX_TXT_QUESTION + ": " + MethodBase.GetCurrentMethod().Name);
+    //        DialogResult dialogResult = cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_308, Common.MSG_TYPE_Q,
+    //            MessageBoxButtons.OKCancel, Common.MSGBOX_TXT_CONF, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2); // 削除確認
+
+    //        if (dialogResult == DialogResult.OK) // [OK] クリック時
+    //        {
+    //            // データを削除
+    //            if (cmn.Dba.DeleteCycleTimeInfo() > 0)
+    //            {
+    //                // 削除成功
+    //                Debug.WriteLine(Common.MSGBOX_TXT_INFO + ": " + MethodBase.GetCurrentMethod().Name);
+    //                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_314, Common.MSG_TYPE_I,
+    //                    MessageBoxButtons.OK, Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information);
+    //            }
+    //            else
+    //            {
+    //                // 削除失敗
+    //                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+    //                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_317, Common.MSG_TYPE_E,
+    //                    MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+    //            }
+    //        }
+    //        else // [キャンセル] クリック時
+    //        {
+    //            // 削除中止
+    //            Debug.WriteLine(Common.MSGBOX_TXT_INFO + ": " + MethodBase.GetCurrentMethod().Name);
+    //            cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_311, Common.MSG_TYPE_I,
+    //                MessageBoxButtons.OK, Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // 該当データなし
+    //        Debug.WriteLine(Common.MSGBOX_TXT_WARN + ": " + MethodBase.GetCurrentMethod().Name);
+    //        cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_305, Common.MSG_TYPE_W,
+    //            MessageBoxButtons.OK, Common.MSGBOX_TXT_WARN, MessageBoxIcon.Warning);
+    //    }
+    //}
+}
