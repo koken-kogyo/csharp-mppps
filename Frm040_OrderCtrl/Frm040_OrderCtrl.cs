@@ -72,10 +72,10 @@ namespace MPPPS
         /// <param name="e">イベント引数</param>
         private void Btn_CreateOrder_Click(object sender, EventArgs e)
         {
-            player = new SoundPlayer(@cmn.SoundFilePathWrong);
-            player.Play();
+            //player = new SoundPlayer(@cmn.SoundFilePathCorrect);
+            //player.Play();
 
-            Frm041_CreateOrder frm041 = new Frm041_CreateOrder();
+            Frm041_CreateOrder frm041 = new Frm041_CreateOrder(cmn, sender);
             frm041.ShowDialog();
         }
 

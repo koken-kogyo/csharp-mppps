@@ -1087,5 +1087,135 @@ namespace MPPPS
             // 接続を閉じる
             cmn.Dbm.CloseOraSchema(cnn);
         }
+
+        /// <summary>
+        /// カレンダーマスタの本社稼働日を取得 (S0820 カレンダーマスタ)
+        /// </summary>
+        /// <param name="dataTable">データセット</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
+        public int GetWorkDays(ref DataTable dataTable)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+            OracleConnection cnn = null;
+
+            try
+            {
+                // EM データベースへ接続
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref cnn);
+
+                // SQL 構文を編集
+                string sql = "select "
+                           + "YMD "
+                           + "from "
+                           + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_S0820 + " "
+                           + "where "
+                           + "CALTYP = '00001' "
+                           + "and WKKBN = '1' "
+                           + "and YMD between ADD_MONTHS(SYSDATE, -6) and ADD_MONTHS(SYSDATE, 9) "
+                           ;
+                // 検索
+                using (OracleCommand myCmd = new OracleCommand(sql, cnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataSet:");
+                        using (DataTable myDt = new DataTable())
+                        {
+                            // 結果取得
+                            myDa.Fill(myDt);
+                            dataTable = myDt;
+                        }
+                    }
+                }
+                ret = dataTable.Rows.Count;
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(cnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 注文情報データ取得
+        /// </summary>
+        /// <param name="orderDt">注文情報データ</param>
+        /// <param name="firstDayOfMonth">検査対象月</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetEMOrderInfo(ref DataTable orderDt, DateTime firstDayOfMonth)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            OracleConnection emCnn = null;
+
+            try
+            {
+                // EMデータベースへ接続
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
+
+                string yyyyMMdd = firstDayOfMonth.ToString("yyyy/MM/dd");
+                string yyMM = firstDayOfMonth.AddMonths(-6).ToString("yyMM");
+                string sql;
+                sql = "SELECT "
+                    + "EDDT "
+                    + ", to_char(sum(case when ODRSTS = '2' then 1 else 0 end)) \"EM2確定\" "
+                    + ", to_char(sum(case when ODRSTS = '3' then 1 else 0 end)) \"EM3着手\" "
+                    + ", to_char(sum(case when ODRSTS = '4' then 1 else 0 end)) \"EM4完了\" "
+                    + ", to_char(sum(case when ODRSTS = '9' then 1 else 0 end)) \"EM9取消\" "
+                    + ", to_char(sum(case when ODRSTS in ('2','3','4','9') then 1 else 0 end)) \"EM合計\" "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + "WHERE "
+                    + $"ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
+                    + "and ODCD like '6060%' "
+                    + $"and EDDT between trunc(to_date('{yyyyMMdd}','YYYY/MM/DD'), 'MONTH') - 7 "
+                    + $"and last_day(to_date('{yyyyMMdd}','YYYY/MM/DD')) + 7 "
+                    + "GROUP BY EDDT "
+                    + "ORDER BY EDDT "
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        using (DataTable myDt = new DataTable())
+                        {
+                            // 結果取得
+                            myDa.Fill(myDt);
+                            orderDt = myDt;
+                            ret = true;
+                        }
+                    }
+                }
+                // 接続を閉じる
+                cmn.Dbm.CloseOraSchema(emCnn);
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(emCnn);
+            return ret;
+        }
+
+
     }
 }

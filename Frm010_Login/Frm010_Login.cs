@@ -410,8 +410,8 @@ namespace MPPPS
                 // リリース時には元に戻すこと
                 //Tbx_UserId.Text = config.AppSettings.Settings["userID"].Value;
                 //Tbx_Passwd.Text = "";
-                Tbx_UserId.Text = "11178";
-                Tbx_Passwd.Text = "YF12345";
+                Tbx_UserId.Text = "11014";
+                Tbx_Passwd.Text = "0215";
                 //▲[デバッグ][MOD] 評価用初期表示
                 Chk_MemUserId.Checked = true;
             }
@@ -423,8 +423,8 @@ namespace MPPPS
                 // リリース時には元に戻すこと
                 //Tbx_UserId.Text = "";
                 //Tbx_Passwd.Text = "";
-                Tbx_UserId.Text = "11178";
-                Tbx_Passwd.Text = "YF12345";
+                Tbx_UserId.Text = "11014";
+                Tbx_Passwd.Text = "0215";
                 //▲[デバッグ][MOD] 評価用初期表示
                 Chk_MemUserId.Checked = false;
             }
@@ -469,6 +469,16 @@ namespace MPPPS
             {
                 cmn.Ui.MemAuthInfo = false;
             }
+        }
+
+        private void Tbx_UserId_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter) Tbx_Passwd.Focus();
+        }
+
+        private void Tbx_Passwd_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter) Btn_OK.Focus();
         }
     }
 }

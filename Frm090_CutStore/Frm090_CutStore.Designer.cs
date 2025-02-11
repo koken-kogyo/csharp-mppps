@@ -44,9 +44,9 @@ namespace MPPPS
             this.Btn_CutStoreDelv.Name = "Btn_CutStoreDelv";
             this.Btn_CutStoreDelv.Size = new System.Drawing.Size(250, 29);
             this.Btn_CutStoreDelv.TabIndex = 0;
-            this.Btn_CutStoreDelv.Text = "切削ストア出庫";
+            this.Btn_CutStoreDelv.Text = "計画出庫データ作成";
             this.Btn_CutStoreDelv.UseVisualStyleBackColor = true;
-            this.Btn_CutStoreDelv.Click += new System.EventHandler(this.Btn_CutStoreDelv_Click_1);
+            this.Btn_CutStoreDelv.Click += new System.EventHandler(this.Btn_CutStoreDelv_Click);
             // 
             // Btn_CutStoreInvInfo
             // 

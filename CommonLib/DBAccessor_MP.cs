@@ -1,5 +1,4 @@
 ﻿using MySql.Data.MySqlClient;
-using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Data;
 using System.Diagnostics;
@@ -2129,739 +2128,449 @@ namespace MPPPS
             return sql;
         }
 
-        ///// <summary>
-        ///// 賃率情報検索 (KM8440 賃率マスター)
-        ///// </summary>
-        ///// <param name="dataSet">データセット</param>
-        ///// <param name="searchTarget">検索対象 (0: 全件, 1: 特定データ)</param>
-        ///// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
-        //public int GetLaborRateInfo(ref DataSet dataSet, int searchTarget = Common.KM8440_TARGET_SPECIFIC)
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+        /// <summary>
+        /// 注文情報データ取得
+        /// </summary>
+        /// <param name="mpDt">注文情報データ</param>
+        /// <param name="firstDayOfMonth">検査対象月</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetMPOrderInfo(ref DataTable mpDt, DateTime firstDayOfMonth)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-        //    int ret = 0;
+            bool ret = false;
+            MySqlConnection mpCnn = null;
 
-        //    try
-        //    {
-        //        // 賃率情報検索 SQL 構文編集
-        //        string sql = EditLaborRateInfoQuery(searchTarget);
-        //        using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
-        //        {
-        //            using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
-        //            {
-        //                Debug.WriteLine("Read from DataSet:");
-        //                using (DataSet myDs = new DataSet())
-        //                {
-        //                    // 結果取得
-        //                    myDa.Fill(myDs, "emp");
-        //                    foreach (DataRow dr in myDs.Tables[0].Rows)
-        //                    {
-        //                        Debug.Write("ODCD = " + dr[0] + ", ");
-        //                        Debug.Write("KTCD = " + dr[1] + ", ");
-        //                        Debug.Write("VALDTF = " + dr[2] + ", ");
-        //                        Debug.Write("KTSEQ = " + dr[3] + ", ");
-        //                        Debug.WriteLine("");
-        //                    }
-        //                    dataSet = myDs;
-        //                }
-        //            }
-        //        }
-        //        ret = dataSet.Tables[0].Rows.Count;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Debug.WriteLine("Exception Source = " + e.Source);
-        //        Debug.WriteLine("Exception Message = " + e.Message);
-        //        if (cnn != null)
-        //        {
-        //            // 接続を閉じる
-        //            cnn.Close();
-        //        }
-        //        ret = -1;
-        //    }
-        //    return ret;
-        //}
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-        ///// <summary>
-        ///// 賃率情報検索 SQL 構文編集 (KM8440 賃率マスター) 
-        ///// </summary>
-        ///// <param name="searchTarget">検索対象 (0: 全件, 1: 特定データ)</param>
-        ///// <returns>SQL 構文</returns>
-        //private string EditLaborRateInfoQuery(int searchTarget)
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+                string yyyyMMdd = firstDayOfMonth.ToString("yyyy/MM/dd");
+                string sql = "SELECT "
+                    + "EDDT "
+                    + ", concat('',sum(case when ODRSTS = '2' then 1 else 0 end)) \"MP2確定\" "
+                    + ", concat('',sum(case when ODRSTS = '3' then 1 else 0 end)) \"MP3着手\" "
+                    + ", concat('',sum(case when ODRSTS = '4' then 1 else 0 end)) \"MP4完了\" "
+                    + ", concat('',sum(case when ODRSTS = '9' then 1 else 0 end)) \"MP9取消\" "
+                    + ", concat('',sum(case when ODRSTS in ('2','3','4','9') then 1 else 0 end)) \"取込合計\" "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + "WHERE "
+                    + "ODCD like '6060%' "
+                    + "and EDDT between "
+                    + $"adddate(date_format(str_to_date('{yyyyMMdd}', '%Y/%m/%d'), '%Y-%m-01'), interval -7 day) "
+                    + $"and adddate(last_day(str_to_date('{yyyyMMdd}', '%Y/%m/%d')), interval 7 day) "
+                    + "GROUP BY EDDT "
+                    + "ORDER BY EDDT "
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        // 結果取得
+                        myDa.Fill(mpDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
 
-        //    string sql;
-        //    switch (searchTarget)
-        //    {
-        //        case Common.KM8440_TARGET_ALL:
-        //            {
-        //                sql = "select "
-        //                    + "ODCD, "
-        //                    + "KTCD, "
-        //                    + "VALDTF, "
-        //                    + "KTSEQ, "
-        //                    + "KTNM, "
-        //                    + "EQCLASS, "
-        //                    + "MODEL, "
-        //                    + "MANUFACTURER, "
-        //                    + "trim(to_char(OPECOST, '90.999')) as OPECOST, "
-        //                    + "trim(to_char(LABORCOST, '90.999')) as LABORCOST, "
-        //                    + "trim(to_char(EQCOST, '90.999')) as EQCOST, "
-        //                    + "trim(to_char(LABORRATE, '90.999')) as LABORRATE, "
-        //                    + "NOTE, "
-        //                    + "INSTID, "
-        //                    + "INSTDT, "
-        //                    + "UPDTID, "
-        //                    + "UPDTDT "
-        //                    + "from "
-        //                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8440 + " "
-        //                    + "order by "
-        //                    + "ODCD, "
-        //                    + "KTCD, "
-        //                    + "VALDTF, "
-        //                    + "KTSEQ "
-        //                    ;
-        //                break;
-        //            }
-        //        case Common.KM8440_TARGET_SPECIFIC:
-        //        default:
-        //            {
-        //                sql = "select "
-        //                    + "ODCD, "
-        //                    + "KTCD, "
-        //                    + "VALDTF, "
-        //                    + "KTSEQ, "
-        //                    + "KTNM, "
-        //                    + "EQCLASS, "
-        //                    + "MODEL, "
-        //                    + "MANUFACTURER, "
-        //                    + "trim(to_char(OPECOST, '90.999')) as OPECOST, "
-        //                    + "trim(to_char(LABORCOST, '90.999')) as LABORCOST, "
-        //                    + "trim(to_char(EQCOST, '90.999')) as EQCOST, "
-        //                    + "trim(to_char(LABORRATE, '90.999')) as LABORRATE, "
-        //                    + "NOTE, "
-        //                    + "INSTID, "
-        //                    + "INSTDT, "
-        //                    + "UPDTID, "
-        //                    + "UPDTDT "
-        //                    + "from "
-        //                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8440 + " "
-        //                    + "where "
-        //                    //+ "ODCD like '%" + cmn.PkKM8440.OdCd + "%' and "
-        //                    //+ "KTCD like '%" + cmn.PkKM8440.KtCd + "%' and "
-        //                    //+ "VALDTF between to_timestamp('" + cmn.PkKM8440.ValDtFF + "') and "
-        //                    //+ "to_timestamp('" + cmn.PkKM8440.ValDtFT + "') and "
-        //                    //+ "KTSEQ like '%" + cmn.PkKM8440.KtSeq + "%' "
-        //                    + "ODCD = '" + cmn.PkKM8440.OdCd + "' and "
-        //                    + "KTCD = '" + cmn.PkKM8440.KtCd + "' and "
-        //                    + "VALDTF between to_timestamp('" + cmn.PkKM8440.ValDtFF + "') and "
-        //                    + "to_timestamp('" + cmn.PkKM8440.ValDtFT + "') and "
-        //                    + "KTSEQ = '" + cmn.PkKM8440.KtSeq + "' "
-        //                    + "order by "
-        //                    + "ODCD, "
-        //                    + "KTCD, "
-        //                    + "VALDTF, "
-        //                    + "KTSEQ "
-        //                    ;
-        //                break;
-        //            }
-        //    }
-        //    return sql;
-        //}
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
-        ///// <summary>
-        ///// 賃率情報削除 (KM8440 賃率マスター)
-        ///// </summary>
-        ///// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
-        //public int DeleteLaborRateInfo()
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+        /// <summary>
+        /// 注文情報取込
+        /// </summary>
+        /// <param name="eddts">取込対象の日付をinで使えるカンマ区切り形式で指定</param>
+        /// <returns>注文情報取込</returns>
+        public bool OrderImport(String eddts)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-        //    int ret = 0;
+            bool ret = false;
+            //OracleConnection emCnn = null;
+            MySqlConnection mpCnn = null;
+            MySqlTransaction transaction = null;
 
-        //    // 賃率情報削除 SQL 構文編集
-        //    string sql = EditLaborRateInfoDeleteSql();
+            try
+            {
+                // EMシステム、切削生産計画システム データベースへ接続
+                //cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
 
-        //    // 削除
-        //    using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
-        //    {
-        //        using (MySqlTransaction txn = cnn.BeginTransaction())
-        //        {
-        //            try
-        //            {
-        //                int res = myCmd.ExecuteNonQuery();
-        //                if (res >= 1)
-        //                {
-        //                    txn.Commit();
-        //                    Debug.WriteLine(Common.TABLE_ID_KM8440 + " table delete succeed and commited.");
-        //                }
-        //                ret = res;
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                txn.Rollback();
-        //                Debug.WriteLine(Common.TABLE_ID_KM8440 + " table no data deleted.");
+                // toolStripStatusLabel.Text = "Oracle Database の 読み込み中";
+                DataTable dtOra = new DataTable();
+                DateTime pcDate = DateTime.Now.AddMonths(-1);
+                string yyMM = pcDate.ToString("yyMM");
+                string sql;
+                sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + "WHERE "
+                    + $"ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
+                    + "and ODCD like '6060%' "
+                    + "and EDDT in " + eddts
+                ;
+                //using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+                //{
+                //    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                //    {
+                //        Debug.WriteLine("Read from DataTable:");
+                //        using (DataTable myDt = new DataTable())
+                //        {
+                //            // 結果取得
+                //            myDa.Fill(myDt);
+                //            if (myDt.Rows.Count == 0)
+                //            {
+                //                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                //                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                //                ret = false;
+                //            }
+                //            else
+                //            {
+                //                dtOra = myDt;
+                //            }
+                //        }
+                //    }
+                //}
 
-        //                Debug.WriteLine("Exception Source = " + e.Source);
-        //                Debug.WriteLine("Exception Message = " + e.Message);
-        //                if (cnn != null)
-        //                {
-        //                    // 接続を閉じる
-        //                    cnn.Close();
-        //                }
-        //                ret = -1;
-        //            }
-        //        }
-        //    }
-        //    return ret;
-        //}
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+                // トランザクション開始
+                transaction = mpCnn.BeginTransaction();
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = mpCnn;
 
-        ///// <summary>
-        ///// 賃率情報削除 SQL 構文編集 (KM8440 賃率マスター) 
-        ///// </summary>
-        ///// <returns>SQL 構文</returns>
-        //private string EditLaborRateInfoDeleteSql()
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+                var insCount = 0;
+                foreach (DataRow row in dtOra.Rows)
+                {
+                    sql = "insert into D0410 values ('" + row["ODRNO"].ToString() + "'," + row["KTSEQ"] + "," + "'" + row["HMCD"].ToString() + "'," +
+                        "'" + row["KTCD"].ToString() + "'," + row["ODRQTY"] + "," + "'" + row["ODCD"].ToString() + "'," +
+                        "'" + row["NEXTODCD"].ToString() + "'," + row["LTTIME"] + "," + "'" + row["STDT"] + "'," +
+                        "'" + row["STTIM"].ToString() + "'," + "'" + row["EDDT"] + "'," + "'" + row["EDTIM"].ToString() + "'," +
+                        "'" + row["ODRSTS"].ToString() + "'," + "'" + row["QRCD"].ToString() + "'," + row["JIQTY"] + "," +
+                        "'" + row["DENPYOKBN"].ToString() + "'," +
+                        (row["DENPYODT"].ToString() == "" ? "null" : "'" + row["DENPYODT"] + "'") + "," +
+                        "'" + row["NOTE"].ToString() + "'," +
+                        "'" + row["WKNOTE"].ToString() + "'," + "'" + row["WKCOMMENT"].ToString() + "'," + "'" + row["DATAKBN"].ToString() + "'," +
+                        "'" + row["INSTID"].ToString() + "'," + "'" + row["INSTDT"] + "'," + "'" + row["UPDTID"].ToString() + "'," +
+                        "'" + row["UPDTDT"] + "'," + "'" + row["UKCD"].ToString() + "'," + "'" + row["NAIGAIKBN"].ToString() + "'," +
+                        "'" + row["RETKTCD"].ToString() + "')";
+                    cmd.CommandText = sql;
+                    cmd.ExecuteNonQuery();
+                    insCount++;
+                }
 
-        //    // 画面指定されたキーで削除
-        //    string sql = "delete "
-        //               + "from "
-        //               + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8440 + " "
-        //               + "where "
-        //               + "( "
-        //               + "ODCD, "
-        //               + "KTCD, "
-        //               + "VALDTF, "
-        //               + "KTSEQ "
-        //               + ") "
-        //               + "in "
-        //               + "( "
-        //               + "select "
-        //               + "ODCD, "
-        //               + "KTCD, "
-        //               + "VALDTF, "
-        //               + "KTSEQ "
-        //               + "from "
-        //               + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8440 + " "
-        //               + "where "
-        //               //+ "ODCD like '%" + cmn.PkKM8440.OdCd + "%' and "
-        //               //+ "KTCD like '%" + cmn.PkKM8440.KtCd + "%' and "
-        //               //+ "VALDTF between to_timestamp('" + cmn.PkKM8440.ValDtFF + "') and "
-        //               //+ "to_timestamp('" + cmn.PkKM8440.ValDtFT + "') and "
-        //               //+ "KTSEQ like '%" + cmn.PkKM8440.KtSeq + "%' "
-        //               + "ODCD = '" + cmn.PkKM8440.OdCd + "' and "
-        //               + "KTCD = '" + cmn.PkKM8440.KtCd + "' and "
-        //               + "VALDTF between to_timestamp('" + cmn.PkKM8440.ValDtFF + "') and "
-        //               + "to_timestamp('" + cmn.PkKM8440.ValDtFT + "') and "
-        //               + "KTSEQ = '" + cmn.PkKM8440.KtSeq + "' "
-        //               + ") "
-        //               ;
+                // トランザクション終了
+                transaction.Commit();
+                ret = true;
+            }
+            catch (Exception ex)
+            {
+                // ロールバック
+                if (transaction != null) transaction.Rollback();
 
-        //    return sql;
-        //}
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
 
-        ///// <summary>
-        ///// 賃率情報登録/更新 (KM8440 賃率マスター)
-        ///// </summary>
-        ///// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
-        //public int MergeLaborRateInfo()
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            //cmn.Dbm.CloseOraSchema(emCnn);
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
-        //    int ret = 0;
+        /// <summary>
+        /// 計画出庫データの取得
+        /// </summary>
+        /// <param name="dt">計画出庫データ</param>
+        /// <param name="eddt">出庫予定日</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int GetShipmentPlanInfo(ref DataTable mpDt, DateTime eddt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-        //    // 賃率マスター登録/更新 SQL 構文編集
-        //    string sql = EditLaborRateInfoMergeSql();
+            int ret = 0;
+            MySqlConnection mpCnn = null;
 
-        //    using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
-        //    {
-        //        using (MySqlTransaction txn = cnn.BeginTransaction())
-        //        {
-        //            try
-        //            {
-        //                int res = myCmd.ExecuteNonQuery();
-        //                if (res >= 1)
-        //                {
-        //                    txn.Commit();
-        //                    Debug.WriteLine(Common.TABLE_ID_KM8440 + " table data insert/update succeed and commited.");
-        //                }
-        //                ret = res;
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                txn.Rollback();
-        //                Debug.WriteLine(Common.TABLE_ID_KM8440 + " table no data inserted/updated.");
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-        //                Debug.WriteLine("Exception Source = " + e.Source);
-        //                Debug.WriteLine("Exception Message = " + e.Message);
-        //                if (cnn != null)
-        //                {
-        //                    // 接続を閉じる
-        //                    cnn.Close();
-        //                }
-        //                ret = -1;
-        //            }
-        //        }
-        //    }
-        //    return ret;
-        //}
+                // 三進金属様：入出庫データ連携フォーマット一覧より (出力ファイル名：OutboundInfo.csv)
+                string sql =
+                "SELECT "
+                    + "DATE_FORMAT(EDDT, '%Y%m%d') AS 'yyyyMMdd' "
+                    + ", SPACE(15) as '伝票番号' "
+                    + ", '01' as '出庫区分' "
+                    + ", 'C000000001' as '出荷先コード' " // （今の所、仮のコード 本社:C000000001, EWU:C000000002, 協力会社:C000000010)
+                    + ", REPEAT('　', 40) as '出荷先名' "
+                    + ", SPACE(10) as '荷主コード' " // （今の所、仮のコード 本社:C000000001, EWU:C000000002, 協力会社:C000000010)
+                    + ", REPEAT('　', 40) as '荷主名' "
+                    + ", RPAD(a.HMCD, 28, SPACE(1)) as '商品コード' "
+                    + ", RPAD(f_han2zen(IFNULL(b.HMNM, '')), 40, '　') as '商品名' "
+                    + ", RPAD(IFNULL(b.BOXQTY, ''), 100, SPACE(1)) as '管理項目１' "
+                    + ", SPACE(100) as '管理項目２' "
+                    + ", SPACE(100) as '管理項目３' "
+                    + ", SPACE(100) as '管理項目４' "
+                    + ", LPAD(ODRQTY, 6, '0') as '出庫予定数量' "
+                    + ", REPEAT('　', 50) as '備考' "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " a, "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_M0500 + " b " // 仮　本来は Common.TABLE_ID_KM8430だけどメンテしてないのでM0500にしておく
+                    + "WHERE "
+                    + "a.HMCD = b.HMCD "
+                    + "and ODRSTS <> '9' "
+                    + "and ODCD like '6060%' "
+                    + $"and EDDT = '{eddt}' "
+                    + $"and DENPYODT is null " // 仮で DENPYODT を利用させてもらっている
+                    + "ORDER BY ODRNO"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpDt);
+                        ret = mpDt.Rows.Count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
 
-        ///// <summary>
-        ///// 賃率情報登録/更新 SQL 構文編集 (KM8440 賃率マスター) 
-        ///// </summary>
-        ///// <returns>SQL 構文</returns>
-        //public string EditLaborRateInfoMergeSql()
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
-        //    // 登録形式により抽出対象が異なる
-        //    // MySql の DATE 型列に値を代入するときは、その列が時刻を持っているか否かに関わらず、必ず to_datetime('<代入元>') メソッドで変換してから代入する必要がある
-        //    // 代入元が定数か変数化に関わらずシングル クォーテーション括りは必須
-        //    // 代入元に書式 'YYYY/MM/DD HH24:MI:SS' 等の記述は不要、MySql が適切に合わせ込んで登録してくれる
-        //    // この変換を怠ると「ORA-01861: リテラルが書式文字列と一致しません」の例外が発生する
-        //    string sql = "merge "
-        //               + "into "
-        //               + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8440 + " k "
-        //               + "using "
-        //               + "("
-        //               + "select "
-        //               + "'" + cmn.PkKM8440.OdCd + "' " + "ODCD, "
-        //               + "'" + cmn.PkKM8440.KtCd + "' " + "KTCD, "
-        //               + "to_timestamp('" + cmn.PkKM8440.ValDtFF + "') " + "VALDTF, "
-        //               + "'" + cmn.PkKM8440.KtSeq + "' " + "KTSEQ, "
-        //               + "'" + cmn.DrKM8440.KtNm + "' " + "KTNM, "
-        //               + "'" + cmn.DrKM8440.EqClass + "' " + "EQCLASS, "
-        //               + "'" + cmn.DrKM8440.Model + "' " + "MODEL, "
-        //               + "'" + cmn.DrKM8440.Manufacturer + "' " + "MANUFACTURER, "
-        //               + "'" + cmn.DrKM8440.OpeCost + "' " + "OPECOST, "
-        //               + "'" + cmn.DrKM8440.LaborCost + "' " + "LABORCOST, "
-        //               + "'" + cmn.DrKM8440.EqCost + "' " + "EQCOST, "
-        //               + "'" + cmn.DrKM8440.LaborRate + "' " + "LABORRATE, "
-        //               + "'" + cmn.DrKM8440.Note + "' " + "NOTE, "
-        //               + "'" + cmn.DrCommon.InstID + "' " + "INSTID, "
-        //               + "'" + cmn.DrCommon.UpdtID + "' " + "UPDTID "
-        //               + "from "
-        //               + "DUAL"
-        //               + ") d "
-        //               + "on "
-        //               + "("
-        //               + "k.ODCD = d.ODCD and "
-        //               + "k.KTCD = d.KTCD and "
-        //               + "k.VALDTF = d.VALDTF and "
-        //               + "k.KTSEQ = d.KTSEQ "
-        //               + ") "
-        //               + "when matched then "
-        //               + "update "
-        //               + "set "
-        //               + "k.KTNM = d.KTNM, "
-        //               + "k.EQCLASS = d.EQCLASS, "
-        //               + "k.MODEL = d.MODEL, "
-        //               + "k.MANUFACTURER = d.MANUFACTURER, "
-        //               + "k.OPECOST = d.OPECOST, "
-        //               + "k.LABORCOST = d.LABORCOST, "
-        //               + "k.EQCOST = d.EQCOST, "
-        //               + "k.LABORRATE = d.LABORRATE, "
-        //               + "k.NOTE = d.NOTE, "
-        //               + "k.UPDTID = d.UPDTID, "
-        //               + "k.UPDTDT = SYSDATE "
-        //               + "when not matched then "
-        //               + "insert "
-        //               + "("
-        //               + "k.ODCD, "
-        //               + "k.KTCD, "
-        //               + "k.VALDTF, "
-        //               + "k.KTSEQ, "
-        //               + "k.KTNM, "
-        //               + "k.EQCLASS, "
-        //               + "k.MODEL, "
-        //               + "k.MANUFACTURER, "
-        //               + "k.OPECOST, "
-        //               + "k.LABORCOST, "
-        //               + "k.EQCOST, "
-        //               + "k.LABORRATE, "
-        //               + "k.NOTE, "
-        //               + "k.INSTID, "
-        //               + "k.INSTDT, "
-        //               + "k.UPDTID, "
-        //               + "k.UPDTDT"
-        //               + ") "
-        //               + "values "
-        //               + "("
-        //               + "d.ODCD, "
-        //               + "d.KTCD, "
-        //               + "d.VALDTF, "
-        //               + "d.KTSEQ, "
-        //               + "d.KTNM, "
-        //               + "d.EQCLASS, "
-        //               + "d.MODEL, "
-        //               + "d.MANUFACTURER, "
-        //               + "d.OPECOST, "
-        //               + "d.LABORCOST, "
-        //               + "d.EQCOST, "
-        //               + "d.LABORRATE, "
-        //               + "d.NOTE, "
-        //               + "d.INSTID, "
-        //               + "SYSDATE, "
-        //               + "d.UPDTID, "
-        //               + "SYSDATE"
-        //               + ")"
-        //               ;
-        //    return sql;
-        //}
+        /// <summary>
+        /// 対象月の出庫予定データ出力済みの一覧を取得
+        /// </summary>
+        /// <param name="mpDt">出庫予定データ出力済み一覧</param>
+        /// <param name="targerMonth">対象月</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int GetShipmentPlanDays(ref DataTable mpDt, DateTime targerMonth)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-        ///// <summary>
-        ///// 製造原価情報検索 (KM8450 製造原価マスター)
-        ///// </summary>
-        ///// <param name="dataSet">データセット</param>
-        ///// <param name="searchTarget">検索対象 (0: 全件, 1: 特定データ, 2: 品番のみ)</param>
-        ///// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
-        //public int GetProdCostInfo(ref DataSet dataSet, int searchTarget = Common.KM8450_TARGET_SPECIFIC)
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+            int ret = 0;
+            MySqlConnection mpCnn = null;
 
-        //    int ret = 0;
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-        //    try
-        //    {
-        //        // 製造原価情報検索 SQL 構文編集
-        //        string sql = EditProdCostInfoQuery(searchTarget);
-        //        using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
-        //        {
-        //            using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
-        //            {
-        //                Debug.WriteLine("Read from DataSet:");
-        //                using (DataSet myDs = new DataSet())
-        //                {
-        //                    // 結果取得
-        //                    myDa.Fill(myDs, "emp");
-        //                    foreach (DataRow dr in myDs.Tables[0].Rows)
-        //                    {
-        //                        Debug.Write("HMCD   = " + dr[0] + ", ");
-        //                        Debug.Write("VALDTF = " + dr[1] + ", ");
-        //                        Debug.Write("KTCD   = " + dr[2] + ", ");
-        //                        Debug.WriteLine("");
-        //                    }
-        //                    dataSet = myDs;
-        //                }
-        //            }
-        //        }
-        //        ret = dataSet.Tables[0].Rows.Count;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Debug.WriteLine("Exception Source = " + e.Source);
-        //        Debug.WriteLine("Exception Message = " + e.Message);
-        //        if (cnn != null)
-        //        {
-        //            // 接続を閉じる
-        //            cnn.Close();
-        //        }
-        //        ret = -1;
-        //    }
-        //    return ret;
-        //}
+                /* 土日の完了予定日がない事が前提のシステムが大丈夫な事を証明するOracle側のSQL文
+                select eddt, to_char(eddt, 'DY'), count(*) from d0410 
+                where odrsts <>'9' and odcd like '6060%' 
+                and eddt between '2009/01/01' 
+                             and '2025/12/31'
+                group by eddt
+                having to_char(eddt, 'DY') in ('土', '日', 'ｘ')
+                order by eddt
+                */
+                string sql =
+                "SELECT "
+                    + "EDDT "
+                    + ", COUNT(*) as '手配件数' "
+                    + ", COUNT(DENPYODT) as '発行済件数' " // 仮でDENPYODT項目を無断使用している
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + "WHERE "
+                    + "ODRSTS <> '9' "
+                    + "and ODCD like '6060%' "
+                    + $"and EDDT between '{targerMonth.AddMonths(-1).ToString()}' and '{targerMonth.AddMonths(2).ToString()}' "
+                    + "GROUP BY EDDT "
+                    + "ORDER BY EDDT "
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpDt);
+                        ret = mpDt.Rows.Count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
 
-        ///// <summary>
-        ///// 製造原価情報検索 SQL 構文編集 (KM8450 製造原価マスター) 
-        ///// </summary>
-        ///// <param name="searchTarget">検索対象 (0: 全件, 1: 特定データ)</param>
-        ///// <returns>SQL 構文</returns>
-        //private string EditProdCostInfoQuery(int searchTarget)
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
-        //    string sql;
-        //    switch (searchTarget)
-        //    {
-        //        case Common.KM8450_TARGET_ALL:
-        //            {
-        //                sql = "select "
-        //                    + "HMCD, "
-        //                    + "VALDTF, "
-        //                    + "KTCD, "
-        //                    + "trim(to_char(PREPWT, '990.99')) as PREPWT, "
-        //                    + "trim(to_char(SCRAPWT, '990.99')) as SCRAPWT, "
-        //                    + "trim(to_char(SCRAPCOST, '9999990.99')) as SCRAPCOST, "
-        //                    + "trim(to_char(OSPTSCOST, '9999990.99')) as OSPTSCOST, "
-        //                    + "trim(to_char(OSWAGES, '9999990.99')) as OSWAGES, "
-        //                    + "trim(to_char(BUYSELLPTSCOST, '9999990.99')) as BUYSELLPTSCOST, "
-        //                    + "trim(to_char(PURPTSCOST, '9999990.99')) as PURPTSCOST, "
-        //                    + "NOTE, "
-        //                    + "INSTID, "
-        //                    + "INSTDT, "
-        //                    + "UPDTID, "
-        //                    + "UPDTDT "
-        //                    + "from "
-        //                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8450 + " "
-        //                    + "order by "
-        //                    + "HMCD, "
-        //                    + "VALDTF, "
-        //                    + "KTCD "
-        //                    ;
-        //                break;
-        //            }
-        //        case Common.KM8450_TARGET_SPECIFIC:
-        //        default:
-        //            {
-        //                sql = "select "
-        //                    + "HMCD, "
-        //                    + "VALDTF, "
-        //                    + "KTCD, "
-        //                    + "trim(to_char(PREPWT, '990.99')) as PREPWT, "
-        //                    + "trim(to_char(SCRAPWT, '990.99')) as SCRAPWT, "
-        //                    + "trim(to_char(SCRAPCOST, '9999990.99')) as SCRAPCOST, "
-        //                    + "trim(to_char(OSPTSCOST, '9999990.99')) as OSPTSCOST, "
-        //                    + "trim(to_char(OSWAGES, '9999990.99')) as OSWAGES, "
-        //                    + "trim(to_char(BUYSELLPTSCOST, '9999990.99')) as BUYSELLPTSCOST, "
-        //                    + "trim(to_char(PURPTSCOST, '9999990.99')) as PURPTSCOST, "
-        //                    + "NOTE, "
-        //                    + "INSTID, "
-        //                    + "INSTDT, "
-        //                    + "UPDTID, "
-        //                    + "UPDTDT "
-        //                    + "from "
-        //                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8450 + " "
-        //                    + "where "
-        //                    + "HMCD like '%" + cmn.PkKM8450.HmCd + "%' and "
-        //                    + "VALDTF between to_timestamp('" + cmn.PkKM8450.ValDtFF + "') and "
-        //                    + "to_timestamp('" + cmn.PkKM8450.ValDtFT + "') and "
-        //                    + "KTCD like '%" + cmn.PkKM8450.KtCd + "%' "
-        //                    + "order by "
-        //                    + "HMCD, "
-        //                    + "VALDTF, "
-        //                    + "KTCD "
-        //                    ;
-        //                break;
-        //            }
-        //    }
-        //    return sql;
-        //}
+        /// <summary>
+        /// 計画出庫データ出力済みに更新
+        /// </summary>
+        /// <param name="planDay">検査対象月</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int UpdateShipmentPlanDay(DateTime planDay)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-        ///// <summary>
-        ///// 製造原価情報削除 (KM8450 製造原価マスター)
-        ///// </summary>
-        ///// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
-        //public int DeleteProdCostInfo()
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+            int ret = 0;
 
-        //    int ret = 0;
+            MySqlConnection cnn = null;
 
-        //    // 製造原価情報削除 SQL 構文編集
-        //    string sql = EditProdCostInfoDeleteSql();
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
 
-        //    // 削除
-        //    using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
-        //    {
-        //        using (MySqlTransaction txn = cnn.BeginTransaction())
-        //        {
-        //            try
-        //            {
-        //                int res = myCmd.ExecuteNonQuery();
-        //                if (res >= 1)
-        //                {
-        //                    txn.Commit();
-        //                    Debug.WriteLine(Common.TABLE_ID_KM8450 + " table delete succeed and commited.");
-        //                }
-        //                ret = res;
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                txn.Rollback();
-        //                Debug.WriteLine(Common.TABLE_ID_KM8450 + " table no data deleted.");
+                // 計画出庫データ出力済みに更新 SQL
+                string sql = 
+                "UPDATE "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " "
+                + "SET "
+                + "DENPYODT = now(), " // 仮でDENPYODT項目を更新してみる
+                + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
+                + "WHERE "
+                + "ODRSTS<>'9' and "
+                + "ODCD like '6060%' and "
+                + "EDDT = '" + planDay.ToString() + "' and "
+                + "DENPYODT is NULL "
+                ;
 
-        //                Debug.WriteLine("Exception Source = " + e.Source);
-        //                Debug.WriteLine("Exception Message = " + e.Message);
-        //                if (cnn != null)
-        //                {
-        //                    // 接続を閉じる
-        //                    cnn.Close();
-        //                }
-        //                ret = -1;
-        //            }
-        //        }
-        //    }
-        //    return ret;
-        //}
+                using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
+                {
+                    using (MySqlTransaction txn = cnn.BeginTransaction())
+                    {
+                        try
+                        {
+                            int res = myCmd.ExecuteNonQuery();
+                            if (res >= 1)
+                            {
+                                txn.Commit();
+                                Debug.WriteLine(Common.TABLE_ID_D0440 + " table data update succeed and commited.");
+                            }
+                            ret = res;
+                        }
+                        catch (Exception e)
+                        {
+                            txn.Rollback();
+                            Debug.WriteLine(Common.TABLE_ID_D0440 + " table no data inserted/updated.");
 
-        ///// <summary>
-        ///// 製造原価情報削除 SQL 構文編集 (KM8450 製造原価マスター) 
-        ///// </summary>
-        ///// <returns>SQL 構文</returns>
-        //private string EditProdCostInfoDeleteSql()
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+                            Debug.WriteLine("Exception Source = " + e.Source);
+                            Debug.WriteLine("Exception Message = " + e.Message);
+                            if (cnn != null)
+                            {
+                                // 接続を閉じる
+                                cnn.Close();
+                            }
+                            ret = -1;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
 
-        //    // 画面指定されたキーで削除
-        //    string sql = "delete "
-        //               + "from "
-        //               + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8450 + " "
-        //               + "where "
-        //               + "( "
-        //               + "HMCD, "
-        //               + "VALDTF, "
-        //               + "KTCD "
-        //               + ") "
-        //               + "in "
-        //               + "( "
-        //               + "select "
-        //               + "HMCD, "
-        //               + "VALDTF, "
-        //               + "KTCD "
-        //               + "from "
-        //               + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8450 + " "
-        //               + "where "
-        //               + "HMCD like '%" + cmn.PkKM8450.HmCd + "%' and "
-        //               + "VALDTF between to_timestamp('" + cmn.PkKM8450.ValDtFF + "') and "
-        //               + "to_timestamp('" + cmn.PkKM8450.ValDtFT + "') and "
-        //               + "KTCD like '%" + cmn.PkKM8450.KtCd + "%' "
-        //               + ") "
-        //               ;
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
 
-        //    return sql;
-        //}
+        /// <summary>
+        /// 検査対象月（前後プラス１か月）の内、カード発行済みの日付一覧を取得
+        /// </summary>
+        /// <param name="mpDt">カード発行済み日付一覧</param>
+        /// <param name="targerMonth">検査対象月</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int GetCardPrintDays(ref DataTable mpDt, DateTime targerMonth)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-        ///// <summary>
-        ///// 製造原価情報登録/更新 (KM8450 製造原価マスター)
-        ///// </summary>
-        ///// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
-        //public int MergeProdCostInfo()
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+            int ret = 0;
+            MySqlConnection mpCnn = null;
 
-        //    int ret = 0;
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-        //    // 製造原価マスター登録/更新 SQL 構文編集
-        //    string sql = EditProdCostInfoMergeSql();
+                string sql =
+                "SELECT "
+                    + "EDDT "
+                    + ", COUNT(*) as '手配件数' "
+                    + ", COUNT(DENPYODT) as '発行済件数' "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + "WHERE "
+                    + "ODRSTS <> '9' "
+                    + "and ODCD like '6060%' "
+                    + $"and EDDT between '{targerMonth.AddMonths(-1).ToString()}' and '{targerMonth.AddMonths(1).ToString()}' "
+                    + "GROUP BY EDDT "
+                    + "ORDER BY EDDT "
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpDt);
+                        ret = mpDt.Rows.Count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
 
-        //    using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
-        //    {
-        //        using (MySqlTransaction txn = cnn.BeginTransaction())
-        //        {
-        //            try
-        //            {
-        //                int res = myCmd.ExecuteNonQuery();
-        //                if (res >= 1)
-        //                {
-        //                    txn.Commit();
-        //                    Debug.WriteLine(Common.TABLE_ID_KM8450 + " table data insert/update succeed and commited.");
-        //                }
-        //                ret = res;
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                txn.Rollback();
-        //                Debug.WriteLine(Common.TABLE_ID_KM8450 + " table no data inserted/updated.");
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
-        //                Debug.WriteLine("Exception Source = " + e.Source);
-        //                Debug.WriteLine("Exception Message = " + e.Message);
-        //                if (cnn != null)
-        //                {
-        //                    // 接続を閉じる
-        //                    cnn.Close();
-        //                }
-        //                ret = -1;
-        //            }
-        //        }
-        //    }
-        //    return ret;
-        //}
 
-        ///// <summary>
-        ///// 製造原価情報登録/更新 SQL 構文編集 (KM8450 製造原価マスター) 
-        ///// </summary>
-        ///// <returns>SQL 構文</returns>
-        //public string EditProdCostInfoMergeSql()
-        //{
-        //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-        //    // 登録形式により抽出対象が異なる
-        //    // MySql の DATE 型列に値を代入するときは、その列が時刻を持っているか否かに関わらず、必ず to_datetime('<代入元>') メソッドで変換してから代入する必要がある
-        //    // 代入元が定数か変数化に関わらずシングル クォーテーション括りは必須
-        //    // 代入元に書式 'YYYY/MM/DD HH24:MI:SS' 等の記述は不要、MySql が適切に合わせ込んで登録してくれる
-        //    // この変換を怠ると「ORA-01861: リテラルが書式文字列と一致しません」の例外が発生する
-        //    string sql = "merge "
-        //               + "into "
-        //               + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8450 + " k "
-        //               + "using "
-        //               + "("
-        //               + "select "
-        //               + "'" + cmn.PkKM8450.HmCd + "' " + "HMCD, "
-        //               + "to_timestamp('" + cmn.PkKM8450.ValDtFF + "') " + "VALDTF, "
-        //               + "'" + cmn.PkKM8450.KtCd + "' " + "KTCD, "
-        //               + "'" + cmn.DrKM8450.PrepWt + "' " + "PREPWT, "
-        //               + "'" + cmn.DrKM8450.ScrapWt + "' " + "SCRAPWT, "
-        //               + "'" + cmn.DrKM8450.ScrapCost + "' " + "SCRAPCOST, "
-        //               + "'" + cmn.DrKM8450.OSPtsCost + "' " + "OSPTSCOST, "
-        //               + "'" + cmn.DrKM8450.OSWages + "' " + "OSWAGES, "
-        //               + "'" + cmn.DrKM8450.BuySellPtsCost + "' " + "BYSELLPTSCOST, "
-        //               + "'" + cmn.DrKM8450.PurPtsCost + "' " + "PURPTSCOST, "
-        //               + "'" + cmn.DrKM8450.Note + "' " + "NOTE, "
-        //               + "'" + cmn.DrCommon.InstID + "' " + "INSTID, "
-        //               + "'" + cmn.DrCommon.UpdtID + "' " + "UPDTID "
-        //               + "from "
-        //               + "DUAL"
-        //               + ") d "
-        //               + "on "
-        //               + "("
-        //               + "k.HMCD = d.HMCD and "
-        //               + "k.VALDTF = d.VALDTF and "
-        //               + "k.KTCD = d.KTCD "
-        //               + ") "
-        //               + "when matched then "
-        //               + "update "
-        //               + "set "
-        //               + "k.PREPWT = d.PREPWT, "
-        //               + "k.SCRAPWT = d.SCRAPWT, "
-        //               + "k.SCRAPCOST = d.SCRAPCOST, "
-        //               + "k.OSPTSCOST = d.OSPTSCOST, "
-        //               + "k.OSWAGES = d.OSWAGES, "
-        //               + "k.BUYSELLPTSCOST = d.BUYSELLPTSCOST, "
-        //               + "k.PURPTSCOST = d.PURPTSCOST, "
-        //               + "k.NOTE = d.NOTE, "
-        //               + "k.UPDTID = d.UPDTID, "
-        //               + "k.UPDTDT = SYSDATE "
-        //               + "when not matched then "
-        //               + "insert "
-        //               + "("
-        //               + "k.HMCD, "
-        //               + "k.VALDTF, "
-        //               + "k.KTCD, "
-        //               + "k.PREPWT, "
-        //               + "k.SCRAPWT, "
-        //               + "k.SCRAPCOST, "
-        //               + "k.OSPTSCOST, "
-        //               + "k.OSWAGES, "
-        //               + "k.BUYSELLPTSCOST, "
-        //               + "k.PURPTSCOST, "
-        //               + "k.NOTE, "
-        //               + "k.INSTID, "
-        //               + "k.INSTDT, "
-        //               + "k.UPDTID, "
-        //               + "k.UPDTDT "
-        //               + ") "
-        //               + "values "
-        //               + "("
-        //               + "d.HMCD, "
-        //               + "d.VALDTF, "
-        //               + "d.KTCD, "
-        //               + "d.trim(to_char(PREPWT, '990.99')) as PREPWT, "
-        //               + "d.trim(to_char(SCRAPWT, '990.99')) as SCRAPWT, "
-        //               + "d.trim(to_char(SCRAPCOST, '9999990.99')) as SCRAPCOST, "
-        //               + "d.trim(to_char(OSPTSCOST, '9999990.99')) as OSPTSCOST, "
-        //               + "d.trim(to_char(OSWAGES, '9999990.99')) as OSWAGES, "
-        //               + "d.trim(to_char(BUYSELLPTSCOST, '9999990.99')) as BUYSELLPTSCOST, "
-        //               + "d.trim(to_char(PURPTSCOST, '9999990.99')) as PURPTSCOST, "
-        //               + "d.NOTE, "
-        //               + "d.INSTID, "
-        //               + "SYSDATE, "
-        //               + "d.UPDTID, "
-        //               + "SYSDATE, "
-        //               + ")"
-        //               ;
-        //    return sql;
-        //}
+
     }
 }

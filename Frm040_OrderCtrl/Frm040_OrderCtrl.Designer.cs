@@ -55,6 +55,7 @@ namespace MPPPS
             // 
             // Btn_MfgProgress
             // 
+            this.Btn_MfgProgress.Enabled = false;
             this.Btn_MfgProgress.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
             this.Btn_MfgProgress.Location = new System.Drawing.Point(268, 42);
             this.Btn_MfgProgress.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -79,6 +80,7 @@ namespace MPPPS
             // 
             // Btn_CreateAddOrder
             // 
+            this.Btn_CreateAddOrder.Enabled = false;
             this.Btn_CreateAddOrder.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
             this.Btn_CreateAddOrder.Location = new System.Drawing.Point(12, 75);
             this.Btn_CreateAddOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -91,6 +93,7 @@ namespace MPPPS
             // 
             // Btn_OrderEqualize
             // 
+            this.Btn_OrderEqualize.Enabled = false;
             this.Btn_OrderEqualize.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
             this.Btn_OrderEqualize.Location = new System.Drawing.Point(12, 42);
             this.Btn_OrderEqualize.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -117,7 +120,7 @@ namespace MPPPS
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(530, 126);
+            this.ClientSize = new System.Drawing.Size(530, 112);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_MfgProgress);
             this.Controls.Add(this.Btn_OrderInfo);

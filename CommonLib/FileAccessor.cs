@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
+using DecryptPassword;
 
 namespace MPPPS
 {
@@ -116,10 +117,13 @@ namespace MPPPS
             int ret = 0;
             try
             {
+                // パスワード復号化
+                var dpc = new DecryptPasswordClass();
+                dpc.DecryptPassword(cmn.FsCd[1].EncPasswd, out string decPasswd);
                 // 既に接続している場合があるので一旦切断する
                 ret = WNetCancelConnection2(@cmn.FsCd[1].ShareName, 0, true);
                 // 認証情報を使って共有フォルダに接続
-                ret = WNetAddConnection2(ref saveNetResource, cmn.FsCd[1].EncPasswd, cmn.FsCd[1].UserId, 0);
+                ret = WNetAddConnection2(ref saveNetResource, decPasswd, cmn.FsCd[1].UserId, 0);
             }
             // 例外発生時
             catch (Exception ex)
@@ -819,5 +823,101 @@ namespace MPPPS
             LastRow = oWBook.ActiveSheet.UsedRange.Rows.Count;
             LastColumn = oWBook.ActiveSheet.UsedRange.Columns.Count;
         }
+
+
+        /// <summary>
+        /// DatTable を CSV ファイルに保存
+        /// </summary>
+        /// <param name="dt">DataTable</param>
+        /// <param name="path">保存先パス</param>
+        /// <param name="encoding">ファイル出力形式 ("SJIS":shift_jis, "UFT8":utf-8(BOM付き))</param>
+        /// 
+        /// <returns>結果 (0: 保存成功 (保存件数), -1: 保存失敗, -2: 認証失敗)</returns>
+        public int SaveCSVFile(DataTable dt, string path, string encoding)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+
+            try
+            {
+                // 保存用のファイルを開く
+                var sjisEncoding = Encoding.GetEncoding("shift_jis");
+                var utf8Encoding = Encoding.UTF8;
+                if (encoding == "SJIS" && encoding == "UTF8")
+                {
+                    throw new Exception("パラメーター異常\n内部異常が発生しました．");
+                }
+                using (StreamWriter writer = new StreamWriter(path, false, (encoding == "SJIS" ? sjisEncoding : utf8Encoding)))
+                {
+                    int rowCount = dt.Rows.Count;
+
+                    // リストの初期化
+                    List<string> strList = new List<string>();
+
+                    // ヘッダー項目
+                    foreach (DataColumn dc in dt.Columns)
+                    {
+                        strList.Add("\"" + dc.ColumnName + "\"");
+                    }
+                    string[] strArray = strList.ToArray(); // 配列へ変換
+
+                    // CSV 形式に変換
+                    string strCsvData = string.Join(",", strArray);
+
+                    writer.WriteLine(strCsvData);
+
+                    // データ項目行
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        // 列列挙
+                        strList.Clear();
+                        foreach (DataColumn column in dt.Columns)
+                        {
+                            strList.Add("\"" + dr[column].ToString() + "\"");
+                        }
+                        strArray = strList.ToArray(); // 配列へ変換
+
+                        // CSV 形式に変換
+                        strCsvData = string.Join(",", strArray);
+
+                        writer.WriteLine(strCsvData);
+
+                    }
+                    ret = rowCount;
+                }
+            }
+            // 保存先サーバーの認証に失敗すると UnauthorizedAccessException が発生する
+            catch (UnauthorizedAccessException ex)
+            {
+                Debug.WriteLine("UnauthorizedAccessException Message = " + ex.Message);
+
+                // 保存先へ再接続
+                ConnectSaveServer();
+                ret = Common.SFD_RET_AUTH_FAILED;
+            }
+            // ファイルの保存に失敗すると Exception が発生する
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception Source = " + e.Source);
+                Debug.WriteLine("Exception Message = " + e.Message);
+
+                // 戻り値でエラー種別を判定
+                if (cmn.ConvertDecToHex(e.HResult) == Common.HRESULT_FILE_IN_USE)
+                {
+                    // ファイル使用中
+                    ret = Common.SFD_RET_FILE_IN_USE;
+                }
+                else
+                {
+                    // それ以外
+                    ret = Common.SFD_RET_SAVE_FAILED;
+                }
+            }
+            return ret;
+        }
+
+
+
     }
 }

@@ -52,7 +52,7 @@ namespace MPPPS
             this.Pbx_CostMgt.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.Pbx_CostMgt.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.Pbx_CostMgt.Location = new System.Drawing.Point(16, 10);
-            this.Pbx_CostMgt.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Pbx_CostMgt.Margin = new System.Windows.Forms.Padding(4);
             this.Pbx_CostMgt.Name = "Pbx_CostMgt";
             this.Pbx_CostMgt.Size = new System.Drawing.Size(367, 204);
             this.Pbx_CostMgt.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -93,7 +93,7 @@ namespace MPPPS
             // 
             this.Chk_MemUserId.AutoSize = true;
             this.Chk_MemUserId.Location = new System.Drawing.Point(405, 160);
-            this.Chk_MemUserId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Chk_MemUserId.Margin = new System.Windows.Forms.Padding(4);
             this.Chk_MemUserId.Name = "Chk_MemUserId";
             this.Chk_MemUserId.Size = new System.Drawing.Size(166, 19);
             this.Chk_MemUserId.TabIndex = 3;
@@ -110,7 +110,7 @@ namespace MPPPS
             "Oracle 10g",
             "Oracle 11g"});
             this.Cbx_OracleVer.Location = new System.Drawing.Point(497, 32);
-            this.Cbx_OracleVer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Cbx_OracleVer.Margin = new System.Windows.Forms.Padding(4);
             this.Cbx_OracleVer.Name = "Cbx_OracleVer";
             this.Cbx_OracleVer.Size = new System.Drawing.Size(132, 23);
             this.Cbx_OracleVer.TabIndex = 7;
@@ -125,7 +125,7 @@ namespace MPPPS
             "KOKEN_3",
             "KOKEN_QA"});
             this.Cbx_Schema.Location = new System.Drawing.Point(497, 65);
-            this.Cbx_Schema.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Cbx_Schema.Margin = new System.Windows.Forms.Padding(4);
             this.Cbx_Schema.Name = "Cbx_Schema";
             this.Cbx_Schema.Size = new System.Drawing.Size(132, 23);
             this.Cbx_Schema.TabIndex = 8;
@@ -134,25 +134,27 @@ namespace MPPPS
             // 
             this.Tbx_UserId.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.Tbx_UserId.Location = new System.Drawing.Point(499, 98);
-            this.Tbx_UserId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Tbx_UserId.Margin = new System.Windows.Forms.Padding(4);
             this.Tbx_UserId.Name = "Tbx_UserId";
             this.Tbx_UserId.Size = new System.Drawing.Size(132, 22);
             this.Tbx_UserId.TabIndex = 0;
+            this.Tbx_UserId.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tbx_UserId_KeyDown);
             // 
             // Tbx_Passwd
             // 
             this.Tbx_Passwd.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.Tbx_Passwd.Location = new System.Drawing.Point(499, 129);
-            this.Tbx_Passwd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Tbx_Passwd.Margin = new System.Windows.Forms.Padding(4);
             this.Tbx_Passwd.Name = "Tbx_Passwd";
             this.Tbx_Passwd.Size = new System.Drawing.Size(132, 22);
             this.Tbx_Passwd.TabIndex = 2;
             this.Tbx_Passwd.UseSystemPasswordChar = true;
+            this.Tbx_Passwd.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tbx_Passwd_KeyDown);
             // 
             // Btn_OK
             // 
             this.Btn_OK.Location = new System.Drawing.Point(419, 195);
-            this.Btn_OK.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Btn_OK.Margin = new System.Windows.Forms.Padding(4);
             this.Btn_OK.Name = "Btn_OK";
             this.Btn_OK.Size = new System.Drawing.Size(100, 30);
             this.Btn_OK.TabIndex = 4;
@@ -163,7 +165,7 @@ namespace MPPPS
             // Btn_Cancel
             // 
             this.Btn_Cancel.Location = new System.Drawing.Point(525, 195);
-            this.Btn_Cancel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Btn_Cancel.Margin = new System.Windows.Forms.Padding(4);
             this.Btn_Cancel.Name = "Btn_Cancel";
             this.Btn_Cancel.Size = new System.Drawing.Size(100, 30);
             this.Btn_Cancel.TabIndex = 5;
@@ -187,7 +189,7 @@ namespace MPPPS
             this.Controls.Add(this.Lbl_UserId);
             this.Controls.Add(this.Lbl_DestDB);
             this.Controls.Add(this.Pbx_CostMgt);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Frm010_Login";
             this.Text = "[KMD001SF] 切削生産計画システム - Ver.yyMMdd.99 <#01: ログイン>";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Frm010_Login_FormClosing);

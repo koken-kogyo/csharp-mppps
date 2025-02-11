@@ -29,6 +29,7 @@ namespace MPPPS
         public static readonly string CONFIG_DIR = "conf";                      // 設定ファイルのあるディレクトリ
         public static readonly string CONFIG_FILE_DB = "ConfigDB.xml";          // データベース設定ファイル
         public static readonly string CONFIG_FILE_FS = "ConfigFS.xml";          // ファイル システム設定ファイル
+        public static readonly string OUTBOUND_INFO_FILE = "OutboundInfo.csv";  // スマート棚コン計画予定ファイル
         public static readonly string SOUND_DIR = "sounds";                     // 音声ファイルのあるディレクトリ
         public static readonly string SOUND_FILE_CORRECT = "correct.wav";       // 正答音ファイルのあるディレクトリ
         public static readonly string SOUND_FILE_WRONG = "wrong.wav";           // 誤答音ファイルのあるディレクトリ
@@ -720,9 +721,12 @@ namespace MPPPS
         public const string TABLE_ID_M0600 = "M0600";    // 受注品マスター
         public const string TABLE_ID_M0700 = "M0700";    // 売上単価マスター
         public const string TABLE_ID_M0720 = "M0720";    // 購入単価マスター
+        public const string TABLE_ID_S0820 = "S0820";    // カレンダーマスタ
 
         // 切削生産計画システム (照会 / 更新 / マスタメンテ)
+        public const string TABLE_ID_D0410  = "d0410";    // EM手配ファイル (確定)(手配情報)
         public const string TABLE_ID_D0415  = "d0415";    // 切削生産計画ファイル (確定)
+        public const string TABLE_ID_D0440  = "d0440";    // EM手配日程ファイル (内示)(所要量情報)
         public const string TABLE_ID_D0445  = "d0445";    // 切削生産計画ファイル (内示)
         public const string TABLE_ID_KM8400 = "km8400";   // 切削生産計画システム利用者マスター
         public const string TABLE_ID_KM8410 = "km8410";   // 切削刃具マスター

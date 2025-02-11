@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlTypes;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -44,7 +47,14 @@ namespace MPPPS
             this.Lbl_UserName.Text = cmn.Ui.UserName + " (" + cmn.Ui.UserId + ")";
 
             // 生産計画結果保存先サーバーへ接続
-            cmn.Fa.ConnectSaveServer();
+            DateTime SW = DateTime.Now;
+            Debug.WriteLine("[StopWatch] 開始 " + DateTime.Now.ToString("HH:mm:ss"));
+            //Debug.WriteLine("[StopWatch] Initialize終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "秒)");
+            //Debug.WriteLine("[StopWatch] GetCommonClass終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "秒)");
+
+            Task.Run(() => cmn.Fa.ConnectSaveServer());
+
+            Debug.WriteLine("[StopWatch] 終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "秒)");
         }
 
         /// <summary>
@@ -99,7 +109,7 @@ namespace MPPPS
 
         private void Btn_CutStore_Click(object sender, EventArgs e)
         {
-            Frm090_CutStore frm090 = new Frm090_CutStore();
+            Frm090_CutStore frm090 = new Frm090_CutStore(cmn, sender);
             frm090.ShowDialog(this);
         }
 
