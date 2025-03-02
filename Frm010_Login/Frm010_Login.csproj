@@ -7,7 +7,7 @@
     <ProjectGuid>{8AD7BFA2-2BB3-4F3C-8DAC-391625F5DE1E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Frm010_Login</RootNamespace>
-    <AssemblyName>CostManagement</AssemblyName>
+    <AssemblyName>MPPPS</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -147,17 +147,19 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>rem リリース用フォルダーを一旦削除
-rmdir /s /q "$(SolutionDir)CostManagement"
+rmdir /s /q "$(SolutionDir)MPPPS"
 
 rem リリース用フォルダーに成果物をコピー
-md "$(SolutionDir)CostManagement" &gt; NUL 2&gt;&amp;1
-md "$(SolutionDir)CostManagement\bin" &gt; NUL 2&gt;&amp;1
-md "$(SolutionDir)CostManagement\conf" &gt; NUL 2&gt;&amp;1
-xcopy "$(SolutionDir)Resources\conf\Release" "$(SolutionDir)CostManagement\conf" /D /S /R /Y /I /K
+md "$(SolutionDir)MPPPS" &gt; NUL 2&gt;&amp;1
+md "$(SolutionDir)MPPPS\bin" &gt; NUL 2&gt;&amp;1
+md "$(SolutionDir)MPPPS\conf" &gt; NUL 2&gt;&amp;1
+xcopy "$(SolutionDir)Resources\conf\Release" "$(SolutionDir)MPPPS\conf" /D /S /R /Y /I /K
 xcopy "$(SolutionDir)Resources\conf\NLog.config" "$(ProjectDir)bin\Release" /Y
 xcopy "$(SolutionDir)Resources\icons\Koken.ico" "$(ProjectDir)bin\Release" /Y
-xcopy "$(SolutionDir)Resources\docs\ReleaseNote.txt" "$(SolutionDir)CostManagement" /Y
-xcopy "$(ProjectDir)bin\Release" "$(SolutionDir)CostManagement\bin" /D /S /R /Y /I /K
+xcopy "$(SolutionDir)Resources\docs\ReleaseNote.txt" "$(SolutionDir)MPPPS" /Y
+xcopy "$(SolutionDir)Resources\pictures" "$(SolutionDir)MPPPS\pictures"  /D /S /R /Y /I /K
+xcopy "$(SolutionDir)Resources\sounds" "$(SolutionDir)MPPPS\sounds"  /D /S /R /Y /I /K
+xcopy "$(ProjectDir)bin\Release" "$(SolutionDir)MPPPS\bin" /D /S /R /Y /I /K
 
 rem デバッグ環境作成
 md "$(ProjectDir)bin\conf" &gt; NUL 2&gt;&amp;1
