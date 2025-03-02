@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Media;
 using System.Reflection;
@@ -22,13 +23,13 @@ namespace MPPPS
         private DateTime targetMonth;                   // 処理対象月を設定
         private DataTable orderDt = new DataTable();    // 注文状況を保持（カレンダー詳細情報で使用）
         private DataTable dtS0820working;               // カレンダーテーブルを保持
+        private string progressmsg;
 
         /// <summary>
         /// コンストラクター
         /// </summary>
         /// <param name="common">共通クラス</param>
-        /// <param name="sender">送信オジェクト</param>
-        public Frm041_CreateOrder(Common cmn, object sender)
+        public Frm041_CreateOrder(Common cmn)
         {
             InitializeComponent();
 
@@ -80,61 +81,13 @@ namespace MPPPS
             Frm041_CreateOrder_Resize(this, EventArgs.Empty);
         }
 
-        // 別スレッドにてカレンダー用のデータを取得
-        private void SubThreadGetOrders()
-        {
-            bool ret = false;
-            toolStripStatusLabel.Text = "EM注文データ確認中...";
-            orderDt.Clear();
-            ret = cmn.Dba.GetEMOrderInfo(ref orderDt, targetMonth);
-            if (ret == false) return;
-
-            // EM注文データテーブルに列を追加
-            if (orderDt.Columns.Count == 6)
-            {
-                orderDt.Columns.Add("MP2確定", typeof(long));
-                orderDt.Columns.Add("MP3着手", typeof(long));
-                orderDt.Columns.Add("MP4完了", typeof(long));
-                orderDt.Columns.Add("MP9取消", typeof(long));
-                orderDt.Columns.Add("取込合計", typeof(long));
-                orderDt.Columns.Add("分割合計", typeof(long));
-            }
-
-            // MPデータテーブルを取得
-            DataTable mpDt = new DataTable();
-            toolStripStatusLabel.Text = "MP切削データ確認中...";
-            cmn.Dba.GetMPOrderInfo(ref mpDt, targetMonth);
-
-            // MPデータの内容をEM注文データにマージ
-            foreach (DataRow r in orderDt.Rows)
-            {
-                if (mpDt.Select($"EDDT='{r["EDDT"]}'").Length > 0)
-                {
-                    r["MP2確定"] = mpDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP2確定"];
-                    r["MP3着手"] = mpDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP3着手"];
-                    r["MP4完了"] = mpDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP4完了"];
-                    r["MP9取消"] = mpDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP9取消"];
-                    r["取込合計"] = mpDt.Select($"EDDT='{r["EDDT"]}'")[0]["取込合計"];
-                    r["分割合計"] = 0;
-                }
-                else
-                {
-                    r["MP2確定"] = 0;
-                    r["MP3着手"] = 0;
-                    r["MP4完了"] = 0;
-                    r["MP9取消"] = 0;
-                    r["取込合計"] = 0;
-                    r["分割合計"] = 0;
-                }
-            }
-            toolStripStatusLabel.Text = "日付をクリックして注文データを取り込んでください．";
-        }
-
-        // カレンダー関連の初期化
+        // カレンダー関連コントロールの初期化
         private void ClearCalendar()
         {
             // カレンダーラベルを設定
             CalendarLabel.Text = $"{targetMonth.Month}月 カレンダー";
+            PrevMonthButton.Enabled = false;
+            NextMonthButton.Enabled = false;
 
             // データのクリアと背景色のクリア
             for (int row = 0; row < 6; row++)
@@ -143,9 +96,81 @@ namespace MPPPS
                 {
                     if (col != 0 && col != 6)
                     {
-                        Dgv_Calendar[col, row].Style.BackColor = Color.White;
+                        Dgv_Calendar[col, row].Style.BackColor = Common.FRM40_BG_COLOR_WORKING;
                     }
                     Dgv_Calendar[col, row].Value = "";
+                }
+            }
+            // 選択セルの解除
+            Dgv_Calendar.ClearSelection();
+
+            // 注文データ取り込みボタン
+            Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_ImportOrder.Enabled = false;
+
+            // 注文データ取り込みボタン
+            Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintOrder.Enabled = false;
+        }
+
+        // EMデータテーブルとMPデータテーブルをマージ
+        private void MargeOrderDataTable(ref DataTable emOrderDt, ref DataTable mpOrderDt)
+        {
+            orderDt.Clear();
+            orderDt = emOrderDt.Copy();
+
+            // EM注文データテーブルに列を追加
+            if (orderDt.Columns.Count == 11)
+            {
+                orderDt.Columns.Add("MP2確定件数", typeof(long));
+                orderDt.Columns.Add("MP3着手件数", typeof(long));
+                orderDt.Columns.Add("MP4完了件数", typeof(long));
+                orderDt.Columns.Add("MP9取消件数", typeof(long));
+                orderDt.Columns.Add("MP取込件数", typeof(long));
+
+                orderDt.Columns.Add("MP2確定本数", typeof(long));
+                orderDt.Columns.Add("MP3着手本数", typeof(long));
+                orderDt.Columns.Add("MP4完了本数", typeof(long));
+                orderDt.Columns.Add("MP9取消本数", typeof(long));
+                orderDt.Columns.Add("MP取込本数", typeof(long));
+
+                orderDt.Columns.Add("MP印刷件数", typeof(long));
+            }
+
+            // MPデータの内容をEM注文データにマージ
+            foreach (DataRow r in orderDt.Rows)
+            {
+                if (mpOrderDt.Select($"EDDT='{r["EDDT"]}'").Length > 0)
+                {
+                    r["MP2確定件数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP2確定件数"];
+                    r["MP3着手件数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP3着手件数"];
+                    r["MP4完了件数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP4完了件数"];
+                    r["MP9取消件数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP9取消件数"];
+                    r["MP取込件数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP取込件数"];
+
+                    r["MP2確定本数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP2確定本数"];
+                    r["MP3着手本数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP3着手本数"];
+                    r["MP4完了本数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP4完了本数"];
+                    r["MP9取消本数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP9取消本数"];
+                    r["MP取込本数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP取込本数"];
+
+                    r["MP印刷件数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP印刷件数"];
+                }
+                else
+                {
+                    r["MP2確定件数"] = 0;
+                    r["MP3着手件数"] = 0;
+                    r["MP4完了件数"] = 0;
+                    r["MP9取消件数"] = 0;
+                    r["MP取込件数"] = 0;
+
+                    r["MP2確定本数"] = 0;
+                    r["MP3着手本数"] = 0;
+                    r["MP4完了本数"] = 0;
+                    r["MP9取消本数"] = 0;
+                    r["MP取込本数"] = 0;
+
+                    r["MP印刷件数"] = 0;
                 }
             }
         }
@@ -156,10 +181,19 @@ namespace MPPPS
             // カレンダー関連の初期化
             ClearCalendar();
 
-            // 別スレッドにて注文データを取得
-            await Task.Run(() => SubThreadGetOrders());
+            // データベースから注文情報を非同期並列処理で取得（EM_Oracle:D0410, MP_MySQL:KD8430)
+            toolStripStatusLabel1.Text = "注文データ確認中...";
+            DataTable emOrderDt = new DataTable();
+            DataTable mpOrderDt = new DataTable();
+            var taskEM = Task.Run(() => cmn.Dba.GetEmOrderSummaryInfo(ref emOrderDt, targetMonth));
+            var taskMP = Task.Run(() => cmn.Dba.GetMpOrderSummaryInfo(ref mpOrderDt, targetMonth));
+            // 両者が完了するまで待機する
+            await Task.WhenAll(taskEM, taskMP);
 
-            int row = 0; // 0:日曜日
+            // EMデータテーブルとMPデータテーブルをマージ
+            MargeOrderDataTable(ref emOrderDt, ref mpOrderDt);
+
+            int row = 0; // カレンダー１行目
 
             // 前月があれば作成
             DateTime dayOfPrevMonth = targetMonth.AddDays(-1);
@@ -167,23 +201,23 @@ namespace MPPPS
             {
                 int column = (int)dayOfPrevMonth.DayOfWeek;
                 Dgv_Calendar[column, row].Value = dayOfPrevMonth.Day;
-                if (orderDt.Select($"EDDT='{dayOfPrevMonth}' and EM合計=取込合計").Count() != 0)
+                if (orderDt.Select($"EDDT='{dayOfPrevMonth}' and EM合計件数=MP取込件数").Count() != 0)
                 {
                     // 注文データ取込済
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightGreen;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.DimGray;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
+                    Dgv_Calendar[column, row].Style.ForeColor =  Common.FRM40_COLOR_DIMGRAY;
                 }
                 else if (dtS0820working.Select($"YMD='{dayOfPrevMonth}'").Count() == 0)
                 {
                     // 本社非稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightPink;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.DimGray;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    Dgv_Calendar[column, row].Style.ForeColor =  Common.FRM40_COLOR_DIMGRAY;
                 }
                 else
                 {
                     // 本社稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.WhiteSmoke;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.DimGray;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_OTHERMONTH;
+                    Dgv_Calendar[column, row].Style.ForeColor =  Common.FRM40_COLOR_DIMGRAY;
                 }
                 dayOfPrevMonth = dayOfPrevMonth.AddDays(-1);
             }
@@ -196,63 +230,83 @@ namespace MPPPS
                 // 日付を設定
                 int column = (int)currentDate.DayOfWeek;
                 Dgv_Calendar[column, row].Value = day;
-                // 土日の色とEMお休み日の色、を変える
+                // 土曜日：青
+                // 日曜日とEMお休み日：ピンク
+                // 取込済：薄緑
+                // 未取込：薄青
+                // EMに変化（追加・取消）あり：赤
                 if (column == 0)
                 {
                     // 日曜日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightPink;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
                 else if (column == 6)
                 {
                     // 土曜日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightBlue;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     row++;
                 }
-                else if (orderDt.Select($"EDDT='{currentDate}' and 取込合計=0 and EM合計>0").Count() != 0)
+                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数=0 and EM合計件数>0").Count() != 0)
                 {
                     // 注文あり取込データなし
-                    var emCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["EM合計"].ToString());
-                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["取込合計"].ToString());
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightCyan;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    var emCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["EM合計件数"].ToString());
+                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP取込件数"].ToString());
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED ;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
-                else if (orderDt.Select($"EDDT='{currentDate}' and 取込合計>0 and EM合計<>取込合計").Count() != 0)
+                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP印刷件数>0 and MP印刷件数<>(MP取込件数-MP9取消件数)").Count() != 0)
+                {
+                    // 未印刷データあり
+                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP取込件数"].ToString());
+                    var cancelCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP9取消件数"].ToString());
+                    var printCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP印刷件数"].ToString());
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_WARNING;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
+                    Dgv_Calendar[column, row].Value = day + $"\n未印刷が\n{mpCount - cancelCount - printCount}件あります";
+                }
+                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and EM合計件数<>MP取込件数").Count() != 0)
                 {
                     // 注文データ取込後にEM側に追加注文あり
-                    var emCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["EM合計"].ToString());
-                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["取込合計"].ToString());
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightCoral;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    var emCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["EM合計件数"].ToString());
+                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP取込件数"].ToString());
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_WARNING;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     Dgv_Calendar[column, row].Value = day + $"\n未取込が\n{emCount - mpCount}件あります";
                 }
-                else if (orderDt.Select($"EDDT='{currentDate}' and EM9取消>0 and EM9取消<>MP9取消").Count() != 0)
+                else if (orderDt.Select($"EDDT='{currentDate}' and EM9取消件数>0 and EM9取消件数<>MP9取消件数").Count() != 0)
                 {
                     // 注文データ取込後にEM側で注文取消あり
-                    var emCancel = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["EM9取消"].ToString());
-                    var mpCancel = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP9取消"].ToString());
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightCoral;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    var emCancel = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["EM9取消件数"].ToString());
+                    var mpCancel = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP9取消件数"].ToString());
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_WARNING;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     Dgv_Calendar[column, row].Value = day + $"\nEM取消が\n{emCancel - mpCancel}件あります";
                 }
-                else if (orderDt.Select($"EDDT='{currentDate}' and EM合計=取込合計").Count() != 0)
+                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP取込件数-MP9取消件数=MP印刷件数").Count() != 0)
+                {
+                    // 製造指示カード印刷済み
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
+                }
+                else if (orderDt.Select($"EDDT='{currentDate}' and EM合計件数=MP取込件数").Count() != 0)
                 {
                     // 注文データ取込済
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightGreen;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
                 else if (dtS0820working.Select($"YMD='{currentDate}'").Count() == 0)
                 {
                     // 本社非稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightPink;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
                 else
                 {
                     // 本社稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.White;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_WORKING;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
             }
 
@@ -266,67 +320,96 @@ namespace MPPPS
                 if (column == 0)
                 {
                     // 日曜日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightPink;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.DimGray;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    Dgv_Calendar[column, row].Style.ForeColor =  Common.FRM40_COLOR_DIMGRAY;
                 }
                 else if (column == 6)
                 {
                     // 土曜日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightBlue;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.DimGray;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
+                    Dgv_Calendar[column, row].Style.ForeColor =  Common.FRM40_COLOR_DIMGRAY;
                     row++;
                 }
-                else if (orderDt.Select($"EDDT='{nextDate}' and 取込合計=0 and EM合計>0").Count() != 0)
+                else if (orderDt.Select($"EDDT='{nextDate}' and MP取込件数=0 and EM合計件数>0").Count() != 0)
                 {
                     // 注文あり取込データなし
-                    var emCount = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["EM合計"].ToString());
-                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["取込合計"].ToString());
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightCyan;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    var emCount = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["EM合計件数"].ToString());
+                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["MP取込件数"].ToString());
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED ;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
-                else if (orderDt.Select($"EDDT='{nextDate}' and 取込合計>0 and EM合計<>取込合計").Count() != 0)
+                else if (orderDt.Select($"EDDT='{nextDate}' and MP取込件数>0 and EM合計件数<>MP取込件数").Count() != 0)
                 {
                     // 注文データ取込後にEM側に追加注文あり
-                    var emCount = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["EM合計"].ToString());
-                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["取込合計"].ToString());
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightCoral;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    var emCount = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["EM合計件数"].ToString());
+                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["MP取込件数"].ToString());
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_WARNING;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     Dgv_Calendar[column, row].Value = dayOfNextMonth + $"\n未取込が\n{emCount - mpCount}件あります";
                 }
-                else if (orderDt.Select($"EDDT='{nextDate}' and EM9取消>0 and EM9取消<>MP9取消").Count() != 0)
+                else if (orderDt.Select($"EDDT='{nextDate}' and EM9取消件数>0 and EM9取消件数<>MP9取消件数").Count() != 0)
                 {
                     // 注文データ取込後にEM側で注文取消あり
-                    var emCancel = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["EM9取消"].ToString());
-                    var mpCancel = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["MP9取消"].ToString());
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightCoral;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
+                    var emCancel = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["EM9取消件数"].ToString());
+                    var mpCancel = Int32.Parse(orderDt.Select($"EDDT='{nextDate}'")[0]["MP9取消件数"].ToString());
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_WARNING;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     Dgv_Calendar[column, row].Value = dayOfNextMonth + $"\nEM取消が\n{emCancel - mpCancel}件あります";
                 }
-                else if (orderDt.Select($"EDDT='{nextDate}' and EM合計=取込合計").Count() != 0)
+                else if (orderDt.Select($"EDDT='{nextDate}' and MP取込件数>0 and MP取込件数-MP9取消件数=MP印刷件数").Count() != 0)
+                {
+                    // 製造指示カード印刷済み
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
+                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
+                }
+                else if (orderDt.Select($"EDDT='{nextDate}' and EM合計件数=MP取込件数").Count() != 0)
                 {
                     // 注文データ取込済
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightGreen;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.DimGray;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
+                    Dgv_Calendar[column, row].Style.ForeColor =  Common.FRM40_COLOR_DIMGRAY;
                 }
                 else if (dtS0820working.Select($"YMD='{nextDate}'").Count() == 0)
                 {
                     // 本社非稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.LightPink;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.DimGray;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    Dgv_Calendar[column, row].Style.ForeColor =  Common.FRM40_COLOR_DIMGRAY;
                 }
                 else
                 {
                     // 本社稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Color.WhiteSmoke;
-                    Dgv_Calendar[column, row].Style.ForeColor = Color.DimGray;
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_OTHERMONTH;
+                    Dgv_Calendar[column, row].Style.ForeColor =  Common.FRM40_COLOR_DIMGRAY;
                 }
                 dayOfNextMonth++;
             }
-            // 稼働日数を算出（非同期処理データテーブルの為処理の後ろの方で実行）
+            // 当日の色を変更
+            CalendarToday();
+
+            // 対象月の稼働日数を算出（非同期処理データテーブルの為処理の後ろの方で実行）
             int days = (int)dtS0820working.Select(String.Format(
                 "#{1}# <= [{0}] AND [{0}] < #{2}#",
                 "YMD", targetMonth, targetMonth.AddMonths(1))).Count();
             CalendarLabel.Text = $"{targetMonth.Month}月 カレンダー ({days}日稼働)";
+            PrevMonthButton.Enabled = true;
+            NextMonthButton.Enabled = true;
+            toolStripStatusLabel1.Text = "日付をクリックして注文データを取り込んでください．";
+            toolStripStatusLabel2.Text = "";
+        }
+
+        // 当日のカレンダーのフォント色を変更
+        private void CalendarToday()
+        {
+            for (int row = 0; row < 6; row++)
+            {
+                for (int col = 0; col < 7; col++)
+                {
+                    var eddt = GetCurrentDateTime(Dgv_Calendar[col, row]);
+                    if (eddt == DateTime.Now.Date)
+                    {
+                        Dgv_Calendar[col, row].Style.ForeColor = Color.Red;
+                    }
+                }
+            }
         }
 
         // 前日ボタン
@@ -362,9 +445,14 @@ namespace MPPPS
             PrevMonthButton.Enabled = true;
         }
 
-        // フォームサイズ変更対応
+        // フォームサイズの可変に対応
         private void Frm041_CreateOrder_Resize(object sender, EventArgs e)
         {
+            float w = ClientSize.Height; //縦幅
+            if (w > 0 && w <= 600) Dgv_Calendar.Font = new Font("Yu Gothic UI", 9);
+            if (w > 600 && w <= 700) Dgv_Calendar.Font = new Font("Yu Gothic UI", 11);
+            if (w > 700 && w <= 800) Dgv_Calendar.Font = new Font("Yu Gothic UI", 13);
+            if (w > 800) Dgv_Calendar.Font = new Font("Yu Gothic UI", 16);
             PrevMonthButton.Width = Dgv_Calendar.Width / 6 - 5;
             CalendarLabel.Left = PrevMonthButton.Width + 10;
             CalendarLabel.Width = Dgv_Calendar.Width / 6 * 4 - 5;
@@ -375,60 +463,105 @@ namespace MPPPS
                 Dgv_Calendar.Rows[i].Height = (Dgv_Calendar.Height - Dgv_Calendar.ColumnHeadersHeight) / 6 - 6;
             for (var i = 0; i < 7; i++)
                 Dgv_Calendar.Columns[i].Width = (Dgv_Calendar.Width / 7);
-            Btn_ImportOrder.Width = Dgv_Calendar.Width - 5;
+            Btn_ImportOrder.Width = (Dgv_Calendar.Width / 2) - 5;
+            Btn_PrintOrder.Left = Btn_ImportOrder.Width + 5;
+            Btn_PrintOrder.Width = (Dgv_Calendar.Width / 2) - 5;
         }
 
-        // カレンダークリックイベント（1件選択の場合、ステータスに情報を表示）
+        // カレンダークリックイベント
         private void Dgv_Calendar_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (Dgv_Calendar[e.ColumnIndex, e.RowIndex].Value == null) return;
-            if (Dgv_Calendar.SelectedCells.Count == 1)
-            {
-                // クリックされたセルの日付を取得
-                var planDay = GetCurrentDateTime(Dgv_Calendar[e.ColumnIndex, e.RowIndex]);
-                if (orderDt.Select($"EDDT='{planDay}'").Length > 0)
-                {
-                    DataRow r = orderDt.Select($"EDDT='{planDay}'")[0];
-                    toolStripStatusLabel.Text = ""
-                        + $"取込済: {r["取込合計"].ToString()}件 / {r["EM合計"].ToString()}件";
-                    if (r["EM9取消"].ToString() != "0")
-                        toolStripStatusLabel.Text += " ( "
-                        + $"EM取消: {r["EM9取消"].ToString()}件, MP取消{r["MP9取消"].ToString()}件 )";
-                }
-                else
-                {
-                    toolStripStatusLabel.Text = "";
-                }
-            }
+            //if (Dgv_Calendar[e.ColumnIndex, e.RowIndex].Value == null) return;
+            //if (Dgv_Calendar.SelectedCells.Count == 1)
+            //{
+            //    Dgv_Calendar_MouseUp(sender, null);
+            //}
         }
 
-        // 複数セルが選択された場合、ステータス上に合算した情報を表示
+        // ステータスにDB状態（取込済、印刷済）を表示（複数選択可能）
         private void Dgv_Calendar_MouseUp(object sender, MouseEventArgs e)
         {
-            if (Dgv_Calendar.SelectedCells.Count == 1) return;
-            toolStripStatusLabel.Text = "";
+            Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_ImportOrder.Enabled = false;
+            Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintOrder.Enabled = false;
+            toolStripStatusLabel1.Text = "";
+            toolStripStatusLabel2.Text = "";
             int emOrder = 0;
             int mpOrder = 0;
             int emCancel = 0;
             int mpCancel = 0;
+            int em2qty = 0;
+            int em3qty = 0;
+            int em4qty = 0;
+            int em9qty = 0;
+            int mp2qty = 0;
+            int mp3qty = 0;
+            int mp4qty = 0;
+            int mp9qty = 0;
+            int printCnt = 0;
             foreach (DataGridViewCell c in Dgv_Calendar.SelectedCells)
             {
                 var planDay = GetCurrentDateTime(c);
                 if (orderDt.Select($"EDDT='{planDay}'").Length > 0)
                 {
                     DataRow r = orderDt.Select($"EDDT='{planDay}'")[0];
-                    emOrder += Int32.Parse(r["EM合計"].ToString());
-                    mpOrder += Int32.Parse(r["取込合計"].ToString());
-                    emCancel += Int32.Parse(r["EM9取消"].ToString());
-                    mpCancel += Int32.Parse(r["MP9取消"].ToString());
+                    emOrder += Int32.Parse(r["EM合計件数"].ToString());
+                    mpOrder += Int32.Parse(r["MP取込件数"].ToString());
+                    emCancel += Int32.Parse(r["EM9取消件数"].ToString());
+                    mpCancel += Int32.Parse(r["MP9取消件数"].ToString());
+
+                    em2qty += Int32.Parse(r["EM2確定本数"].ToString());
+                    em3qty += Int32.Parse(r["EM3着手本数"].ToString());
+                    em4qty += Int32.Parse(r["EM4完了本数"].ToString());
+                    em9qty += Int32.Parse(r["EM9取消本数"].ToString());
+
+                    mp2qty += Int32.Parse(r["MP2確定本数"].ToString());
+                    mp3qty += Int32.Parse(r["MP3着手本数"].ToString());
+                    mp4qty += Int32.Parse(r["MP4完了本数"].ToString());
+                    mp9qty += Int32.Parse(r["MP9取消本数"].ToString());
+
+                    printCnt += Int32.Parse(r["MP印刷件数"].ToString());
                 }
             }
             if (emOrder > 0)
             {
-                toolStripStatusLabel.Text = $"{Dgv_Calendar.SelectedCells.Count}件選択 ⇒ "
-                    + $"取込済: {mpOrder}件 / {emOrder}件";
-                if (emCancel > 0)
-                    toolStripStatusLabel.Text += $" ( EM取消: {emCancel}件, MP取消{mpCancel}件 )";
+                // 注文データ取り込みボタン活性化
+                if (emOrder != mpOrder)
+                {
+                    Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
+                    Btn_ImportOrder.Enabled = true;
+                    toolStripStatusLabel1.Text += $" 未取込: {emOrder - mpOrder}件";
+                }
+                if (emOrder == mpOrder)
+                {
+                    toolStripStatusLabel1.Text += $" 取込済: {mpOrder}件";
+                    if (mpCancel > 0) toolStripStatusLabel1.Text += $" (取消{mpCancel}件 )";
+
+                }
+                // 注文データ印刷ボタン活性化
+                if (mpOrder > 0 && (mpOrder - mpCancel) != printCnt)
+                {
+                    Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_PRINTED;
+                    Btn_PrintOrder.Enabled = true;
+                    toolStripStatusLabel1.Text += $" 未印刷: {mpOrder - mpCancel - printCnt}件";
+                }
+                if (mpOrder > 0 && (mpOrder - mpCancel) == printCnt)
+                {
+                    toolStripStatusLabel1.Text += $" 印刷済: {printCnt}件";
+                }
+                // EM取消情報との差異を注意喚起
+                if (emCancel > 0 && mpOrder > 0 && emCancel != mpCancel)
+                {
+                    toolStripStatusLabel1.Text += $" ( EM取消: {emCancel}件, MP取消{mpCancel}件 )";
+                }
+                // 手配件数をステータスストラップ２に表示
+                toolStripStatusLabel2.Text = "[ ";
+                toolStripStatusLabel2.Text += (em2qty > 0) ? $"EM確定{em2qty.ToString("#,0")}本／" : "";
+                toolStripStatusLabel2.Text += (em3qty > 0) ? $"着手{em3qty.ToString("#,0")}本／" : "";
+                toolStripStatusLabel2.Text += $"完了{em4qty.ToString("#,0")}本";
+                toolStripStatusLabel2.Text += (em9qty > 0) ? $"／取消{em9qty.ToString("#,0")}本" : "";
+                toolStripStatusLabel2.Text += " ]";
             }
         }
 
@@ -447,49 +580,205 @@ namespace MPPPS
         // 注文データ取込
         private async void Btn_ImportOrder_Click(object sender, EventArgs e)
         {
+            toolStripStatusLabel1.Text = "注文データ取込中...";
+
             foreach (DataGridViewCell c in Dgv_Calendar.SelectedCells)
             {
+                // 背景色が薄青、薄赤を対象に条件分を作成
+                if (c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING)
+                {
+                    var eddt = GetCurrentDateTime(c).ToString("yyyy/MM/dd");
 
+                    // データベースから注文情報を非同期並列処理で取得（Oracle:D0410, MySQL:KD8430)
+                    DataTable emOrderDt = new DataTable();
+                    DataTable mpOrderDt = new DataTable();
+                    var taskA = Task.Run(() => cmn.Dba.GetEmOrder(ref emOrderDt, eddt));
+                    var taskB = Task.Run(() => cmn.Dba.GetMpOrder(ref mpOrderDt, eddt));
+
+                    // 両者の読み込みが完了するまで待機する
+                    await Task.WhenAll(taskA, taskB);
+
+                    // 削除対象が存在するかチェック（二つのODRNOの集合差を求める）
+                    DataRow[] deleteDr = mpOrderDt.AsEnumerable()
+                        .Where(row =>
+                            !emOrderDt.AsEnumerable().Select(col => col["ODRNO"]).ToArray()
+                            .Contains(row["ODRNO"]))
+                        .ToArray();
+                    if (deleteDr.Length > 0)
+                    {
+                        DataTable exceptDt = new DataTable();
+                        exceptDt = deleteDr.CopyToDataTable();
+                        // MPシステム MySQLに集合差分を削除
+                        if (!cmn.Dba.DeleteMpOrder(ref exceptDt)) return;
+                    }
+
+                    // 追加対象が存在するかチェック（二つのODRNOの集合差を求める）
+                    DataRow[] insertDr = emOrderDt.AsEnumerable()
+                        .Where(row =>
+                            !mpOrderDt.AsEnumerable().Select(col => col["ODRNO"]).ToArray()
+                            .Contains(row["ODRNO"]))
+                        .ToArray();
+                    if (insertDr.Length > 0)
+                    {
+                        DataTable exceptDt = new DataTable();
+                        exceptDt = insertDr.CopyToDataTable();
+                        // MPシステム MySQLに集合差分を挿入
+                        if (!cmn.Dba.ImportMpOrder(ref exceptDt)) return;
+                    }
+                }
             }
-                // 整合性チェック
-                // チェックが付いた行の条件を作成しDBAccesorに渡す(Subitems[1]は'yyyy/mm/dd hh24:mi:ss'非表示列)
-                string eddts = "";
-            //foreach (ListViewItem item in lvw_Order.Items)
-            //{
-            //    if (item.Checked)
-            //    {
-            //        var str = item.SubItems[7].Text;
-            //        if (!str.Contains("(-)") &&
-            //            str.Split('(')[0].Trim() == str.Split('(', ')')[1].Trim())
-            //        {
-            //            // 既に取込済み
-            //            Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
-            //            cmn.ShowMessageBox(Common.KCM_PGM_ID, "既に取込済みです.確認してください．", Common.MSG_TYPE_W,
-            //                MessageBoxButtons.OK, Common.MSGBOX_TXT_WARN, MessageBoxIcon.Warning);
-            //            return;
-            //        }
-            //        eddts += (string.IsNullOrEmpty(eddts) ? "(" : ",") + "to_timestamp('" + item.SubItems[1].Text + "')";
-            //    }
-            //}
-            if (string.IsNullOrEmpty(eddts)) return;
-            eddts += ")";
 
-            // 選択行をシステムに取込
-            toolStripStatusLabel.Text = "注文データ取込中...";
-            bool ret = false;
-            await Task.Run(() => ret = cmn.Dba.OrderImport(eddts));
-            if (ret)
-            {
-                // 取込成功後、再読み込みして表示
-                //Btn_CheckOrder_Click(sender, e);
+            // 取込後、再読み込みして表示
+            PopulateCalendar();
 
-                // 分割ボタンを有効化
-                Btn_ImportOrder.Enabled = false;
-                Btn_ImportOrder.BackColor = SystemColors.Control;
-                //Btn_DivideOrder.Enabled = true;
-                //Btn_DivideOrder.BackColor = Color.FromArgb(128, 255, 255);
-            }
+            // 処理ボタンを無効化
+            Btn_ImportOrder.Enabled = false;
+            Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintOrder.Enabled = false;
+            Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
         }
+
+        // 製造指示カード印刷
+        private async void Btn_PrintOrder_Click(object sender, EventArgs e)
+        {
+            // モニターサイズの倍率チェック
+            int idx = (cmn.ScreenMagnification == 1d) ? 1 : (cmn.ScreenMagnification == 1.25d) ? 2 : 9;
+            if (idx == 9)
+            {
+                Debug.WriteLine(Common.MSG_NO_PATTERN_FILE);
+                cmn.ShowMessageBox(Common.MY_PGM_ID, Common.MSG_CD_105, Common.MSG_TYPE_W, MessageBoxButtons.OK, Common.MSG_NO_PATTERN_FILE, MessageBoxIcon.Warning);
+                return;
+            }
+            // 雛形ファイルの存在チェック
+            var templateFi = new FileInfo($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
+            if (!templateFi.Exists)
+            {
+                Debug.WriteLine(Common.MSG_NO_PATTERN_FILE);
+                cmn.ShowMessageBox(Common.MY_PGM_ID, Common.MSG_CD_103, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSG_NO_PATTERN_FILE, MessageBoxIcon.Error);
+                return;
+            }
+
+            toolStripStatusLabel1.Text = "製造指示カード印刷中...";
+
+            // Excelアプリケーションを起動
+            cmn.Fa.OpenExcel2(idx);
+
+            int ret = 0;
+            foreach (DataGridViewCell c in Dgv_Calendar.SelectedCells)
+            {
+                // 対象日の製造指示カードを作成し印刷
+                var cardDay = GetCurrentDateTime(c);
+
+                progressmsg = $"【{cardDay.ToString("M月d日")}】製造指示カード";
+
+                // 製造指示カード雛形を開く（拡縮倍率にあった帳票を選択）
+                cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
+
+                // 製造指示データをDataTableに読み込む
+                toolStripStatusLabel1.Text = progressmsg + " データ読み込み中...";
+                DataTable cardDt = new DataTable();
+                await Task.Run(() => cmn.Dba.GetCardPrintInfo(cardDay, ref cardDt));
+                if (ret < 0) break;
+
+                // 製造指示カード雛形に製造指示データをセット
+                // 設定ファイルの場所にPDFとして保存して起動
+                toolStripStatusLabel1.Text = progressmsg + $" - 1件 / {cardDt.Rows.Count}件中 作成中...";
+                await Task.Run(() => ret = PrintOrderCard(cardDay, ref cardDt)); 
+                if (ret != 0) break;
+
+                // ExcelブックからPDFを作成
+                var pdfName = cmn.FsCd[idx].FileName
+                    .Replace("雛形", "_" + cardDay.ToString("yyyyMMdd") 
+                                   + "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
+                    .Replace(".xlsx", ".pdf");
+                cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[idx].RootPath}\{pdfName}");
+
+                // 製造指示カード雛形を閉じる
+                cmn.Fa.CloseExcelFile2(false);
+
+                // 出力済ステータスに更新
+                cmn.Dba.UpdatePrintCardDay(cardDay);
+            }
+            
+            // Excelアプリケーションを閉じる
+            cmn.Fa.CloseExcel2();
+
+            // 取込後、再読み込みして表示
+            PopulateCalendar();
+
+            // 処理ボタンを無効化
+            Btn_ImportOrder.Enabled = false;
+            Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintOrder.Enabled = false;
+            Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+        }
+
+        /// <summary>
+        /// 出荷指示カード作成
+        /// </summary>
+        /// <param name="cardDay">完了予定日</param>
+        /// 
+        /// <returns>結果 (0: 保存成功 (保存件数), -1: 保存失敗, -2: 認証失敗)</returns>
+        public int PrintOrderCard(DateTime cardDay, ref System.Data.DataTable cardDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+
+            try
+            {
+                // Excelシートの作成
+                int baseRow = 1;
+                int cardCnt = 1;    // ※手配件数とカード枚数は異なる（ロットで分割するため）
+                int cardRows = 21;  // 1カードの行数（余白含む）
+                int row = 0;
+                int col = 0;
+                for (int i = 0; i < cardDt.Rows.Count; i++)
+                {
+                    DataRow r = cardDt.Rows[i];
+
+                    // 書き込む先頭セル番号を計算
+                    col = (cardCnt % 2 != 0) ? 2 : 11;
+                    row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
+
+                    // カードに値をセット
+                    //DateTime SW3 = DateTime.Now;
+                    //Debug.WriteLine("[StopWatch] Read開始 ");
+                    cmn.Fa.SetOrderCard(ref cardDay, ref r, ref row, ref col);
+                    //Debug.WriteLine("[StopWatch] Read終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW3).TotalSeconds.ToString("F3") + "秒)");
+
+                    if (cardCnt == 50) break;
+                    if (cardCnt % 5 == 0)
+                    {
+                        toolStripStatusLabel1.Text = progressmsg + $" - {cardCnt}件 / {cardDt.Rows.Count}件中 作成中...";
+                    }
+                    cardCnt++;
+                }
+                toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件のカードが作成されました.";
+            }
+            // ファイルの保存に失敗すると Exception が発生する
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception Source = " + e.Source);
+                Debug.WriteLine("Exception Message = " + e.Message);
+
+                cmn.Fa.CloseExcel2();
+
+                // 戻り値でエラー種別を判定
+                if (cmn.ConvertDecToHex(e.HResult) == Common.HRESULT_FILE_IN_USE)
+                {
+                    // ファイル使用中
+                    ret = Common.SFD_RET_FILE_IN_USE;
+                }
+                else
+                {
+                    // それ以外
+                    ret = Common.SFD_RET_SAVE_FAILED;
+                }
+            }
+            return ret;
+        }
+
 
     }
 }

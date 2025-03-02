@@ -32,19 +32,258 @@ namespace MPPPS
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm034_CodeSlipMstMaint));
-            SuspendLayout();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.btnConvertMP = new System.Windows.Forms.Button();
+            this.Dgv_CodeSlipMst = new System.Windows.Forms.DataGridView();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnHMCDClear = new System.Windows.Forms.Button();
+            this.txtHMCD = new System.Windows.Forms.TextBox();
+            this.cmbMaterial = new System.Windows.Forms.ComboBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.tglViewSimple = new System.Windows.Forms.RadioButton();
+            this.tglViewNormal = new System.Windows.Forms.RadioButton();
+            this.panel1.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
+            this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Dgv_CodeSlipMst)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.groupBox2);
+            this.panel1.Controls.Add(this.groupBox1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1007, 59);
+            this.panel1.TabIndex = 3;
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 536);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 18, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(1007, 26);
+            this.statusStrip1.TabIndex = 5;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(143, 20);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.button2);
+            this.panel2.Controls.Add(this.button1);
+            this.panel2.Controls.Add(this.btnConvertMP);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel2.Location = new System.Drawing.Point(0, 488);
+            this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(1007, 48);
+            this.panel2.TabIndex = 6;
+            // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.LightGreen;
+            this.button2.Location = new System.Drawing.Point(469, 4);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(227, 41);
+            this.button2.TabIndex = 2;
+            this.button2.Text = "データベースに反映";
+            this.button2.UseVisualStyleBackColor = false;
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.LightPink;
+            this.button1.Location = new System.Drawing.Point(236, 4);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(227, 41);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "変更点をチェック";
+            this.button1.UseVisualStyleBackColor = false;
+            // 
+            // btnConvertMP
+            // 
+            this.btnConvertMP.BackColor = System.Drawing.Color.LightPink;
+            this.btnConvertMP.Location = new System.Drawing.Point(3, 3);
+            this.btnConvertMP.Name = "btnConvertMP";
+            this.btnConvertMP.Size = new System.Drawing.Size(227, 41);
+            this.btnConvertMP.TabIndex = 0;
+            this.btnConvertMP.Text = "新システム用に変換";
+            this.btnConvertMP.UseVisualStyleBackColor = false;
+            this.btnConvertMP.Click += new System.EventHandler(this.btnConvertMP_Click);
+            // 
+            // Dgv_CodeSlipMst
+            // 
+            this.Dgv_CodeSlipMst.AllowUserToAddRows = false;
+            this.Dgv_CodeSlipMst.AllowUserToDeleteRows = false;
+            this.Dgv_CodeSlipMst.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.Dgv_CodeSlipMst.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Dgv_CodeSlipMst.Location = new System.Drawing.Point(0, 59);
+            this.Dgv_CodeSlipMst.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Dgv_CodeSlipMst.Name = "Dgv_CodeSlipMst";
+            this.Dgv_CodeSlipMst.RowHeadersWidth = 51;
+            this.Dgv_CodeSlipMst.RowTemplate.Height = 24;
+            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1007, 429);
+            this.Dgv_CodeSlipMst.TabIndex = 7;
+            this.Dgv_CodeSlipMst.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.Dgv_CodeSlipMst_ColumnWidthChanged);
+            this.Dgv_CodeSlipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_CodeSlipMst_RowPostPaint);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.btnHMCDClear);
+            this.groupBox1.Controls.Add(this.txtHMCD);
+            this.groupBox1.Controls.Add(this.cmbMaterial);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.groupBox1.Font = new System.Drawing.Font("Yu Gothic UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.groupBox1.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.groupBox1.Location = new System.Drawing.Point(0, 0);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(580, 59);
+            this.groupBox1.TabIndex = 9;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "検索条件";
+            // 
+            // btnHMCDClear
+            // 
+            this.btnHMCDClear.Location = new System.Drawing.Point(193, 21);
+            this.btnHMCDClear.Name = "btnHMCDClear";
+            this.btnHMCDClear.Size = new System.Drawing.Size(102, 31);
+            this.btnHMCDClear.TabIndex = 11;
+            this.btnHMCDClear.Text = "品番クリア";
+            this.btnHMCDClear.UseVisualStyleBackColor = true;
+            this.btnHMCDClear.Click += new System.EventHandler(this.btnHMCDClear_Click);
+            // 
+            // txtHMCD
+            // 
+            this.txtHMCD.Font = new System.Drawing.Font("Yu Gothic UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.txtHMCD.Location = new System.Drawing.Point(27, 21);
+            this.txtHMCD.Name = "txtHMCD";
+            this.txtHMCD.Size = new System.Drawing.Size(165, 38);
+            this.txtHMCD.TabIndex = 10;
+            this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
+            // 
+            // cmbMaterial
+            // 
+            this.cmbMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbMaterial.Font = new System.Drawing.Font("Yu Gothic UI", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.cmbMaterial.FormattingEnabled = true;
+            this.cmbMaterial.Items.AddRange(new object[] {
+            "全て",
+            "■",
+            "●",
+            "○",
+            "H",
+            "平",
+            "ﾌﾟﾚｽ",
+            "ﾚｰｻﾞｰ"});
+            this.cmbMaterial.Location = new System.Drawing.Point(321, 18);
+            this.cmbMaterial.Name = "cmbMaterial";
+            this.cmbMaterial.Size = new System.Drawing.Size(79, 39);
+            this.cmbMaterial.TabIndex = 9;
+            this.cmbMaterial.SelectedIndexChanged += new System.EventHandler(this.cmbMaterial_SelectedIndexChanged);
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.tglViewSimple);
+            this.groupBox2.Controls.Add(this.tglViewNormal);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.groupBox2.Font = new System.Drawing.Font("Yu Gothic UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.groupBox2.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.groupBox2.Location = new System.Drawing.Point(580, 0);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(238, 59);
+            this.groupBox2.TabIndex = 10;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "表示";
+            // 
+            // tglViewSimple
+            // 
+            this.tglViewSimple.Appearance = System.Windows.Forms.Appearance.Button;
+            this.tglViewSimple.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.tglViewSimple.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.tglViewSimple.Location = new System.Drawing.Point(123, 17);
+            this.tglViewSimple.Name = "tglViewSimple";
+            this.tglViewSimple.Size = new System.Drawing.Size(100, 34);
+            this.tglViewSimple.TabIndex = 9;
+            this.tglViewSimple.TabStop = true;
+            this.tglViewSimple.Text = "シンプル";
+            this.tglViewSimple.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.tglViewSimple.UseVisualStyleBackColor = true;
+            this.tglViewSimple.CheckedChanged += new System.EventHandler(this.tglViewSimple_CheckedChanged);
+            // 
+            // tglViewNormal
+            // 
+            this.tglViewNormal.Appearance = System.Windows.Forms.Appearance.Button;
+            this.tglViewNormal.BackColor = System.Drawing.Color.LightGreen;
+            this.tglViewNormal.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.tglViewNormal.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.tglViewNormal.Location = new System.Drawing.Point(17, 17);
+            this.tglViewNormal.Name = "tglViewNormal";
+            this.tglViewNormal.Size = new System.Drawing.Size(100, 34);
+            this.tglViewNormal.TabIndex = 8;
+            this.tglViewNormal.TabStop = true;
+            this.tglViewNormal.Text = "標準";
+            this.tglViewNormal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.tglViewNormal.UseVisualStyleBackColor = false;
+            this.tglViewNormal.CheckedChanged += new System.EventHandler(this.tglViewNormal_CheckedChanged);
             // 
             // Frm034_CodeSlipMstMaint
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Icon = (Icon)resources.GetObject("$this.Icon");
-            Name = "Frm034_CodeSlipMstMaint";
-            Text = "[KMD003SF] マスタ メンテナンス - コード票マスタ メンテ - Ver.230613.01a";
-            ResumeLayout(false);
+            this.AllowDrop = true;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(1007, 562);
+            this.Controls.Add(this.Dgv_CodeSlipMst);
+            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.panel1);
+            this.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.Name = "Frm034_CodeSlipMstMaint";
+            this.Text = "[KMD003SF] マスタ メンテナンス - コード票マスタ メンテ - Ver.230613.01a";
+            this.panel1.ResumeLayout(false);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.Dgv_CodeSlipMst)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
+        private Panel panel1;
+        private StatusStrip statusStrip1;
+        private ToolStripStatusLabel toolStripStatusLabel1;
+        private Panel panel2;
+        private DataGridView Dgv_CodeSlipMst;
+        private Button btnConvertMP;
+        private Button button2;
+        private Button button1;
+        private GroupBox groupBox1;
+        private Button btnHMCDClear;
+        private TextBox txtHMCD;
+        private ComboBox cmbMaterial;
+        private GroupBox groupBox2;
+        private RadioButton tglViewSimple;
+        private RadioButton tglViewNormal;
     }
 }

@@ -8,8 +8,18 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Excel = Microsoft.Office.Interop.Excel;
+using Office = Microsoft.Office.Core;
 using System.Windows.Forms;
 using DecryptPassword;
+using System.Drawing.Drawing2D;
+using Microsoft.Office.Interop.Excel;
+using System.Windows.Forms.VisualStyles;
+using static System.Net.WebRequestMethods;
+using System.Diagnostics.Contracts;
+using Microsoft.Win32;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace MPPPS
 {
@@ -63,7 +73,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 原価計算雛形ファイル参照先サーバーへの接続
+        /// 切削生産計画システム雛形ファイル参照先サーバーへの接続
         /// </summary>
         public void ConnectFormServer()
         {
@@ -76,16 +86,16 @@ namespace MPPPS
             formNetReform.dwDisplayType = 0;
             formNetReform.dwUsage = 0;
             formNetReform.lpLocalName = ""; // ネットワーク ドライブにする場合は "z:" などドライブレター設定  
-            formNetReform.lpRemoteName = @cmn.FsCd[0].ShareName;
+            formNetReform.lpRemoteName = @cmn.FsCd[1].ShareName;
             formNetReform.lpProvider = "";
 
             int ret = 0;
             try
             {
                 // 既に接続している場合があるので一旦切断する
-                ret = WNetCancelConnection2(@cmn.FsCd[0].ShareName, 0, true);
+                ret = WNetCancelConnection2(@cmn.FsCd[1].ShareName, 0, true);
                 // 認証情報を使って共有フォルダに接続
-                ret = WNetAddConnection2(ref formNetReform, cmn.FsCd[0].EncPasswd, cmn.FsCd[0].UserId, 0);
+                ret = WNetAddConnection2(ref formNetReform, cmn.FsCd[1].EncPasswd, cmn.FsCd[1].UserId, 0);
             }
             // 例外発生時
             catch (Exception ex)
@@ -98,7 +108,7 @@ namespace MPPPS
 
 
         /// <summary>
-        /// 原価管理計算結果保存先サーバーへの接続
+        /// 切削生産計画システム結果保存先サーバーへの接続
         /// </summary>
         public void ConnectSaveServer()
         {
@@ -256,7 +266,7 @@ namespace MPPPS
         /// <param name="tableName">テーブル名</param>
         /// <param name="dataTable">データ テーブル</param>
         /// <returns>結果 (≦ 0: 保存成功 (保存件数), -2: 先頭行の項目数が異なる)</returns>
-        public int ReadCSVFile(string path, Encoding encoding, bool isTitled, string tableName, ref DataTable dataTable)
+        public int ReadCSVFile(string path, Encoding encoding, bool isTitled, string tableName, ref System.Data.DataTable dataTable)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -459,13 +469,13 @@ namespace MPPPS
             string excelName = @path;
 
             oXls = new Excel.Application();
-            oXls.Visible = cmn.FsCd[1].VisibleExcel;  // Excelのウィンドウの表示/非表示を設定ファイルから取得
+            oXls.Visible = cmn.FsCd[0].VisibleExcel;  // Excelのウィンドウの表示/非表示を設定ファイルから取得
 
             // Excelファイルをオープンする//
             oWBook = (Excel.Workbook)(oXls.Workbooks.Open(
               excelName,  // オープンするExcelファイル名
               Type.Missing, // （省略可能）UpdateLinks (0 / 1 / 2 / 3)
-              Type.Missing, // （省略可能）ReadOnly (True / False )
+              ReadOnly: true, // （省略可能）ReadOnly (True / False )
               Type.Missing, // （省略可能）Format
                             // 1:タブ / 2:カンマ (,) / 3:スペース / 4:セミコロン (;)
                             // 5:なし / 6:引数 Delimiterで指定された文字
@@ -493,6 +503,107 @@ namespace MPPPS
             // アプリケーションの終了前に破棄可能なオブジェクトを破棄します。
             if (oWBook != null)
             {
+                Marshal.ReleaseComObject(oWBook);
+                oWBook = null;
+            }
+
+            // アプリケーションの終了前にガベージ コレクトを強制します。
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            // アプリケーションを終了します。
+            if (oXls != null)
+            {
+                oXls.Quit();
+
+                // Application オブジェクトを破棄します。
+                Marshal.ReleaseComObject(oXls);
+                oXls = null;
+            }
+
+            // Application オブジェクトのガベージ コレクトを強制します。
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+        }
+
+        public void OpenExcel2(int idx)
+        {
+            oXls = new Excel.Application();
+            oXls.Visible = cmn.FsCd[idx].VisibleExcel;  // Excelのウィンドウの表示/非表示を設定ファイルから取得
+        }
+
+        /// <summary>
+        /// Excel ファイルを開く
+        /// </summary>
+        /// <param name="cmn">共通クラス</param>
+        /// <param name="path">パス</param>
+        public void OpenExcelFile2(string path)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            string excelName = @path;
+
+            // Excelファイルをオープンする//
+            oWBook = (Excel.Workbook)(oXls.Workbooks.Open(
+              excelName,  // オープンするExcelファイル名
+              Type.Missing, // （省略可能）UpdateLinks (0 / 1 / 2 / 3)
+              ReadOnly: true, // （省略可能）ReadOnly (True / False )
+              Type.Missing, // （省略可能）Format
+                            // 1:タブ / 2:カンマ (,) / 3:スペース / 4:セミコロン (;)
+                            // 5:なし / 6:引数 Delimiterで指定された文字
+              Type.Missing, // （省略可能）Password
+              Type.Missing, // （省略可能）WriteResPassword
+              Type.Missing, // （省略可能）IgnoreReadOnlyRecommended
+              Type.Missing, // （省略可能）Origin
+              Type.Missing, // （省略可能）Delimiter
+              Type.Missing, // （省略可能）Editable
+              Type.Missing, // （省略可能）Notify
+              Type.Missing, // （省略可能）Converter
+              Type.Missing, // （省略可能）AddToMru
+              Type.Missing, // （省略可能）Local
+              Type.Missing  // （省略可能）CorruptLoad
+            ));
+            // oXls オブジェクトのアクティブプリンターを [Microsoft XPS Document Writer] に変更
+            SetActivePrinter();
+            oWSheet = oWBook.Sheets[1];
+        }
+
+        /// <summary>
+        /// Excel ファイルを閉じる
+        /// </summary>
+        public void CloseExcelFile2(bool saveChanges)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            // アプリケーションの終了前に破棄可能なオブジェクトを破棄します。
+            if (oWBook != null)
+            {
+                oWBook.Close(SaveChanges: saveChanges);
+                Marshal.ReleaseComObject(oWBook);
+                oWBook = null;
+            }
+
+            // アプリケーションの終了前にガベージ コレクトを強制します。
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+        }
+
+        /// <summary>
+        /// Excel アプリケーションを閉じる
+        /// </summary>
+        public void CloseExcel2()
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            // アプリケーションの終了前に破棄可能なオブジェクトを破棄します。
+            if (oWBook != null)
+            {
+                oWBook.Close(SaveChanges: false);
                 Marshal.ReleaseComObject(oWBook);
                 oWBook = null;
             }
@@ -549,7 +660,7 @@ namespace MPPPS
         /// <param name="dtbl">データ テーブル</param>
         /// <param name="path">パス</param>
         /// <param name="filenm">ファイル名称</param>
-        public void ExportExcel(DataTable dtbl, string path, string filenm)
+        public void ExportExcel(System.Data.DataTable dtbl, string path, string filenm)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -602,12 +713,12 @@ namespace MPPPS
         /// <param name="HeaderLine">見出し行</param>
         /// <param name="ColumnStart">開始列</param>
         /// <returns></returns>
-        public DataTable ReadExcelToDatatble(Excel.Workbook excelworkBook, 
+        public System.Data.DataTable ReadExcelToDatatble(Excel.Workbook excelworkBook, 
             string worksheetName, string saveAsLocation, string ReporType, int HeaderLine, int ColumnStart)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             Excel.Worksheet excelSheet;
             Excel.Range range;
             try
@@ -667,7 +778,7 @@ namespace MPPPS
         /// <param name="copyColumns">コピー列</param>
         /// <param name="odrCount">設備数</param>
         /// <returns></returns>
-        public int WriteDataTableToExcel(DataTable dataTable, Excel.Workbook excelworkBook, 
+        public int WriteDataTableToExcel(System.Data.DataTable dataTable, Excel.Workbook excelworkBook, 
             string worksheetName, string saveAsLocation, string ReportType, int copyColumns, ref int[] odrCount)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
@@ -729,7 +840,7 @@ namespace MPPPS
         /// <param name="ReportType">レポート種別</param>
         /// <param name="copyColumns">コピー列</param>
         /// <returns></returns>
-        public int WriteDataTableToExcel(DataTable dataTable, Excel.Workbook excelworkBook,
+        public int WriteDataTableToExcel(System.Data.DataTable dataTable, Excel.Workbook excelworkBook,
             string worksheetName, string saveAsLocation, string ReportType, int copyColumns)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
@@ -833,7 +944,7 @@ namespace MPPPS
         /// <param name="encoding">ファイル出力形式 ("SJIS":shift_jis, "UFT8":utf-8(BOM付き))</param>
         /// 
         /// <returns>結果 (0: 保存成功 (保存件数), -1: 保存失敗, -2: 認証失敗)</returns>
-        public int SaveCSVFile(DataTable dt, string path, string encoding)
+        public int SaveCSVFile(System.Data.DataTable dt, string path, string encoding)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -856,16 +967,13 @@ namespace MPPPS
                     List<string> strList = new List<string>();
 
                     // ヘッダー項目
-                    foreach (DataColumn dc in dt.Columns)
-                    {
-                        strList.Add("\"" + dc.ColumnName + "\"");
-                    }
-                    string[] strArray = strList.ToArray(); // 配列へ変換
-
-                    // CSV 形式に変換
-                    string strCsvData = string.Join(",", strArray);
-
-                    writer.WriteLine(strCsvData);
+                        foreach (DataColumn dc in dt.Columns)
+                        {
+                            strList.Add("\"" + dc.ColumnName + "\"");
+                        }
+                        string[] strArray = strList.ToArray(); // 配列へ変換
+                        string strCsvData = string.Join(",", strArray);// CSV 形式に変換
+                        //writer.WriteLine(strCsvData);
 
                     // データ項目行
                     foreach (DataRow dr in dt.Rows)
@@ -874,7 +982,8 @@ namespace MPPPS
                         strList.Clear();
                         foreach (DataColumn column in dt.Columns)
                         {
-                            strList.Add("\"" + dr[column].ToString() + "\"");
+                            // strList.Add("\"" + dr[column].ToString() + "\""); ダブルクォーテーション("")が必要な場合はこれ
+                            strList.Add(dr[column].ToString());
                         }
                         strArray = strList.ToArray(); // 配列へ変換
 
@@ -917,6 +1026,301 @@ namespace MPPPS
             return ret;
         }
 
+        // oXls オブジェクトのアクティブプリンターを [Microsoft XPS Document Writer] に変更
+        public void SetActivePrinter()
+        {
+            string printerName = "Microsoft XPS Document Writer";
+            string printerPort = "";
+            // プリンターポート番号を取得する
+            string keyAddress = @"Software\Microsoft\Windows NT\CurrentVersion\Devices";
+            using (RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(keyAddress))
+            {
+                if (registryKey != null)
+                {
+                    // 例）"winspool,Ne00:"
+                    object value = registryKey.GetValue(printerName);
+                    if (value != null)
+                    {
+                        string[] split = value.ToString().Split(',');
+                        if (split.Length >= 2)
+                        {
+                            printerPort = split[1];
+                        }
+                    }
+                }
+            }
+            // アクティブプリンターを設定する
+            if ((!oXls.ActivePrinter.StartsWith(printerName)) && (printerPort != ""))
+            {
+                oXls.ActivePrinter = $"{printerName} on {printerPort}";
+            }
+        }
+
+        // コピペだと遅いなぁ
+        /*
+* Visible = true;
+[StopWatch] Header開始 16:28:50
+[StopWatch] Header終了 16:28:54 (4.578秒)
+[StopWatch] Header開始 16:28:55
+[StopWatch] Header終了 16:28:58 (2.492秒) * ページ数
+[StopWatch] 終了 16:29:30 (41.910秒)
+* Visible = false;
+[StopWatch] Header開始 16:45:14
+[StopWatch] Header終了 16:45:16 (2.095秒)
+[StopWatch] Header開始 16:45:16
+[StopWatch] Header終了 16:45:16 (0.423秒) * ページ数
+[StopWatch] 終了 16:45:27 (14.835秒) 50件で
+         */
+
+        // コピペじゃないパターン時間かけて作ったけど更に遅くなった^^;
+        /*
+* Visible = true;
+[StopWatch] 開始 20:37:31
+[StopWatch] 終了 20:39:27 (115.663秒)
+* Visible = false;
+[StopWatch] 開始 20:42:55
+[StopWatch] 終了 20:43:48 (52.037秒)
+                    // 書式設定
+                    // 品番T
+                    oWSheet.Range[oWSheet.Cells[row + 0, col - 1], oWSheet.Cells[row + 2, col - 1]].Merge(); 
+                    oWSheet.Range[oWSheet.Cells[row + 0, col - 1], oWSheet.Cells[row + 2, col - 1]].Font.Size = oWSheet.Range["A1:A3"].Font.Size;
+                    // 品番
+                    oWSheet.Range[oWSheet.Cells[row + 0, col + 0], oWSheet.Cells[row + 2, col + 5]].Merge();
+                    oWSheet.Range[oWSheet.Cells[row + 0, col + 0], oWSheet.Cells[row + 2, col + 5]].Font.Size = oWSheet.Range["B1:G3"].Font.Size;
+                    oWSheet.Range[oWSheet.Cells[row + 0, col + 0], oWSheet.Cells[row + 2, col + 5]].Font.Bold = oWSheet.Range["B1:G3"].Font.Bold;
+                    oWSheet.Range[oWSheet.Cells[row + 0, col + 0], oWSheet.Cells[row + 2, col + 5]].HorizontalAlignment = oWSheet.Range["B1:G3"].HorizontalAlignment;
+                    // ｽﾏｰﾄﾀﾅｺﾝ用QR
+                    oWSheet.Range[oWSheet.Cells[row + 0, col + 6], oWSheet.Cells[row + 2, col + 6]].Merge();
+                    oWSheet.Range[oWSheet.Cells[row + 0, col + 6], oWSheet.Cells[row + 2, col + 6]].Font.Size = oWSheet.Range["H1:H3"].Font.Size;
+                    oWSheet.Range[oWSheet.Cells[row + 0, col + 6], oWSheet.Cells[row + 2, col + 6]].Font.Color = oWSheet.Range["H1:H3"].Font.Color;
+                    oWSheet.Range[oWSheet.Cells[row + 0, col + 6], oWSheet.Cells[row + 2, col + 6]].VerticalAlignment = oWSheet.Range["H1:H3"].VerticalAlignment;
+                    // 品名
+                    oWSheet.Range[oWSheet.Cells[row + 3, col + 0], oWSheet.Cells[row + 3, col + 6]].Merge();
+                    oWSheet.Range[oWSheet.Cells[row + 3, col + 0], oWSheet.Cells[row + 3, col + 6]].Font.Size = oWSheet.Range["B4:H4"].Font.Size;
+                    // 注文番号、その他情報
+                    for (int i = 4; i <= 6; i++)
+                    {
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 0], oWSheet.Cells[row + i, col + 2]].Merge();
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 3], oWSheet.Cells[row + i, col + 4]].Merge();
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 5], oWSheet.Cells[row + i, col + 6]].Merge();
+                    }
+                    oWSheet.Range[oWSheet.Cells[row + 5, col + 0], oWSheet.Cells[row + 5, col + 2]].Font.Bold = oWSheet.Range["B6:D6"].Font.Bold;
+                    oWSheet.Range[oWSheet.Cells[row + 6, col + 0], oWSheet.Cells[row + 6, col + 2]].Font.Bold = oWSheet.Range["B7:D7"].Font.Bold;
+                    // 設備名T
+                    oWSheet.Range[oWSheet.Cells[row + 7, col + 0], oWSheet.Cells[row + 7, col + 1]].Merge();
+                    oWSheet.Range[oWSheet.Cells[row + 7, col + 0], oWSheet.Cells[row + 7, col + 1]].Font.Size = oWSheet.Range["B8:C8"].Font.Size;
+                    // 加工時間T
+                    oWSheet.Range[oWSheet.Cells[row + 7, col + 2], oWSheet.Cells[row + 7, col + 3]].Merge();
+                    oWSheet.Range[oWSheet.Cells[row + 7, col + 2], oWSheet.Cells[row + 7, col + 3]].Font.Size = oWSheet.Range["D8:E8"].Font.Size;
+                    oWSheet.Range[oWSheet.Cells[row + 7, col + 2], oWSheet.Cells[row + 7, col + 3]].ShrinkToFit = oWSheet.Range["D8:E8"].ShrinkToFit;
+                    // 数量T
+                    oWSheet.Range[oWSheet.Cells[row + 7, col + 4], oWSheet.Cells[row + 7, col + 5]].Merge();
+                    oWSheet.Range[oWSheet.Cells[row + 7, col + 4], oWSheet.Cells[row + 7, col + 5]].Font.Size = oWSheet.Range["F8:G8"].Font.Size;
+                    // 納期T
+                    oWSheet.Range[oWSheet.Cells[row + 7, col + 6], oWSheet.Cells[row + 7, col + 6]].Font.Size = oWSheet.Range["H8:H8"].Font.Size;
+                    for (int i = 8; i <= 18; i = i + 2)
+                    {
+                        oWSheet.Range[oWSheet.Cells[row + i, col - 1], oWSheet.Cells[row + i + 1, col - 1]].Merge();
+                        // 設備名
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 0], oWSheet.Cells[row + i + 1, col + 1]].Merge();
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 0], oWSheet.Cells[row + i + 1, col + 1]].Font.Size = oWSheet.Range["B9:C10"].Font.Size;
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 2], oWSheet.Cells[row + i + 1, col + 3]].Merge();
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 2], oWSheet.Cells[row + i + 1, col + 3]].Font.Size = oWSheet.Range["D9:E10"].Font.Size;
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 4], oWSheet.Cells[row + i + 1, col + 5]].Merge();
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 4], oWSheet.Cells[row + i + 1, col + 5]].Font.Size = oWSheet.Range["F9:G10"].Font.Size;
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 6], oWSheet.Cells[row + i + 1, col + 6]].Merge();
+                        oWSheet.Range[oWSheet.Cells[row + i, col + 6], oWSheet.Cells[row + i + 1, col + 6]].Font.Size = oWSheet.Range["H9:H10"].Font.Size;
+                    }
+                    oWSheet.Range[oWSheet.Cells[row + 18, col - 1], oWSheet.Cells[row + 19, col - 1]].Merge();
+                    // 備考
+                    oWSheet.Range[oWSheet.Cells[row + 18, col + 0], oWSheet.Cells[row + 19, col + 5]].Merge();
+                    // i-Reporter用
+                    oWSheet.Range[oWSheet.Cells[row + 18, col + 6], oWSheet.Cells[row + 19, col + 6]].Merge();
+                    oWSheet.Range[oWSheet.Cells[row + 18, col + 6], oWSheet.Cells[row + 19, col + 6]].Font.Size = oWSheet.Range["H19:H20"].Font.Size;
+                    oWSheet.Range[oWSheet.Cells[row + 18, col + 6], oWSheet.Cells[row + 19, col + 6]].Font.Color = oWSheet.Range["H19:H20"].Font.Color;
+                    oWSheet.Range[oWSheet.Cells[row + 18, col + 6], oWSheet.Cells[row + 19, col + 6]].VerticalAlignment = oWSheet.Range["H19:H20"].VerticalAlignment;
+
+                    // 罫線
+                    var rng = oWSheet.Range[oWSheet.Cells[row + 0, col - 1], oWSheet.Cells[row + 19, col + 6]];
+                    rng.Borders[Excel.XlBordersIndex.xlEdgeLeft].LineStyle = Excel.XlLineStyle.xlContinuous;
+                    rng.Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
+                    rng.Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
+                    rng.Borders[Excel.XlBordersIndex.xlEdgeTop].LineStyle = Excel.XlLineStyle.xlContinuous;
+                    rng.Borders[Excel.XlBordersIndex.xlEdgeTop].LineStyle = Excel.XlLineStyle.xlContinuous;
+                    rng.Borders[Excel.XlBordersIndex.xlInsideVertical].LineStyle = Excel.XlLineStyle.xlContinuous;
+                    rng.Borders[Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Excel.XlLineStyle.xlContinuous;
+
+                    // タイトル
+                    oWSheet.Cells[row + 0, col - 1].Value = "品番";
+                    oWSheet.Cells[row + 0, col + 6].Value = "ｽﾏｰﾄﾀﾅｺﾝ用";
+                    oWSheet.Cells[row + 3, col - 1].Value = "品名";
+                    oWSheet.Cells[row + 4, col - 1].Value = "注文番号";
+                    oWSheet.Cells[row + 4, col + 3].Value = "ｻｲｽﾞx全長";
+                    oWSheet.Cells[row + 5, col - 1].Value = "注文日付";
+                    oWSheet.Cells[row + 5, col + 3].Value = "収容数";
+                    oWSheet.Cells[row + 6, col - 1].Value = "注文数量";
+                    oWSheet.Cells[row + 6, col + 3].Value = "協力工場";
+                    oWSheet.Cells[row + 7, col + 0].Value = "設備名";
+                    oWSheet.Cells[row + 7, col + 2].Value = "加工時間(分)";
+                    oWSheet.Cells[row + 7, col + 4].Value = "数量";
+                    oWSheet.Cells[row + 7, col + 6].Value = "納期";
+                    oWSheet.Cells[row + 16, col - 1].Value = "検査";
+                    oWSheet.Cells[row + 18, col - 1].Value = "備考";
+                    oWSheet.Cells[row + 18, col + 6].Value = "i-Reporter用";
+         * */
+
+        // Excelコピペした後に前のデータをクリアする
+        private void ClearCardByPage(ref int rowbase)
+        {
+            for (int row = rowbase; row <= rowbase + 21; row = row + 21)
+            {
+                for (int col = 2; col <= 11; col = col + 9)
+                {
+                    oWSheet.Cells[row + 0, col].Value = String.Empty;
+                    oWSheet.Cells[row + 3, col].Value = String.Empty;
+                    oWSheet.Cells[row + 4, col].Value = String.Empty;
+                    oWSheet.Cells[row + 5, col].Value = String.Empty;
+                    oWSheet.Cells[row + 6, col].Value = String.Empty;
+                    oWSheet.Cells[row + 4, col + 5].Value = String.Empty;
+                    oWSheet.Cells[row + 5, col + 5].Value = String.Empty;
+                    oWSheet.Cells[row + 6, col + 5].Value = String.Empty;
+                    oWSheet.Cells[row + 8, col - 1].Value = String.Empty;
+                    oWSheet.Cells[row + 8, col].Value = String.Empty;
+                    oWSheet.Cells[row + 10, col - 1].Value = String.Empty;
+                    oWSheet.Cells[row + 10, col].Value = String.Empty;
+                    oWSheet.Cells[row + 12, col - 1].Value = String.Empty;
+                    oWSheet.Cells[row + 12, col].Value = String.Empty;
+                    oWSheet.Cells[row + 14, col - 1].Value = String.Empty;
+                    oWSheet.Cells[row + 14, col].Value = String.Empty;
+                    oWSheet.Cells[row + 16, col].Value = String.Empty;
+                    oWSheet.Cells[row + 18, col].Value = String.Empty;
+                }
+            }
+
+        }
+
+        // 1カード作成（DataRow1件分を作成）
+        public void SetOrderCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col)
+        {
+            if (row > 40) // 2頁目以降に判定を行う
+            {
+                if ((row - 1) % 42 == 0 && col <= 2) // 各頁の最初のカード作成前に1頁目の雛形書式をコピー
+                {
+                    // A1:Q42をコピペ
+                    var range = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[42, 17]];
+                    range.Copy(oWSheet.Cells[row, 1]);
+                    // 必要ない値のみクリア
+                    ClearCardByPage(ref row);
+                    // 行の高さはコピペされないのでRows(1:42)を複製
+                    for (int y = 1; y <= 42; y++)
+                        oWSheet.Rows[row + y - 1].RowHeight = oWSheet.Rows[y].RowHeight;
+                }
+            }
+
+            // 値を設定
+            oWSheet.Cells[row + 0, col].Value = r["HMCD"].ToString();
+            oWSheet.Cells[row + 3, col].Value = r["HMNM"].ToString();
+            oWSheet.Cells[row + 4, col].Value = r["ODRNO"].ToString();
+            oWSheet.Cells[row + 5, col].Value = cardDay.ToString("yyyy.MM.dd");
+            oWSheet.Cells[row + 6, col].Value = r["ODRQTY"].ToString();
+            oWSheet.Cells[row + 4, col + 5].Value = r["MATESIZE"].ToString() + r["LENGTH"].ToString() != "" ? " x " + r["LENGTH"] : "";
+            oWSheet.Cells[row + 5, col + 5].Value = r["BOXQTY"].ToString();
+            oWSheet.Cells[row + 6, col + 5].Value = r["PARTNER"].ToString();
+            if (r["KT1MCGCD"].ToString() == "")
+            {
+                oWSheet.Cells[row + 8, col - 1].Value = "";
+            }
+            else 
+            {
+                oWSheet.Cells[row + 8, col - 1].Value = "工程①";
+                oWSheet.Cells[row + 8, col].Value = r["KT1MCGCD"].ToString() + "-" + r["KT1MCCD"].ToString();
+            }
+            if (r["KT2MCGCD"].ToString() == "")
+            {
+                oWSheet.Cells[row + 10, col - 1].Value = "";
+            }
+            else
+            {
+                oWSheet.Cells[row + 10, col - 1].Value = "工程②";
+                oWSheet.Cells[row + 10, col].Value = r["KT2MCGCD"].ToString() + "-" + r["KT2MCCD"].ToString();
+            }
+            if (r["KT3MCGCD"].ToString() == "")
+            {
+                oWSheet.Cells[row + 12, col - 1].Value = "";
+            }
+            else
+            {
+                oWSheet.Cells[row + 12, col - 1].Value = "工程③";
+                oWSheet.Cells[row + 12, col].Value = r["KT3MCGCD"].ToString() + "-" + r["KT3MCCD"].ToString();
+            }
+            if (r["KT4MCGCD"].ToString() == "")
+            {
+                oWSheet.Cells[row + 14, col - 1].Value = "";
+            }
+            else
+            {
+                oWSheet.Cells[row + 14, col - 1].Value = "工程④";
+                oWSheet.Cells[row + 14, col].Value = r["KT4MCGCD"].ToString() + "-" + r["KT4MCCD"].ToString();
+            }
+            if (r["KT5MCGCD"].ToString() != "")
+            {
+                oWSheet.Cells[row + 16, col].Value = r["KT5MCGCD"].ToString() + "-" + r["KT5MCCD"].ToString();
+            }
+            oWSheet.Cells[row + 18, col].Value = r["NOTE"].ToString();
+
+            // QRコードを作成
+
+            // QRコードを作成してビットマップにした後
+            // スマート棚コン用QRコード作成
+            var fn = @"\\kmtsvr\共有SVEM02\Koken\切削生産計画システム\雛形\QR.bmp";// こちらサンプル画像
+            Excel.Range rng = oWSheet.Cells[row, col + 6];
+            Shape shp = oWSheet.Shapes.AddPicture2(
+                fn
+                , Office.MsoTriState.msoFalse   // LinkToFile           図を作成元のファイルにリンクするかどうか
+                , Office.MsoTriState.msoTrue    // SaveWithDocument     上記がFalseの場合、こちらをTrueにしないと落ちる（ハマった）
+                , rng.Left + 8                  // Left [ Single ]
+                , rng.Top + 12                  // Top [Single]
+                , 42                            // Width [Single]  (旧：rng.Width - 14）
+                , 44                            // Height [Single]（旧：rng.Height - 14）
+                , Office.MsoPictureCompress.msoPictureCompressFalse //Compress 画像を挿入するときに圧縮するかどうか
+            );
+            shp.Left = (float)rng.Left + 8;
+            shp.Top = (float)rng.Top + 12;
+            shp.Placement = XlPlacement.xlFreeFloating; // セルに合わせて移動やサイズ変更しない
+
+            // i-Reporter用QRコード作成
+            rng = oWSheet.Cells[row + 18, col + 6];
+            shp = oWSheet.Shapes.AddPicture2(
+                fn
+                , Office.MsoTriState.msoFalse   // LinkToFile           図を作成元のファイルにリンクするかどうか
+                , Office.MsoTriState.msoTrue    // SaveWithDocument     上記がFalseの場合、こちらをTrueにしないと落ちる（ハマった）
+                , rng.Left + 8                  // Left [ Single ]
+                , rng.Top + 12                  // Top [Single]
+                , 42                            // Width [Single]  (旧：rng.Width - 14）
+                , 44                            // Height [Single]（旧：rng.Height - 14）
+                , Office.MsoPictureCompress.msoPictureCompressFalse //Compress 画像を挿入するときに圧縮するかどうか
+            );
+            shp.Left = (float)rng.Left + 8;
+            shp.Top = (float)rng.Top + 12;
+            shp.Placement = XlPlacement.xlFreeFloating; // セルに合わせて移動やサイズ変更しない
+
+        }
+
+        /// <summary>
+        /// 現在開いているブックをPDFに変換して保存
+        /// </summary>
+        /// <param name="fileName">ファイル名</param>
+        public void ExportExcelToPDF(string filePath)
+        {
+            oWBook.ExportAsFixedFormat(
+                Type: Excel.XlFixedFormatType.xlTypePDF,
+                Filename: $@"{filePath}",
+                Quality: Excel.XlFixedFormatQuality.xlQualityStandard
+            );
+
+            // PDFを標準アプリケーションで開く
+            Process.Start($@"{filePath}");
+        }
 
 
     }

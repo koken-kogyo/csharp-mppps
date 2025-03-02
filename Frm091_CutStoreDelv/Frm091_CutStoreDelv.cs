@@ -82,7 +82,7 @@ namespace MPPPS
             DateTime firstDayOfMonth = new DateTime(targetMonth.Year, targetMonth.Month, 1);
             // MPシステムから計画出庫データ出力済の手配日一覧を取得
             DataTable shipmentPlanDt = new DataTable();
-            cmn.Dba.GetShipmentPlanDays(ref shipmentPlanDt, firstDayOfMonth);
+            cmn.Dba.GetShipmentPlanSummaryInfo(ref shipmentPlanDt, firstDayOfMonth);
             int row = 0;
             // 前月があれば作成
             DateTime dayOfPrevMonth = firstDayOfMonth.AddDays(-1);

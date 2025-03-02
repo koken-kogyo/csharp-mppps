@@ -56,22 +56,22 @@ namespace MPPPS
             InitSubseqCtrls((int)Common.Frm042InqKeyIdx.EdDt);
 
             // 切削生産計画情報、切削生産計画日程情報取得
-            cmn.IkD0415 = new IkD0415();
-            cmn.IkD0445 = new IkD0445();
+            cmn.IkKD8430 = new IkKD8430();
+            cmn.IkKD8440 = new IkKD8440();
 
             // 指定日時で検索
-            cmn.IkD0415.EdDt = Convert.ToDateTime(Dtp_EdDt.Value.ToShortDateString());
-            cmn.IkD0415.McGCd = "";
-            cmn.IkD0415.McCd = "";
+            cmn.IkKD8430.EdDt = Convert.ToDateTime(Dtp_EdDt.Value.ToShortDateString());
+            cmn.IkKD8430.McGCd = "";
+            cmn.IkKD8430.McCd = "";
 
-            cmn.IkD0445.EdDt = cmn.IkD0415.EdDt;
-            cmn.IkD0445.McGCd = cmn.IkD0415.McGCd;
-            cmn.IkD0445.McCd = cmn.IkD0415.McCd;
+            cmn.IkKD8440.EdDt = cmn.IkKD8430.EdDt;
+            cmn.IkKD8440.McGCd = cmn.IkKD8430.McGCd;
+            cmn.IkKD8440.McCd = cmn.IkKD8430.McCd;
 
 
             // 検索してコンボ ボックスに追加
             DataSet dataSet = new DataSet();
-            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.D0415_TARGET_MCGCD) > 0)
+            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.KD8430_TARGET_MCGCD) > 0)
             {
                 // [グループ] にグループ コード＋グループ名称を追加
                 Cbx_McGCd.BeginUpdate();
@@ -98,23 +98,23 @@ namespace MPPPS
             InitSubseqCtrls((int)Common.Frm042InqKeyIdx.McGCd);
 
             // 切削生産計画情報、切削生産計画日程情報取得
-            cmn.IkD0415 = new IkD0415();
-            cmn.IkD0445 = new IkD0445();
+            cmn.IkKD8430 = new IkKD8430();
+            cmn.IkKD8440 = new IkKD8440();
 
             // 指定日時で検索
             string[] mcGCdArr = Cbx_McGCd.Text.Split(' ');
 
-            cmn.IkD0415.EdDt = Convert.ToDateTime(Dtp_EdDt.Text);
-            cmn.IkD0415.McGCd = mcGCdArr[0].Replace(":", "");
-            cmn.IkD0415.McCd = "";
+            cmn.IkKD8430.EdDt = Convert.ToDateTime(Dtp_EdDt.Text);
+            cmn.IkKD8430.McGCd = mcGCdArr[0].Replace(":", "");
+            cmn.IkKD8430.McCd = "";
 
-            cmn.IkD0445.EdDt = cmn.IkD0415.EdDt;
-            cmn.IkD0445.McGCd = cmn.IkD0415.McGCd;
-            cmn.IkD0445.McCd = cmn.IkD0415.McCd;
+            cmn.IkKD8440.EdDt = cmn.IkKD8430.EdDt;
+            cmn.IkKD8440.McGCd = cmn.IkKD8430.McGCd;
+            cmn.IkKD8440.McCd = cmn.IkKD8430.McCd;
 
             // 検索してコンボ ボックスに追加
             DataSet dataSet = new DataSet();
-            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.D0415_TARGET_MCCD) > 0)
+            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.KD8430_TARGET_MCCD) > 0)
             {
                 // [設備] に設備コード＋設備名称を追加
                 Cbx_McCd.BeginUpdate();
@@ -141,24 +141,24 @@ namespace MPPPS
             InitSubseqCtrls((int)Common.Frm042InqKeyIdx.McCd);
 
             // 切削生産計画情報、切削生産計画日程情報取得
-            cmn.IkD0415 = new IkD0415();
-            cmn.IkD0445 = new IkD0445();
+            cmn.IkKD8430 = new IkKD8430();
+            cmn.IkKD8440 = new IkKD8440();
 
             // 指定日時で検索
             string[] mcGCdArr = Cbx_McGCd.Text.Split(' ');
             string[] mcCdArr = Cbx_McCd.Text.Split(' ');
 
-            cmn.IkD0415.EdDt = Convert.ToDateTime(Dtp_EdDt.Text);
-            cmn.IkD0415.McGCd = mcGCdArr[0].Replace(":", "");
-            cmn.IkD0415.McCd = mcCdArr[0].Replace(":", "");
+            cmn.IkKD8430.EdDt = Convert.ToDateTime(Dtp_EdDt.Text);
+            cmn.IkKD8430.McGCd = mcGCdArr[0].Replace(":", "");
+            cmn.IkKD8430.McCd = mcCdArr[0].Replace(":", "");
 
-            cmn.IkD0445.EdDt = cmn.IkD0415.EdDt;
-            cmn.IkD0445.McGCd = cmn.IkD0415.McGCd;
-            cmn.IkD0445.McCd = cmn.IkD0415.McCd;
+            cmn.IkKD8440.EdDt = cmn.IkKD8430.EdDt;
+            cmn.IkKD8440.McGCd = cmn.IkKD8430.McGCd;
+            cmn.IkKD8440.McCd = cmn.IkKD8430.McCd;
 
             // 検索してコンボ ボックスに追加
             DataSet dataSet = new DataSet();
-            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.D0415_TARGET_MCTM) > 0)
+            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.KD8430_TARGET_MCTM) > 0)
             {
                 // 設備稼働時間を表示
                 Tbx_McOnTime.Text = dataSet.Tables[0].Rows[0].ItemArray[2].ToString();
@@ -236,15 +236,15 @@ namespace MPPPS
                 // 切削オーダー データ (変更後)
                 cmn.RemoveDagaGridViewRows(Dgv_MpSimOdrTbl);
 
-                // D0415 切削生産計画ファイル (確定) のテーブル情報取得
+                // KD8430 切削生産計画ファイル (確定) のテーブル情報取得
                 int dataCount = 0;
                 DataSet dataSetTblInfo = new DataSet();
-                dataCount = cmn.Dbm.GetMySqlTableInfo(ref dataSetTblInfo, Common.TABLE_ID_D0415);
+                dataCount = cmn.Dbm.GetMySqlTableInfo(ref dataSetTblInfo, Common.TABLE_ID_KD8430);
                 if (dataCount <= 0)
                 {
                     // テーブル情報なし
                     Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
-                    string msgBodyExtStr = string.Format(Common.MSG_BODY_EXT_STR_TABLE_ID, Common.TABLE_ID_D0415);
+                    string msgBodyExtStr = string.Format(Common.MSG_BODY_EXT_STR_TABLE_ID, Common.TABLE_ID_KD8430);
                     cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_803, Common.MSG_TYPE_F, MessageBoxButtons.OK,
                                        Common.MSGBOX_TXT_FATAL, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, msgBodyExtStr);
 
@@ -299,7 +299,7 @@ namespace MPPPS
     ///// 
 
     ///// <summary>
-    ///// データ更新あり (D0415 切削生産計画ファイル)
+    ///// データ更新あり (KD8430 切削生産計画ファイル)
     ///// </summary>
     ///// <param name="dataRow">データ行</param>
     ///// <returns>結果 (false: 更新なし, true: 更新あり)</returns>
@@ -310,14 +310,14 @@ namespace MPPPS
     //    while (true)
     //    {
     //        // サイクルタイム
-    //        if (Convert.ToDouble(dataRow.ItemArray[(int)Common.D0415ClmIdx.CT]) != cmn.DrD0415.CT)
+    //        if (Convert.ToDouble(dataRow.ItemArray[(int)Common.KD8430ClmIdx.CT]) != cmn.DrKD8430.CT)
     //        {
     //            ret = true;
     //            break;
     //        }
 
     //        // 備考
-    //        if (dataRow.ItemArray[(int)Common.D0415ClmIdx.Note].ToString() != cmn.DrD0415.Note)
+    //        if (dataRow.ItemArray[(int)Common.KD8430ClmIdx.Note].ToString() != cmn.DrKD8430.Note)
     //        {
     //            ret = true;
     //            break;
@@ -329,26 +329,26 @@ namespace MPPPS
     //}
 
     ///// <summary>
-    ///// D0415 切削生産計画ファイル主キー設定 (単票形式)
+    ///// KD8430 切削生産計画ファイル主キー設定 (単票形式)
     ///// </summary>
     //private void SetCycleTimeMstPKey()
     //{
     //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
     //    // 主キーを設定
-    //    cmn.PkD0415 = new PkD0415();
+    //    cmn.PkKD8430 = new PkKD8430();
 
     //    // グループ コード
     //    string[] odArr = Cbx_McGCd.Text.Split(' ');
-    //    cmn.PkD0415.OdCd = odArr[0];
+    //    cmn.PkKD8430.OdCd = odArr[0];
 
     //    // 切削刃具 コード
     //    string[] wkGrArr = Cbx_McGCd.Text.Split(' ');
-    //    cmn.PkD0415.WkGrCd = wkGrArr[0];
+    //    cmn.PkKD8430.WkGrCd = wkGrArr[0];
 
     //    // 品番
     //    string[] hmArr = Cbx_McCd.Text.Split(' ');
-    //    cmn.PkD0415.HmCd = hmArr[0];
+    //    cmn.PkKD8430.HmCd = hmArr[0];
 
     //    // 適用開始日
     //    if (Rbt_RegDt.Checked) // 登録済日付選択中
@@ -356,13 +356,13 @@ namespace MPPPS
     //        // 登録済日付を設定
     //        if (string.IsNullOrEmpty(Cbx_RegDt.Text) || string.IsNullOrWhiteSpace(Cbx_RegDt.Text))
     //        {
-    //            cmn.PkD0415.ValDtFF = Convert.ToDateTime(Common.MIN_DATETIME);
-    //            cmn.PkD0415.ValDtFT = Convert.ToDateTime(Common.MAX_DATETIME);
+    //            cmn.PkKD8430.ValDtFF = Convert.ToDateTime(Common.MIN_DATETIME);
+    //            cmn.PkKD8430.ValDtFT = Convert.ToDateTime(Common.MAX_DATETIME);
     //        }
     //        else
     //        {
-    //            cmn.PkD0415.ValDtFF = Convert.ToDateTime(Cbx_RegDt.Text);
-    //            cmn.PkD0415.ValDtFT = Convert.ToDateTime(Cbx_RegDt.Text);
+    //            cmn.PkKD8430.ValDtFF = Convert.ToDateTime(Cbx_RegDt.Text);
+    //            cmn.PkKD8430.ValDtFT = Convert.ToDateTime(Cbx_RegDt.Text);
     //        }
     //    }
     //    else // 登録済日付非選択中
@@ -371,13 +371,13 @@ namespace MPPPS
     //        // 登録済日付を設定
     //        if (string.IsNullOrEmpty(Cbx_RegDt.Text) || string.IsNullOrWhiteSpace(Cbx_RegDt.Text))
     //        {
-    //            cmn.PkD0415.ValDtFF = Convert.ToDateTime(Common.MIN_DATE);
-    //            cmn.PkD0415.ValDtFT = Convert.ToDateTime(Common.MAX_DATE);
+    //            cmn.PkKD8430.ValDtFF = Convert.ToDateTime(Common.MIN_DATE);
+    //            cmn.PkKD8430.ValDtFT = Convert.ToDateTime(Common.MAX_DATE);
     //        }
     //        else
     //        {
-    //            cmn.PkD0415.ValDtFF = Convert.ToDateTime(Dtp_EdDt.Value.ToString("yyyy/MM/dd"));
-    //            cmn.PkD0415.ValDtFT = Convert.ToDateTime(Dtp_EdDt.Value.ToString("yyyy/MM/dd"));
+    //            cmn.PkKD8430.ValDtFF = Convert.ToDateTime(Dtp_EdDt.Value.ToString("yyyy/MM/dd"));
+    //            cmn.PkKD8430.ValDtFT = Convert.ToDateTime(Dtp_EdDt.Value.ToString("yyyy/MM/dd"));
     //        }
     //    }
 
@@ -385,11 +385,11 @@ namespace MPPPS
     //    string[] wkSeqArr = Cbx_WkSeq.Text.Split(' ');
     //    int result;
     //    int.TryParse(wkSeqArr[0], out result);
-    //    cmn.PkD0415.WkSeq = result;
+    //    cmn.PkKD8430.WkSeq = result;
     //}
 
     ///// <summary>
-    ///// D0415 切削生産計画ファイル データ項目設定 (単票形式)
+    ///// KD8430 切削生産計画ファイル データ項目設定 (単票形式)
     ///// </summary>
     ///// <param name="opeCd">処理種別</param>
     //private void SetCycleTimeMstData(char opeCd)
@@ -397,13 +397,13 @@ namespace MPPPS
     //    Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
     //    // データ項目設定
-    //    cmn.DrD0415 = new DrD0415();
+    //    cmn.DrKD8430 = new DrKD8430();
 
     //    // サイクルタイム
-    //    cmn.DrD0415.CT = Convert.ToDouble(Tbx_CT.Text);
+    //    cmn.DrKD8430.CT = Convert.ToDouble(Tbx_CT.Text);
 
     //    // 備考
-    //    cmn.DrD0415.Note = Tbx_Note.Text;
+    //    cmn.DrKD8430.Note = Tbx_Note.Text;
 
     //    // 現在日時取得
     //    string now = DateTime.Now.ToString();
@@ -412,20 +412,20 @@ namespace MPPPS
     //    if (opeCd == Common.OPE_CD_INS)
     //    {
     //        // 登録者
-    //        cmn.DrCommon.InstID = cmn.PkD0415.UserId;
+    //        cmn.DrCommon.InstID = cmn.PkKD8430.UserId;
 
     //        // 登録日時
     //        cmn.DrCommon.InstDT = now;
     //    }
 
     //    // 更新者
-    //    cmn.DrCommon.UpdtID = cmn.PkD0415.UserId;
+    //    cmn.DrCommon.UpdtID = cmn.PkKD8430.UserId;
     //    // 更新日時
     //    cmn.DrCommon.UpdtDT = now;
     //}
 
     ///// <summary>
-    ///// 単票形式データ取得 (D0415 切削生産計画ファイル)
+    ///// 単票形式データ取得 (KD8430 切削生産計画ファイル)
     ///// </summary>
     //private void GetSlipData()
     //{
@@ -461,7 +461,7 @@ namespace MPPPS
     //}
 
     ///// <summary>
-    ///// 単票形式データ併合 (D0415 切削生産計画ファイル)
+    ///// 単票形式データ併合 (KD8430 切削生産計画ファイル)
     ///// </summary>
     //private void MergeSlipData()
     //{
@@ -476,7 +476,7 @@ namespace MPPPS
 
     //    if (dataSet.Tables[0].Rows.Count > 0) // データあり
     //    {
-    //        // D0415 切削生産計画ファイル データ項目設定
+    //        // KD8430 切削生産計画ファイル データ項目設定
     //        SetCycleTimeMstData(Common.OPE_CD_UPD);
 
     //        // 項目値が変更されているか確認
@@ -530,7 +530,7 @@ namespace MPPPS
 
     //        if (dialogResult == DialogResult.OK) // [OK] クリック時
     //        {
-    //            // D0415 切削生産計画ファイル データ項目設定
+    //            // KD8430 切削生産計画ファイル データ項目設定
     //            SetCycleTimeMstData(Common.OPE_CD_INS);
 
     //            // データを登録
@@ -562,7 +562,7 @@ namespace MPPPS
     //}
 
     ///// <summary>
-    ///// 単票形式データ削除 (D0415 切削生産計画ファイル)
+    ///// 単票形式データ削除 (KD8430 切削生産計画ファイル)
     ///// </summary>
     //private void DeleteSlipData()
     //{

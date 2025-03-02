@@ -47,14 +47,13 @@ namespace MPPPS
             this.Lbl_UserName.Text = cmn.Ui.UserName + " (" + cmn.Ui.UserId + ")";
 
             // 生産計画結果保存先サーバーへ接続
-            DateTime SW = DateTime.Now;
-            Debug.WriteLine("[StopWatch] 開始 " + DateTime.Now.ToString("HH:mm:ss"));
-            //Debug.WriteLine("[StopWatch] Initialize終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "秒)");
-            //Debug.WriteLine("[StopWatch] GetCommonClass終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "秒)");
-
             Task.Run(() => cmn.Fa.ConnectSaveServer());
+            //DateTime SW = DateTime.Now;
+            //Debug.WriteLine("[StopWatch] 開始 " + DateTime.Now.ToString("HH:mm:ss"));
+            ////Debug.WriteLine("[StopWatch] Initialize終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "秒)");
+            ////Debug.WriteLine("[StopWatch] GetCommonClass終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "秒)");
+            //Debug.WriteLine("[StopWatch] 終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "秒)");
 
-            Debug.WriteLine("[StopWatch] 終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "秒)");
         }
 
         /// <summary>
@@ -65,6 +64,7 @@ namespace MPPPS
         private void Btn_MasterMaint_Click(object sender, EventArgs e)
         {
             Frm030_MasterMaint frm030 = new Frm030_MasterMaint(cmn, sender);
+            frm030.StartPosition = FormStartPosition.CenterParent;
             frm030.ShowDialog(this);
         }
 
@@ -76,6 +76,7 @@ namespace MPPPS
         private void Btn_OrderCtrl_Click(object sender, EventArgs e)
         {
             Frm040_OrderCtrl frm040 = new Frm040_OrderCtrl(cmn, sender);
+            frm040.StartPosition = FormStartPosition.CenterParent;
             frm040.ShowDialog(this);
         }
 
@@ -110,6 +111,7 @@ namespace MPPPS
         private void Btn_CutStore_Click(object sender, EventArgs e)
         {
             Frm090_CutStore frm090 = new Frm090_CutStore(cmn, sender);
+            frm090.StartPosition = FormStartPosition.CenterParent;
             frm090.ShowDialog(this);
         }
 
@@ -133,7 +135,7 @@ namespace MPPPS
 
         private void KM8430切削コード票マスタ3ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Frm034_CodeSlipMstMaint frm034 = new Frm034_CodeSlipMstMaint();
+            Frm034_CodeSlipMstMaint frm034 = new Frm034_CodeSlipMstMaint(cmn);
             frm034.ShowDialog();
         }
 

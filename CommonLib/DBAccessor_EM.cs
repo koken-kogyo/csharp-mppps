@@ -1,6 +1,7 @@
 ﻿//using Oracle.DataAccess.Client;
 using Oracle.ManagedDataAccess.Client;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
@@ -1152,7 +1153,7 @@ namespace MPPPS
         /// <param name="orderDt">注文情報データ</param>
         /// <param name="firstDayOfMonth">検査対象月</param>
         /// <returns>注文情報データ</returns>
-        public bool GetEMOrderInfo(ref DataTable orderDt, DateTime firstDayOfMonth)
+        public bool GetEmOrderSummaryInfo(ref DataTable orderDt, DateTime firstDayOfMonth)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -1169,11 +1170,16 @@ namespace MPPPS
                 string sql;
                 sql = "SELECT "
                     + "EDDT "
-                    + ", to_char(sum(case when ODRSTS = '2' then 1 else 0 end)) \"EM2確定\" "
-                    + ", to_char(sum(case when ODRSTS = '3' then 1 else 0 end)) \"EM3着手\" "
-                    + ", to_char(sum(case when ODRSTS = '4' then 1 else 0 end)) \"EM4完了\" "
-                    + ", to_char(sum(case when ODRSTS = '9' then 1 else 0 end)) \"EM9取消\" "
-                    + ", to_char(sum(case when ODRSTS in ('2','3','4','9') then 1 else 0 end)) \"EM合計\" "
+                    + ", to_char(sum(case when ODRSTS = '2' then 1 else 0 end)) \"EM2確定件数\" "
+                    + ", to_char(sum(case when ODRSTS = '3' then 1 else 0 end)) \"EM3着手件数\" "
+                    + ", to_char(sum(case when ODRSTS = '4' then 1 else 0 end)) \"EM4完了件数\" "
+                    + ", to_char(sum(case when ODRSTS = '9' then 1 else 0 end)) \"EM9取消件数\" "
+                    + ", to_char(sum(case when ODRSTS in ('2','3','4','9') then 1 else 0 end)) \"EM合計件数\" "
+                    + ", to_char(sum(case when ODRSTS = '2' then ODRQTY else 0 end)) \"EM2確定本数\" "
+                    + ", to_char(sum(case when ODRSTS = '3' then ODRQTY-JIQTY else 0 end)) \"EM3着手本数\" "
+                    + ", to_char(sum(case when ODRSTS = '4' then ODRQTY else 0 end)) \"EM4完了本数\" "
+                    + ", to_char(sum(case when ODRSTS = '9' then ODRQTY else 0 end)) \"EM9取消本数\" "
+                    + ", to_char(sum(case when ODRSTS in ('2','3','4','9') then ODRQTY else 0 end)) \"EM合計本数\" "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " "
                     + "WHERE "
@@ -1194,6 +1200,187 @@ namespace MPPPS
                             // 結果取得
                             myDa.Fill(myDt);
                             orderDt = myDt;
+                            ret = true;
+                        }
+                    }
+                }
+                // 接続を閉じる
+                cmn.Dbm.CloseOraSchema(emCnn);
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(emCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 注文情報データ取得
+        /// </summary>
+        /// <param name="emOrderDt">注文情報データ</param>
+        /// <param name="whereIn">対象日</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetEmOrder(ref DataTable emOrderDt, string eddt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            OracleConnection emCnn = null;
+
+            try
+            {
+                // EMデータベースへ接続
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
+
+                string yyMM = DateTime.Now.AddMonths(-6).ToString("yyMM");
+                string sql;
+                sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + "WHERE "
+                    + $"ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
+                    + "and ODCD like '6060%' "
+                    + $"and EDDT = '{eddt}' "
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        using (DataTable myDt = new DataTable())
+                        {
+                            // 結果取得
+                            myDa.Fill(myDt);
+                            emOrderDt = myDt;
+                            ret = true;
+                        }
+                    }
+                }
+                // 接続を閉じる
+                cmn.Dbm.CloseOraSchema(emCnn);
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(emCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 内示情報データ取得
+        /// </summary>
+        /// <param name="planDt">内示情報データ</param>
+        /// <param name="firstDayOfMonth">検査対象月</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetEmPlanSummaryInfo(ref DataTable planDt, DateTime firstDayOfMonth)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            OracleConnection emCnn = null;
+
+            try
+            {
+                // EMデータベースへ接続
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
+
+                string yyyyMMdd = firstDayOfMonth.AddMonths(3).ToString("yyyy/MM/dd");
+                string sql;
+                sql = "SELECT "
+                    + "EDDT "
+                    + ", SUM(ODRQTY) \"EM本数\" "
+                    + ", SUM(JIQTY) \"EM実績数\" "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0440 + " "
+                    + "WHERE "
+                    + "ODCD like '6060%' "
+                    + $"and EDDT < to_date('{yyyyMMdd}','YYYY/MM/DD') "
+                    + "GROUP BY EDDT "
+                    + "ORDER BY EDDT "
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        using (DataTable myDt = new DataTable())
+                        {
+                            // 結果取得
+                            myDa.Fill(myDt);
+                            planDt = myDt;
+                            ret = true;
+                        }
+                    }
+                }
+                // 接続を閉じる
+                cmn.Dbm.CloseOraSchema(emCnn);
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(emCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 内示情報データ取得
+        /// </summary>
+        /// <param name="emPlanDt">注文情報データ</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetEmPlan(ref DataTable emPlanDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            OracleConnection emCnn = null;
+
+            try
+            {
+                // EMデータベースへ接続
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
+
+                string sql;
+                sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0440 + " "
+                    + "WHERE "
+                    + "ODCD like '6060%' "
+                    + "ORDER BY EDDT "
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        using (DataTable myDt = new DataTable())
+                        {
+                            // 結果取得
+                            myDa.Fill(myDt);
+                            emPlanDt = myDt;
                             ret = true;
                         }
                     }

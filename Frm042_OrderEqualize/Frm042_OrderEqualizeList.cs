@@ -54,7 +54,7 @@ namespace MPPPS
         //                Console.WriteLine(ofd.FileName);
 
         //                DataTable dataTable = new DataTable();
-        //                int csvCount = cmn.Fa.ReadCSVFile(ofd.FileName, Encoding.GetEncoding("shift-jis"), true, Common.TABLE_ID_D0415, ref dataTable);
+        //                int csvCount = cmn.Fa.ReadCSVFile(ofd.FileName, Encoding.GetEncoding("shift-jis"), true, Common.TABLE_ID_KD8430, ref dataTable);
 
 
         //                // DataGridView の内容を全行削除
@@ -63,15 +63,15 @@ namespace MPPPS
         //                // DataGridView の書式設定
         //                FormatDataGridView(dataTable);
 
-        //                // D0415 切削コード票マスタのテーブル情報取得
+        //                // KD8430 切削コード票マスタのテーブル情報取得
         //                int dataCount = 0;
         //                DataSet dataSetTblInfo = new DataSet();
-        //                dataCount = cmn.Dba.GetTableInfo(ref dataSetTblInfo, Common.TABLE_ID_D0415);
+        //                dataCount = cmn.Dba.GetTableInfo(ref dataSetTblInfo, Common.TABLE_ID_KD8430);
         //                if (dataCount <= 0)
         //                {
         //                    // テーブル情報なし
         //                    Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
-        //                    string msgBodyExtStr = string.Format(Common.MSG_BODY_EXT_STR_TABLE_ID, Common.TABLE_ID_D0415);
+        //                    string msgBodyExtStr = string.Format(Common.MSG_BODY_EXT_STR_TABLE_ID, Common.TABLE_ID_KD8430);
         //                    cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_803, Common.MSG_TYPE_F, MessageBoxButtons.OK,
         //                                       Common.MSGBOX_TXT_FATAL, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, msgBodyExtStr);
 
@@ -119,8 +119,8 @@ namespace MPPPS
         //            // SaveFileDialog クラスのインスタンスを作成
         //            SaveFileDialog sfd = new SaveFileDialog()
         //            {
-        //                FileName = Common.TABLE_ID_D0415 + "_"
-        //                         + Common.TABLE_NAME_D0415
+        //                FileName = Common.TABLE_ID_KD8430 + "_"
+        //                         + Common.TABLE_NAME_KD8430
         //                         + Common.CSV_FILE_EXT,           // 既定のファイル名
         //                InitialDirectory = Common.SFD_INIT_DIR,   // 既定のディレクトリ名
         //                Filter = Common.SFD_FILE_TYPE_CSV,        // [ファイルの種類] の選択肢
@@ -204,20 +204,20 @@ namespace MPPPS
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             // データ テーブルの列名置換
-            List<int> numD0415ColIdxList; // 数値列インデックス リスト
-            cmn.ReplaceDataSetColumnName(Common.DB_CONFIG_MP, Common.TABLE_ID_D0415, ref dataTable, out numD0415ColIdxList);
-            List<int> numD0445ColIdxList; // 数値列インデックス リスト
-            cmn.ReplaceDataSetColumnName(Common.DB_CONFIG_MP, Common.TABLE_ID_D0445, ref dataTable, out numD0445ColIdxList);
+            List<int> numKD8430ColIdxList; // 数値列インデックス リスト
+            cmn.ReplaceDataSetColumnName(Common.DB_CONFIG_MP, Common.TABLE_ID_KD8430, ref dataTable, out numKD8430ColIdxList);
+            List<int> numKD8440ColIdxList; // 数値列インデックス リスト
+            cmn.ReplaceDataSetColumnName(Common.DB_CONFIG_MP, Common.TABLE_ID_KD8440, ref dataTable, out numKD8440ColIdxList);
 
             // DataGridView に一括設定
             dgv.SuspendLayout();
             dgv.DataSource = dataTable;
 
             // DataGridView のセル配置を変更
-            for (int i = 0; i < numD0445ColIdxList.Count; i++)
+            for (int i = 0; i < numKD8440ColIdxList.Count; i++)
             {
                 // 数値なら右寄せ
-                dgv.Columns[numD0445ColIdxList[i]].DefaultCellStyle.Alignment
+                dgv.Columns[numKD8440ColIdxList[i]].DefaultCellStyle.Alignment
                     = DataGridViewContentAlignment.MiddleRight;
             }
             dgv.ResumeLayout();
@@ -270,9 +270,9 @@ namespace MPPPS
             //    case (int)Common.Frm042DgvIdx.WkGrCd: // 切削刃具 コード
             //        {
             //            // 切削刃具 マスター検索キー編集
-            //            cmn.PkD0415 = new PkD0415();
-            //            cmn.PkD0415.OdCd = dgvRow.Cells[(int)Common.Frm042DgvIdx.OdCd].Value.ToString();
-            //            cmn.PkD0415.WkGrCd = cellString;
+            //            cmn.PkKD8430 = new PkKD8430();
+            //            cmn.PkKD8430.OdCd = dgvRow.Cells[(int)Common.Frm042DgvIdx.OdCd].Value.ToString();
+            //            cmn.PkKD8430.WkGrCd = cellString;
 
             //            // 切削刃具存在チェック
             //            DataSet dataSetWkGr = new DataSet();
@@ -309,7 +309,7 @@ namespace MPPPS
             //        {
             //            // 数値、桁数チェック
             //            int retCode = cmn.CheckNumericalNumber(cellString, Common.NUMERIC_UNSIGNED,
-            //                        Common.D0415_WKSEQ_PRECISION, Common.D0415_WKSEQ_PRECISION, out string dstStr);
+            //                        Common.KD8430_WKSEQ_PRECISION, Common.KD8430_WKSEQ_PRECISION, out string dstStr);
             //            if ((retCode == Common.RET_CD_OK_NUMERICAL_NUMBER) &&
             //                (retCode != Common.RET_CD_OK_NULL_OR_WHITESPC))
             //            {
@@ -331,7 +331,7 @@ namespace MPPPS
             //        {
             //            // 数値、桁数チェック
             //            int retCode = cmn.CheckNumericalNumber(cellString, Common.NUMERIC_UNSIGNED,
-            //                        Common.D0415_CT_PRECISION, Common.D0415_CT_SCALE, out string dstStr);
+            //                        Common.KD8430_CT_PRECISION, Common.KD8430_CT_SCALE, out string dstStr);
             //            if ((retCode == Common.RET_CD_OK_NUMERICAL_NUMBER) &&
             //                (retCode != Common.RET_CD_OK_NULL_OR_WHITESPC))
             //            {
@@ -351,7 +351,7 @@ namespace MPPPS
 
             //    case (int)Common.Frm042DgvIdx.Note: // 備考
             //        {
-            //            int dataLength = Common.D0415_NOTE_LENGTH;
+            //            int dataLength = Common.KD8430_NOTE_LENGTH;
 
             //            // 桁数チェック
             //            if (cellString.Length <= dataLength)
@@ -373,8 +373,8 @@ namespace MPPPS
             //    case (int)Common.Frm042DgvIdx.InstID:
             //        {
             //            // 原価管理システム利用者チェック
-            //            cmn.PkD0415 = new PkD0415();
-            //            cmn.PkD0415.UserId = cellString;
+            //            cmn.PkKD8430 = new PkKD8430();
+            //            cmn.PkKD8430.UserId = cellString;
             //            string active = "";
             //            string authLv = "";
             //            ret = cmn.Dba.IsAuthrizedCMUser(ref active, ref authLv);
@@ -415,8 +415,8 @@ namespace MPPPS
             //    case (int)Common.Frm042DgvIdx.UpdtID:
             //        {
             //            // 原価管理システム利用者チェック
-            //            cmn.PkD0415 = new PkD0415();
-            //            cmn.PkD0415.UserId = cellString;
+            //            cmn.PkKD8430 = new PkKD8430();
+            //            cmn.PkKD8430.UserId = cellString;
             //            string active = "";
             //            string authLv = "";
             //            ret = cmn.Dba.IsAuthrizedCMUser(ref active, ref authLv);
@@ -584,30 +584,30 @@ namespace MPPPS
         /// 
 
         /// <summary>
-        /// D0415 切削生産計画ファイル主キー、 D0445 切削生産計画日程ファイル削除 (リスト形式)
+        /// KD8430 切削生産計画ファイル主キー、 KD8440 切削生産計画日程ファイル削除 (リスト形式)
         /// </summary>
         private void DeleteCuttingProdInfofromList(int rowCnt, ref int[] delRowCnt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             // 主キーを設定
-            cmn.PkD0415 = new PkD0415();
+            cmn.PkKD8430 = new PkKD8430();
             DataGridViewRow dgvRow = Dgv_MpSimOdrTbl.Rows[rowCnt];
 
             // テーブル名を判定
             int ret;
-            if (dgvRow.Cells[(int)Common.Frm042DgvIdx.TableName].Value.ToString().Trim() == Common.TABLE_ID_D0415)
+            if (dgvRow.Cells[(int)Common.Frm042DgvIdx.TableName].Value.ToString().Trim() == Common.TABLE_ID_KD8430)
             {
-                // D0415 生産計画ファイル 主キー設定
+                // KD8430 生産計画ファイル 主キー設定
                 SetCuttingProdPlanPKeyfromList(rowCnt);
 
                 // テーブルからデータを削除
                 ret = cmn.Dba.DeleteCuttingProdPlanInfo();
 
             }
-            else if (dgvRow.Cells[(int)Common.Frm042DgvIdx.TableName].Value.ToString().Trim() == Common.TABLE_ID_D0445)
+            else if (dgvRow.Cells[(int)Common.Frm042DgvIdx.TableName].Value.ToString().Trim() == Common.TABLE_ID_KD8440)
             {
-                // D0445 生産計画日程ファイル ユニーク キー設定
+                // KD8440 生産計画日程ファイル ユニーク キー設定
                 SetCuttingProdScheduleUKeyfromList(rowCnt);
 
                 // テーブルからデータを削除
@@ -642,7 +642,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// D0415 切削生産計画ファイル主キー設定 (リスト形式)
+        /// KD8430 切削生産計画ファイル主キー設定 (リスト形式)
         /// </summary>
         private void SetCuttingProdPlanPKeyfromList(int rowCnt)
         {
@@ -661,18 +661,18 @@ namespace MPPPS
             }
 
             // 主キーを設定
-            cmn.PkD0415 = new PkD0415();
+            cmn.PkKD8430 = new PkKD8430();
 
             // 手配 No
-            cmn.PkD0415.OdrNo = dgvRow.Cells[(int)Common.Frm042DgvIdx.OdrNo].Value.ToString().Trim();
+            cmn.PkKD8430.OdrNo = dgvRow.Cells[(int)Common.Frm042DgvIdx.OdrNo].Value.ToString().Trim();
             // 切削工程順序
-            cmn.PkD0415.McSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.McSeq].Value.ToString().Trim());
+            cmn.PkKD8430.McSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.McSeq].Value.ToString().Trim());
             // 手配分割 SEQ
-            cmn.PkD0415.SplitSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.SplitSeq].Value.ToString().Trim());
+            cmn.PkKD8430.SplitSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.SplitSeq].Value.ToString().Trim());
         }
 
         /// <summary>
-        /// D0445 切削生産計画日程ファイル ユニーク キー設定 (リスト形式)
+        /// KD8440 切削生産計画日程ファイル ユニーク キー設定 (リスト形式)
         /// </summary>
         private void SetCuttingProdScheduleUKeyfromList(int rowCnt)
         {
@@ -691,26 +691,26 @@ namespace MPPPS
             }
 
             // ユニーク キーを設定
-            cmn.UqD0445 = new UqD0445();
+            cmn.UqKD8440 = new UqKD8440();
 
             // 手配先コード
-            cmn.UqD0445.OdCd = dgvRow.Cells[(int)Common.Frm042DgvIdx.OdCd].Value.ToString().Trim();
+            cmn.UqKD8440.OdCd = dgvRow.Cells[(int)Common.Frm042DgvIdx.OdCd].Value.ToString().Trim();
             // 計画No.
-            cmn.UqD0445.PlnNo = dgvRow.Cells[(int)Common.Frm042DgvIdx.PlnNo].Value.ToString().Trim();
+            cmn.UqKD8440.PlnNo = dgvRow.Cells[(int)Common.Frm042DgvIdx.PlnNo].Value.ToString().Trim();
             // 手配No.
-            cmn.UqD0445.OdrNo = dgvRow.Cells[(int)Common.Frm042DgvIdx.OdrNo].Value.ToString().Trim();
+            cmn.UqKD8440.OdrNo = dgvRow.Cells[(int)Common.Frm042DgvIdx.OdrNo].Value.ToString().Trim();
             // 工程順序
-            cmn.UqD0445.KtSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.KtSeq].Value.ToString().Trim());
+            cmn.UqKD8440.KtSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.KtSeq].Value.ToString().Trim());
             // SEQ
-            cmn.UqD0445.Seq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.Seq].Value.ToString().Trim());
+            cmn.UqKD8440.Seq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.Seq].Value.ToString().Trim());
             // 切削工程順序
-            cmn.UqD0445.McSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.McSeq].Value.ToString().Trim());
+            cmn.UqKD8440.McSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.McSeq].Value.ToString().Trim());
             // 手配分割 SEQ
-            cmn.UqD0445.SplitSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.SplitSeq].Value.ToString().Trim());
+            cmn.UqKD8440.SplitSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.SplitSeq].Value.ToString().Trim());
         }
 
         /// <summary>
-        /// D0415 切削生産計画ファイル データ項目設定 (リスト形式)
+        /// KD8430 切削生産計画ファイル データ項目設定 (リスト形式)
         /// </summary>
         /// <param name="opeCd">処理種別</param>
         /// <param name="rowCnt">行</param>
@@ -719,22 +719,22 @@ namespace MPPPS
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             DataGridViewRow dgvRow = Dgv_MpSimOdrTbl.Rows[rowCnt];
-            cmn.DrD0415 = new DrD0415();
+            cmn.DrKD8430 = new DrKD8430();
 
             // 手配分割 SEQ
-            cmn.DrD0415.SplitSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.SplitSeq].Value.ToString().Trim());
+            cmn.DrKD8430.SplitSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.SplitSeq].Value.ToString().Trim());
             // 確定完了予定日
-            cmn.DrD0415.KEdDt = Convert.ToDateTime(dgvRow.Cells[(int)Common.Frm042DgvIdx.EdDt].Value.ToString().Trim());
+            cmn.DrKD8430.KEdDt = Convert.ToDateTime(dgvRow.Cells[(int)Common.Frm042DgvIdx.EdDt].Value.ToString().Trim());
             // 確定完了予定時刻
-            cmn.DrD0415.KEdTim = dgvRow.Cells[(int)Common.Frm042DgvIdx.EdTim].Value.ToString().Trim();
+            cmn.DrKD8430.KEdTim = dgvRow.Cells[(int)Common.Frm042DgvIdx.EdTim].Value.ToString().Trim();
             // 確定手配数
-            cmn.DrD0415.KOdrQty = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.OdrQty].Value.ToString().Trim());
+            cmn.DrKD8430.KOdrQty = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.OdrQty].Value.ToString().Trim());
             // 確定設備コード
-            cmn.DrD0415.KMcCd = dgvRow.Cells[(int)Common.Frm042DgvIdx.McCd].Value.ToString().Trim();
+            cmn.DrKD8430.KMcCd = dgvRow.Cells[(int)Common.Frm042DgvIdx.McCd].Value.ToString().Trim();
         }
 
         /// <summary>
-        /// D0445 切削生産計画日程ファイル データ項目設定 (リスト形式)
+        /// KD8440 切削生産計画日程ファイル データ項目設定 (リスト形式)
         /// </summary>
         /// <param name="opeCd">処理種別</param>
         /// <param name="rowCnt">行</param>
@@ -743,22 +743,22 @@ namespace MPPPS
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             DataGridViewRow dgvRow = Dgv_MpSimOdrTbl.Rows[rowCnt];
-            cmn.DrD0445 = new DrD0445();
+            cmn.DrKD8440 = new DrKD8440();
 
             // 手配分割 SEQ
-            cmn.DrD0445.SplitSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.SplitSeq].Value.ToString().Trim());
+            cmn.DrKD8440.SplitSeq = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.SplitSeq].Value.ToString().Trim());
             // 確定完了予定日
-            cmn.DrD0445.KEdDt = Convert.ToDateTime(dgvRow.Cells[(int)Common.Frm042DgvIdx.EdDt].Value.ToString().Trim());
+            cmn.DrKD8440.KEdDt = Convert.ToDateTime(dgvRow.Cells[(int)Common.Frm042DgvIdx.EdDt].Value.ToString().Trim());
             // 確定完了予定時刻
-            cmn.DrD0445.KEdTm = dgvRow.Cells[(int)Common.Frm042DgvIdx.EdTim].Value.ToString().Trim();
+            cmn.DrKD8440.KEdTm = dgvRow.Cells[(int)Common.Frm042DgvIdx.EdTim].Value.ToString().Trim();
             // 確定手配数
-            cmn.DrD0445.KOdrQty = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.OdrQty].Value.ToString().Trim());
+            cmn.DrKD8440.KOdrQty = Convert.ToInt32(dgvRow.Cells[(int)Common.Frm042DgvIdx.OdrQty].Value.ToString().Trim());
             // 確定設備コード
-            cmn.DrD0445.KMcCd = dgvRow.Cells[(int)Common.Frm042DgvIdx.McCd].Value.ToString().Trim();
+            cmn.DrKD8440.KMcCd = dgvRow.Cells[(int)Common.Frm042DgvIdx.McCd].Value.ToString().Trim();
         }
 
         /// <summary>
-        /// 切削生産計画情報リスト取得 (D0415 切削生産計画ファイル)
+        /// 切削生産計画情報リスト取得 (KD8430 切削生産計画ファイル)
         /// </summary>
         /// <param name="isAlertMsg">メッセージ警告 (false: しない, true: する)</param>
         /// <returns>結果 (0≦: データ件数, 0≧: エラー)</returns>
@@ -772,10 +772,10 @@ namespace MPPPS
             // 切削オーダー平準化情報検索
             // 現状全件
             DataSet curDataSet = new DataSet();
-            int curRet = cmn.Dba.GetOrderEqualizeInfo(ref curDataSet, Common.D0415_TARGET_CUR_ALL);
+            int curRet = cmn.Dba.GetOrderEqualizeInfo(ref curDataSet, Common.KD8430_TARGET_CUR_ALL);
             //// 変更後全件
             //DataSet simDataSet = new DataSet();
-            //int simRet = cmn.Dba.GetOrderEqualizeInfo(ref simDataSet, Common.D0415_TARGET_SIM_ALL);
+            //int simRet = cmn.Dba.GetOrderEqualizeInfo(ref simDataSet, Common.KD8430_TARGET_SIM_ALL);
 
             if (curRet > 0)
             //if ((curRet > 0) && (s/*i*/mRet > 0))
@@ -816,7 +816,7 @@ namespace MPPPS
 
 
         /// <summary>
-        /// 切削生産計画日程情報リスト取得 (D0445 切削生産計画時日程ファイル)
+        /// 切削生産計画日程情報リスト取得 (KD8440 切削生産計画時日程ファイル)
         /// </summary>
         /// <param name="isAlertMsg">メッセージ警告 (false: しない, true: する)</param>
         /// <returns>結果 (0≦: データ件数, 0≧: エラー)</returns>
@@ -830,10 +830,10 @@ namespace MPPPS
             // 切削オーダー平準化情報検索
             // 現状全件
             //DataSet curDataSet = new DataSet();
-            //int curRet = cmn.Dba.GetOrderEqualizeInfo(ref curDataSet, Common.D0445_TARGET_CUR_ALL);
+            //int curRet = cmn.Dba.GetOrderEqualizeInfo(ref curDataSet, Common.KD8440_TARGET_CUR_ALL);
             // 変更後全件
             DataSet simDataSet = new DataSet();
-            int simRet = cmn.Dba.GetOrderEqualizeInfo(ref simDataSet, Common.D0445_TARGET_SIM_ALL);
+            int simRet = cmn.Dba.GetOrderEqualizeInfo(ref simDataSet, Common.KD8440_TARGET_SIM_ALL);
 
             //if ((curRet > 0) && (simRet > 0))
             if (simRet > 0)
@@ -901,7 +901,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削生産計画情報リスト登録/更新 (D0415 切削生産計画ファイル, D0445 切削生産計画時日別ファイル)
+        /// 切削生産計画情報リスト登録/更新 (KD8430 切削生産計画ファイル, KD8440 切削生産計画時日別ファイル)
         /// </summary>
         private void MergeCuttingProdInfoList()
         {
@@ -914,7 +914,7 @@ namespace MPPPS
 
             if (dialogResult == DialogResult.OK) // [OK] クリック時
             {
-                // DatGridView に表示中の行から D0415 段取マスターの主キーを生成し、データがあれば更新、なければ登録する
+                // DatGridView に表示中の行から KD8430 段取マスターの主キーを生成し、データがあれば更新、なければ登録する
 
                 int[] insRowCnt = new int[3] { 0, 0, 0 }; // 処理件数 (登録)
                 int[] updRowCnt = new int[3] { 0, 0, 0 }; // 処理件数 (更新)
@@ -926,9 +926,9 @@ namespace MPPPS
                     DataGridViewRow dgvRow = Dgv_MpSimOdrTbl.Rows[rowCnt];
 
                     // テーブル名により操作するテーブルを選択
-                    if (dgvRow.Cells[(int)Common.Frm042DgvIdx.TableName].Value.ToString().Trim() == Common.TABLE_ID_D0415)
+                    if (dgvRow.Cells[(int)Common.Frm042DgvIdx.TableName].Value.ToString().Trim() == Common.TABLE_ID_KD8430)
                     {
-                        // D0415 生産計画ファイル 主キー設定
+                        // KD8430 生産計画ファイル 主キー設定
                         SetCuttingProdPlanPKeyfromList(rowCnt);
 
                         // 既存データの有無を確認
@@ -937,7 +937,7 @@ namespace MPPPS
 
                         if (dataSet.Tables[0].Rows.Count > 0) // データあり
                         {
-                            // D0415 切削生産計画ファイル データ項目設定
+                            // KD8430 切削生産計画ファイル データ項目設定
                             SetCuttingProdPlanDatafromList(Common.OPE_CD_UPD, rowCnt);
 
                             // データを更新
@@ -954,7 +954,7 @@ namespace MPPPS
                         }
                         else // データなし
                         {
-                            // D0415 切削生産計画ファイル データ項目設定
+                            // KD8430 切削生産計画ファイル データ項目設定
                             SetCuttingProdPlanDatafromList(Common.OPE_CD_INS, rowCnt);
 
                             // データを登録
@@ -972,7 +972,7 @@ namespace MPPPS
                     }
                     else
                     {
-                        // D0445 生産計画日程ファイル ユニーク キー設定
+                        // KD8440 生産計画日程ファイル ユニーク キー設定
                         SetCuttingProdScheduleUKeyfromList(rowCnt);
 
                         // 既存データの有無を確認
@@ -981,7 +981,7 @@ namespace MPPPS
 
                         if (dataSet.Tables[0].Rows.Count > 0) // データあり
                         {
-                            // D0445 生産計画日程ファイル データ項目設定
+                            // KD8440 生産計画日程ファイル データ項目設定
                             SetCuttingProdScheduleDatafromList(Common.OPE_CD_UPD, rowCnt);
 
                             // データを更新
@@ -998,7 +998,7 @@ namespace MPPPS
                         }
                         else // データなし
                         {
-                            // D0415 切削生産計画ファイル データ項目設定
+                            // KD8430 切削生産計画ファイル データ項目設定
                             SetCuttingProdScheduleDatafromList(Common.OPE_CD_INS, rowCnt);
 
                             // データを登録
@@ -1058,13 +1058,13 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削生産計画情報リスト削除 (D0415 切削生産計画ファイル, D0445 切削生産計画時日別ファイル)
+        /// 切削生産計画情報リスト削除 (KD8430 切削生産計画ファイル, KD8440 切削生産計画時日別ファイル)
         /// </summary>
         private void DeleteCuttingProdInfoList()
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            // DatGridView に表示中の行から D0415 切削生産計画ファイルの主キーを生成して削除する
+            // DatGridView に表示中の行から KD8430 切削生産計画ファイルの主キーを生成して削除する
 
             int[] delRowCnt = new int[3] { 0, 0, 0 }; // 処理件数
 
@@ -1158,11 +1158,11 @@ namespace MPPPS
 
         //                    switch (columnIndex)
         //                    {
-        //                        case (int)Common.D0415ClmIdx.OdCd: // グループ コード
+        //                        case (int)Common.KD8430ClmIdx.OdCd: // グループ コード
         //                            {
         //                                // グループ 名称マスター検索キー編集
         //                                cmn.PkKM8420 = new PkKM8420();
-        //                                cmn.PkKM8420.OdCd = dataRow[(int)Common.D0415ClmIdx.OdCd].ToString();
+        //                                cmn.PkKM8420.OdCd = dataRow[(int)Common.KD8430ClmIdx.OdCd].ToString();
         //                                cmn.PkKM8420.IOKbn = Common.M0300_IOKBN_ALL;
         //                                cmn.PkKM8420.IsInclusionSubCo = false;
         //                                cmn.PkKM8420.IsTiedToKt = true;
@@ -1174,12 +1174,12 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.WkGrCd: // 切削刃具 コード
+        //                        case (int)Common.KD8430ClmIdx.WkGrCd: // 切削刃具 コード
         //                            {
         //                                // 切削刃具 マスター検索キー編集
-        //                                cmn.PkD0415 = new PkD0415();
-        //                                cmn.PkD0415.OdCd = dataRow[(int)Common.D0415ClmIdx.OdCd].ToString();
-        //                                cmn.PkD0415.WkGrCd = dataRow[(int)Common.D0415ClmIdx.WkGrCd].ToString();
+        //                                cmn.PkKD8430 = new PkKD8430();
+        //                                cmn.PkKD8430.OdCd = dataRow[(int)Common.KD8430ClmIdx.OdCd].ToString();
+        //                                cmn.PkKD8430.WkGrCd = dataRow[(int)Common.KD8430ClmIdx.WkGrCd].ToString();
 
         //                                // 切削刃具存在チェック
         //                                DataSet dataSetWkGr = new DataSet();
@@ -1188,11 +1188,11 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.HmCd: // 品番
+        //                        case (int)Common.KD8430ClmIdx.HmCd: // 品番
         //                            {
         //                                // 品目マスター検索キー編集
         //                                cmn.PkM0500 = new PkM0500();
-        //                                cmn.PkM0500.HmCd = dataRow[(int)Common.D0415ClmIdx.HmCd].ToString();
+        //                                cmn.PkM0500.HmCd = dataRow[(int)Common.KD8430ClmIdx.HmCd].ToString();
 
         //                                // 品番存在チェック
         //                                DataSet dataSetHm = new DataSet();
@@ -1201,11 +1201,11 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.ValDtF: // 発効年月日
+        //                        case (int)Common.KD8430ClmIdx.ValDtF: // 発効年月日
         //                            {
         //                                // 日時妥当性チェック
         //                                DateTime dt;
-        //                                if (!DateTime.TryParse(dataRow[(int)Common.D0415ClmIdx.ValDtF].ToString(), out dt))
+        //                                if (!DateTime.TryParse(dataRow[(int)Common.KD8430ClmIdx.ValDtF].ToString(), out dt))
         //                                {
         //                                    // 不正な書式
         //                                    isValid = false;
@@ -1218,7 +1218,7 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.WkSeq: // 作業順序
+        //                        case (int)Common.KD8430ClmIdx.WkSeq: // 作業順序
         //                            {
         //                                int dataPrecision = 0;
         //                                int dataScale = 0;
@@ -1233,7 +1233,7 @@ namespace MPPPS
         //                                string nullable = dr.Field<string>(Common.USER_TAB_COLUMNS_NULLABLE);
         //                                if (nullable == Common.USER_TAB_COLUMNS_NULLABLE_NO)
         //                                {
-        //                                    if (dataRow[(int)Common.D0415ClmIdx.WkSeq].ToString() == null)
+        //                                    if (dataRow[(int)Common.KD8430ClmIdx.WkSeq].ToString() == null)
         //                                    {
         //                                        // NULL 不可
         //                                        isValid = false;
@@ -1242,7 +1242,7 @@ namespace MPPPS
         //                                }
 
         //                                // 数値、桁数チェック
-        //                                int ret = cmn.CheckNumericalNumber(dataRow[(int)Common.D0415ClmIdx.WkSeq].ToString(), Common.NUMERIC_UNSIGNED,
+        //                                int ret = cmn.CheckNumericalNumber(dataRow[(int)Common.KD8430ClmIdx.WkSeq].ToString(), Common.NUMERIC_UNSIGNED,
         //                                         dataPrecision, dataScale, out string dstStr);
 
         //                                // エラー判定
@@ -1259,7 +1259,7 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.CT: // サイクルタイム
+        //                        case (int)Common.KD8430ClmIdx.CT: // サイクルタイム
         //                            {
         //                                int dataPrecision = 0;
         //                                int dataScale = 0;
@@ -1274,7 +1274,7 @@ namespace MPPPS
         //                                string nullable = dr.Field<string>(Common.USER_TAB_COLUMNS_NULLABLE);
         //                                if (nullable == Common.USER_TAB_COLUMNS_NULLABLE_NO)
         //                                {
-        //                                    if (dataRow[(int)Common.D0415ClmIdx.CT].ToString() == null)
+        //                                    if (dataRow[(int)Common.KD8430ClmIdx.CT].ToString() == null)
         //                                    {
         //                                        // NULL 不可
         //                                        isValid = false;
@@ -1283,7 +1283,7 @@ namespace MPPPS
         //                                }
 
         //                                // 数値、桁数チェック
-        //                                int ret = cmn.CheckNumericalNumber(dataRow[(int)Common.D0415ClmIdx.CT].ToString(), Common.NUMERIC_UNSIGNED,
+        //                                int ret = cmn.CheckNumericalNumber(dataRow[(int)Common.KD8430ClmIdx.CT].ToString(), Common.NUMERIC_UNSIGNED,
         //                                         dataPrecision, dataScale, out string dstStr);
 
         //                                // エラー判定
@@ -1300,7 +1300,7 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.Note: // 備考
+        //                        case (int)Common.KD8430ClmIdx.Note: // 備考
         //                            {
         //                                int dataLength = 0;
 
@@ -1308,7 +1308,7 @@ namespace MPPPS
         //                                dataLength = Convert.ToInt32(dr.Field<decimal>(Common.USER_TAB_COLUMNS_DATA_LENGTH));
 
         //                                // 桁数チェック
-        //                                if (dataRow[(int)Common.D0415ClmIdx.Note].ToString().Length > dataLength)
+        //                                if (dataRow[(int)Common.KD8430ClmIdx.Note].ToString().Length > dataLength)
         //                                {
         //                                    // 桁数超過
         //                                    isValid = false;
@@ -1319,7 +1319,7 @@ namespace MPPPS
         //                                if (nullable == Common.USER_TAB_COLUMNS_NULLABLE_NO)
         //                                {
         //                                    // 桁数チェック
-        //                                    if (dataRow[(int)Common.D0415ClmIdx.Note].ToString() == null)
+        //                                    if (dataRow[(int)Common.KD8430ClmIdx.Note].ToString() == null)
         //                                    {
         //                                        // NULL 不可
         //                                        isValid = false;
@@ -1329,11 +1329,11 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.InstID:
+        //                        case (int)Common.KD8430ClmIdx.InstID:
         //                            {
         //                                // 原価管理システム利用者チェック
-        //                                cmn.PkD0415 = new PkD0415();
-        //                                cmn.PkD0415.UserId = dataRow[(int)Common.D0415ClmIdx.InstID].ToString();
+        //                                cmn.PkKD8430 = new PkKD8430();
+        //                                cmn.PkKD8430.UserId = dataRow[(int)Common.KD8430ClmIdx.InstID].ToString();
         //                                string active = "";
         //                                string authLv = "";
         //                                if (!cmn.Dba.IsAuthrizedCMUser(ref active, ref authLv))
@@ -1344,7 +1344,7 @@ namespace MPPPS
 
         //                                // EM 担当者チェック
         //                                cmn.IkM0010 = new IkM0010();
-        //                                cmn.IkM0010.TanCd = dataRow[(int)Common.D0415ClmIdx.InstID].ToString();
+        //                                cmn.IkM0010.TanCd = dataRow[(int)Common.KD8430ClmIdx.InstID].ToString();
         //                                cmn.IkM0010.Passwd = "";
         //                                bool isPasswdFree = true;
         //                                string userName = "";
@@ -1357,11 +1357,11 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.InstDt:
+        //                        case (int)Common.KD8430ClmIdx.InstDt:
         //                            {
         //                                // 日時妥当性チェック
         //                                DateTime dt;
-        //                                if (!DateTime.TryParse(dataRow[(int)Common.D0415ClmIdx.InstDt].ToString(), out dt))
+        //                                if (!DateTime.TryParse(dataRow[(int)Common.KD8430ClmIdx.InstDt].ToString(), out dt))
         //                                {
         //                                    // 不正な書式
         //                                    isValid = false;
@@ -1374,11 +1374,11 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.UpdtID:
+        //                        case (int)Common.KD8430ClmIdx.UpdtID:
         //                            {
         //                                // 原価管理システム利用者チェック
-        //                                cmn.PkD0415 = new PkD0415();
-        //                                cmn.PkD0415.UserId = dataRow[(int)Common.D0415ClmIdx.UpdtID].ToString();
+        //                                cmn.PkKD8430 = new PkKD8430();
+        //                                cmn.PkKD8430.UserId = dataRow[(int)Common.KD8430ClmIdx.UpdtID].ToString();
         //                                string active = "";
         //                                string authLv = "";
         //                                if (!cmn.Dba.IsAuthrizedCMUser(ref active, ref authLv))
@@ -1389,7 +1389,7 @@ namespace MPPPS
 
         //                                // EM 担当者チェック
         //                                cmn.IkM0010 = new IkM0010();
-        //                                cmn.IkM0010.TanCd = dataRow[(int)Common.D0415ClmIdx.UpdtID].ToString();
+        //                                cmn.IkM0010.TanCd = dataRow[(int)Common.KD8430ClmIdx.UpdtID].ToString();
         //                                cmn.IkM0010.Passwd = "";
         //                                bool isPasswdFree = true;
         //                                string userName = "";
@@ -1402,11 +1402,11 @@ namespace MPPPS
         //                            }
         //                            break;
 
-        //                        case (int)Common.D0415ClmIdx.UpdtDt:
+        //                        case (int)Common.KD8430ClmIdx.UpdtDt:
         //                            {
         //                                // 日時妥当性チェック
         //                                DateTime dt;
-        //                                if (!DateTime.TryParse(dataRow[(int)Common.D0415ClmIdx.UpdtDt].ToString(), out dt))
+        //                                if (!DateTime.TryParse(dataRow[(int)Common.KD8430ClmIdx.UpdtDt].ToString(), out dt))
         //                                {
         //                                    // 不正な書式
         //                                    isValid = false;

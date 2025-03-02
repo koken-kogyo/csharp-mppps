@@ -64,9 +64,9 @@ namespace MPPPS
     }
 
     /// <summary>
-    /// D0415 切削生産計画ファイル 主キー クラス
+    /// KD8430 切削生産計画ファイル 主キー クラス
     /// </summary>
-    public class PkD0415
+    public class PkKD8430
     {
         public string OdrNo { get; set; }       // 手配 No
         public int McSeq { get; set; }          // 切削工程順序
@@ -74,9 +74,9 @@ namespace MPPPS
     }
 
     /// <summary>
-    /// D0415 切削生産計画ファイル 検索キー クラス
+    /// KD8430 切削生産計画ファイル 検索キー クラス
     /// </summary>
-    public class IkD0415
+    public class IkKD8430
     {
         public DateTime EdDt { get; set; }      // 完了予定日
         public string McGCd { get; set; }       // グループ コード
@@ -86,9 +86,9 @@ namespace MPPPS
     }
 
     /// <summary>
-    /// d0415 切削生産計画ファイル データレコード クラス
+    /// KD8430 切削生産計画ファイル データレコード クラス
     /// </summary>
-    public class DrD0415
+    public class DrKD8430
     {
         public string OdrNo { get; set; }       // 手配No
         public int KtSeq { get; set; }       // 工程順序
@@ -134,9 +134,9 @@ namespace MPPPS
     }
 
     /// <summary>
-    /// D0445 切削生産計画日程ファイル ユニーク キー クラス
+    /// KD8440 切削生産計画日程ファイル ユニーク キー クラス
     /// </summary>
-    public class UqD0445
+    public class UqKD8440
     {
         public string OdCd { get; set; }        // 手配 先コード
         public string PlnNo { get; set; }       // 計画 No
@@ -148,9 +148,9 @@ namespace MPPPS
     }
 
     /// <summary>
-    /// D0445 切削生産計画日程ファイル 検索キー クラス
+    /// KD8440 切削生産計画日程ファイル 検索キー クラス
     /// </summary>
-    public class IkD0445
+    public class IkKD8440
     {
         public DateTime EdDt { get; set; }      // 完了予定日
         public string McGCd { get; set; }       // グループ コード
@@ -160,9 +160,9 @@ namespace MPPPS
     }
 
     /// <summary>
-    /// D0445 切削生産計画日程ファイル データレコード クラス
+    /// KD8440 切削生産計画日程ファイル データレコード クラス
     /// </summary>
-    public class DrD0445
+    public class DrKD8440
     {
         public string OdCd { get; set; }        // 手配先コード
         public string PlnNo { get; set; }       // 計画No

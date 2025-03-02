@@ -246,22 +246,22 @@ namespace MPPPS
             InitSubseqCtrls((int)Common.Frm042InqKeyIdx.EdDt);
 
             // 切削オーダー平準化情報取得
-            cmn.IkD0415 = new IkD0415();
-            cmn.IkD0445 = new IkD0445();
+            cmn.IkKD8430 = new IkKD8430();
+            cmn.IkKD8440 = new IkKD8440();
 
             // 指定日時で検索
-            cmn.IkD0415.EdDt = Convert.ToDateTime(Dtp_EdDt.Value.ToShortDateString());
-            cmn.IkD0415.McGCd = "";
-            cmn.IkD0415.McCd = "";
+            cmn.IkKD8430.EdDt = Convert.ToDateTime(Dtp_EdDt.Value.ToShortDateString());
+            cmn.IkKD8430.McGCd = "";
+            cmn.IkKD8430.McCd = "";
 
-            cmn.IkD0445.EdDt = cmn.IkD0415.EdDt;
-            cmn.IkD0445.McGCd = cmn.IkD0415.McGCd;
-            cmn.IkD0445.McCd = cmn.IkD0415.McCd;
+            cmn.IkKD8440.EdDt = cmn.IkKD8430.EdDt;
+            cmn.IkKD8440.McGCd = cmn.IkKD8430.McGCd;
+            cmn.IkKD8440.McCd = cmn.IkKD8430.McCd;
 
 
             // 検索してコンボ ボックスに追加
             DataSet dataSet = new DataSet();
-            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.D0415_TARGET_MCGCD) > 0)
+            if (cmn.Dba.GetOrderEqualizeInfo(ref dataSet, Common.KD8430_TARGET_MCGCD) > 0)
             {
                 // グループ コードにグループ コード＋グループ名称を追加
                 Cbx_McGCd.BeginUpdate();
@@ -483,7 +483,9 @@ namespace MPPPS
 
         }
 
+        private void Btn_ReadCsvFile_Click(object sender, EventArgs e)
+        {
 
-
+        }
     }
 }

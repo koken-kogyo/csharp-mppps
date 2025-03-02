@@ -54,7 +54,7 @@ namespace MPPPS
             this.Pbx_CostMgt.Location = new System.Drawing.Point(16, 10);
             this.Pbx_CostMgt.Margin = new System.Windows.Forms.Padding(4);
             this.Pbx_CostMgt.Name = "Pbx_CostMgt";
-            this.Pbx_CostMgt.Size = new System.Drawing.Size(367, 204);
+            this.Pbx_CostMgt.Size = new System.Drawing.Size(343, 204);
             this.Pbx_CostMgt.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.Pbx_CostMgt.TabIndex = 0;
             this.Pbx_CostMgt.TabStop = false;
@@ -62,40 +62,44 @@ namespace MPPPS
             // Lbl_DestDB
             // 
             this.Lbl_DestDB.AutoSize = true;
-            this.Lbl_DestDB.Location = new System.Drawing.Point(405, 38);
+            this.Lbl_DestDB.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Lbl_DestDB.Location = new System.Drawing.Point(380, 29);
             this.Lbl_DestDB.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_DestDB.Name = "Lbl_DestDB";
-            this.Lbl_DestDB.Size = new System.Drawing.Size(55, 15);
+            this.Lbl_DestDB.Size = new System.Drawing.Size(70, 25);
             this.Lbl_DestDB.TabIndex = 6;
             this.Lbl_DestDB.Text = "接続先:";
             // 
             // Lbl_UserId
             // 
             this.Lbl_UserId.AutoSize = true;
-            this.Lbl_UserId.Location = new System.Drawing.Point(405, 101);
+            this.Lbl_UserId.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Lbl_UserId.Location = new System.Drawing.Point(380, 101);
             this.Lbl_UserId.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_UserId.Name = "Lbl_UserId";
-            this.Lbl_UserId.Size = new System.Drawing.Size(77, 15);
+            this.Lbl_UserId.Size = new System.Drawing.Size(93, 25);
             this.Lbl_UserId.TabIndex = 9;
             this.Lbl_UserId.Text = "ユーザー ID:";
             // 
             // Lbl_Passwd
             // 
             this.Lbl_Passwd.AutoSize = true;
-            this.Lbl_Passwd.Location = new System.Drawing.Point(405, 132);
+            this.Lbl_Passwd.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Lbl_Passwd.Location = new System.Drawing.Point(380, 138);
             this.Lbl_Passwd.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_Passwd.Name = "Lbl_Passwd";
-            this.Lbl_Passwd.Size = new System.Drawing.Size(67, 15);
+            this.Lbl_Passwd.Size = new System.Drawing.Size(83, 25);
             this.Lbl_Passwd.TabIndex = 1;
             this.Lbl_Passwd.Text = "パスワード:";
             // 
             // Chk_MemUserId
             // 
             this.Chk_MemUserId.AutoSize = true;
-            this.Chk_MemUserId.Location = new System.Drawing.Point(405, 160);
+            this.Chk_MemUserId.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Chk_MemUserId.Location = new System.Drawing.Point(384, 166);
             this.Chk_MemUserId.Margin = new System.Windows.Forms.Padding(4);
             this.Chk_MemUserId.Name = "Chk_MemUserId";
-            this.Chk_MemUserId.Size = new System.Drawing.Size(166, 19);
+            this.Chk_MemUserId.Size = new System.Drawing.Size(195, 29);
             this.Chk_MemUserId.TabIndex = 3;
             this.Chk_MemUserId.Text = "ユーザー ID を記憶する";
             this.Chk_MemUserId.UseVisualStyleBackColor = true;
@@ -105,55 +109,60 @@ namespace MPPPS
             // 
             this.Cbx_OracleVer.BackColor = System.Drawing.SystemColors.Window;
             this.Cbx_OracleVer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.Cbx_OracleVer.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Cbx_OracleVer.FormattingEnabled = true;
             this.Cbx_OracleVer.Items.AddRange(new object[] {
             "Oracle 10g",
             "Oracle 11g"});
-            this.Cbx_OracleVer.Location = new System.Drawing.Point(497, 32);
+            this.Cbx_OracleVer.Location = new System.Drawing.Point(472, 23);
             this.Cbx_OracleVer.Margin = new System.Windows.Forms.Padding(4);
             this.Cbx_OracleVer.Name = "Cbx_OracleVer";
-            this.Cbx_OracleVer.Size = new System.Drawing.Size(132, 23);
+            this.Cbx_OracleVer.Size = new System.Drawing.Size(134, 36);
             this.Cbx_OracleVer.TabIndex = 7;
             // 
             // Cbx_Schema
             // 
             this.Cbx_Schema.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.Cbx_Schema.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Cbx_Schema.FormattingEnabled = true;
             this.Cbx_Schema.Items.AddRange(new object[] {
             "KOKEN_1",
             "KOKEN_7",
             "KOKEN_3",
             "KOKEN_QA"});
-            this.Cbx_Schema.Location = new System.Drawing.Point(497, 65);
+            this.Cbx_Schema.Location = new System.Drawing.Point(472, 60);
             this.Cbx_Schema.Margin = new System.Windows.Forms.Padding(4);
             this.Cbx_Schema.Name = "Cbx_Schema";
-            this.Cbx_Schema.Size = new System.Drawing.Size(132, 23);
+            this.Cbx_Schema.Size = new System.Drawing.Size(134, 36);
             this.Cbx_Schema.TabIndex = 8;
             // 
             // Tbx_UserId
             // 
             this.Tbx_UserId.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.Tbx_UserId.Location = new System.Drawing.Point(499, 98);
+            this.Tbx_UserId.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Tbx_UserId.Location = new System.Drawing.Point(472, 98);
             this.Tbx_UserId.Margin = new System.Windows.Forms.Padding(4);
             this.Tbx_UserId.Name = "Tbx_UserId";
-            this.Tbx_UserId.Size = new System.Drawing.Size(132, 22);
+            this.Tbx_UserId.Size = new System.Drawing.Size(134, 34);
             this.Tbx_UserId.TabIndex = 0;
             this.Tbx_UserId.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tbx_UserId_KeyDown);
             // 
             // Tbx_Passwd
             // 
             this.Tbx_Passwd.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.Tbx_Passwd.Location = new System.Drawing.Point(499, 129);
+            this.Tbx_Passwd.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Tbx_Passwd.Location = new System.Drawing.Point(472, 135);
             this.Tbx_Passwd.Margin = new System.Windows.Forms.Padding(4);
             this.Tbx_Passwd.Name = "Tbx_Passwd";
-            this.Tbx_Passwd.Size = new System.Drawing.Size(132, 22);
+            this.Tbx_Passwd.Size = new System.Drawing.Size(134, 34);
             this.Tbx_Passwd.TabIndex = 2;
             this.Tbx_Passwd.UseSystemPasswordChar = true;
             this.Tbx_Passwd.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tbx_Passwd_KeyDown);
             // 
             // Btn_OK
             // 
-            this.Btn_OK.Location = new System.Drawing.Point(419, 195);
+            this.Btn_OK.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_OK.Location = new System.Drawing.Point(394, 208);
             this.Btn_OK.Margin = new System.Windows.Forms.Padding(4);
             this.Btn_OK.Name = "Btn_OK";
             this.Btn_OK.Size = new System.Drawing.Size(100, 30);
@@ -164,7 +173,8 @@ namespace MPPPS
             // 
             // Btn_Cancel
             // 
-            this.Btn_Cancel.Location = new System.Drawing.Point(525, 195);
+            this.Btn_Cancel.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_Cancel.Location = new System.Drawing.Point(500, 208);
             this.Btn_Cancel.Margin = new System.Windows.Forms.Padding(4);
             this.Btn_Cancel.Name = "Btn_Cancel";
             this.Btn_Cancel.Size = new System.Drawing.Size(100, 30);
@@ -175,9 +185,8 @@ namespace MPPPS
             // 
             // Frm010_Login
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(661, 251);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(621, 251);
             this.Controls.Add(this.Btn_Cancel);
             this.Controls.Add(this.Btn_OK);
             this.Controls.Add(this.Tbx_Passwd);
@@ -189,9 +198,11 @@ namespace MPPPS
             this.Controls.Add(this.Lbl_UserId);
             this.Controls.Add(this.Lbl_DestDB);
             this.Controls.Add(this.Pbx_CostMgt);
+            this.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Frm010_Login";
             this.Text = "[KMD001SF] 切削生産計画システム - Ver.yyMMdd.99 <#01: ログイン>";
+            this.Activated += new System.EventHandler(this.Frm010_Login_Activated);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Frm010_Login_FormClosing);
             this.Load += new System.EventHandler(this.Frm010_Login_Load);
             ((System.ComponentModel.ISupportInitialize)(this.Pbx_CostMgt)).EndInit();

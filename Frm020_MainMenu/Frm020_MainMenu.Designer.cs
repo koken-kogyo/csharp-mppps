@@ -58,6 +58,7 @@ namespace MPPPS
             // 
             // menuStrip1
             // 
+            this.menuStrip1.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ファイルFToolStripMenuItem,
@@ -66,7 +67,7 @@ namespace MPPPS
             this.ヘルプHToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(530, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(629, 28);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -83,13 +84,13 @@ namespace MPPPS
             // 印刷PToolStripMenuItem
             // 
             this.印刷PToolStripMenuItem.Name = "印刷PToolStripMenuItem";
-            this.印刷PToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
+            this.印刷PToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.印刷PToolStripMenuItem.Text = "印刷(&P)";
             // 
             // 終了XToolStripMenuItem
             // 
             this.終了XToolStripMenuItem.Name = "終了XToolStripMenuItem";
-            this.終了XToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
+            this.終了XToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.終了XToolStripMenuItem.Text = "終了(&X)";
             // 
             // 編集EToolStripMenuItem
@@ -152,10 +153,10 @@ namespace MPPPS
             // 
             // Btn_MasterMaint
             // 
-            this.Btn_MasterMaint.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
-            this.Btn_MasterMaint.Location = new System.Drawing.Point(12, 36);
+            this.Btn_MasterMaint.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_MasterMaint.Location = new System.Drawing.Point(12, 42);
             this.Btn_MasterMaint.Name = "Btn_MasterMaint";
-            this.Btn_MasterMaint.Size = new System.Drawing.Size(250, 29);
+            this.Btn_MasterMaint.Size = new System.Drawing.Size(300, 38);
             this.Btn_MasterMaint.TabIndex = 1;
             this.Btn_MasterMaint.Text = "マスタ メンテナンス";
             this.Btn_MasterMaint.UseVisualStyleBackColor = true;
@@ -163,10 +164,10 @@ namespace MPPPS
             // 
             // Btn_OrderCtrl
             // 
-            this.Btn_OrderCtrl.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
-            this.Btn_OrderCtrl.Location = new System.Drawing.Point(12, 71);
+            this.Btn_OrderCtrl.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_OrderCtrl.Location = new System.Drawing.Point(12, 86);
             this.Btn_OrderCtrl.Name = "Btn_OrderCtrl";
-            this.Btn_OrderCtrl.Size = new System.Drawing.Size(250, 29);
+            this.Btn_OrderCtrl.Size = new System.Drawing.Size(300, 38);
             this.Btn_OrderCtrl.TabIndex = 2;
             this.Btn_OrderCtrl.Text = "オーダー管理";
             this.Btn_OrderCtrl.UseVisualStyleBackColor = true;
@@ -174,10 +175,10 @@ namespace MPPPS
             // 
             // Btn_MfgCtrl
             // 
-            this.Btn_MfgCtrl.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
-            this.Btn_MfgCtrl.Location = new System.Drawing.Point(12, 106);
+            this.Btn_MfgCtrl.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_MfgCtrl.Location = new System.Drawing.Point(12, 130);
             this.Btn_MfgCtrl.Name = "Btn_MfgCtrl";
-            this.Btn_MfgCtrl.Size = new System.Drawing.Size(250, 29);
+            this.Btn_MfgCtrl.Size = new System.Drawing.Size(300, 38);
             this.Btn_MfgCtrl.TabIndex = 3;
             this.Btn_MfgCtrl.Text = "製造管理";
             this.Btn_MfgCtrl.UseVisualStyleBackColor = true;
@@ -185,10 +186,10 @@ namespace MPPPS
             // 
             // Btn_ReceiptCtrl
             // 
-            this.Btn_ReceiptCtrl.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
-            this.Btn_ReceiptCtrl.Location = new System.Drawing.Point(12, 141);
+            this.Btn_ReceiptCtrl.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_ReceiptCtrl.Location = new System.Drawing.Point(12, 174);
             this.Btn_ReceiptCtrl.Name = "Btn_ReceiptCtrl";
-            this.Btn_ReceiptCtrl.Size = new System.Drawing.Size(250, 29);
+            this.Btn_ReceiptCtrl.Size = new System.Drawing.Size(300, 38);
             this.Btn_ReceiptCtrl.TabIndex = 4;
             this.Btn_ReceiptCtrl.Text = "実績管理";
             this.Btn_ReceiptCtrl.UseVisualStyleBackColor = true;
@@ -196,10 +197,10 @@ namespace MPPPS
             // 
             // Btn_MatlCtrl
             // 
-            this.Btn_MatlCtrl.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
-            this.Btn_MatlCtrl.Location = new System.Drawing.Point(268, 71);
+            this.Btn_MatlCtrl.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_MatlCtrl.Location = new System.Drawing.Point(318, 86);
             this.Btn_MatlCtrl.Name = "Btn_MatlCtrl";
-            this.Btn_MatlCtrl.Size = new System.Drawing.Size(250, 29);
+            this.Btn_MatlCtrl.Size = new System.Drawing.Size(300, 38);
             this.Btn_MatlCtrl.TabIndex = 5;
             this.Btn_MatlCtrl.Text = "材料管理";
             this.Btn_MatlCtrl.UseVisualStyleBackColor = true;
@@ -207,10 +208,10 @@ namespace MPPPS
             // 
             // Btn_CutStore
             // 
-            this.Btn_CutStore.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
-            this.Btn_CutStore.Location = new System.Drawing.Point(268, 106);
+            this.Btn_CutStore.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_CutStore.Location = new System.Drawing.Point(318, 130);
             this.Btn_CutStore.Name = "Btn_CutStore";
-            this.Btn_CutStore.Size = new System.Drawing.Size(250, 29);
+            this.Btn_CutStore.Size = new System.Drawing.Size(300, 38);
             this.Btn_CutStore.TabIndex = 6;
             this.Btn_CutStore.Text = "切削ストア";
             this.Btn_CutStore.UseVisualStyleBackColor = true;
@@ -219,10 +220,10 @@ namespace MPPPS
             // Btn_Close
             // 
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
-            this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
-            this.Btn_Close.Location = new System.Drawing.Point(268, 141);
+            this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_Close.Location = new System.Drawing.Point(318, 174);
             this.Btn_Close.Name = "Btn_Close";
-            this.Btn_Close.Size = new System.Drawing.Size(250, 29);
+            this.Btn_Close.Size = new System.Drawing.Size(300, 38);
             this.Btn_Close.TabIndex = 7;
             this.Btn_Close.Text = "終了";
             this.Btn_Close.UseVisualStyleBackColor = false;
@@ -232,10 +233,11 @@ namespace MPPPS
             // 
             this.Lbl_User.AutoSize = true;
             this.Lbl_User.BackColor = System.Drawing.Color.Transparent;
-            this.Lbl_User.Location = new System.Drawing.Point(317, 36);
+            this.Lbl_User.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Lbl_User.Location = new System.Drawing.Point(365, 47);
             this.Lbl_User.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_User.Name = "Lbl_User";
-            this.Lbl_User.Size = new System.Drawing.Size(55, 15);
+            this.Lbl_User.Size = new System.Drawing.Size(76, 28);
             this.Lbl_User.TabIndex = 8;
             this.Lbl_User.Text = "利用者:";
             // 
@@ -243,16 +245,18 @@ namespace MPPPS
             // 
             this.Lbl_UserName.AutoSize = true;
             this.Lbl_UserName.BackColor = System.Drawing.Color.Transparent;
-            this.Lbl_UserName.Location = new System.Drawing.Point(380, 36);
+            this.Lbl_UserName.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Lbl_UserName.Location = new System.Drawing.Point(492, 47);
             this.Lbl_UserName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_UserName.Name = "Lbl_UserName";
-            this.Lbl_UserName.Size = new System.Drawing.Size(92, 15);
+            this.Lbl_UserName.Size = new System.Drawing.Size(124, 28);
             this.Lbl_UserName.TabIndex = 9;
             this.Lbl_UserName.Text = "氏名 (99999)";
             // 
             // Frm020_MainMenu
             // 
-            this.ClientSize = new System.Drawing.Size(530, 182);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(629, 224);
             this.Controls.Add(this.Lbl_UserName);
             this.Controls.Add(this.Lbl_User);
             this.Controls.Add(this.Btn_Close);
@@ -263,6 +267,7 @@ namespace MPPPS
             this.Controls.Add(this.Btn_OrderCtrl);
             this.Controls.Add(this.Btn_MasterMaint);
             this.Controls.Add(this.menuStrip1);
+            this.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Frm020_MainMenu";

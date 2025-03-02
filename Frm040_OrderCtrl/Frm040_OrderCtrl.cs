@@ -66,7 +66,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// [切削オーダーの作成] ボタン クリック
+        /// [手配情報作成] ボタン クリック
         /// </summary>
         /// <param name="sender">送信オブジェクト</param>
         /// <param name="e">イベント引数</param>
@@ -75,7 +75,7 @@ namespace MPPPS
             //player = new SoundPlayer(@cmn.SoundFilePathCorrect);
             //player.Play();
 
-            Frm041_CreateOrder frm041 = new Frm041_CreateOrder(cmn, sender);
+            Frm041_CreateOrder frm041 = new Frm041_CreateOrder(cmn);
             frm041.ShowDialog();
         }
 
@@ -109,16 +109,13 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// [切削オーダー情報] ボタン クリック
+        /// [内示情報作成] ボタン クリック
         /// </summary>
         /// <param name="sender">送信オブジェクト</param>
         /// <param name="e">イベント引数</param>
-        private void Btn_OrderInfo_Click(object sender, EventArgs e)
+        private void Btn_CreateMaybeOrder_Click(object sender, EventArgs e)
         {
-            player = new SoundPlayer(@cmn.SoundFilePathWrong);
-            player.Play();
-
-            Frm044_OrderInfo frm044 = new Frm044_OrderInfo();
+            Frm044_CreatePlanOrder frm044 = new Frm044_CreatePlanOrder(cmn);
             frm044.ShowDialog();
         }
 
@@ -192,26 +189,6 @@ namespace MPPPS
 
             //// 件数表示クリア
             //Tsl_Msg.Text = null;
-        }
-
-        private void Btn_CreateOrder_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Btn_CreateAddOrder_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Btn_OrderInfo_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Btn_MfgProgress_Click_1(object sender, EventArgs e)
-        {
-
         }
     }
 }

@@ -109,6 +109,13 @@ namespace MPPPS
             // ファイル システム設定ファイル逆シリアライズ
             cmn.FsCd = cmn.Fa.ReserializeFSConfigFile();
 
+            // スクリーン表示倍率
+            double dpi = Screen.PrimaryScreen
+                .Bounds.Height;         // ディスプレイの解像度 (例:Width=1920, Height=1080)
+            double dpiMag = System.Windows.SystemParameters
+                .PrimaryScreenHeight;   // 拡大時の画面高さ     (例:Width=1536, Height=864)
+            cmn.ScreenMagnification = dpi / dpiMag; // スクリーン表示倍率   (例:1.25)
+
             // ホストマスタ オブジェクトを生成
             cmn.PkKS0010 = new PkKS0010();
 
@@ -479,6 +486,18 @@ namespace MPPPS
         private void Tbx_Passwd_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter) Btn_OK.Focus();
+        }
+
+        private void Frm010_Login_Activated(object sender, EventArgs e)
+        {
+            if (Chk_MemUserId.Checked)
+            {
+                Tbx_Passwd.Focus();
+            }
+            else
+            {
+                Tbx_Passwd.Focus();
+            }
         }
     }
 }

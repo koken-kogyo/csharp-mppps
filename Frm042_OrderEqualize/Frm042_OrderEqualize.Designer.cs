@@ -350,7 +350,6 @@ namespace MPPPS
             this.Dgv_MpSimOdrTbl.Size = new System.Drawing.Size(662, 456);
             this.Dgv_MpSimOdrTbl.TabIndex = 0;
             this.Dgv_MpSimOdrTbl.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Dgv_MpSimOdrTbl_KeyUp);
-
             // 
             // Tbx_SimOpeAvail
             // 
@@ -616,6 +615,7 @@ namespace MPPPS
             this.Btn_ReadCsvFile.TabIndex = 0;
             this.Btn_ReadCsvFile.Text = "CSV 読込";
             this.Btn_ReadCsvFile.UseVisualStyleBackColor = true;
+            this.Btn_ReadCsvFile.Click += new System.EventHandler(this.Btn_ReadCsvFile_Click);
             // 
             // Btn_Clear
             // 

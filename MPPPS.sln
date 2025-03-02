@@ -47,7 +47,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm042_OrderEqualize", "Frm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm043_CreateAddOrder", "Frm043_CreateAddOrder\Frm043_CreateAddOrder.csproj", "{27317589-5CB8-4623-91EF-006E686253B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm044_OrderInfo", "Frm044_OrderInfo\Frm044_OrderInfo.csproj", "{2E385132-9953-4ED3-8887-E37200251FE1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm044_CreatePlanOrder", "Frm044_OrderInfo\Frm044_CreatePlanOrder.csproj", "{2E385132-9953-4ED3-8887-E37200251FE1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm045_MfgProgress", "Frm045_MfgProgress\Frm045_MfgProgress.csproj", "{91088BC9-59B8-487C-AF5D-813B48661BB6}"
 EndProject

@@ -283,12 +283,12 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削オーダー平準化情報取得 (d0415 切削生産計画ファイル, D0445 切削生産計画日程ファイル, KM8420 切削設備マスタ)
+        /// 切削オーダー平準化情報取得 (KD8430 切削生産計画ファイル, KD8440 切削生産計画日程ファイル, KM8420 切削設備マスタ)
         /// </summary>
         /// <param name="dataSet">データセット</param>
         /// <param name="searchTarget">検索対象 (0: 現状全件, 1: 確定全件 2: 特定データ, 3: グループのみ, 4: 設備のみ)</param>
         /// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
-        public int GetOrderEqualizeInfo(ref DataSet dataSet, int searchTarget = Common.D0415_TARGET_SPECIFIC)
+        public int GetOrderEqualizeInfo(ref DataSet dataSet, int searchTarget = Common.KD8430_TARGET_SPECIFIC)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -313,7 +313,7 @@ namespace MPPPS
                             myDa.Fill(myDs, "emp");
                             switch (searchTarget)
                             {
-                                case Common.D0415_TARGET_CUR_ALL:
+                                case Common.KD8430_TARGET_CUR_ALL:
                                     {
                                         foreach (DataRow dr in myDs.Tables[0].Rows)
                                         {
@@ -338,7 +338,7 @@ namespace MPPPS
                                         }
                                         break;
                                     }
-                                case Common.D0415_TARGET_SIM_ALL:
+                                case Common.KD8430_TARGET_SIM_ALL:
                                     {
                                         foreach (DataRow dr in myDs.Tables[0].Rows)
                                         {
@@ -363,7 +363,7 @@ namespace MPPPS
                                         }
                                         break;
                                     }
-                                case Common.D0415_TARGET_SPECIFIC:
+                                case Common.KD8430_TARGET_SPECIFIC:
                                 default:
                                     {
                                         foreach (DataRow dr in myDs.Tables[0].Rows)
@@ -384,7 +384,7 @@ namespace MPPPS
                                         }
                                         break;
                                     }
-                                case Common.D0415_TARGET_MCGCD:
+                                case Common.KD8430_TARGET_MCGCD:
                                     {
                                         foreach (DataRow dr in myDs.Tables[0].Rows)
                                         {
@@ -394,7 +394,7 @@ namespace MPPPS
                                         }
                                         break;
                                     }
-                                case Common.D0415_TARGET_MCCD:
+                                case Common.KD8430_TARGET_MCCD:
                                     {
                                         foreach (DataRow dr in myDs.Tables[0].Rows)
                                         {
@@ -404,7 +404,7 @@ namespace MPPPS
                                         }
                                         break;
                                     }
-                                case Common.D0415_TARGET_MCTM:
+                                case Common.KD8430_TARGET_MCTM:
                                     {
                                         foreach (DataRow dr in myDs.Tables[0].Rows)
                                         {
@@ -441,7 +441,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削オーダー平準化情報取得 SQL 構文編集 (d0415 切削生産計画ファイル, D0445 切削生産計画日程ファイル, KM8420 切削設備マスタ)
+        /// 切削オーダー平準化情報取得 SQL 構文編集 (kd8430 切削生産計画ファイル, kd8440 切削生産計画日程ファイル, KM8420 切削設備マスタ)
         /// </summary>
         /// <param name="searchTarget">検索対象 (0: 全件, 1: 特定データ, 2: グループ コードのみ)</param>
         /// <returns>SQL 構文</returns>
@@ -454,7 +454,7 @@ namespace MPPPS
             string sql;
             switch (searchTarget)
             {
-                case Common.D0415_TARGET_CUR_ALL:
+                case Common.KD8430_TARGET_CUR_ALL:
                     {
                         sql = "select distinct "
                             + "a.EDDT, "
@@ -494,14 +494,14 @@ namespace MPPPS
                             + "HMCD, "
                             + "'1' as SEQ, "
                             + "MCSEQ, "
-                            + "'" + Common.TABLE_ID_D0415 + "' as TBLNM "
+                            + "'" + Common.TABLE_ID_KD8430 + "' as TBLNM "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0415 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                             + "where "
-                            + "EDDT between '" + cmn.IkD0415.EdDt + "' and "
-                                         + "'" + cmn.IkD0415.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0415.McGCd + "' and "
-                            + "MCCD = '" + cmn.IkD0415.McCd + "' "
+                            + "EDDT between '" + cmn.IkKD8430.EdDt + "' and "
+                                         + "'" + cmn.IkKD8430.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8430.McGCd + "' and "
+                            + "MCCD = '" + cmn.IkKD8430.McCd + "' "
                             + "union "
                             + "select distinct "
                             + "EDDT, "
@@ -519,14 +519,14 @@ namespace MPPPS
                             + "HMCD, "
                             + "SEQ, "
                             + "MCSEQ, "
-                            + "'" + Common.TABLE_ID_D0445 + "' as TBLNM "
+                            + "'" + Common.TABLE_ID_KD8440 + "' as TBLNM "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0445 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
                             + "where "
-                            + "EDDT between '" + cmn.IkD0445.EdDt + "' and "
-                                         + "'" + cmn.IkD0445.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0445.McGCd + "' and "
-                            + "MCCD = '" + cmn.IkD0445.McCd + "' "
+                            + "EDDT between '" + cmn.IkKD8440.EdDt + "' and "
+                                         + "'" + cmn.IkKD8440.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8440.McGCd + "' and "
+                            + "MCCD = '" + cmn.IkKD8440.McCd + "' "
                             + ") a, "
                             + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420 + " b, "
                             + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " c "
@@ -545,7 +545,7 @@ namespace MPPPS
                             ;
                         break;
                     }
-                case Common.D0415_TARGET_SIM_ALL:
+                case Common.KD8430_TARGET_SIM_ALL:
                     {
                         sql = "select distinct "
                             + "a.KEDDT, "
@@ -585,14 +585,14 @@ namespace MPPPS
                             + "HMCD, "
                             + "'1' as SEQ, "
                             + "MCSEQ, "
-                            + "'" + Common.TABLE_ID_D0415 + "' as TBLNM "
+                            + "'" + Common.TABLE_ID_KD8430 + "' as TBLNM "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0415 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                             + "where "
-                            + "KEDDT between '" + cmn.IkD0415.EdDt + "' and "
-                                         + "'" + cmn.IkD0415.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0415.McGCd + "' and "
-                            + "KMCCD = '" + cmn.IkD0415.McCd + "' "
+                            + "KEDDT between '" + cmn.IkKD8430.EdDt + "' and "
+                                         + "'" + cmn.IkKD8430.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8430.McGCd + "' and "
+                            + "KMCCD = '" + cmn.IkKD8430.McCd + "' "
                             + "union "
                             + "select distinct "
                             + "KEDDT, "
@@ -610,14 +610,14 @@ namespace MPPPS
                             + "HMCD, "
                             + "SEQ, "
                             + "MCSEQ, "
-                            + "'" + Common.TABLE_ID_D0445 + "' as TBLNM "
+                            + "'" + Common.TABLE_ID_KD8440 + "' as TBLNM "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0445 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
                             + "where "
-                            + "KEDDT between '" + cmn.IkD0445.EdDt + "' and "
-                                         + "'" + cmn.IkD0445.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0445.McGCd + "' and "
-                            + "KMCCD = '" + cmn.IkD0445.McCd + "' "
+                            + "KEDDT between '" + cmn.IkKD8440.EdDt + "' and "
+                                         + "'" + cmn.IkKD8440.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8440.McGCd + "' and "
+                            + "KMCCD = '" + cmn.IkKD8440.McCd + "' "
                             + ") a, "
                             + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420 + " b, "
                             + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " c "
@@ -636,7 +636,7 @@ namespace MPPPS
                             ;
                         break;
                     }
-                case Common.D0415_TARGET_SPECIFIC:
+                case Common.KD8430_TARGET_SPECIFIC:
                 default:
                     {
                         sql = "select "
@@ -651,14 +651,14 @@ namespace MPPPS
                             + "KEDTIM, "
                             + "KODRQTY, "
                             + "KMCCD, "
-                            + "'" + Common.TABLE_ID_D0415 + "' as TBLNM "
+                            + "'" + Common.TABLE_ID_KD8430 + "' as TBLNM "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0415 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                             + "where "
-                            + "KEDDT between '" + cmn.IkD0415.EdDt + "' and "
-                                         + "'" + cmn.IkD0415.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0415.McGCd + "' and "
-                            + "KMCCD = '" + cmn.IkD0415.McCd + "' "
+                            + "KEDDT between '" + cmn.IkKD8430.EdDt + "' and "
+                                         + "'" + cmn.IkKD8430.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8430.McGCd + "' and "
+                            + "KMCCD = '" + cmn.IkKD8430.McCd + "' "
                             + "union all "
                             + "select "
                             + "ODCD, "
@@ -672,14 +672,14 @@ namespace MPPPS
                             + "KEDTM as EDDTIM, "
                             + "KODRQTY, "
                             + "KMCCD, "
-                            + "'" + Common.TABLE_ID_D0445 + "' as TBLNM "
+                            + "'" + Common.TABLE_ID_KD8440 + "' as TBLNM "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0445 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
                             + "where "
-                            + "KEDDT between '" + cmn.IkD0445.EdDt + "' and "
-                                         + "'" + cmn.IkD0445.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0445.McGCd + "' and "
-                            + "KMCCD = '" + cmn.IkD0445.McCd + "' "
+                            + "KEDDT between '" + cmn.IkKD8440.EdDt + "' and "
+                                         + "'" + cmn.IkKD8440.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8440.McGCd + "' and "
+                            + "KMCCD = '" + cmn.IkKD8440.McCd + "' "
                             + "order by "
                             + "KEDDT, "
                             + "KMCCD, "
@@ -687,7 +687,7 @@ namespace MPPPS
                             ;
                         break;
                     }
-                case Common.D0415_TARGET_MCGCD:
+                case Common.KD8430_TARGET_MCGCD:
                     {
                         sql = "select distinct "
                             + "a.MCGCD, "
@@ -697,18 +697,18 @@ namespace MPPPS
                             + "select "
                             + "MCGCD "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0415 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                             + "where "
-                            + "EDDT between '" + cmn.IkD0415.EdDt + "' and "
-                                         + "'" + cmn.IkD0415.EdDt + "' "
+                            + "EDDT between '" + cmn.IkKD8430.EdDt + "' and "
+                                         + "'" + cmn.IkKD8430.EdDt + "' "
                             + "union all "
                             + "select "
                             + "MCGCD "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0445 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
                             + "where "
-                            + "EDDT between '" + cmn.IkD0445.EdDt + "' and "
-                                         + "'" + cmn.IkD0445.EdDt + "' "
+                            + "EDDT between '" + cmn.IkKD8440.EdDt + "' and "
+                                         + "'" + cmn.IkKD8440.EdDt + "' "
                             + ") a, "
                             + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420 + " b "
                             + "where "
@@ -718,7 +718,7 @@ namespace MPPPS
                             ;
                         break;
                     }
-                case Common.D0415_TARGET_MCCD:
+                case Common.KD8430_TARGET_MCCD:
                     {
                         sql = "select distinct "
                             + "a.MCCD, "
@@ -729,21 +729,21 @@ namespace MPPPS
                             + "MCGCD, "
                             + "MCCD "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0415 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                             + "where "
-                            + "EDDT between '" + cmn.IkD0415.EdDt + "' and "
-                                         + "'" + cmn.IkD0415.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0415.McGCd + "' "
+                            + "EDDT between '" + cmn.IkKD8430.EdDt + "' and "
+                                         + "'" + cmn.IkKD8430.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8430.McGCd + "' "
                             + "union all "
                             + "select "
                             + "MCGCD, "
                             + "MCCD "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0445 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
                             + "where "
-                            + "EDDT between '" + cmn.IkD0445.EdDt + "' and "
-                                         + "'" + cmn.IkD0445.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0445.McGCd + "' "
+                            + "EDDT between '" + cmn.IkKD8440.EdDt + "' and "
+                                         + "'" + cmn.IkKD8440.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8440.McGCd + "' "
                             + ") a, "
                             + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420 + " b "
                             + "where "
@@ -754,7 +754,7 @@ namespace MPPPS
                             ;
                         break;
                     }
-                case Common.D0415_TARGET_MCTM:
+                case Common.KD8430_TARGET_MCTM:
                     {
                         sql = "select distinct "
                             + "a.MCCD, "
@@ -769,23 +769,23 @@ namespace MPPPS
                             + "MCGCD, "
                             + "MCCD "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0415 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                             + "where "
-                            + "EDDT between '" + cmn.IkD0415.EdDt + "' and "
-                                         + "'" + cmn.IkD0415.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0415.McGCd + "' and "
-                            + "MCCD = '" + cmn.IkD0415.McCd + "' "
+                            + "EDDT between '" + cmn.IkKD8430.EdDt + "' and "
+                                         + "'" + cmn.IkKD8430.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8430.McGCd + "' and "
+                            + "MCCD = '" + cmn.IkKD8430.McCd + "' "
                             + "union all "
                             + "select "
                             + "MCGCD, "
                             + "MCCD "
                             + "from "
-                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0445 + " "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
                             + "where "
-                            + "EDDT between '" + cmn.IkD0445.EdDt + "' and "
-                                         + "'" + cmn.IkD0445.EdDt + "' and "
-                            + "MCGCD = '" + cmn.IkD0445.McGCd + "' and "
-                            + "MCCD = '" + cmn.IkD0445.McCd + "' "
+                            + "EDDT between '" + cmn.IkKD8440.EdDt + "' and "
+                                         + "'" + cmn.IkKD8440.EdDt + "' and "
+                            + "MCGCD = '" + cmn.IkKD8440.McGCd + "' and "
+                            + "MCCD = '" + cmn.IkKD8440.McCd + "' "
                             + ") a, "
                             + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420 + " b "
                             + "where "
@@ -1389,7 +1389,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削生産計画情報削除 (D0415 切削生産計画ファイル)
+        /// 切削生産計画情報削除 (KD8430 切削生産計画ファイル)
         /// </summary>
         /// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
         public int DeleteCuttingProdPlanInfo()
@@ -1418,14 +1418,14 @@ namespace MPPPS
                             if (res >= 1)
                             {
                                 txn.Commit();
-                                Debug.WriteLine(Common.TABLE_ID_D0415 + " table delete succeed and commited.");
+                                Debug.WriteLine(Common.TABLE_ID_KD8430 + " table delete succeed and commited.");
                             }
                             ret = res;
                         }
                         catch (Exception e)
                         {
                             txn.Rollback();
-                            Debug.WriteLine(Common.TABLE_ID_D0415 + " table no data deleted.");
+                            Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data deleted.");
 
                             Debug.WriteLine("Exception Source = " + e.Source);
                             Debug.WriteLine("Exception Message = " + e.Message);
@@ -1455,7 +1455,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削生産計画情報削除 SQL 構文編集 (D0415 切削生産計画ファイル) 
+        /// 切削生産計画情報削除 SQL 構文編集 (KD8430 切削生産計画ファイル) 
         /// </summary>
         /// <returns>SQL 構文</returns>
         private string EditCuttingProdPlanInfoDeleteQuery()
@@ -1465,18 +1465,18 @@ namespace MPPPS
             // 画面指定されたキーで削除
             string sql = "delete "
                        + "from "
-                       + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0415 + " "
+                       + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                        + "where "
-                       + "ODRNO like '%" + cmn.PkD0415.OdrNo + "%' and "
-                       + "MCSEQ like '%" + cmn.PkD0415.McSeq + "%' and "
-                       + "SPLITSEQ like '%" + cmn.PkD0415.SplitSeq + "%' "
+                       + "ODRNO like '%" + cmn.PkKD8430.OdrNo + "%' and "
+                       + "MCSEQ like '%" + cmn.PkKD8430.McSeq + "%' and "
+                       + "SPLITSEQ like '%" + cmn.PkKD8430.SplitSeq + "%' "
                        ;
 
             return sql;
         }
 
         /// <summary>
-        /// 切削生産計画情報登録/更新 (D0415 切削生産計画ファイル)
+        /// 切削生産計画情報登録/更新 (KD8430 切削生産計画ファイル)
         /// </summary>
         /// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
         public int MergeCuttingProdPlanInfo()
@@ -1505,14 +1505,14 @@ namespace MPPPS
                             if (res >= 1)
                             {
                                 txn.Commit();
-                                Debug.WriteLine(Common.TABLE_ID_D0415 + " table data insert/update succeed and commited.");
+                                Debug.WriteLine(Common.TABLE_ID_KD8430 + " table data insert/update succeed and commited.");
                             }
                             ret = res;
                         }
                         catch (Exception e)
                         {
                             txn.Rollback();
-                            Debug.WriteLine(Common.TABLE_ID_D0415 + " table no data inserted/updated.");
+                            Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
 
                             Debug.WriteLine("Exception Source = " + e.Source);
                             Debug.WriteLine("Exception Message = " + e.Message);
@@ -1542,7 +1542,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削生産計画情報登録/更新 SQL 構文編集 (D0415 切削生産計画ファイル) 
+        /// 切削生産計画情報登録/更新 SQL 構文編集 (KD8430 切削生産計画ファイル) 
         /// </summary>
         /// <returns>SQL 構文</returns>
         public string EditCuttingProdPlanInfoMergeQuery()
@@ -1555,7 +1555,7 @@ namespace MPPPS
             // 代入元に書式 'YYYY/MM/DD HH24:MI:SS' 等の記述は不要、MySql が適切に合わせ込んで登録してくれる
             // この変換を怠ると「ORA-01861: リテラルが書式文字列と一致しません」の例外が発生する
             string sql = "insert into "
-                       + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0415
+                       + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430
                        + "("
                        + "ODRNO, "
                        + "MCSEQ, "
@@ -1599,58 +1599,58 @@ namespace MPPPS
                        + ") "
                        + "values "
                        + "("
-                       + "'" + cmn.PkD0415.OdrNo + "', "
-                       + "'" + cmn.PkD0415.McSeq + "', "
-                       + "'" + cmn.PkD0415.SplitSeq + "', "
-                       + "'" + cmn.DrD0415.KtSeq + "', "
-                       + "'" + cmn.DrD0415.HmCd + "', "
-                       + "'" + cmn.DrD0415.KtCd + "', "
-                       + "'" + cmn.DrD0415.OdrQty + "', "
-                       + "'" + cmn.DrD0415.OdCd + "', "
-                       + "'" + cmn.DrD0415.NextOdCd + "', "
-                       + "'" + cmn.DrD0415.LtTime + "', "
-                       + "cast('" + cmn.DrD0415.StDt + "' as datetime), "
-                       + "'" + cmn.DrD0415.StTim + "', "
-                       + "cast('" + cmn.DrD0415.EdDt + "' as datetime), "
-                       + "'" + cmn.DrD0415.EdTim + "', "
-                       + "'" + cmn.DrD0415.OdrSts + "', "
-                       + "'" + cmn.DrD0415.QrCd + "', "
-                       + "'" + cmn.DrD0415.JiQty + "', "
-                       + "'" + cmn.DrD0415.DenpyoKbn + "', "
-                       + "cast('" + cmn.DrD0415.DenpyoDt + "' as datetime), "
-                       + "'" + cmn.DrD0415.Note + "', "
-                       + "'" + cmn.DrD0415.WkNote + "', "
-                       + "'" + cmn.DrD0415.WkComment + "', "
-                       + "'" + cmn.DrD0415.DataKbn + "', "
-                       + "'" + cmn.DrD0415.Instid + "', "
-                       + "cast('" + cmn.DrD0415.InstDt + "' as datetime), "
-                       + "'" + cmn.DrD0415.UpdtId + "', "
-                       + "cast('" + cmn.DrD0415.UpdtDt + "' as datetime), "
-                       + "'" + cmn.DrD0415.UkCd + "', "
-                       + "'" + cmn.DrD0415.NaigaiKbn + "', "
-                       + "'" + cmn.DrD0415.RetKtCd + "', "
-                       + "'" + cmn.DrD0415.McGCd + "', "
-                       + "'" + cmn.DrD0415.McCd + "', "
-                       + "cast('" + cmn.DrD0415.KEdDt + "' as datetime), "
-                       + "'" + cmn.DrD0415.KEdTim + "', "
-                       + "'" + cmn.DrD0415.KOdrQty + "', "
-                       + "'" + cmn.DrD0415.KMcCd + "', "
-                       + "cast('" + cmn.DrD0415.WkDtDt + "' as datetime), "
-                       + "cast('" + cmn.DrD0415.WkStDt + "' as datetime), "
-                       + "cast('" + cmn.DrD0415.WkEdDt + "' as datetime)"
+                       + "'" + cmn.PkKD8430.OdrNo + "', "
+                       + "'" + cmn.PkKD8430.McSeq + "', "
+                       + "'" + cmn.PkKD8430.SplitSeq + "', "
+                       + "'" + cmn.DrKD8430.KtSeq + "', "
+                       + "'" + cmn.DrKD8430.HmCd + "', "
+                       + "'" + cmn.DrKD8430.KtCd + "', "
+                       + "'" + cmn.DrKD8430.OdrQty + "', "
+                       + "'" + cmn.DrKD8430.OdCd + "', "
+                       + "'" + cmn.DrKD8430.NextOdCd + "', "
+                       + "'" + cmn.DrKD8430.LtTime + "', "
+                       + "cast('" + cmn.DrKD8430.StDt + "' as datetime), "
+                       + "'" + cmn.DrKD8430.StTim + "', "
+                       + "cast('" + cmn.DrKD8430.EdDt + "' as datetime), "
+                       + "'" + cmn.DrKD8430.EdTim + "', "
+                       + "'" + cmn.DrKD8430.OdrSts + "', "
+                       + "'" + cmn.DrKD8430.QrCd + "', "
+                       + "'" + cmn.DrKD8430.JiQty + "', "
+                       + "'" + cmn.DrKD8430.DenpyoKbn + "', "
+                       + "cast('" + cmn.DrKD8430.DenpyoDt + "' as datetime), "
+                       + "'" + cmn.DrKD8430.Note + "', "
+                       + "'" + cmn.DrKD8430.WkNote + "', "
+                       + "'" + cmn.DrKD8430.WkComment + "', "
+                       + "'" + cmn.DrKD8430.DataKbn + "', "
+                       + "'" + cmn.DrKD8430.Instid + "', "
+                       + "cast('" + cmn.DrKD8430.InstDt + "' as datetime), "
+                       + "'" + cmn.DrKD8430.UpdtId + "', "
+                       + "cast('" + cmn.DrKD8430.UpdtDt + "' as datetime), "
+                       + "'" + cmn.DrKD8430.UkCd + "', "
+                       + "'" + cmn.DrKD8430.NaigaiKbn + "', "
+                       + "'" + cmn.DrKD8430.RetKtCd + "', "
+                       + "'" + cmn.DrKD8430.McGCd + "', "
+                       + "'" + cmn.DrKD8430.McCd + "', "
+                       + "cast('" + cmn.DrKD8430.KEdDt + "' as datetime), "
+                       + "'" + cmn.DrKD8430.KEdTim + "', "
+                       + "'" + cmn.DrKD8430.KOdrQty + "', "
+                       + "'" + cmn.DrKD8430.KMcCd + "', "
+                       + "cast('" + cmn.DrKD8430.WkDtDt + "' as datetime), "
+                       + "cast('" + cmn.DrKD8430.WkStDt + "' as datetime), "
+                       + "cast('" + cmn.DrKD8430.WkEdDt + "' as datetime)"
                        + ") "
                        + "on duplicate key update "
-                       + "KEDDT = cast('" + cmn.DrD0415.KEdDt + "' as datetime), "
-                       + "KEDTIM = '" + cmn.DrD0415.KEdTim + "', "
-                       + "KODRQTY = '" + cmn.DrD0415.KOdrQty + "', "
-                       + "KMCCD = '" + cmn.DrD0415.KMcCd + "' "
+                       + "KEDDT = cast('" + cmn.DrKD8430.KEdDt + "' as datetime), "
+                       + "KEDTIM = '" + cmn.DrKD8430.KEdTim + "', "
+                       + "KODRQTY = '" + cmn.DrKD8430.KOdrQty + "', "
+                       + "KMCCD = '" + cmn.DrKD8430.KMcCd + "' "
                        ;
 
             return sql;
         }
 
         /// <summary>
-        /// 切削生産計画日程情報削除 (D0445 切削生産計画日程ファイル)
+        /// 切削生産計画日程情報削除 (KD8440 切削生産計画日程ファイル)
         /// </summary>
         /// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
         public int DeleteCuttingProdScheduleInfo()
@@ -1679,14 +1679,14 @@ namespace MPPPS
                             if (res >= 1)
                             {
                                 txn.Commit();
-                                Debug.WriteLine(Common.TABLE_ID_D0445 + " table delete succeed and commited.");
+                                Debug.WriteLine(Common.TABLE_ID_KD8440 + " table delete succeed and commited.");
                             }
                             ret = res;
                         }
                         catch (Exception e)
                         {
                             txn.Rollback();
-                            Debug.WriteLine(Common.TABLE_ID_D0445 + " table no data deleted.");
+                            Debug.WriteLine(Common.TABLE_ID_KD8440 + " table no data deleted.");
 
                             Debug.WriteLine("Exception Source = " + e.Source);
                             Debug.WriteLine("Exception Message = " + e.Message);
@@ -1716,7 +1716,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削生産計画日程情報削除 SQL 構文編集 (D0445 切削生産計画日程ファイル) 
+        /// 切削生産計画日程情報削除 SQL 構文編集 (KD8440 切削生産計画日程ファイル) 
         /// </summary>
         /// <returns>SQL 構文</returns>
         private string EditCuttingProdScheduleInfoDeleteQuery()
@@ -1726,22 +1726,22 @@ namespace MPPPS
             // 画面指定されたキーで削除
             string sql = "delete "
                        + "from "
-                       + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0445 + " "
+                       + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
                        + "where "
-                       + "ODCD like '%" + cmn.UqD0445.OdCd + "%' and "
-                       + "PLNNO like '%" + cmn.UqD0445.PlnNo + "%' and "
-                       + "ODRNO like '%" + cmn.UqD0445.OdrNo + "%' and "
-                       + "KTSEQ like '%" + cmn.UqD0445.KtSeq + "%' and "
-                       + "SEQ like '%" + cmn.UqD0445.Seq + "%' and "
-                       + "MCSEQ like '%" + cmn.UqD0445.McSeq + "%' and "
-                       + "SPLITSEQ like '%" + cmn.UqD0445.SplitSeq + "%' "
+                       + "ODCD like '%" + cmn.UqKD8440.OdCd + "%' and "
+                       + "PLNNO like '%" + cmn.UqKD8440.PlnNo + "%' and "
+                       + "ODRNO like '%" + cmn.UqKD8440.OdrNo + "%' and "
+                       + "KTSEQ like '%" + cmn.UqKD8440.KtSeq + "%' and "
+                       + "SEQ like '%" + cmn.UqKD8440.Seq + "%' and "
+                       + "MCSEQ like '%" + cmn.UqKD8440.McSeq + "%' and "
+                       + "SPLITSEQ like '%" + cmn.UqKD8440.SplitSeq + "%' "
                        ;
 
             return sql;
         }
 
         /// <summary>
-        /// 切削生産計画日程情報登録/更新 (D0445 切削生産計画日程ファイル)
+        /// 切削生産計画日程情報登録/更新 (KD8440 切削生産計画日程ファイル)
         /// </summary>
         /// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
         public int MergeCuttingProdScheduleInfo()
@@ -1770,14 +1770,14 @@ namespace MPPPS
                             if (res >= 1)
                             {
                                 txn.Commit();
-                                Debug.WriteLine(Common.TABLE_ID_D0445 + " table data insert/update succeed and commited.");
+                                Debug.WriteLine(Common.TABLE_ID_KD8440 + " table data insert/update succeed and commited.");
                             }
                             ret = res;
                         }
                         catch (Exception e)
                         {
                             txn.Rollback();
-                            Debug.WriteLine(Common.TABLE_ID_D0445 + " table no data inserted/updated.");
+                            Debug.WriteLine(Common.TABLE_ID_KD8440 + " table no data inserted/updated.");
 
                             Debug.WriteLine("Exception Source = " + e.Source);
                             Debug.WriteLine("Exception Message = " + e.Message);
@@ -1807,7 +1807,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削生産計画日程情報登録/更新 SQL 構文編集 (D0445 切削生産計画日程ファイル) 
+        /// 切削生産計画日程情報登録/更新 SQL 構文編集 (KD8440 切削生産計画日程ファイル) 
         /// </summary>
         /// <returns>SQL 構文</returns>
         public string EditCuttingProdScheduleInfoMergeQuery()
@@ -1820,7 +1820,7 @@ namespace MPPPS
             // 代入元に書式 'YYYY/MM/DD HH24:MI:SS' 等の記述は不要、MySql が適切に合わせ込んで登録してくれる
             // この変換を怠ると「ORA-01861: リテラルが書式文字列と一致しません」の例外が発生する
             string sql = "insert into "
-                       + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0445
+                       + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440
                        + "("
                        + "ODCD, "
                        + "PLNNO, "
@@ -1877,64 +1877,64 @@ namespace MPPPS
                        + ") "
                        + "values "
                        + "("
-                       + "'" + cmn.UqD0445.OdCd + "', "
-                       + "'" + cmn.UqD0445.PlnNo + "', "
-                       + "'" + cmn.UqD0445.OdrNo + "', "
-                       + "'" + cmn.UqD0445.KtSeq + "', "
-                       + "'" + cmn.UqD0445.McSeq + "', "
-                       + "'" + cmn.UqD0445.SplitSeq + "', "
-                       + "'" + cmn.DrD0445.HmCd + "', "
-                       + "'" + cmn.DrD0445.KtCd + "', "
-                       + "'" + cmn.DrD0445.UkCd + "', "
-                       + "'" + cmn.DrD0445.DataKbn + "', "
-                       + "'" + cmn.DrD0445.HmStKbn + "', "
-                       + "'" + cmn.DrD0445.OdrQty + "', "
-                       + "'" + cmn.DrD0445.TrialQty + "', "
-                       + "cast('" + cmn.DrD0445.StDt + "' as datetime), "
-                       + "'" + cmn.DrD0445.AtTm + "', "
-                       + "cast('" + cmn.DrD0445.EdDt + "' as datetime), "
-                       + "'" + cmn.DrD0445.EdTm + "', "
-                       + "'" + cmn.DrD0445.KjuNo + "', "
-                       + "'" + cmn.DrD0445.ReasonKbn + "', "
-                       + "'" + cmn.DrD0445.Note + "', "
-                       + "'" + cmn.DrD0445.TkCd + "', "
-                       + "'" + cmn.DrD0445.TkCtlNo + "', "
-                       + "'" + cmn.DrD0445.TkHmCd + "', "
-                       + "'" + cmn.DrD0445.RqMnNo + "', "
-                       + "'" + cmn.DrD0445.RqSeqNo + "', "
-                       + "'" + cmn.DrD0445.RqbNo + "', "
-                       + "'" + cmn.DrD0445.NextKtCd + "', "
-                       + "'" + cmn.DrD0445.NextOdCd + "', "
-                       + "'" + cmn.DrD0445.DvRqNo + "', "
-                       + "'" + cmn.DrD0445.OdrSts + "', "
-                       + "'" + cmn.DrD0445.SepDay + "', "
-                       + "'" + cmn.DrD0445.WkNote + "', "
-                       + "'" + cmn.DrD0445.WkComment + "', "
-                       + "'" + cmn.DrD0445.KtKbn + "', "
-                       + "'" + cmn.DrD0445.KkTkKbn + "', "
-                       + "'" + cmn.DrD0445.SodKbn + "', "
-                       + "'" + cmn.DrD0445.NaigaiKbn + "', "
-                       + "'" + cmn.DrD0445.InstId + "', "
-                       + "cast('" + cmn.DrD0445.InstDt + "' as datetime), "
-                       + "'" + cmn.DrD0445.UpdtId + "', "
-                       + "cast('" + cmn.DrD0445.UpdtDt + "' as datetime), "
-                       + "'" + cmn.DrD0445.JiQty + "', "
-                       + "'" + cmn.DrD0445.Seq + "', "
-                       + "'" + cmn.DrD0445.McGCd + "', "
-                       + "'" + cmn.DrD0445.McCd + "', "
-                       + "cast('" + cmn.DrD0445.KEdDt + "' as datetime), "
-                       + "'" + cmn.DrD0445.KEdTm + "', "
-                       + "'" + cmn.DrD0445.KOdrQty + "', "
-                       + "'" + cmn.DrD0445.KMcCd + "', "
-                       + "cast('" + cmn.DrD0445.WkDtDt + "' as datetime), "
-                       + "cast('" + cmn.DrD0445.WkStDt + "' as datetime), "
-                       + "cast('" + cmn.DrD0445.WkEdDt + "' as datetime)"
+                       + "'" + cmn.UqKD8440.OdCd + "', "
+                       + "'" + cmn.UqKD8440.PlnNo + "', "
+                       + "'" + cmn.UqKD8440.OdrNo + "', "
+                       + "'" + cmn.UqKD8440.KtSeq + "', "
+                       + "'" + cmn.UqKD8440.McSeq + "', "
+                       + "'" + cmn.UqKD8440.SplitSeq + "', "
+                       + "'" + cmn.DrKD8440.HmCd + "', "
+                       + "'" + cmn.DrKD8440.KtCd + "', "
+                       + "'" + cmn.DrKD8440.UkCd + "', "
+                       + "'" + cmn.DrKD8440.DataKbn + "', "
+                       + "'" + cmn.DrKD8440.HmStKbn + "', "
+                       + "'" + cmn.DrKD8440.OdrQty + "', "
+                       + "'" + cmn.DrKD8440.TrialQty + "', "
+                       + "cast('" + cmn.DrKD8440.StDt + "' as datetime), "
+                       + "'" + cmn.DrKD8440.AtTm + "', "
+                       + "cast('" + cmn.DrKD8440.EdDt + "' as datetime), "
+                       + "'" + cmn.DrKD8440.EdTm + "', "
+                       + "'" + cmn.DrKD8440.KjuNo + "', "
+                       + "'" + cmn.DrKD8440.ReasonKbn + "', "
+                       + "'" + cmn.DrKD8440.Note + "', "
+                       + "'" + cmn.DrKD8440.TkCd + "', "
+                       + "'" + cmn.DrKD8440.TkCtlNo + "', "
+                       + "'" + cmn.DrKD8440.TkHmCd + "', "
+                       + "'" + cmn.DrKD8440.RqMnNo + "', "
+                       + "'" + cmn.DrKD8440.RqSeqNo + "', "
+                       + "'" + cmn.DrKD8440.RqbNo + "', "
+                       + "'" + cmn.DrKD8440.NextKtCd + "', "
+                       + "'" + cmn.DrKD8440.NextOdCd + "', "
+                       + "'" + cmn.DrKD8440.DvRqNo + "', "
+                       + "'" + cmn.DrKD8440.OdrSts + "', "
+                       + "'" + cmn.DrKD8440.SepDay + "', "
+                       + "'" + cmn.DrKD8440.WkNote + "', "
+                       + "'" + cmn.DrKD8440.WkComment + "', "
+                       + "'" + cmn.DrKD8440.KtKbn + "', "
+                       + "'" + cmn.DrKD8440.KkTkKbn + "', "
+                       + "'" + cmn.DrKD8440.SodKbn + "', "
+                       + "'" + cmn.DrKD8440.NaigaiKbn + "', "
+                       + "'" + cmn.DrKD8440.InstId + "', "
+                       + "cast('" + cmn.DrKD8440.InstDt + "' as datetime), "
+                       + "'" + cmn.DrKD8440.UpdtId + "', "
+                       + "cast('" + cmn.DrKD8440.UpdtDt + "' as datetime), "
+                       + "'" + cmn.DrKD8440.JiQty + "', "
+                       + "'" + cmn.DrKD8440.Seq + "', "
+                       + "'" + cmn.DrKD8440.McGCd + "', "
+                       + "'" + cmn.DrKD8440.McCd + "', "
+                       + "cast('" + cmn.DrKD8440.KEdDt + "' as datetime), "
+                       + "'" + cmn.DrKD8440.KEdTm + "', "
+                       + "'" + cmn.DrKD8440.KOdrQty + "', "
+                       + "'" + cmn.DrKD8440.KMcCd + "', "
+                       + "cast('" + cmn.DrKD8440.WkDtDt + "' as datetime), "
+                       + "cast('" + cmn.DrKD8440.WkStDt + "' as datetime), "
+                       + "cast('" + cmn.DrKD8440.WkEdDt + "' as datetime)"
                        + ") "
                        + "on duplicate key update "
-                       + "KEDDT = cast('" + cmn.DrD0445.KEdDt + "' as datetime), "
-                       + "KEDTM = '" + cmn.DrD0445.KEdTm + "', "
-                       + "KODRQTY = '" + cmn.DrD0445.KOdrQty + "', "
-                       + "KMCCD = '" + cmn.DrD0445.KMcCd + "' "
+                       + "KEDDT = cast('" + cmn.DrKD8440.KEdDt + "' as datetime), "
+                       + "KEDTM = '" + cmn.DrKD8440.KEdTm + "', "
+                       + "KODRQTY = '" + cmn.DrKD8440.KOdrQty + "', "
+                       + "KMCCD = '" + cmn.DrKD8440.KMcCd + "' "
                        ;
 
             return sql;
@@ -1971,12 +1971,12 @@ namespace MPPPS
         //               + "from "
         //               + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " "
         //               + "where "
-        //               + "ODCD like '%" + cmn.D0445.OdCd + "%' and "
-        //               + "WKGRCD like '%" + cmn.D0445.WkGrCd + "%' and "
-        //               + "HMCD like '%" + cmn.D0445.HmCd + "%' and "
-        //               + "VALDTF between to_timestamp('" + cmn.D0445.ValDtFF + "') and "
-        //               + "to_timestamp('" + cmn.D0445.ValDtFT + "') and "
-        //               + "WKSEQ like '%" + cmn.D0445.WkSeq + "%' "
+        //               + "ODCD like '%" + cmn.KD8440.OdCd + "%' and "
+        //               + "WKGRCD like '%" + cmn.KD8440.WkGrCd + "%' and "
+        //               + "HMCD like '%" + cmn.KD8440.HmCd + "%' and "
+        //               + "VALDTF between to_timestamp('" + cmn.KD8440.ValDtFF + "') and "
+        //               + "to_timestamp('" + cmn.KD8440.ValDtFT + "') and "
+        //               + "WKSEQ like '%" + cmn.KD8440.WkSeq + "%' "
         //               + ") "
         //               ;
 
@@ -2134,7 +2134,7 @@ namespace MPPPS
         /// <param name="mpDt">注文情報データ</param>
         /// <param name="firstDayOfMonth">検査対象月</param>
         /// <returns>注文情報データ</returns>
-        public bool GetMPOrderInfo(ref DataTable mpDt, DateTime firstDayOfMonth)
+        public bool GetMpOrderSummaryInfo(ref DataTable mpDt, DateTime firstDayOfMonth)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2149,13 +2149,19 @@ namespace MPPPS
                 string yyyyMMdd = firstDayOfMonth.ToString("yyyy/MM/dd");
                 string sql = "SELECT "
                     + "EDDT "
-                    + ", concat('',sum(case when ODRSTS = '2' then 1 else 0 end)) \"MP2確定\" "
-                    + ", concat('',sum(case when ODRSTS = '3' then 1 else 0 end)) \"MP3着手\" "
-                    + ", concat('',sum(case when ODRSTS = '4' then 1 else 0 end)) \"MP4完了\" "
-                    + ", concat('',sum(case when ODRSTS = '9' then 1 else 0 end)) \"MP9取消\" "
-                    + ", concat('',sum(case when ODRSTS in ('2','3','4','9') then 1 else 0 end)) \"取込合計\" "
+                    + ", concat('',sum(case when ODRSTS = '2' then 1 else 0 end)) \"MP2確定件数\" "
+                    + ", concat('',sum(case when ODRSTS = '3' then 1 else 0 end)) \"MP3着手件数\" "
+                    + ", concat('',sum(case when ODRSTS = '4' then 1 else 0 end)) \"MP4完了件数\" "
+                    + ", concat('',sum(case when ODRSTS = '9' then 1 else 0 end)) \"MP9取消件数\" "
+                    + ", concat('',sum(case when ODRSTS in ('2','3','4','9') then 1 else 0 end)) \"MP取込件数\" "
+                    + ", concat('',sum(case when ODRSTS = '2' then ODRQTY else 0 end)) \"MP2確定本数\" "
+                    + ", concat('',sum(case when ODRSTS = '3' then ODRQTY-JIQTY else 0 end)) \"MP3着手本数\" "
+                    + ", concat('',sum(case when ODRSTS = '4' then ODRQTY else 0 end)) \"MP4完了本数\" "
+                    + ", concat('',sum(case when ODRSTS = '9' then ODRQTY else 0 end)) \"MP9取消本数\" "
+                    + ", concat('',sum(case when ODRSTS in ('2','3','4','9') then ODRQTY else 0 end)) \"MP取込本数\" "
+                    + ", concat('',sum(case when MPCARDDT is not NULL then 1 else 0 end)) \"MP印刷件数\" "
                     + "FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                     + "WHERE "
                     + "ODCD like '6060%' "
                     + "and EDDT between "
@@ -2190,83 +2196,97 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 注文情報取込
+        /// 注文情報データ取得
         /// </summary>
-        /// <param name="eddts">取込対象の日付をinで使えるカンマ区切り形式で指定</param>
-        /// <returns>注文情報取込</returns>
-        public bool OrderImport(String eddts)
+        /// <param name="mpOrderDt">注文情報データ</param>
+        /// <param name="eddt">検査対象月</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetMpOrder(ref DataTable mpOrderDt, string eddt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             bool ret = false;
-            //OracleConnection emCnn = null;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                    + "WHERE "
+                    + "ODCD like '6060%' "
+                    + $"and EDDT = '{eddt} '"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        using (DataTable myDt = new DataTable())
+                        {
+                            // 結果取得
+                            myDa.Fill(myDt);
+                            mpOrderDt = myDt;
+                            ret = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 注文情報取込
+        /// </summary>
+        /// <param name="eddts">取込対象の日付をinで使えるカンマ区切り形式で指定</param>
+        /// <returns>注文情報取込</returns>
+        public bool ImportMpOrder(ref DataTable exceptDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
             MySqlConnection mpCnn = null;
             MySqlTransaction transaction = null;
 
             try
             {
-                // EMシステム、切削生産計画システム データベースへ接続
-                //cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
-
-                // toolStripStatusLabel.Text = "Oracle Database の 読み込み中";
-                DataTable dtOra = new DataTable();
-                DateTime pcDate = DateTime.Now.AddMonths(-1);
-                string yyMM = pcDate.ToString("yyMM");
-                string sql;
-                sql = "SELECT * "
-                    + "FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " "
-                    + "WHERE "
-                    + $"ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
-                    + "and ODCD like '6060%' "
-                    + "and EDDT in " + eddts
-                ;
-                //using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
-                //{
-                //    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
-                //    {
-                //        Debug.WriteLine("Read from DataTable:");
-                //        using (DataTable myDt = new DataTable())
-                //        {
-                //            // 結果取得
-                //            myDa.Fill(myDt);
-                //            if (myDt.Rows.Count == 0)
-                //            {
-                //                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
-                //                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
-                //                ret = false;
-                //            }
-                //            else
-                //            {
-                //                dtOra = myDt;
-                //            }
-                //        }
-                //    }
-                //}
-
+                // 切削生産計画システム データベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
                 // トランザクション開始
                 transaction = mpCnn.BeginTransaction();
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = mpCnn;
 
                 var insCount = 0;
-                foreach (DataRow row in dtOra.Rows)
+                string sql = string.Empty;
+                foreach (DataRow r in exceptDt.Rows)
                 {
-                    sql = "insert into D0410 values ('" + row["ODRNO"].ToString() + "'," + row["KTSEQ"] + "," + "'" + row["HMCD"].ToString() + "'," +
-                        "'" + row["KTCD"].ToString() + "'," + row["ODRQTY"] + "," + "'" + row["ODCD"].ToString() + "'," +
-                        "'" + row["NEXTODCD"].ToString() + "'," + row["LTTIME"] + "," + "'" + row["STDT"] + "'," +
-                        "'" + row["STTIM"].ToString() + "'," + "'" + row["EDDT"] + "'," + "'" + row["EDTIM"].ToString() + "'," +
-                        "'" + row["ODRSTS"].ToString() + "'," + "'" + row["QRCD"].ToString() + "'," + row["JIQTY"] + "," +
-                        "'" + row["DENPYOKBN"].ToString() + "'," +
-                        (row["DENPYODT"].ToString() == "" ? "null" : "'" + row["DENPYODT"] + "'") + "," +
-                        "'" + row["NOTE"].ToString() + "'," +
-                        "'" + row["WKNOTE"].ToString() + "'," + "'" + row["WKCOMMENT"].ToString() + "'," + "'" + row["DATAKBN"].ToString() + "'," +
-                        "'" + row["INSTID"].ToString() + "'," + "'" + row["INSTDT"] + "'," + "'" + row["UPDTID"].ToString() + "'," +
-                        "'" + row["UPDTDT"] + "'," + "'" + row["UKCD"].ToString() + "'," + "'" + row["NAIGAIKBN"].ToString() + "'," +
-                        "'" + row["RETKTCD"].ToString() + "')";
+                    // KD8430:切削手配ファイルの登録
+                    sql = ImportMpOrderSql(r);
                     cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
+
+                    // KD8450:切削オーダーファイルの登録（各設備毎に分解）
+                    sql = DivideMpOrderSql(r["ODRNO"].ToString());
+                    cmd.CommandText = sql;
+                    cmd.ExecuteNonQuery();
+
                     insCount++;
                 }
 
@@ -2288,18 +2308,446 @@ namespace MPPPS
                 ret = false;
             }
             // 接続を閉じる
-            //cmn.Dbm.CloseOraSchema(emCnn);
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
 
         /// <summary>
-        /// 計画出庫データの取得
+        /// 切削オーダーファイルインサート用SQL文の作成
         /// </summary>
-        /// <param name="dt">計画出庫データ</param>
-        /// <param name="eddt">出庫予定日</param>
+        /// <param name="odrno">手配番号</param>
+        /// <returns>SQL 構文</returns>
+        public string DivideMpOrderSql(string odrno)
+        {
+            string sql = "insert into "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                + "("
+                + "ODRNO,"
+                + "MPSEQ,"
+                + "MCGCD,"
+                + "MCCD,"
+                + "HMCD,"
+                + "ODRQTY,"
+                + "MPINSTID,"
+                + "MPUPDTID"
+                + ") "
+                +  "select "
+                +  "a.ODRNO,"
+                +  "1 as MPSEQ,"
+                +  "b.KT1MCGCD as MCGCD,"
+                +  "b.KT1MCCD as MCCD,"
+                +  "a.HMCD,"
+                +  "a.ODRQTY,"
+                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
+                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
+                +  "from "
+                +   cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
+                +   cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
+                +  "where "
+                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
+                +  "b.KT1MCCD is not NULL "
+                + "union "
+                + "select "
+                + "a.ODRNO,"
+                + "2 as MPSEQ,"
+                + "b.KT2MCGCD as MCGCD,"
+                + "b.KT2MCCD as MCCD,"
+                + "a.HMCD,"
+                + "a.ODRQTY,"
+                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
+                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
+                + "from "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
+                + "where "
+                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
+                + "b.KT2MCCD is not NULL "
+                + "union "
+                + "select "
+                + "a.ODRNO,"
+                + "3 as MPSEQ,"
+                + "b.KT3MCGCD as MCGCD,"
+                + "b.KT3MCCD as MCCD,"
+                + "a.HMCD,"
+                + "a.ODRQTY,"
+                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
+                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
+                + "from "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
+                + "where "
+                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
+                + "b.KT3MCCD is not NULL "
+                + "union "
+                + "select "
+                + "a.ODRNO,"
+                + "4 as MPSEQ,"
+                + "b.KT4MCGCD as MCGCD,"
+                + "b.KT4MCCD as MCCD,"
+                + "a.HMCD,"
+                + "a.ODRQTY,"
+                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
+                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
+                + "from "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
+                + "where "
+                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
+                + "b.KT4MCCD is not NULL "
+                + "union "
+                + "select "
+                + "a.ODRNO,"
+                + "5 as MPSEQ,"
+                + "b.KT5MCGCD as MCGCD,"
+                + "b.KT5MCCD as MCCD,"
+                + "a.HMCD,"
+                + "a.ODRQTY,"
+                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
+                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
+                + "from "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
+                + "where "
+                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
+                + "b.KT5MCCD is not NULL "
+                ;
+            return sql;
+        }
+
+
+        /// <summary>
+        /// 切削設備情報登録/更新 SQL 構文編集 (KM8420 切削設備マスター) 
+        /// </summary>
+        /// <returns>SQL 構文</returns>
+        public string ImportMpOrderSql(DataRow r)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            // 登録形式により抽出対象が異なる
+            // MySql の DATE 型列に値を代入するときは、その列が時刻を持っているか否かに関わらず、必ず to_datetime('<代入元>') メソッドで変換してから代入する必要がある
+            // 代入元が定数か変数化に関わらずシングル クォーテーション括りは必須
+            // 代入元に書式 'YYYY/MM/DD HH24:MI:SS' 等の記述は不要、MySql が適切に合わせ込んで登録してくれる
+            // この変換を怠ると「ORA-01861: リテラルが書式文字列と一致しません」の例外が発生する
+            string sql = "insert into "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                + "("
+                + "ODRNO, "
+                + "KTSEQ, "
+                + "HMCD, "
+                + "KTCD, "
+                + "ODRQTY, "
+                + "ODCD, "
+                + "NEXTODCD, "
+                + "LTTIME, "
+                + "STDT, "
+                + "STTIM, "
+                + "EDDT, "
+                + "EDTIM, "
+                + "ODRSTS, "
+                + "QRCD, "
+                + "JIQTY, "
+                + "DENPYOKBN, "
+                + "DENPYODT, "
+                + "NOTE, "
+                + "WKNOTE, "
+                + "WKCOMMENT, "
+                + "DATAKBN, "
+                + "INSTID, "
+                + "INSTDT, "
+                + "UPDTID, "
+                + "UPDTDT, "
+                + "UKCD, "
+                + "NAIGAIKBN, "
+                + "RETKTCD, "
+                + "MPINSTID, "
+                + "MPUPDTID "
+                + ") "
+                + "values "
+                + "("
+                + "'" + r["ODRNO"].ToString() + "',"
+                +       r["KTSEQ"] + ","
+                + "'" + r["HMCD"].ToString() + "',"
+                + "'" + r["KTCD"].ToString() + "',"
+                +       r["ODRQTY"] + ","
+                + "'" + r["ODCD"].ToString() + "',"
+                + "'" + r["NEXTODCD"].ToString() + "',"
+                +       r["LTTIME"] + ","
+                + "'" + r["STDT"] + "',"
+                + "'" + r["STTIM"].ToString() + "',"
+                + "'" + r["EDDT"] + "',"
+                + "'" + r["EDTIM"].ToString() + "',"
+                + "'" + r["ODRSTS"].ToString() + "',"
+                + "'" + r["QRCD"].ToString() + "',"
+                +       r["JIQTY"] + ","
+                + "'" + r["DENPYOKBN"].ToString() + "',"
+                + (r["DENPYODT"].ToString() == "" ? "null," : "'" + r["DENPYODT"] + "',")
+                + "'" + r["NOTE"].ToString() + "',"
+                + "'" + r["WKNOTE"].ToString() + "',"
+                + "'" + r["WKCOMMENT"].ToString() + "',"
+                + "'" + r["DATAKBN"].ToString() + "',"
+                + "'" + r["INSTID"].ToString() + "',"
+                + "'" + r["INSTDT"] + "',"
+                + "'" + r["UPDTID"].ToString() + "',"
+                + "'" + r["UPDTDT"] + "',"
+                + "'" + r["UKCD"].ToString() + "',"
+                + "'" + r["NAIGAIKBN"].ToString() + "',"
+                + "'" + r["RETKTCD"].ToString() + "',"
+                + "'" + cmn.IkM0010.TanCd + "',"
+                + "'" + cmn.IkM0010.TanCd + "'"
+                + ")"
+                ;
+            return sql;
+        }
+
+        /// <summary>
+        /// 注文情報削除
+        /// </summary>
+        /// <param name="exceptDt">削除対象のデータテーブル</param>
+        /// <returns>合否</returns>
+        public bool DeleteMpOrder(ref DataTable exceptDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+            MySqlTransaction transaction = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                // トランザクション開始
+                transaction = mpCnn.BeginTransaction();
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = mpCnn;
+
+                var delCount = 0;
+                foreach (DataRow r in exceptDt.Rows)
+                {
+                    // KD8430:切削手配ファイルの削除
+                    string sql1 = "delete from "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                        + "where "
+                        + "ODRNO="
+                        + "'" + r["ODRNO"].ToString() + "'"
+                    ;
+                    cmd.CommandText = sql1;
+                    cmd.ExecuteNonQuery();
+
+                    // KD8450:切削オーダーファイルの登録（各設備毎に分解）
+                    string sql2 = "delete from "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                        + "where "
+                        + "ODRNO="
+                        + "'" + r["ODRNO"].ToString() + "'"
+                    ;
+                    cmd.CommandText = sql2;
+                    cmd.ExecuteNonQuery();
+
+                    delCount++;
+                }
+
+                // トランザクション終了
+                transaction.Commit();
+                ret = true;
+            }
+            catch (Exception ex)
+            {
+                // ロールバック
+                if (transaction != null) transaction.Rollback();
+
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 手配日程ファイル取込
+        /// </summary>
+        /// <param name="exceptDt">取込対象のデータテーブル</param>
+        /// <returns>可否</returns>
+        public bool ImportMpPlan(ref DataTable exceptDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+            MySqlTransaction transaction = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                // トランザクション開始
+                transaction = mpCnn.BeginTransaction();
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = mpCnn;
+
+                string sql = string.Empty;
+
+                // KD8440:切削手配日程ファイルの削除
+                sql = "delete from "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " ";
+                cmd.CommandText = sql;
+                cmd.ExecuteNonQuery();
+
+                var insCount = 0;
+                foreach (DataRow r in exceptDt.Rows)
+                {
+                    // KD8440:切削手配日程ファイルの挿入
+                    sql = ImportMpPlanSql(r);
+                    cmd.CommandText = sql;
+                    cmd.ExecuteNonQuery();
+
+                    insCount++;
+                }
+
+                // トランザクション終了
+                transaction.Commit();
+                ret = true;
+            }
+            catch (Exception ex)
+            {
+                // ロールバック
+                if (transaction != null) transaction.Rollback();
+
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// SQL 構文編集 (KM8440 切削手配日程ファイル) 
+        /// </summary>
+        /// <returns>SQL 構文</returns>
+        public string ImportMpPlanSql(DataRow r)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            string sql = "insert into "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
+                + "("
+                + "ODCD, "
+                + "PLNNO, "
+                + "ODRNO, "
+                + "KTSEQ, "
+                + "HMCD, "
+                + "KTCD, "
+                + "UKCD, "
+                + "DATAKBN, "
+                + "HMSTKBN, "
+                + "ODRQTY, "
+                + "TRIALQTY, "
+                + "STDT, "
+                + "STTM, "
+                + "EDDT, "
+                + "EDTM, "
+                + "KJUNO, "
+                + "REASONKBN, "
+                + "NOTE, "
+                + "TKCD, "
+                + "TKCTLNO, "
+                + "TKHMCD, "
+                + "RQMNNO, "
+                + "RQSEQNO, "
+                + "RQBNO, "
+                + "NEXTKTCD, "
+                + "NEXTODCD, "
+                + "DVRQNO, "
+                + "ODRSTS, "
+                + "SEPDAY, "
+                + "WKNOTE, "
+                + "WKCOMMENT, "
+                + "KTKBN, "
+                + "KKTKKBN, "
+                + "SODKBN, "
+                + "NAIGAIKBN, "
+                + "INSTID, "
+                + "INSTDT, "
+                + "UPDTID, "
+                + "UPDTDT, "
+                + "JIQTY, "
+                + "SEQ "
+                + ") "
+                + "values "
+                + "("
+                + "'" + r["ODCD"].ToString() + "',"
+                + (r["PLNNO"].ToString() == "" ? "null," : "'" + r["PLNNO"].ToString() + "',")
+                + (r["ODRNO"].ToString() == "" ? "null," : "'" + r["ODRNO"].ToString() + "',")
+                + r["KTSEQ"] + ","
+                + (r["HMCD"].ToString() == "" ? "null," : "'" + r["HMCD"].ToString() + "',")
+                + (r["KTCD"].ToString() == "" ? "null," : "'" + r["KTCD"].ToString() + "',")
+                + (r["UKCD"].ToString() == "" ? "null," : "'" + r["UKCD"].ToString() + "',")
+                + (r["DATAKBN"].ToString() == "" ? "null," : "'" + r["DATAKBN"].ToString() + "',")
+                + (r["HMSTKBN"].ToString() == "" ? "null," : "'" + r["HMSTKBN"].ToString() + "',")
+                + r["ODRQTY"] + ","
+                +(r["TRIALQTY"].ToString() == "" ? "null," : r["TRIALQTY"] + ",")
+                + "'" + r["STDT"] + "',"
+                + "'" + r["STTM"].ToString() + "',"
+                + "'" + r["EDDT"] + "',"
+                + "'" + r["EDTM"].ToString() + "',"
+                + (r["KJUNO"].ToString() == "" ? "null," : "'" + r["KJUNO"] + "',")
+                + (r["REASONKBN"].ToString() == "" ? "null," : "'" + r["REASONKBN"] + "',")
+                + (r["NOTE"].ToString() == "" ? "null," : "'" + r["NOTE"] + "',")
+                + (r["TKCD"].ToString() == "" ? "null," : "'" + r["TKCD"] + "',")
+                + (r["TKCTLNO"].ToString() == "" ? "null," : "'" + r["TKCTLNO"] + "',")
+                + (r["TKHMCD"].ToString() == "" ? "null," : "'" + r["TKHMCD"] + "',")
+                + (r["RQMNNO"].ToString() == "" ? "null," : "'" + r["RQMNNO"] + "',")
+                + (r["RQSEQNO"].ToString() == "" ? "null," : r["RQSEQNO"] + ",")
+                + (r["RQBNO"].ToString() == "" ? "null," : r["RQBNO"] + ",")
+                + (r["NEXTKTCD"].ToString() == "" ? "null," : "'" + r["NEXTKTCD"] + "',")
+                + (r["NEXTODCD"].ToString() == "" ? "null," : "'" + r["NEXTODCD"] + "',")
+                + (r["DVRQNO"].ToString() == "" ? "null," : "'" + r["DVRQNO"] + "',")
+                + (r["ODRSTS"].ToString() == "" ? "null," : "'" + r["ODRSTS"] + "',")
+                + (r["SEPDAY"].ToString() == "" ? "null," : r["SEPDAY"] + ",")
+                + (r["WKNOTE"].ToString() == "" ? "null," : "'" + r["WKNOTE"] + "',")
+                + (r["WKCOMMENT"].ToString() == "" ? "null," : "'" + r["WKCOMMENT"] + "',")
+                + (r["KTKBN"].ToString() == "" ? "null," : "'" + r["KTKBN"] + "',")
+                + (r["KKTKKBN"].ToString() == "" ? "null," : "'" + r["KKTKKBN"] + "',")
+                + (r["SODKBN"].ToString() == "" ? "null," : "'" + r["SODKBN"] + "',")
+                + (r["NAIGAIKBN"].ToString() == "" ? "null," : "'" + r["NAIGAIKBN"] + "',")
+                + "'" + r["INSTID"].ToString() + "',"
+                + "'" + r["INSTDT"] + "',"
+                + "'" + r["UPDTID"].ToString() + "',"
+                + "'" + r["UPDTDT"] + "',"
+                + r["JIQTY"] + ","
+                + r["SEQ"]
+                + ")"
+                ;
+            return sql;
+        }
+
+
+
+
+
+        // ここからスマート棚コン関連
+
+        /// <summary>
+        /// 対象月の出庫予定データ出力済みの一覧を取得
+        /// </summary>
+        /// <param name="mpDt">出庫予定データ出力済み一覧</param>
+        /// <param name="targerMonth">対象月</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int GetShipmentPlanInfo(ref DataTable mpDt, DateTime eddt)
+        public int GetShipmentPlanSummaryInfo(ref DataTable mpDt, DateTime targerMonth)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2311,34 +2759,28 @@ namespace MPPPS
                 // 切削生産計画システム データベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                // 三進金属様：入出庫データ連携フォーマット一覧より (出力ファイル名：OutboundInfo.csv)
+                /* 土日の完了予定日がない事が前提のシステムが大丈夫な事を証明するOracle側のSQL文
+                select eddt, to_char(eddt, 'DY'), count(*) from d0410 
+                where odrsts <>'9' and odcd like '6060%' 
+                and eddt between '2009/01/01' 
+                             and '2025/12/31'
+                group by eddt
+                having to_char(eddt, 'DY') in ('土', '日', 'ｘ')
+                order by eddt
+                */
                 string sql =
                 "SELECT "
-                    + "DATE_FORMAT(EDDT, '%Y%m%d') AS 'yyyyMMdd' "
-                    + ", SPACE(15) as '伝票番号' "
-                    + ", '01' as '出庫区分' "
-                    + ", 'C000000001' as '出荷先コード' " // （今の所、仮のコード 本社:C000000001, EWU:C000000002, 協力会社:C000000010)
-                    + ", REPEAT('　', 40) as '出荷先名' "
-                    + ", SPACE(10) as '荷主コード' " // （今の所、仮のコード 本社:C000000001, EWU:C000000002, 協力会社:C000000010)
-                    + ", REPEAT('　', 40) as '荷主名' "
-                    + ", RPAD(a.HMCD, 28, SPACE(1)) as '商品コード' "
-                    + ", RPAD(f_han2zen(IFNULL(b.HMNM, '')), 40, '　') as '商品名' "
-                    + ", RPAD(IFNULL(b.BOXQTY, ''), 100, SPACE(1)) as '管理項目１' "
-                    + ", SPACE(100) as '管理項目２' "
-                    + ", SPACE(100) as '管理項目３' "
-                    + ", SPACE(100) as '管理項目４' "
-                    + ", LPAD(ODRQTY, 6, '0') as '出庫予定数量' "
-                    + ", REPEAT('　', 50) as '備考' "
+                    + "EDDT "
+                    + ", COUNT(*) as '手配件数' "
+                    + ", COUNT(MPTANADT) as '発行済件数' "
                     + "FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " a, "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_M0500 + " b " // 仮　本来は Common.TABLE_ID_KM8430だけどメンテしてないのでM0500にしておく
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                     + "WHERE "
-                    + "a.HMCD = b.HMCD "
-                    + "and ODRSTS <> '9' "
+                    + "ODRSTS <> '9' "
                     + "and ODCD like '6060%' "
-                    + $"and EDDT = '{eddt}' "
-                    + $"and DENPYODT is null " // 仮で DENPYODT を利用させてもらっている
-                    + "ORDER BY ODRNO"
+                    + $"and EDDT between '{targerMonth.AddMonths(-1).ToString()}' and '{targerMonth.AddMonths(2).ToString()}' "
+                    + "GROUP BY EDDT "
+                    + "ORDER BY EDDT "
                 ;
                 using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
                 {
@@ -2367,12 +2809,12 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 対象月の出庫予定データ出力済みの一覧を取得
+        /// 計画出庫データの取得
         /// </summary>
-        /// <param name="mpDt">出庫予定データ出力済み一覧</param>
-        /// <param name="targerMonth">対象月</param>
+        /// <param name="dt">計画出庫データ</param>
+        /// <param name="eddt">出庫予定日</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int GetShipmentPlanDays(ref DataTable mpDt, DateTime targerMonth)
+        public int GetShipmentPlanInfo(ref DataTable mpDt, DateTime eddt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2384,28 +2826,35 @@ namespace MPPPS
                 // 切削生産計画システム データベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                /* 土日の完了予定日がない事が前提のシステムが大丈夫な事を証明するOracle側のSQL文
-                select eddt, to_char(eddt, 'DY'), count(*) from d0410 
-                where odrsts <>'9' and odcd like '6060%' 
-                and eddt between '2009/01/01' 
-                             and '2025/12/31'
-                group by eddt
-                having to_char(eddt, 'DY') in ('土', '日', 'ｘ')
-                order by eddt
-                */
+                // 三進金属様：入出庫データ連携フォーマット一覧より (出力ファイル名：OutboundInfo.csv)
                 string sql =
                 "SELECT "
-                    + "EDDT "
-                    + ", COUNT(*) as '手配件数' "
-                    + ", COUNT(DENPYODT) as '発行済件数' " // 仮でDENPYODT項目を無断使用している
+                    + "DATE_FORMAT(EDDT, '%Y%m%d') AS '出庫予定日' "
+                    + ", '' as '伝票番号' "
+                    + ", '01' as '出庫区分' "
+                    + ", 'C000000001' as '出荷先コード' " // （今の所、仮のコード 本社:C000000001, EWU:C000000002, 協力会社:C000000010)
+                    + ", '' as '出荷先名' "
+                    + ", '' as '荷主コード' " // （今の所、仮のコード 本社:C000000001, EWU:C000000002, 協力会社:C000000010)
+                    + ", '' as '荷主名' "
+                    + ", a.HMCD as '商品コード' "
+                    + ", f_han2zen(IFNULL(b.HMNM, '')) as '商品名' "
+                    + ", '' as '管理項目１' "
+                    + ", '' as '管理項目２' "
+                    + ", '' as '管理項目３' "
+                    + ", '' as '管理項目４' "
+                    + ", LPAD(ODRQTY, 6, '0') as '出庫予定数量' "
+                    + ", '' as '備考' "
+                    + ", '' "
                     + "FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_M0500 + " b " // 仮　本来は Common.TABLE_ID_KM8430だけどメンテしてないのでM0500にしておく
                     + "WHERE "
-                    + "ODRSTS <> '9' "
+                    + "a.HMCD = b.HMCD "
+                    + "and ODRSTS <> '9' "
                     + "and ODCD like '6060%' "
-                    + $"and EDDT between '{targerMonth.AddMonths(-1).ToString()}' and '{targerMonth.AddMonths(2).ToString()}' "
-                    + "GROUP BY EDDT "
-                    + "ORDER BY EDDT "
+                    + $"and EDDT = '{eddt}' "
+                    + "and MPTANADT is null " // 棚コンデータ作成日
+                    + "ORDER BY ODRNO"
                 ;
                 using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
                 {
@@ -2454,15 +2903,15 @@ namespace MPPPS
                 // 計画出庫データ出力済みに更新 SQL
                 string sql = 
                 "UPDATE "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                 + "SET "
-                + "DENPYODT = now(), " // 仮でDENPYODT項目を更新してみる
+                + "MPTANADT = now(), "
                 + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
                 + "WHERE "
                 + "ODRSTS<>'9' and "
                 + "ODCD like '6060%' and "
                 + "EDDT = '" + planDay.ToString() + "' and "
-                + "DENPYODT is NULL "
+                + "MPTANADT is NULL " // 棚コンデータ作成日
                 ;
 
                 using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
@@ -2475,14 +2924,14 @@ namespace MPPPS
                             if (res >= 1)
                             {
                                 txn.Commit();
-                                Debug.WriteLine(Common.TABLE_ID_D0440 + " table data update succeed and commited.");
+                                Debug.WriteLine(Common.TABLE_ID_KD8430 + " table data update succeed and commited.");
                             }
                             ret = res;
                         }
                         catch (Exception e)
                         {
                             txn.Rollback();
-                            Debug.WriteLine(Common.TABLE_ID_D0440 + " table no data inserted/updated.");
+                            Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
 
                             Debug.WriteLine("Exception Source = " + e.Source);
                             Debug.WriteLine("Exception Message = " + e.Message);
@@ -2511,13 +2960,15 @@ namespace MPPPS
             return ret;
         }
 
+        // ここから製造指示カード発行関連
+
         /// <summary>
-        /// 検査対象月（前後プラス１か月）の内、カード発行済みの日付一覧を取得
+        /// 製造指示カード発行済み一覧の取得
         /// </summary>
         /// <param name="mpDt">カード発行済み日付一覧</param>
         /// <param name="targerMonth">検査対象月</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int GetCardPrintDays(ref DataTable mpDt, DateTime targerMonth)
+        public int GetCardPrintSummaryInfo(ref DataTable mpDt, DateTime targerMonth)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2533,7 +2984,7 @@ namespace MPPPS
                 "SELECT "
                     + "EDDT "
                     + ", COUNT(*) as '手配件数' "
-                    + ", COUNT(DENPYODT) as '発行済件数' "
+                    + ", COUNT(MPCARDDT) as '発行済件数' "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_D0410 + " "
                     + "WHERE "
@@ -2569,6 +3020,373 @@ namespace MPPPS
             return ret;
         }
 
+        /// <summary>
+        /// 製造指示カードに印刷するデータの取得
+        /// </summary>
+        /// <param name="dt">製造指示カードデータ</param>
+        /// <param name="eddt">完了予定日</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int GetCardPrintInfo(DateTime eddt, ref DataTable mpDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql =
+                "SELECT "
+                    + "a.ODRNO "
+                    + ",a.EDDT "
+                    + ",a.ODRQTY "
+                    + ",a.HMCD "
+                    + ",b.HMNM "
+                    + ",b.MATESIZE "
+                    + ",b.LENGTH "
+                    + ",b.BOXQTY "
+                    + ",b.PARTNER "
+                    + ",b.NOTE"
+                    + ",b.KT1MCGCD "
+                    + ",b.KT1MCCD "
+                    + ",b.KT1CT "
+                    + ",b.KT2MCGCD "
+                    + ",b.KT2MCCD "
+                    + ",b.KT2CT "
+                    + ",b.KT3MCGCD "
+                    + ",b.KT3MCCD "
+                    + ",b.KT3CT "
+                    + ",b.KT4MCGCD "
+                    + ",b.KT4MCCD "
+                    + ",b.KT4CT "
+                    + ",b.KT5MCGCD "
+                    + ",b.KT5MCCD "
+                    + ",b.KT5CT "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b " // 仮　本来は Common.TABLEだけどメンテしてないのでM0500にしておく
+                    + "WHERE "
+                    + "a.HMCD = b.HMCD "
+                    + "and a.ODRSTS <> '9' "
+                    + "and a.ODCD like '6060%' "
+                    + $"and a.EDDT = '{eddt}' "
+                    + "and MPCARDDT is null " // 製造指示カード発行日
+                    + "ORDER BY ODRNO"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpDt);
+                        ret = mpDt.Rows.Count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 製造指示カード発行済みに更新
+        /// </summary>
+        /// <param name="cardDay">検査対象月</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int UpdatePrintCardDay(DateTime cardDay)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+
+            MySqlConnection cnn = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+
+                // 計画出庫データ出力済みに更新 SQL
+                string sql =
+                "UPDATE "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                + "SET "
+                + "MPCARDDT = now(), "
+                + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
+                + "WHERE "
+                + "ODRSTS<>'9' and "
+                + "ODCD like '6060%' and "
+                + "EDDT = '" + cardDay.ToString() + "' and "
+                + "MPCARDDT is NULL " // 製造指示カード発行日
+                ;
+
+                using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
+                {
+                    using (MySqlTransaction txn = cnn.BeginTransaction())
+                    {
+                        try
+                        {
+                            int res = myCmd.ExecuteNonQuery();
+                            if (res >= 1)
+                            {
+                                txn.Commit();
+                                Debug.WriteLine(Common.TABLE_ID_KD8430 + " table data update succeed and commited.");
+                            }
+                            ret = res;
+                        }
+                        catch (Exception e)
+                        {
+                            txn.Rollback();
+                            Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
+
+                            Debug.WriteLine("Exception Source = " + e.Source);
+                            Debug.WriteLine("Exception Message = " + e.Message);
+                            if (cnn != null)
+                            {
+                                // 接続を閉じる
+                                cnn.Close();
+                            }
+                            ret = -1;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 内示情報データ取得
+        /// </summary>
+        /// <param name="mpDt">内示情報データ</param>
+        /// <param name="firstDayOfMonth">検査対象月</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetMpPlanSummaryInfo(ref DataTable mpDt, DateTime firstDayOfMonth)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string yyyyMMdd = firstDayOfMonth.AddMonths(3).ToString("yyyy/MM/dd");
+                string sql = "SELECT "
+                    + "EDDT "
+                    + ", SUM(ODRQTY) \"MP本数\" "
+                    + ", SUM(JIQTY) \"MP実績数\" "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
+                    + "WHERE "
+                    + "ODCD like '6060%' "
+                    + $"and EDDT < convert('{yyyyMMdd}', date) "
+                    + "GROUP BY EDDT "
+                    + "ORDER BY EDDT "
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        // 結果取得
+                        myDa.Fill(mpDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 内示情報データ取得
+        /// </summary>
+        /// <param name="mpPlanDt">注文情報データ</param>
+        /// <param name="whereIn">検査対象月</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetMpPlan(ref DataTable mpPlanDt, string whereIn)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
+                    + "WHERE "
+                    + "ODCD like '6060%' "
+                    + $"and EDDT in {whereIn} "
+                    + "GROUP BY EDDT "
+                    + "ORDER BY EDDT "
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        using (DataTable myDt = new DataTable())
+                        {
+                            // 結果取得
+                            myDa.Fill(myDt);
+                            mpPlanDt = myDt;
+                            ret = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 設備マスタ取得
+        /// </summary>
+        /// <param name="equipMstDt">設備マスタ</param>
+        /// <returns>可否</returns>
+        public bool GetEquipMstDt(ref DataTable equipMstDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420 + " "
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(equipMstDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// コード票マスタ取得
+        /// </summary>
+        /// <param name="codeSlipDt">コード票マスタ</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetCodeSlipMst(ref DataTable codeSlipDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " "
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(codeSlipDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
 
 

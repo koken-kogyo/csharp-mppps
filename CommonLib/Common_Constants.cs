@@ -1,4 +1,5 @@
 ﻿using NLog;
+using System.Drawing;
 
 namespace MPPPS
 {
@@ -79,10 +80,10 @@ namespace MPPPS
         public static readonly string FRM_ID_033 = "#033";  // 切削設備マスタ メンテ
         public static readonly string FRM_ID_034 = "#034";  // 切削コード表マスタ メンテ
         public static readonly string FRM_ID_040 = "#040";  // オーダー管理
-        public static readonly string FRM_ID_041 = "#041";  // 切削オーダーの作成
+        public static readonly string FRM_ID_041 = "#041";  // 手配情報一覧
         public static readonly string FRM_ID_042 = "#042";  // 切削オーダーの平準化
         public static readonly string FRM_ID_043 = "#043";  // 追加オーダーの作成
-        public static readonly string FRM_ID_044 = "#044";  // 切削オーダー情報
+        public static readonly string FRM_ID_044 = "#044";  // 内示情報一覧
         public static readonly string FRM_ID_045 = "#045";  // 加工進捗情報表示
         public static readonly string FRM_ID_050 = "#050";  // 製造管理
         public static readonly string FRM_ID_051 = "#051";  // 切削オーダー指示書
@@ -108,10 +109,10 @@ namespace MPPPS
         public static readonly string FRM_NAME_033 = "切削設備マスタ メンテ";
         public static readonly string FRM_NAME_034 = "切削コード表マスタ メンテ";
         public static readonly string FRM_NAME_040 = "オーダー管理";
-        public static readonly string FRM_NAME_041 = "切削オーダーの作成";
+        public static readonly string FRM_NAME_041 = "手配情報一覧";
         public static readonly string FRM_NAME_042 = "切削オーダーの平準化";
         public static readonly string FRM_NAME_043 = "追加オーダーの作成";
-        public static readonly string FRM_NAME_044 = "切削オーダー情報";
+        public static readonly string FRM_NAME_044 = "内示情報一覧";
         public static readonly string FRM_NAME_045 = "加工進捗情報表示";
         public static readonly string FRM_NAME_050 = "製造管理";
         public static readonly string FRM_NAME_051 = "切削オーダー指示書";
@@ -158,6 +159,22 @@ namespace MPPPS
         //public const int FRM23_DGV_IDX_INSTDT    = 10; // 列インデックス: 登録日時
         //public const int FRM23_DGV_IDX_UPDTID    = 11; // 列インデックス: 更新者
         //public const int FRM23_DGV_IDX_UPDTDT    = 12; // 列インデックス: 更新日時
+
+        // Color定数
+        // #041 手配情報一覧
+        // #044 内示情報一覧
+        public static readonly Color FRM40_BG_COLOR_CONTROL = SystemColors.Control;
+        public static readonly Color FRM40_BG_COLOR_WORKING = Color.White;
+        public static readonly Color FRM40_BG_COLOR_HOLIDAY = Color.LightPink;
+        public static readonly Color FRM40_BG_COLOR_SATURDAY = Color.LightBlue;
+        public static readonly Color FRM40_BG_COLOR_ORDERED = Color.LightCyan;
+        public static readonly Color FRM40_BG_COLOR_IMPORTED = Color.MistyRose;
+        public static readonly Color FRM40_BG_COLOR_WARNING = Color.LightCoral;
+        public static readonly Color FRM40_BG_COLOR_PRINTED = Color.LightGreen;
+        public static readonly Color FRM40_BG_COLOR_PLANED = Color.LightGreen;
+        public static readonly Color FRM40_BG_COLOR_OTHERMONTH = Color.WhiteSmoke;
+        public static readonly Color FRM40_COLOR_BLACK = Color.Black;
+        public static readonly Color FRM40_COLOR_DIMGRAY = Color.DimGray;
 
         // DataGridView 列インデックス
         // #042 切削オーダー平準化画面
@@ -725,16 +742,17 @@ namespace MPPPS
 
         // 切削生産計画システム (照会 / 更新 / マスタメンテ)
         public const string TABLE_ID_D0410  = "d0410";    // EM手配ファイル (確定)(手配情報)
-        public const string TABLE_ID_D0415  = "d0415";    // 切削生産計画ファイル (確定)
         public const string TABLE_ID_D0440  = "d0440";    // EM手配日程ファイル (内示)(所要量情報)
-        public const string TABLE_ID_D0445  = "d0445";    // 切削生産計画ファイル (内示)
+        public const string TABLE_ID_KD8430 = "kd8430";   // 切削手配ファイル (確定)
+        public const string TABLE_ID_KD8440 = "kd8440";   // 切削手配日程ファイル (内示)
+        public const string TABLE_ID_KD8450 = "kd8450";   // 切削オーダーファイル (確定)
         public const string TABLE_ID_KM8400 = "km8400";   // 切削生産計画システム利用者マスター
         public const string TABLE_ID_KM8410 = "km8410";   // 切削刃具マスター
         public const string TABLE_ID_KM8420 = "km8420";   // 切削設備マスター
         public const string TABLE_ID_KM8430 = "km8430";   // 切削コード票マスター
 
-        public const string TABLE_NAME_D0415  = "切削生産計画ファイル (確定)";
-        public const string TABLE_NAME_D0445  = "切削生産計画ファイル (内示)";
+        public const string TABLE_NAME_KD8430  = "切削生産計画ファイル (確定)";
+        public const string TABLE_NAME_KD8440  = "切削生産計画ファイル (内示)";
         public const string TABLE_NAME_KM8400 = "切削生産計画システム利用者マスター";
         public const string TABLE_NAME_KM8410 = "切削刃具 マスター";
         public const string TABLE_NAME_KM8420 = "切削設備マスター";
@@ -768,9 +786,9 @@ namespace MPPPS
         public static readonly int USER_COL_COMMENTS_INDEX_COMMENTS = 8;               // 備考のインデックス
 
         // 検索条件
-        public static readonly string MIN_DATE = "1970/12/01";                         // 日付最小値 (創業日)
+        public static readonly string MIN_DATE = "1971/12/01";                         // 日付最小値 (創業日)
         public static readonly string MAX_DATE = "9999/12/31";                         // 日付最大値
-        public static readonly string MIN_DATETIME = "1970/12/01 00:00:00";            // 日時最小値 (創業日)
+        public static readonly string MIN_DATETIME = "1971/12/01 00:00:00";            // 日時最小値 (創業日)
         public static readonly string MAX_DATETIME = "9999/12/31 23:59:59";            // 日時最大値
 
         // KM8400 切削生産計画システム利用者マスター
@@ -807,10 +825,10 @@ namespace MPPPS
 
 
         // テーブル列インデックス
-        // d0415 切削生産計画ファイル
+        // KD8430 切削生産計画ファイル
         // #042 切削オーダー平準化画面
         // DataGridView 列インデックス
-        public enum D0415ClmIdx
+        public enum KD8430ClmIdx
         {
             OdrNo,    // 手配 No
             McGcd,    // グループ コード
@@ -820,22 +838,22 @@ namespace MPPPS
             OdrQty,   // 手配数
         }
 
-        public static readonly int D0415_MCGCD_LEN   = 6;      // グループ コード 文字列長
-        public static readonly int D0415_ODQTY_SCALE = 0;      // 手配数 小数点以下桁数
-        public static readonly string D0415_PLNNO = "計画No";           // 工程1CT ～ 工程6CT の合計
+        public static readonly int KD8430_MCGCD_LEN   = 6;     // グループ コード 文字列長
+        public static readonly int KD8430_ODQTY_SCALE = 0;     // 手配数 小数点以下桁数
+        public static readonly string KD8430_PLNNO = "計画No"; // 工程1CT ～ 工程6CT の合計
 
-        public const int D0415_TARGET_CUR_ALL  = 0;            // 現状全件
-        public const int D0415_TARGET_SIM_ALL  = 1;            // 変更後全件
-        public const int D0415_TARGET_SPECIFIC = 2;            // 特定データ
-        public const int D0415_TARGET_MCGCD    = 3;            // グループのみ
-        public const int D0415_TARGET_MCCD     = 4;            // 設備のみ
-        public const int D0415_TARGET_MCTM     = 5;            // 設備時間
+        public const int KD8430_TARGET_CUR_ALL  = 0;           // 現状全件
+        public const int KD8430_TARGET_SIM_ALL  = 1;           // 変更後全件
+        public const int KD8430_TARGET_SPECIFIC = 2;           // 特定データ
+        public const int KD8430_TARGET_MCGCD    = 3;           // グループのみ
+        public const int KD8430_TARGET_MCCD     = 4;           // 設備のみ
+        public const int KD8430_TARGET_MCTM     = 5;           // 設備時間
 
 
-        // d0445 切削生産計画日程ファイル
+        // KD8440 切削生産計画日程ファイル
         // #042 切削オーダー平準化画面
         // DataGridView 列インデックス
-        public enum D0445ClmIdx
+        public enum KD8440ClmIdx
         {
             OdrNo,    // 手配 No
             McGcd,    // グループ コード
@@ -845,14 +863,14 @@ namespace MPPPS
             OdrQty,   // 手配数
         }
 
-        public static readonly int D0445_ODSEQ_SCALE = 0;      // 手配数 小数点以下桁数
+        public static readonly int KD8440_ODSEQ_SCALE = 0;      // 手配数 小数点以下桁数
 
-        public const int D0445_TARGET_CUR_ALL  = 0;            // 現状全件
-        public const int D0445_TARGET_SIM_ALL  = 1;            // 変更後全件
-        public const int D0445_TARGET_SPECIFIC = 2;            // 特定データ
-        public const int D0445_TARGET_MCGCD    = 3;            // グループのみ
-        public const int D0445_TARGET_MCCD     = 4;            // 設備のみ
-        public const int D0445_TARGET_MCTM     = 5;            // 設備時間
+        public const int KD8440_TARGET_CUR_ALL  = 0;            // 現状全件
+        public const int KD8440_TARGET_SIM_ALL  = 1;            // 変更後全件
+        public const int KD8440_TARGET_SPECIFIC = 2;            // 特定データ
+        public const int KD8440_TARGET_MCGCD    = 3;            // グループのみ
+        public const int KD8440_TARGET_MCCD     = 4;            // 設備のみ
+        public const int KD8440_TARGET_MCTM     = 5;            // 設備時間
 
 
         // KM8430 切削コード票マスター

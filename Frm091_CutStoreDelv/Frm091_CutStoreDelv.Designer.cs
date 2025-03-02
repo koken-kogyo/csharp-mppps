@@ -51,25 +51,26 @@ namespace MPPPS
             this.statusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 363);
+            this.statusStrip.Location = new System.Drawing.Point(0, 456);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 10, 0);
-            this.statusStrip.Size = new System.Drawing.Size(514, 22);
+            this.statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 13, 0);
+            this.statusStrip.Size = new System.Drawing.Size(685, 25);
             this.statusStrip.TabIndex = 0;
             this.statusStrip.Text = "statusStrip";
             // 
             // toolStripStatusLabel
             // 
+            this.toolStripStatusLabel.Font = new System.Drawing.Font("Yu Gothic UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(112, 17);
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(143, 20);
             this.toolStripStatusLabel.Text = "toolStripStatusLabel";
             // 
             // PrevMonthButton
             // 
-            this.PrevMonthButton.Location = new System.Drawing.Point(8, 6);
-            this.PrevMonthButton.Margin = new System.Windows.Forms.Padding(2);
+            this.PrevMonthButton.Location = new System.Drawing.Point(11, 8);
+            this.PrevMonthButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.PrevMonthButton.Name = "PrevMonthButton";
-            this.PrevMonthButton.Size = new System.Drawing.Size(100, 30);
+            this.PrevMonthButton.Size = new System.Drawing.Size(133, 38);
             this.PrevMonthButton.TabIndex = 2;
             this.PrevMonthButton.Text = "前月";
             this.PrevMonthButton.UseVisualStyleBackColor = true;
@@ -78,10 +79,10 @@ namespace MPPPS
             // NextMonthButton
             // 
             this.NextMonthButton.BackColor = System.Drawing.SystemColors.Control;
-            this.NextMonthButton.Location = new System.Drawing.Point(405, 6);
-            this.NextMonthButton.Margin = new System.Windows.Forms.Padding(2);
+            this.NextMonthButton.Location = new System.Drawing.Point(540, 8);
+            this.NextMonthButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.NextMonthButton.Name = "NextMonthButton";
-            this.NextMonthButton.Size = new System.Drawing.Size(100, 30);
+            this.NextMonthButton.Size = new System.Drawing.Size(133, 38);
             this.NextMonthButton.TabIndex = 3;
             this.NextMonthButton.Text = "翌月";
             this.NextMonthButton.UseVisualStyleBackColor = false;
@@ -93,12 +94,12 @@ namespace MPPPS
             this.Dgv_Calendar.AllowUserToResizeRows = false;
             this.Dgv_Calendar.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.Dgv_Calendar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.Dgv_Calendar.Location = new System.Drawing.Point(0, 41);
-            this.Dgv_Calendar.Margin = new System.Windows.Forms.Padding(2);
+            this.Dgv_Calendar.Location = new System.Drawing.Point(0, 54);
+            this.Dgv_Calendar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Dgv_Calendar.Name = "Dgv_Calendar";
             this.Dgv_Calendar.RowHeadersWidth = 51;
             this.Dgv_Calendar.RowTemplate.Height = 24;
-            this.Dgv_Calendar.Size = new System.Drawing.Size(514, 322);
+            this.Dgv_Calendar.Size = new System.Drawing.Size(685, 402);
             this.Dgv_Calendar.TabIndex = 5;
             this.Dgv_Calendar.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Dgv_Calendar_CellClick);
             // 
@@ -106,11 +107,12 @@ namespace MPPPS
             // 
             this.CalendarLabel.BackColor = System.Drawing.Color.LightYellow;
             this.CalendarLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.CalendarLabel.Font = new System.Drawing.Font("Meiryo UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.CalendarLabel.Font = new System.Drawing.Font("Yu Gothic UI", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.CalendarLabel.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.CalendarLabel.Location = new System.Drawing.Point(113, 6);
+            this.CalendarLabel.Location = new System.Drawing.Point(151, 8);
+            this.CalendarLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.CalendarLabel.Name = "CalendarLabel";
-            this.CalendarLabel.Size = new System.Drawing.Size(287, 30);
+            this.CalendarLabel.Size = new System.Drawing.Size(382, 37);
             this.CalendarLabel.TabIndex = 6;
             this.CalendarLabel.Text = "mm月 カレンダー";
             this.CalendarLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -118,30 +120,31 @@ namespace MPPPS
             // 
             // contextMenuStrip
             // 
+            this.contextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 48);
+            this.contextMenuStrip.Size = new System.Drawing.Size(140, 26);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(139, 22);
             this.toolStripMenuItem1.Text = "再出力を行う";
             // 
             // Frm091_CutStoreDelv
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(514, 385);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(685, 481);
             this.Controls.Add(this.CalendarLabel);
             this.Controls.Add(this.Dgv_Calendar);
             this.Controls.Add(this.NextMonthButton);
             this.Controls.Add(this.PrevMonthButton);
             this.Controls.Add(this.statusStrip);
+            this.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm091_CutStoreDelv";
             this.Text = "[KMD009SF] スマート棚コン - 計画出庫データ作成 - Ver.230613.01a";
             this.Activated += new System.EventHandler(this.Frm091_CutStoreDelv_Activated);

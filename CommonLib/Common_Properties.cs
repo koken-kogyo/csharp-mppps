@@ -25,7 +25,7 @@ namespace MPPPS
 
         // 切削生産計画システム テーブル
         // 主キー
-        public PkD0415 PkD0415 { get; set; }        // D0415  切削生産計画ファイル 主キー
+        public PkKD8430 PkKD8430 { get; set; }      // KD8430  切削生産計画ファイル 主キー
         public PkKM8400 PkKM8400 { get; set; }      // KM8400 切削生産計画システム利用者マスター 主キー
         public PkKM8410 PkKM8410 { get; set; }      // KM8410 切削刃具 マスター 主キー
         public PkKM8420 PkKM8420 { get; set; }      // KM8420 切削設備マスター 主キー
@@ -35,8 +35,8 @@ namespace MPPPS
         public PkKM8460 PkKM8460 { get; set; }      // KM8460 原価管理雛形ファイル定義マスター主キー
         public PkKD5000 PkKD5000 { get; set; }      // KD5000 原価計算明細ファイル 主キー
         // データレコード
-        public DrD0415 DrD0415 { get; set; }        // D0415  切削生産計画ファイル データ レコード
-        public DrD0445 DrD0445 { get; set; }        // D0445  切削生産計画日程ファイル データ レコード
+        public DrKD8430 DrKD8430 { get; set; }      // KD8430  切削生産計画ファイル データ レコード
+        public DrKD8440 DrKD8440 { get; set; }        // KD8440  切削生産計画日程ファイル データ レコード
         public DrKM8400 DrKM8400 { get; set; }      // KM8400 切削生産計画システム利用者マスター データレコード
         public DrKM8410 DrKM8410 { get; set; }      // KM8410 作業グループマスタ データレコード
         public DrKM8420 DrKM8420 { get; set; }      // KM8420 切削設備マスター データレコード
@@ -47,11 +47,11 @@ namespace MPPPS
         public DrKD5000 DrKD5000 { get; set; }      // KD5000 原価計算明細ファイル データレコード
 
         // ユニーク キー
-        public UqD0445 UqD0445 { get; set; }        // D0445  切削生産計画日程ファイル ユニーク キー
+        public UqKD8440 UqKD8440 { get; set; }        // KD8440  切削生産計画日程ファイル ユニーク キー
 
         // 検索キー
-        public IkD0415 IkD0415 { get; set; }        // D0415  切削生産計画ファイル 検索キー
-        public IkD0445 IkD0445 { get; set; }        // D0445  切削生産計画日程ファイル 検索キー
+        public IkKD8430 IkKD8430 { get; set; }      // KD8430  切削生産計画ファイル 検索キー
+        public IkKD8440 IkKD8440 { get; set; }        // KD8440  切削生産計画日程ファイル 検索キー
 
 
         // EM テーブル
@@ -78,5 +78,7 @@ namespace MPPPS
 
         public int DgvErrIndex { get; set; }        // DataGridView エラー インデックス
         public string ButtonText { get; set; }      // クリックされたボタンのテキスト
+
+        public double ScreenMagnification { get; set; }     // 実DPIと仮想DPIIの倍率 (表示倍率 例1.25(125%))
     }
 }

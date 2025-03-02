@@ -74,7 +74,7 @@ namespace MPPPS
         }
         private void Btn_CodeSlipMstMaint_Click(object sender, EventArgs e)
         {
-            Frm034_CodeSlipMstMaint frm034 = new Frm034_CodeSlipMstMaint();
+            Frm034_CodeSlipMstMaint frm034 = new Frm034_CodeSlipMstMaint(cmn);
             frm034.ShowDialog();
         }
         ///
