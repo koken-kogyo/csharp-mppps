@@ -33,6 +33,13 @@ namespace MPPPS
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm034_CodeSlipMstMaint));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.tglViewSimple = new System.Windows.Forms.RadioButton();
+            this.tglViewNormal = new System.Windows.Forms.RadioButton();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnHMCDClear = new System.Windows.Forms.Button();
+            this.txtHMCD = new System.Windows.Forms.TextBox();
+            this.cmbMaterial = new System.Windows.Forms.ComboBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -40,19 +47,12 @@ namespace MPPPS
             this.button1 = new System.Windows.Forms.Button();
             this.btnConvertMP = new System.Windows.Forms.Button();
             this.Dgv_CodeSlipMst = new System.Windows.Forms.DataGridView();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnHMCDClear = new System.Windows.Forms.Button();
-            this.txtHMCD = new System.Windows.Forms.TextBox();
-            this.cmbMaterial = new System.Windows.Forms.ComboBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.tglViewSimple = new System.Windows.Forms.RadioButton();
-            this.tglViewNormal = new System.Windows.Forms.RadioButton();
             this.panel1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_CodeSlipMst)).BeginInit();
-            this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -66,82 +66,50 @@ namespace MPPPS
             this.panel1.Size = new System.Drawing.Size(1007, 59);
             this.panel1.TabIndex = 3;
             // 
-            // statusStrip1
+            // groupBox2
             // 
-            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 536);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 18, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1007, 26);
-            this.statusStrip1.TabIndex = 5;
-            this.statusStrip1.Text = "statusStrip1";
+            this.groupBox2.Controls.Add(this.tglViewSimple);
+            this.groupBox2.Controls.Add(this.tglViewNormal);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.groupBox2.Font = new System.Drawing.Font("Yu Gothic UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.groupBox2.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.groupBox2.Location = new System.Drawing.Point(580, 0);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(238, 59);
+            this.groupBox2.TabIndex = 10;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "表示";
             // 
-            // toolStripStatusLabel1
+            // tglViewSimple
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(143, 20);
-            this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
+            this.tglViewSimple.Appearance = System.Windows.Forms.Appearance.Button;
+            this.tglViewSimple.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.tglViewSimple.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.tglViewSimple.Location = new System.Drawing.Point(123, 17);
+            this.tglViewSimple.Name = "tglViewSimple";
+            this.tglViewSimple.Size = new System.Drawing.Size(100, 34);
+            this.tglViewSimple.TabIndex = 9;
+            this.tglViewSimple.TabStop = true;
+            this.tglViewSimple.Text = "シンプル";
+            this.tglViewSimple.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.tglViewSimple.UseVisualStyleBackColor = true;
+            this.tglViewSimple.CheckedChanged += new System.EventHandler(this.tglViewSimple_CheckedChanged);
             // 
-            // panel2
+            // tglViewNormal
             // 
-            this.panel2.Controls.Add(this.button2);
-            this.panel2.Controls.Add(this.button1);
-            this.panel2.Controls.Add(this.btnConvertMP);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 488);
-            this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1007, 48);
-            this.panel2.TabIndex = 6;
-            // 
-            // button2
-            // 
-            this.button2.BackColor = System.Drawing.Color.LightGreen;
-            this.button2.Location = new System.Drawing.Point(469, 4);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(227, 41);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "データベースに反映";
-            this.button2.UseVisualStyleBackColor = false;
-            // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.LightPink;
-            this.button1.Location = new System.Drawing.Point(236, 4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(227, 41);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "変更点をチェック";
-            this.button1.UseVisualStyleBackColor = false;
-            // 
-            // btnConvertMP
-            // 
-            this.btnConvertMP.BackColor = System.Drawing.Color.LightPink;
-            this.btnConvertMP.Location = new System.Drawing.Point(3, 3);
-            this.btnConvertMP.Name = "btnConvertMP";
-            this.btnConvertMP.Size = new System.Drawing.Size(227, 41);
-            this.btnConvertMP.TabIndex = 0;
-            this.btnConvertMP.Text = "新システム用に変換";
-            this.btnConvertMP.UseVisualStyleBackColor = false;
-            this.btnConvertMP.Click += new System.EventHandler(this.btnConvertMP_Click);
-            // 
-            // Dgv_CodeSlipMst
-            // 
-            this.Dgv_CodeSlipMst.AllowUserToAddRows = false;
-            this.Dgv_CodeSlipMst.AllowUserToDeleteRows = false;
-            this.Dgv_CodeSlipMst.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.Dgv_CodeSlipMst.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Dgv_CodeSlipMst.Location = new System.Drawing.Point(0, 59);
-            this.Dgv_CodeSlipMst.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.Dgv_CodeSlipMst.Name = "Dgv_CodeSlipMst";
-            this.Dgv_CodeSlipMst.RowHeadersWidth = 51;
-            this.Dgv_CodeSlipMst.RowTemplate.Height = 24;
-            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1007, 429);
-            this.Dgv_CodeSlipMst.TabIndex = 7;
-            this.Dgv_CodeSlipMst.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.Dgv_CodeSlipMst_ColumnWidthChanged);
-            this.Dgv_CodeSlipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_CodeSlipMst_RowPostPaint);
+            this.tglViewNormal.Appearance = System.Windows.Forms.Appearance.Button;
+            this.tglViewNormal.BackColor = System.Drawing.Color.LightGreen;
+            this.tglViewNormal.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.tglViewNormal.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.tglViewNormal.Location = new System.Drawing.Point(17, 17);
+            this.tglViewNormal.Name = "tglViewNormal";
+            this.tglViewNormal.Size = new System.Drawing.Size(100, 34);
+            this.tglViewNormal.TabIndex = 8;
+            this.tglViewNormal.TabStop = true;
+            this.tglViewNormal.Text = "標準";
+            this.tglViewNormal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.tglViewNormal.UseVisualStyleBackColor = false;
+            this.tglViewNormal.CheckedChanged += new System.EventHandler(this.tglViewNormal_CheckedChanged);
             // 
             // groupBox1
             // 
@@ -197,50 +165,84 @@ namespace MPPPS
             this.cmbMaterial.TabIndex = 9;
             this.cmbMaterial.SelectedIndexChanged += new System.EventHandler(this.cmbMaterial_SelectedIndexChanged);
             // 
-            // groupBox2
+            // statusStrip1
             // 
-            this.groupBox2.Controls.Add(this.tglViewSimple);
-            this.groupBox2.Controls.Add(this.tglViewNormal);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Left;
-            this.groupBox2.Font = new System.Drawing.Font("Yu Gothic UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.groupBox2.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.groupBox2.Location = new System.Drawing.Point(580, 0);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(238, 59);
-            this.groupBox2.TabIndex = 10;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "表示";
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 536);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 18, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(1007, 26);
+            this.statusStrip1.TabIndex = 5;
+            this.statusStrip1.Text = "statusStrip1";
             // 
-            // tglViewSimple
+            // toolStripStatusLabel1
             // 
-            this.tglViewSimple.Appearance = System.Windows.Forms.Appearance.Button;
-            this.tglViewSimple.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.tglViewSimple.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.tglViewSimple.Location = new System.Drawing.Point(123, 17);
-            this.tglViewSimple.Name = "tglViewSimple";
-            this.tglViewSimple.Size = new System.Drawing.Size(100, 34);
-            this.tglViewSimple.TabIndex = 9;
-            this.tglViewSimple.TabStop = true;
-            this.tglViewSimple.Text = "シンプル";
-            this.tglViewSimple.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.tglViewSimple.UseVisualStyleBackColor = true;
-            this.tglViewSimple.CheckedChanged += new System.EventHandler(this.tglViewSimple_CheckedChanged);
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(143, 20);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
             // 
-            // tglViewNormal
+            // panel2
             // 
-            this.tglViewNormal.Appearance = System.Windows.Forms.Appearance.Button;
-            this.tglViewNormal.BackColor = System.Drawing.Color.LightGreen;
-            this.tglViewNormal.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.tglViewNormal.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.tglViewNormal.Location = new System.Drawing.Point(17, 17);
-            this.tglViewNormal.Name = "tglViewNormal";
-            this.tglViewNormal.Size = new System.Drawing.Size(100, 34);
-            this.tglViewNormal.TabIndex = 8;
-            this.tglViewNormal.TabStop = true;
-            this.tglViewNormal.Text = "標準";
-            this.tglViewNormal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.tglViewNormal.UseVisualStyleBackColor = false;
-            this.tglViewNormal.CheckedChanged += new System.EventHandler(this.tglViewNormal_CheckedChanged);
+            this.panel2.Controls.Add(this.button2);
+            this.panel2.Controls.Add(this.button1);
+            this.panel2.Controls.Add(this.btnConvertMP);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel2.Location = new System.Drawing.Point(0, 488);
+            this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(1007, 48);
+            this.panel2.TabIndex = 6;
+            // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.LightGreen;
+            this.button2.Location = new System.Drawing.Point(469, 4);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(227, 41);
+            this.button2.TabIndex = 2;
+            this.button2.Text = "データベースに反映";
+            this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.LightPink;
+            this.button1.Location = new System.Drawing.Point(236, 4);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(227, 41);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "変更点をチェック";
+            this.button1.UseVisualStyleBackColor = false;
+            // 
+            // btnConvertMP
+            // 
+            this.btnConvertMP.BackColor = System.Drawing.Color.LightPink;
+            this.btnConvertMP.Location = new System.Drawing.Point(3, 3);
+            this.btnConvertMP.Name = "btnConvertMP";
+            this.btnConvertMP.Size = new System.Drawing.Size(227, 41);
+            this.btnConvertMP.TabIndex = 0;
+            this.btnConvertMP.Text = "新システム用に変換";
+            this.btnConvertMP.UseVisualStyleBackColor = false;
+            this.btnConvertMP.Click += new System.EventHandler(this.btnConvertMP_Click);
+            // 
+            // Dgv_CodeSlipMst
+            // 
+            this.Dgv_CodeSlipMst.AllowUserToAddRows = false;
+            this.Dgv_CodeSlipMst.AllowUserToDeleteRows = false;
+            this.Dgv_CodeSlipMst.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.Dgv_CodeSlipMst.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Dgv_CodeSlipMst.Location = new System.Drawing.Point(0, 59);
+            this.Dgv_CodeSlipMst.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Dgv_CodeSlipMst.Name = "Dgv_CodeSlipMst";
+            this.Dgv_CodeSlipMst.RowHeadersWidth = 51;
+            this.Dgv_CodeSlipMst.RowTemplate.Height = 24;
+            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1007, 429);
+            this.Dgv_CodeSlipMst.TabIndex = 7;
+            this.Dgv_CodeSlipMst.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.Dgv_CodeSlipMst_ColumnWidthChanged);
+            this.Dgv_CodeSlipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_CodeSlipMst_RowPostPaint);
+            this.Dgv_CodeSlipMst.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.Dgv_CodeSlipMst_RowsRemoved);
             // 
             // Frm034_CodeSlipMstMaint
             // 
@@ -257,13 +259,13 @@ namespace MPPPS
             this.Name = "Frm034_CodeSlipMstMaint";
             this.Text = "[KMD003SF] マスタ メンテナンス - コード票マスタ メンテ - Ver.230613.01a";
             this.panel1.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_CodeSlipMst)).EndInit();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

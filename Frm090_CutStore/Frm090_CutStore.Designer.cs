@@ -59,7 +59,7 @@ namespace MPPPS
             this.Btn_CutStoreInvInfo.TabIndex = 1;
             this.Btn_CutStoreInvInfo.Text = "切削ストア在庫情報";
             this.Btn_CutStoreInvInfo.UseVisualStyleBackColor = true;
-            this.Btn_CutStoreInvInfo.Click += new System.EventHandler(this.Btn_CutStoreInvInfo_Click_1);
+            this.Btn_CutStoreInvInfo.Click += new System.EventHandler(this.Btn_CutStoreInvInfo_Click);
             // 
             // Btn_Close
             // 

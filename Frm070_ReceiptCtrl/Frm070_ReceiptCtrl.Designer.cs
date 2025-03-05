@@ -40,10 +40,10 @@ namespace MPPPS
             // 
             // Btn_ReceiptProc
             // 
-            this.Btn_ReceiptProc.Location = new System.Drawing.Point(12, 9);
-            this.Btn_ReceiptProc.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_ReceiptProc.Enabled = false;
+            this.Btn_ReceiptProc.Location = new System.Drawing.Point(14, 14);
             this.Btn_ReceiptProc.Name = "Btn_ReceiptProc";
-            this.Btn_ReceiptProc.Size = new System.Drawing.Size(250, 29);
+            this.Btn_ReceiptProc.Size = new System.Drawing.Size(281, 44);
             this.Btn_ReceiptProc.TabIndex = 0;
             this.Btn_ReceiptProc.Text = "切削ストア受入実績処理";
             this.Btn_ReceiptProc.UseVisualStyleBackColor = true;
@@ -51,10 +51,10 @@ namespace MPPPS
             // 
             // Btn_ReceiptInfo
             // 
-            this.Btn_ReceiptInfo.Location = new System.Drawing.Point(12, 42);
-            this.Btn_ReceiptInfo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_ReceiptInfo.Enabled = false;
+            this.Btn_ReceiptInfo.Location = new System.Drawing.Point(14, 64);
             this.Btn_ReceiptInfo.Name = "Btn_ReceiptInfo";
-            this.Btn_ReceiptInfo.Size = new System.Drawing.Size(250, 29);
+            this.Btn_ReceiptInfo.Size = new System.Drawing.Size(281, 44);
             this.Btn_ReceiptInfo.TabIndex = 1;
             this.Btn_ReceiptInfo.Text = "切削ストア受入実績情報表示";
             this.Btn_ReceiptInfo.UseVisualStyleBackColor = true;
@@ -62,10 +62,10 @@ namespace MPPPS
             // 
             // Btn_EntryShipResults
             // 
-            this.Btn_EntryShipResults.Location = new System.Drawing.Point(268, 9);
-            this.Btn_EntryShipResults.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_EntryShipResults.Enabled = false;
+            this.Btn_EntryShipResults.Location = new System.Drawing.Point(302, 14);
             this.Btn_EntryShipResults.Name = "Btn_EntryShipResults";
-            this.Btn_EntryShipResults.Size = new System.Drawing.Size(250, 29);
+            this.Btn_EntryShipResults.Size = new System.Drawing.Size(281, 44);
             this.Btn_EntryShipResults.TabIndex = 2;
             this.Btn_EntryShipResults.Text = "EM への実績入力";
             this.Btn_EntryShipResults.UseVisualStyleBackColor = true;
@@ -74,10 +74,9 @@ namespace MPPPS
             // Btn_Close
             // 
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
-            this.Btn_Close.Location = new System.Drawing.Point(268, 42);
-            this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_Close.Location = new System.Drawing.Point(302, 64);
             this.Btn_Close.Name = "Btn_Close";
-            this.Btn_Close.Size = new System.Drawing.Size(250, 29);
+            this.Btn_Close.Size = new System.Drawing.Size(281, 44);
             this.Btn_Close.TabIndex = 3;
             this.Btn_Close.Text = "閉じる";
             this.Btn_Close.UseVisualStyleBackColor = false;
@@ -85,15 +84,15 @@ namespace MPPPS
             // 
             // Frm070_ReceiptCtrl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 23F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(530, 87);
+            this.ClientSize = new System.Drawing.Size(596, 133);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_EntryShipResults);
             this.Controls.Add(this.Btn_ReceiptInfo);
             this.Controls.Add(this.Btn_ReceiptProc);
+            this.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm070_ReceiptCtrl";
             this.Text = "[KMD007SF] 実績管理 - Ver.230613.01a";
             this.ResumeLayout(false);

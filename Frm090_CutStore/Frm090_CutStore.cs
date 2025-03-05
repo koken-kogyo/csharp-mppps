@@ -46,13 +46,8 @@ namespace MPPPS
 
         private void Btn_CutStoreInvInfo_Click(object sender, EventArgs e)
         {
-            Frm092_CutStoreInvInfo frm092 = new Frm092_CutStoreInvInfo();
+            Frm092_CutStoreInvInfo frm092 = new Frm092_CutStoreInvInfo(cmn);
             frm092.ShowDialog();
-        }
-
-        private void Btn_CutStoreInvInfo_Click_1(object sender, EventArgs e)
-        {
-
         }
     }
 }

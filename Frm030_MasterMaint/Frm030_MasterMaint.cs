@@ -69,7 +69,7 @@ namespace MPPPS
         }
         private void Btn_EqMstMaint_Click(object sender, EventArgs e)
         {
-            Frm033_EqMstMaint frm033 = new Frm033_EqMstMaint();
+            Frm033_EqMstMaint frm033 = new Frm033_EqMstMaint(cmn);
             frm033.ShowDialog();
         }
         private void Btn_CodeSlipMstMaint_Click(object sender, EventArgs e)

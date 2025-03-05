@@ -1403,6 +1403,67 @@ namespace MPPPS
             return ret;
         }
 
+        /// <summary>
+        /// 切削在庫データ取得（品目手順マスタの手配先コードが60600のもの）
+        /// </summary>
+        /// <param name="invInfoEMDt">在庫情報データ</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetInvInfoEMDt(ref DataTable invInfoEMDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            OracleConnection emCnn = null;
+
+            try
+            {
+                // EMデータベースへ接続
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
+
+                string sql;
+                sql = "SELECT a.HMCD, b.KTCD, NVL(b.ZAIQTY, 0) \"EMQTY\" "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_M0510 + " a "
+                    + "LEFT OUTER JOIN "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0520 + " b "
+                    + "ON "
+                        + "b.HMCD = a.HMCD and "
+                        + "b.ZAIQTY > 0 and "
+                        + "(b.KTCD is NULL or (b.KTCD = a.KTCD)) " // ﾚｰｻﾞｰﾀﾚﾊﾟﾝは抜く  and b.KTCD <> 'MPCTLZ'
+                    + "WHERE "
+                    + "a.ODCD = '60600' and "
+                    + "MOD(a.KTSEQ, 10) = 0 and "
+                    + "a.VALDTF = (SELECT MAX(tmp.VALDTF) FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_M0510 + " tmp "
+                    + "WHERE tmp.HMCD = a.HMCD and tmp.VALDTF < SYSDATE) "
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(invInfoEMDt);
+                        ret = true;
+                    }
+                }
+                // 接続を閉じる
+                cmn.Dbm.CloseOraSchema(emCnn);
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(emCnn);
+            return ret;
+        }
 
     }
 }

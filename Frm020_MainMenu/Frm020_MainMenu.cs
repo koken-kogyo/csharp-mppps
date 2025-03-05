@@ -93,18 +93,21 @@ namespace MPPPS
         private void Btn_MfgCtrl_Click(object sender, EventArgs e)
         {
             Frm050_MfgCtrl frm050 = new Frm050_MfgCtrl();
+            frm050.StartPosition = FormStartPosition.CenterParent;
             frm050.ShowDialog(this);
         }
 
         private void Btn_ReceiptCtrl_Click(object sender, EventArgs e)
         {
             Frm070_ReceiptCtrl frm070 = new Frm070_ReceiptCtrl();
+            frm070.StartPosition = FormStartPosition.CenterParent;
             frm070.ShowDialog(this);
         }
 
         private void Btn_MatlCtrl_Click(object sender, EventArgs e)
         {
             Frm080_MatlCtrl frm080 = new Frm080_MatlCtrl();
+            frm080.StartPosition = FormStartPosition.CenterParent;
             frm080.ShowDialog(this);
         }
 
@@ -129,7 +132,7 @@ namespace MPPPS
 
         private void KM8420êÿçÌê›îıÉ}ÉXÉ^2ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Frm033_EqMstMaint frm033 = new Frm033_EqMstMaint();
+            Frm033_EqMstMaint frm033 = new Frm033_EqMstMaint(cmn);
             frm033.ShowDialog(this);
         }
 

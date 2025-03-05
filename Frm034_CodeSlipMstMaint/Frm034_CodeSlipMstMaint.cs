@@ -17,6 +17,7 @@ namespace MPPPS
         private readonly Common cmn;
         private DataTable equipMstDt = new DataTable(); // 設備マスタを保持
         private DataTable codeSlipDt = new DataTable(); // コード票マスタを保持
+        private bool loadedFlg = false;
 
         public Frm034_CodeSlipMstMaint(Common cmn)
         {
@@ -41,6 +42,10 @@ namespace MPPPS
         {
             // 全画面表示
             this.WindowState = FormWindowState.Maximized;
+
+            // 可変部分を一旦非表示
+            groupBox1.Visible = false;
+            groupBox2.Visible = false;
 
             // データベースからマスタを取得するタスクを登録
             bool ret8420 = false;
@@ -68,8 +73,14 @@ namespace MPPPS
             // ヘッダータイトルを日本語に変更
             columnHeaderText();
 
+            // 可変部分をDataGridView作成後に表示
+            groupBox1.Visible = true;
+            groupBox2.Visible = true;
+
             // トグルボタンを標準表示側に設定
             tglViewNormal.Select();
+
+            loadedFlg = true;
 
         }
 
@@ -228,9 +239,14 @@ namespace MPPPS
                 "CTNC", 
                 "CTSSTN", 
                 "CTXT",
-                "ｽﾄｱ", 
-                "備考", 
-                "検索ｷｰ" };
+                "ｽﾄｱ",
+                "備考",
+                "HT",
+                "母材品番",
+                "母材略称",
+                "容器",
+                "検索ｷｰ" 
+            };
             for (int i = 0; i < s3.Length; i++)
             {
                 Dgv_CodeSlipMst.Columns[i + offset].HeaderText = s3[i];
@@ -238,8 +254,12 @@ namespace MPPPS
                 {
                     Dgv_CodeSlipMst.Columns[i + offset].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                     Dgv_CodeSlipMst.Columns[i + offset].Width = 40;
+                    
                 }
-
+                if (i == 0 || i == 7 || i == 12) // 工程数, ストア, 容器
+                {
+                    Dgv_CodeSlipMst.Columns[i + offset].Width = 40;
+                }
             }
             offset += s3.Length;
 
@@ -247,8 +267,13 @@ namespace MPPPS
             for (int j = 1; j <= 6; j++)
             {
                 var s = Strings.StrConv(j.ToString(), VbStrConv.Wide);
-                string[] s4 = { $"工程{s}"
-                        , "設備", "CT", "LOT" };
+                string[] s4 = { 
+                    $"工程{s}",
+                    "設備", 
+                    "CT", 
+                    "LOT", 
+                    "ID" 
+                };
                 for (int i = 0; i < s4.Length; i++)
                 {
                     Dgv_CodeSlipMst.Columns[i + offset].HeaderText = s4[i];
@@ -268,18 +293,24 @@ namespace MPPPS
         {
             if (Dgv_CodeSlipMst.Columns.Count == 0) return;
             bool v = (tglViewSimple.Checked) ? false : true;
+            // Excelで使用している列
             for (int i = 7; i < 31; i++)
                 Dgv_CodeSlipMst.Columns[i].Visible = v;
-            //33,37,41,45,49,
-            for (int i = 33; i < 50; i = i + 4)
-                Dgv_CodeSlipMst.Columns[i].Visible = v;
-            //53-
-            for (int i = 53; i < Dgv_CodeSlipMst.Columns.Count; i++)
-                Dgv_CodeSlipMst.Columns[i].Visible = v;
-            Dgv_CodeSlipMst.Columns[58].Visible = false;
-            Dgv_CodeSlipMst.Columns[59].Visible = false;
-            Dgv_CodeSlipMst.Columns[60].Visible = false;
-            Dgv_CodeSlipMst.Columns[61].Visible = false;
+            // 工程１～工程６ 41,46,51,56,61,66,
+            for (int i = 41; i < 67; i = i + 5)
+            {
+                Dgv_CodeSlipMst.Columns[i + 0].Visible = v; // LOT
+                Dgv_CodeSlipMst.Columns[i + 1].Visible = v; // 帳票定義ID
+            }
+            Dgv_CodeSlipMst.Columns[24].Visible = true;     // 工程数
+            Dgv_CodeSlipMst.Columns[33].Visible = v;        // HT
+            Dgv_CodeSlipMst.Columns[34].Visible = v;        // 母材品番
+            Dgv_CodeSlipMst.Columns[35].Visible = v;        // 母材略称
+            Dgv_CodeSlipMst.Columns[37].Visible = v;        // 工程検索キー
+            Dgv_CodeSlipMst.Columns[68].Visible = false;    // INSTID
+            Dgv_CodeSlipMst.Columns[69].Visible = false;    // INSTDT
+            Dgv_CodeSlipMst.Columns[70].Visible = false;    // UPDTID
+            Dgv_CodeSlipMst.Columns[71].Visible = false;    // UPDTDT
         }
 
         // 新システム用に変換
@@ -287,17 +318,31 @@ namespace MPPPS
         {
             foreach (DataGridViewRow r in Dgv_CodeSlipMst.Rows)
             {
-                
-                var col = 34; // 工程1の列番号
-                for (int j = 7; j <= 23; j++)
+                var searchKeys = ""; // [MCGCD-MCCD:]
+                var col = 38; // 工程1の列番号
+                for (int j = 7; j <= 23; j++) //7:SW ～ 23:TN
                 {
                     if (r.Cells[j].Value != null && r.Cells[j].Value != DBNull.Value)
                     {
-                        r.Cells[col].Value = r.Cells[j].Value;
-                        col += 4;
+                        var mcgcd = Dgv_CodeSlipMst.Columns[j].HeaderText;
+                        var val = r.Cells[j].Value;
+                        DataRow[] equip = equipMstDt.Select($"MCGCD='{mcgcd}' and MCCD='{val}'"); // DataGrid上の設備コードから設備名称取得
+                        if (equip.Length == 1)
+                        {
+                            r.Cells[col + 0].Value = mcgcd;
+                            r.Cells[col + 1].Value = equip[0]["MCCD"];
+                            searchKeys += mcgcd + "-" + val + ":" ;
+                            col += 5;
+                        }
+                        else
+                        {
+                            r.Cells[j].Style.BackColor = Color.Red;
+                        }
                     }
                 }
-
+                // key
+                if (searchKeys.Length > 0)
+                    r.Cells["KTKEY"].Value = searchKeys;
             }
         }
 
@@ -305,6 +350,32 @@ namespace MPPPS
         private void btnHMCDClear_Click(object sender, EventArgs e)
         {
             txtHMCD.Text = string.Empty;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < Dgv_CodeSlipMst.Rows.Count; i++)
+            {
+                var hmcd = Dgv_CodeSlipMst.Rows[i].Cells[0].Value;
+                DataRow[] dr = codeSlipDt.Select($"HMCD='{hmcd}'");
+                if (dr.Length == 1)
+                {
+                    for (int j = 1; j < Dgv_CodeSlipMst.Columns.Count; j++)
+                    {
+                        dr[0][j] = Dgv_CodeSlipMst.Rows[i].Cells[j].Value;
+                    }
+                }
+            }
+            // 一括更新
+            cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
+                
+        }
+
+        private void Dgv_CodeSlipMst_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        {
+            if (loadedFlg == false) return;
+            //MessageBox.Show("整合性が保たれなくなる可能性があります");
+            //codeSlipDt.Rows.RemoveAt(e.RowIndex);
         }
     }
 }

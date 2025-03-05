@@ -84,13 +84,13 @@ namespace MPPPS
             // 印刷PToolStripMenuItem
             // 
             this.印刷PToolStripMenuItem.Name = "印刷PToolStripMenuItem";
-            this.印刷PToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.印刷PToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
             this.印刷PToolStripMenuItem.Text = "印刷(&P)";
             // 
             // 終了XToolStripMenuItem
             // 
             this.終了XToolStripMenuItem.Name = "終了XToolStripMenuItem";
-            this.終了XToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.終了XToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
             this.終了XToolStripMenuItem.Text = "終了(&X)";
             // 
             // 編集EToolStripMenuItem
@@ -129,12 +129,14 @@ namespace MPPPS
             this.KM8420切削設備マスタ2ToolStripMenuItem.Name = "KM8420切削設備マスタ2ToolStripMenuItem";
             this.KM8420切削設備マスタ2ToolStripMenuItem.Size = new System.Drawing.Size(382, 26);
             this.KM8420切削設備マスタ2ToolStripMenuItem.Text = "KM8420 切削設備マスタ(&2)";
+            this.KM8420切削設備マスタ2ToolStripMenuItem.Click += new System.EventHandler(this.KM8420切削設備マスタ2ToolStripMenuItem_Click);
             // 
             // KM8430切削コード票マスタ3ToolStripMenuItem
             // 
             this.KM8430切削コード票マスタ3ToolStripMenuItem.Name = "KM8430切削コード票マスタ3ToolStripMenuItem";
             this.KM8430切削コード票マスタ3ToolStripMenuItem.Size = new System.Drawing.Size(382, 26);
             this.KM8430切削コード票マスタ3ToolStripMenuItem.Text = "KM8430 切削コード票マスタ(&3)";
+            this.KM8430切削コード票マスタ3ToolStripMenuItem.Click += new System.EventHandler(this.KM8430切削コード票マスタ3ToolStripMenuItem_Click);
             // 
             // ヘルプHToolStripMenuItem
             // 
@@ -246,7 +248,7 @@ namespace MPPPS
             this.Lbl_UserName.AutoSize = true;
             this.Lbl_UserName.BackColor = System.Drawing.Color.Transparent;
             this.Lbl_UserName.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Lbl_UserName.Location = new System.Drawing.Point(492, 47);
+            this.Lbl_UserName.Location = new System.Drawing.Point(449, 47);
             this.Lbl_UserName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_UserName.Name = "Lbl_UserName";
             this.Lbl_UserName.Size = new System.Drawing.Size(124, 28);

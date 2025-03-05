@@ -1,9 +1,16 @@
 ﻿using MySql.Data.MySqlClient;
+using Mysqlx.Crud;
+using Oracle.ManagedDataAccess.Client;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
 namespace MPPPS
 {
@@ -3387,6 +3394,172 @@ namespace MPPPS
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
+
+        /// <summary>
+        /// コード票マスタ更新
+        /// </summary>
+        /// <param name="dgvDt">DataGridView</param>
+        /// <returns>注文情報データ</returns>
+        public bool UpdateCodeSlipMst(ref DataTable dgvDt)
+        {
+
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                var dtUpdate = new DataTable();
+                var countInsert = 0;
+                var countUpdate = 0;
+                var countDelete = 0;
+                using (var adapter = new MySqlDataAdapter())
+                {
+                    string sql = "SELECT * "
+                        + "FROM "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " "
+                    ;
+                    adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
+                    using (var buider = new MySqlCommandBuilder(adapter))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        adapter.Fill(dtUpdate);
+
+                        // 変更または削除があるかチェック
+                        foreach (DataRow r in dtUpdate.Rows)
+                        {
+                            DataRow[] dgv = dgvDt.Select($"HMCD='{r["HMCD"].ToString()}'");
+                            // 削除
+                            if (dgv.Length == 0)
+                            {
+                                r.Delete();
+                                countDelete++;
+                            }
+                            // 変更
+                            else if (dgv.Length == 1)
+                            {
+                                for (int col = 0; col < dtUpdate.Columns.Count; col++)
+                                {
+                                    if (r[col].ToString() != dgv[0][col].ToString())
+                                    {
+                                        // 変更あり
+                                        r[col] = dgv[0][col];
+                                    }
+                                }
+                                //dtUpdate.Rows[0]["UPDTDT"] = DateTime.Now.ToString();
+                                if (r.RowState == DataRowState.Modified)
+                                    countUpdate++;
+                            }
+                            else
+                            {
+                                throw new Exception("品番に制約違反が発生");
+                            }
+                        }
+                        // 追加更新削除があれば自動更新
+                        if (countDelete + countUpdate > 0) adapter.Update(dtUpdate);
+
+
+                        // 新規の行が存在するかチェック
+                        foreach (DataRow r in dgvDt.Rows)
+                        {
+                            DataRow[] dr = dtUpdate.Select($"HMCD='{r["HMCD"].ToString()}'");
+                            // 挿入
+                            if (dr.Length == 0)
+                            {
+                                dtUpdate.ImportRow(r);
+                                dtUpdate.AcceptChanges();
+                                dtUpdate.Rows[dtUpdate.Rows.Count - 1].SetAdded();
+                                countInsert++;
+                            }
+                        }
+                        if (countInsert > 0) adapter.Update(dtUpdate);
+
+                        // 結果
+                        if (countInsert + countUpdate + countDelete > 0)
+                        {
+                            Console.WriteLine("新規件数：" + String.Format("{0:#,0}", countInsert) + " 件");
+                            Console.WriteLine("更新件数：" + String.Format("{0:#,0}", countUpdate) + " 件");
+                            Console.WriteLine("削除件数：" + String.Format("{0:#,0}", countDelete) + " 件");
+                        }
+                        else
+                        {
+                            Console.WriteLine("更新はありませんでした．".PadLeft(18));
+                        }
+
+                        ret = true;
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+
+        }
+
+        /// <summary>
+        /// 在庫ファイル取得
+        /// </summary>
+        /// <param name="invInfoMPDt">在庫ファイル取得</param>
+        /// <returns>可否</returns>
+        public bool GetInvInfoMPDt(ref DataTable invInfoMPDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460 + " "
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(invInfoMPDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+
 
 
 
