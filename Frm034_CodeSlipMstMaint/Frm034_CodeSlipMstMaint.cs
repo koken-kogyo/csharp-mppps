@@ -28,7 +28,7 @@ namespace MPPPS
 
             // フォームのタイトルを設定する
             Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
-                      + " <" + Common.FRM_ID_041 + ": " + Common.FRM_NAME_041 + ">";
+                      + " <" + Common.FRM_ID_034 + ": " + Common.FRM_NAME_034 + ">";
 
             // 共通クラス
             this.cmn = cmn;
@@ -84,6 +84,7 @@ namespace MPPPS
 
         }
 
+        // 行番号をつける
         private void Dgv_CodeSlipMst_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
             // 行ヘッダのセル領域を、行番号を描画する長方形とする
@@ -264,11 +265,11 @@ namespace MPPPS
             offset += s3.Length;
 
             // 新システム用工程経路情報
+            string[] ktseq = { "０", "１", "２", "３", "４", "５", "６" };
             for (int j = 1; j <= 6; j++)
             {
-                var s = Strings.StrConv(j.ToString(), VbStrConv.Wide);
-                string[] s4 = { 
-                    $"工程{s}",
+                string[] s4 = {
+                    $"工程{ktseq[j]}",
                     "設備", 
                     "CT", 
                     "LOT", 
@@ -352,7 +353,16 @@ namespace MPPPS
             txtHMCD.Text = string.Empty;
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        // 行削除
+        private void Dgv_CodeSlipMst_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        {
+            if (loadedFlg == false) return;
+            //MessageBox.Show("整合性が保たれなくなる可能性があります");
+            //codeSlipDt.Rows.RemoveAt(e.RowIndex);
+        }
+
+        // データベース反映
+        private void btnUpdateDatabase_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < Dgv_CodeSlipMst.Rows.Count; i++)
             {
@@ -368,14 +378,92 @@ namespace MPPPS
             }
             // 一括更新
             cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
-                
+            MessageBox.Show("更新が終了しました．");
         }
 
-        private void Dgv_CodeSlipMst_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        private void btnReadExcelMaster_Click(object sender, EventArgs e)
         {
-            if (loadedFlg == false) return;
-            //MessageBox.Show("整合性が保たれなくなる可能性があります");
-            //codeSlipDt.Rows.RemoveAt(e.RowIndex);
+            // OpenFileDialog クラスのインスタンスを作成
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                FileName = "",                           // 既定のファイル名
+                InitialDirectory = Common.OFD_INIT_DIR,  // 既定のディレクトリ名
+                Filter = Common.OFD_FILE_TYPE_MACRO,     // [ファイルの種類] の選択肢
+                FilterIndex = 1,                         // [ファイルの種類] の既定値
+                Title = Common.OFD_TITLE_OPEN,           // ダイアログのタイトル
+                RestoreDirectory = true,                 // ダイアログを閉じる前に現在のディレクトリを復元
+                CheckFileExists = true,                  // 存在しないファイル名前が指定されたとき警告を表示 (既定値: true)
+                CheckPathExists = true                   // 存在しないパスが指定されたとき警告を表示 (既定値: true)
+            };
+
+            // ダイアログを表示
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                // [開く] ボタンがクリックされたとき、選択されたファイル名を表示
+                Console.WriteLine(ofd.FileName);
+
+                //cmn.Fa.OpenExcelFile(ofd.FileName);
+
+                //DataTable dataTable = new DataTable();
+
+                cmn.Fa.ReadExcelToDatatble2();
+
+
+                //cmn.Fa.CloseExcelFile();
+
+                MessageBox.Show("更新が終了しました．");
+
+                //int csvCount = cmn.Fa.ReadCSVFile(ofd.FileName, Encoding.GetEncoding("shift-jis"), true, Common.TABLE_ID_KD8430, ref dataTable);
+
+
+                //                // DataGridView の内容を全行削除
+                //                cmn.RemoveDagaGridViewRows(Dgv_MpOrderTbl);
+
+                //                // DataGridView の書式設定
+                //                FormatDataGridView(dataTable);
+
+                //                // KD8430 切削コード票マスタのテーブル情報取得
+                //                int dataCount = 0;
+                //                DataSet dataSetTblInfo = new DataSet();
+                //                dataCount = cmn.Dba.GetTableInfo(ref dataSetTblInfo, Common.TABLE_ID_KD8430);
+                //                if (dataCount <= 0)
+                //                {
+                //                    // テーブル情報なし
+                //                    Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                //                    string msgBodyExtStr = string.Format(Common.MSG_BODY_EXT_STR_TABLE_ID, Common.TABLE_ID_KD8430);
+                //                    cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_803, Common.MSG_TYPE_F, MessageBoxButtons.OK,
+                //                                       Common.MSGBOX_TXT_FATAL, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, msgBodyExtStr);
+
+                //                    // 件数表示クリア
+                //                    Tsl_Msg.Text = null;
+                //                }
+                //                else
+                //                {
+                //                    // 書式チェックと数値補正
+                //                    bool isValid = true;
+                //                    CheckCsvData(dataTable, dataSetTblInfo, ref isValid);
+
+                //                    // データ テーブルを DataGridView に反映して再描画
+                //                    Dgv_MpOrderTbl.DataSource = dataTable;
+
+                //                    // 再描画
+                //                    Dgv_MpOrderTbl.Refresh();
+
+                //                    if (isValid)
+                //                    {
+                //                        // 更新系ボタンを有効化
+                //                        SetEnableDisableUpdatingButtons();
+
+                //                        // 読み込み完了メッセージ表示
+                //                        Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                //                        cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_405, Common.MSG_TYPE_I, MessageBoxButtons.OK,
+                //                                           Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+
+                //                        // 読み込み件数表示
+                //                        Tsl_Msg.Text = csvCount + Common.TSL_TEXT_READ_FILE_COUNT;
+                //                    }
+                //                }
+            }
         }
     }
 }

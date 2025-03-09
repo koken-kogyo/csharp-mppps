@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace MPPPS
 {
-    partial class Frm044_CreatePlanOrder
+    partial class Frm044_ImportPlan
     {
         /// <summary>
         /// Required designer variable.
@@ -31,7 +31,7 @@ namespace MPPPS
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm044_CreatePlanOrder));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm044_ImportPlan));
             this.panel1 = new System.Windows.Forms.Panel();
             this.CalendarLabel = new System.Windows.Forms.Label();
             this.NextMonthButton = new System.Windows.Forms.Button();

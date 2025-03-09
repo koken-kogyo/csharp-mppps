@@ -43,8 +43,8 @@ namespace MPPPS
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnUpdateDatabase = new System.Windows.Forms.Button();
+            this.btnReadExcelMaster = new System.Windows.Forms.Button();
             this.btnConvertMP = new System.Windows.Forms.Button();
             this.Dgv_CodeSlipMst = new System.Windows.Forms.DataGridView();
             this.panel1.SuspendLayout();
@@ -141,7 +141,7 @@ namespace MPPPS
             this.txtHMCD.Font = new System.Drawing.Font("Yu Gothic UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.txtHMCD.Location = new System.Drawing.Point(27, 21);
             this.txtHMCD.Name = "txtHMCD";
-            this.txtHMCD.Size = new System.Drawing.Size(165, 38);
+            this.txtHMCD.Size = new System.Drawing.Size(165, 32);
             this.txtHMCD.TabIndex = 10;
             this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
             // 
@@ -161,7 +161,7 @@ namespace MPPPS
             "ﾚｰｻﾞｰ"});
             this.cmbMaterial.Location = new System.Drawing.Point(321, 18);
             this.cmbMaterial.Name = "cmbMaterial";
-            this.cmbMaterial.Size = new System.Drawing.Size(79, 39);
+            this.cmbMaterial.Size = new System.Drawing.Size(79, 33);
             this.cmbMaterial.TabIndex = 9;
             this.cmbMaterial.SelectedIndexChanged += new System.EventHandler(this.cmbMaterial_SelectedIndexChanged);
             // 
@@ -170,56 +170,57 @@ namespace MPPPS
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 536);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 325);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 18, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1007, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(1007, 22);
             this.statusStrip1.TabIndex = 5;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(143, 20);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(112, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.button2);
-            this.panel2.Controls.Add(this.button1);
+            this.panel2.Controls.Add(this.btnUpdateDatabase);
+            this.panel2.Controls.Add(this.btnReadExcelMaster);
             this.panel2.Controls.Add(this.btnConvertMP);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 488);
+            this.panel2.Location = new System.Drawing.Point(0, 277);
             this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1007, 48);
             this.panel2.TabIndex = 6;
             // 
-            // button2
+            // btnUpdateDatabase
             // 
-            this.button2.BackColor = System.Drawing.Color.LightGreen;
-            this.button2.Location = new System.Drawing.Point(469, 4);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(227, 41);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "データベースに反映";
-            this.button2.UseVisualStyleBackColor = false;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.btnUpdateDatabase.BackColor = System.Drawing.Color.LightGreen;
+            this.btnUpdateDatabase.Location = new System.Drawing.Point(3, 4);
+            this.btnUpdateDatabase.Name = "btnUpdateDatabase";
+            this.btnUpdateDatabase.Size = new System.Drawing.Size(227, 41);
+            this.btnUpdateDatabase.TabIndex = 2;
+            this.btnUpdateDatabase.Text = "データベースに反映";
+            this.btnUpdateDatabase.UseVisualStyleBackColor = false;
+            this.btnUpdateDatabase.Click += new System.EventHandler(this.btnUpdateDatabase_Click);
             // 
-            // button1
+            // btnReadExcelMaster
             // 
-            this.button1.BackColor = System.Drawing.Color.LightPink;
-            this.button1.Location = new System.Drawing.Point(236, 4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(227, 41);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "変更点をチェック";
-            this.button1.UseVisualStyleBackColor = false;
+            this.btnReadExcelMaster.BackColor = System.Drawing.Color.LightPink;
+            this.btnReadExcelMaster.Location = new System.Drawing.Point(236, 4);
+            this.btnReadExcelMaster.Name = "btnReadExcelMaster";
+            this.btnReadExcelMaster.Size = new System.Drawing.Size(393, 41);
+            this.btnReadExcelMaster.TabIndex = 1;
+            this.btnReadExcelMaster.Text = "最新のコード票マスタを読み込み変更点をチェック";
+            this.btnReadExcelMaster.UseVisualStyleBackColor = false;
+            this.btnReadExcelMaster.Click += new System.EventHandler(this.btnReadExcelMaster_Click);
             // 
             // btnConvertMP
             // 
             this.btnConvertMP.BackColor = System.Drawing.Color.LightPink;
-            this.btnConvertMP.Location = new System.Drawing.Point(3, 3);
+            this.btnConvertMP.Location = new System.Drawing.Point(635, 4);
             this.btnConvertMP.Name = "btnConvertMP";
             this.btnConvertMP.Size = new System.Drawing.Size(227, 41);
             this.btnConvertMP.TabIndex = 0;
@@ -238,7 +239,7 @@ namespace MPPPS
             this.Dgv_CodeSlipMst.Name = "Dgv_CodeSlipMst";
             this.Dgv_CodeSlipMst.RowHeadersWidth = 51;
             this.Dgv_CodeSlipMst.RowTemplate.Height = 24;
-            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1007, 429);
+            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1007, 218);
             this.Dgv_CodeSlipMst.TabIndex = 7;
             this.Dgv_CodeSlipMst.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.Dgv_CodeSlipMst_ColumnWidthChanged);
             this.Dgv_CodeSlipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_CodeSlipMst_RowPostPaint);
@@ -248,7 +249,7 @@ namespace MPPPS
             // 
             this.AllowDrop = true;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(1007, 562);
+            this.ClientSize = new System.Drawing.Size(1007, 347);
             this.Controls.Add(this.Dgv_CodeSlipMst);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.statusStrip1);
@@ -278,8 +279,8 @@ namespace MPPPS
         private Panel panel2;
         private DataGridView Dgv_CodeSlipMst;
         private Button btnConvertMP;
-        private Button button2;
-        private Button button1;
+        private Button btnUpdateDatabase;
+        private Button btnReadExcelMaster;
         private GroupBox groupBox1;
         private Button btnHMCDClear;
         private TextBox txtHMCD;

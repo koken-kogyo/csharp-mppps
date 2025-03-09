@@ -170,5 +170,35 @@ namespace MPPPS
         {
             addEMQTY(ref invInfoEMDt);
         }
+
+        private void btnHMCDClear_Click(object sender, EventArgs e)
+        {
+            txtHMCD.Text = string.Empty;
+        }
+
+        private void txtHMCD_TextChanged(object sender, EventArgs e)
+        {
+            var selpos = txtHMCD.SelectionStart;
+            var sellen = txtHMCD.SelectionLength;
+            txtHMCD.Text = txtHMCD.Text.ToUpper();
+            txtHMCD.SelectionStart = selpos;
+            txtHMCD.SelectionLength = sellen;
+            myFilter();
+        }
+
+        // 検索条件を設定
+        private void myFilter()
+        {
+            var filter = "";
+            filter = (txtHMCD.Text.Length == 0) ? string.Empty :
+                $"HMCD LIKE '{txtHMCD.Text}*'";
+            //if (filter != string.Empty && cmbMaterial.SelectedIndex > 0)
+            //    filter += " and ";
+            //filter += (cmbMaterial.SelectedIndex <= 0) ? string.Empty :
+            //    $"MATESIZE LIKE '{cmbMaterial.Text}*'";
+            // 複数検索条件を設定
+            invInfoMPDt.DefaultView.RowFilter = filter;
+            addEMQTY(ref invInfoEMDt);
+        }
     }
 }

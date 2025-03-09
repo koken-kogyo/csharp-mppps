@@ -75,7 +75,7 @@ namespace MPPPS
             //player = new SoundPlayer(@cmn.SoundFilePathCorrect);
             //player.Play();
 
-            Frm041_CreateOrder frm041 = new Frm041_CreateOrder(cmn);
+            Frm041_ImportOrder frm041 = new Frm041_ImportOrder(cmn);
             frm041.ShowDialog();
         }
 
@@ -115,7 +115,7 @@ namespace MPPPS
         /// <param name="e">イベント引数</param>
         private void Btn_CreateMaybeOrder_Click(object sender, EventArgs e)
         {
-            Frm044_CreatePlanOrder frm044 = new Frm044_CreatePlanOrder(cmn);
+            Frm044_ImportPlan frm044 = new Frm044_ImportPlan(cmn);
             frm044.ShowDialog();
         }
 

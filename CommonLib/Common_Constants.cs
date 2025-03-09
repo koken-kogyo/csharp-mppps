@@ -38,6 +38,9 @@ namespace MPPPS
         public static readonly string EXCEL_FILE_EXT = ".xlsx";                 // Excel ファイル拡張子
         public static readonly string CSV_FILE_EXT = @".csv";                   // CSV ファイル拡張子
         public static readonly string APP_EXPLORER = @"EXPLORER.EXE";           // 起動アプリ (エクスプローラー)
+        public static readonly string QR_HMCD_IMG = @"\QR_HMCD.png";            // QRコード画像（スマート棚コン用品番）
+        public static readonly string QR_ODRNO_IMG = @"\QR_ODRNO.png";          // QRコード画像（アイレポ用注文番号）
+
         public static readonly string DECIMAL_POINT = ".";                      // 小数点
         public static readonly bool NUMERIC_UNSIGNED = false;                   // 符号なし数値
         public static readonly bool NUMERIC_SIGNED = true;                      // 符号あり数値
@@ -59,6 +62,7 @@ namespace MPPPS
         public static readonly string OFD_TITLE_OPEN = "ファイルを開く";        // タイトル (開く)
         public static readonly string OFD_FILE_TYPE_CSV = "CSV ファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*"; // ファイルの種類 (CSV)
         public static readonly string OFD_FILE_TYPE_XLS = "Excel ファイル (*.xlsx; *.xls)|*.xlsx;*.xls|CSV ファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*"; // ファイルの種類 (Excel)
+        public static readonly string OFD_FILE_TYPE_MACRO = "Excel Macro ファイル (*.xlsm)|*.xlsm|Excel ファイル (*.xlsx; *.xls)|*.xlsx;*.xls|すべてのファイル (*.*)|*.*"; // ファイルの種類 (Macro)
 
         // SaveFileDialog
         public static readonly string SFD_INIT_DIR = @"%USERPROFILE%\Desktop";  // 初期表示させるディレクトリ
@@ -747,14 +751,14 @@ namespace MPPPS
         public const string TABLE_ID_KD8430 = "kd8430";   // 切削手配ファイル (確定)
         public const string TABLE_ID_KD8440 = "kd8440";   // 切削手配日程ファイル (内示)
         public const string TABLE_ID_KD8450 = "kd8450";   // 切削オーダーファイル (確定)
-        public const string TABLE_ID_KD8460 = "kd8460";   // 切削在庫ファイル  
+        public const string TABLE_ID_KD8460 = "kd8460";   // 切削在庫ファイル
         public const string TABLE_ID_KM8400 = "km8400";   // 切削生産計画システム利用者マスター
         public const string TABLE_ID_KM8410 = "km8410";   // 切削刃具マスター
         public const string TABLE_ID_KM8420 = "km8420";   // 切削設備マスター
         public const string TABLE_ID_KM8430 = "km8430";   // 切削コード票マスター
 
         public const string TABLE_NAME_KD8430  = "切削生産計画ファイル (確定)";
-        public const string TABLE_NAME_KD8440 = "切削生産計画ファイル (内示)";
+        public const string TABLE_NAME_KD8440  = "切削生産計画ファイル (内示)";
         public const string TABLE_NAME_KM8400 = "切削生産計画システム利用者マスター";
         public const string TABLE_NAME_KM8410 = "切削刃具 マスター";
         public const string TABLE_NAME_KM8420 = "切削設備マスター";

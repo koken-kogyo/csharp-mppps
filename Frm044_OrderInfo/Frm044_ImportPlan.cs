@@ -15,7 +15,7 @@ using System.Windows.Forms;
 
 namespace MPPPS
 {
-    public partial class Frm044_CreatePlanOrder : Form
+    public partial class Frm044_ImportPlan : Form
     {
         // 共通クラス
         private readonly Common cmn;
@@ -28,7 +28,7 @@ namespace MPPPS
         /// </summary>
         /// <param name="common">共通クラス</param>
         /// <param name="sender">送信オジェクト</param>
-        public Frm044_CreatePlanOrder(Common cmn)
+        public Frm044_ImportPlan(Common cmn)
         {
             InitializeComponent();
 

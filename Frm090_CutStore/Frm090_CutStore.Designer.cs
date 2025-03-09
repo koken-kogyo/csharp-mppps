@@ -39,7 +39,7 @@ namespace MPPPS
             // 
             // Btn_CutStoreDelv
             // 
-            this.Btn_CutStoreDelv.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_CutStoreDelv.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_CutStoreDelv.Location = new System.Drawing.Point(12, 11);
             this.Btn_CutStoreDelv.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_CutStoreDelv.Name = "Btn_CutStoreDelv";
@@ -51,7 +51,7 @@ namespace MPPPS
             // 
             // Btn_CutStoreInvInfo
             // 
-            this.Btn_CutStoreInvInfo.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_CutStoreInvInfo.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_CutStoreInvInfo.Location = new System.Drawing.Point(12, 53);
             this.Btn_CutStoreInvInfo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_CutStoreInvInfo.Name = "Btn_CutStoreInvInfo";
@@ -81,7 +81,7 @@ namespace MPPPS
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_CutStoreInvInfo);
             this.Controls.Add(this.Btn_CutStoreDelv);
-            this.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm090_CutStore";

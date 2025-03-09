@@ -3300,6 +3300,7 @@ namespace MPPPS
             return ret;
         }
 
+        // ********** 設備マスタ関連 **********
         /// <summary>
         /// 設備マスタ取得
         /// </summary>
@@ -3346,6 +3347,139 @@ namespace MPPPS
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
+        /// <summary>
+        /// マスタ更新
+        /// </summary>
+        /// <param name="dgvDt">DataGridView</param>
+        /// <returns>注文情報データ</returns>
+        public bool UpdateEquipMst(ref DataTable dgvDt)
+        {
+
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                var dtUpdate = new DataTable();
+                var countInsert = 0;
+                var countUpdate = 0;
+                var countDelete = 0;
+                using (var adapter = new MySqlDataAdapter())
+                {
+                    string sql = "SELECT * "
+                        + "FROM "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420 + " "
+                    ;
+                    adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
+                    using (var buider = new MySqlCommandBuilder(adapter))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        adapter.Fill(dtUpdate);
+
+                        // バインドテーブルを調査
+                        foreach (DataRow dgvDr in dgvDt.Rows)
+                        {
+                            // 変更
+                            if (dgvDr.RowState == DataRowState.Modified)
+                            {
+                                var mcgcd = dgvDr["MCGCD"].ToString();
+                                var mccd = dgvDr["MCCD"].ToString();
+                                DataRow[] dr = dtUpdate.Select($"MCGCD='{mcgcd}' and MCCD='{mccd}'");
+                                if (dr.Length == 1)
+                                {
+                                    for (int col = 0; col < dtUpdate.Columns.Count; col++)
+                                    {
+                                        // 変更あり
+                                        if (dr[0][col].ToString() != dgvDr[col].ToString())
+                                        {
+                                            dr[0][col] = dgvDr[col];
+                                        }
+                                    }
+                                    dr[0]["UPDTID"] = cmn.Ui.UserId;
+                                    dr[0]["UPDTDT"] = DateTime.Now.ToString();
+                                    countUpdate++;
+                                }
+                            }
+                            /* 挿入と削除は見送り（難しい）
+                            // 挿入
+                            else if (dgvDr.RowState == DataRowState.Added)
+                            {
+                                dtUpdate.ImportRow(dgvDr);
+                                dtUpdate.AcceptChanges();
+                                dtUpdate.Rows[dtUpdate.Rows.Count - 1].SetAdded();
+                                countInsert++;
+                            }
+                            // 削除
+                            else if (dgvDr.RowState == DataRowState.Deleted)
+                            {
+                                // コミットしておかないと以下の集計が出来ない（データテーブルからなくなる）
+                                dgvDr.CancelEdit();
+
+                                // 集合差を求めるにはローカル変数(refはダメ)にする必要がある
+                                DataTable refDt = new DataTable();
+                                refDt = dgvDt.Copy();
+
+                                // 削除対象を抽出
+                                var deleteDr = dtUpdate.AsEnumerable()
+                                    .Where(row =>
+                                        !refDt.AsEnumerable().Select(s =>
+                                            s["MCGCD"].ToString() + s["MCCD"].ToString()).ToArray()
+                                        .Contains(row["MCGCD"].ToString() + row["MCCD"].ToString())
+                                    );
+                                if (deleteDr.Count() > 0)
+                                {
+                                    foreach (DataRow dr in deleteDr)
+                                    {
+                                        dr.Delete();
+                                        countDelete++;
+                                    }
+                                }
+                            }
+                            */
+                        }
+
+                        // 更新削除を実行
+                        if (countDelete + countUpdate > 0) adapter.Update(dtUpdate);
+
+                        // 結果
+                        if (countInsert + countUpdate + countDelete > 0)
+                        {
+                            Console.WriteLine("新規件数：" + String.Format("{0:#,0}", countInsert) + " 件");
+                            Console.WriteLine("更新件数：" + String.Format("{0:#,0}", countUpdate) + " 件");
+                            Console.WriteLine("削除件数：" + String.Format("{0:#,0}", countDelete) + " 件");
+                        }
+                        else
+                        {
+                            Console.WriteLine("更新はありませんでした．".PadLeft(18));
+                        }
+
+                        ret = true;
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+
+        }
+
 
 
         /// <summary>

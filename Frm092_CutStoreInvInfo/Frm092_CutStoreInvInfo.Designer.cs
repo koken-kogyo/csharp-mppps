@@ -37,15 +37,20 @@ namespace MPPPS
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.Dgv_InvInfo = new System.Windows.Forms.DataGridView();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnHMCDClear = new System.Windows.Forms.Button();
+            this.txtHMCD = new System.Windows.Forms.TextBox();
+            this.panel1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_InvInfo)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.groupBox1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(900, 84);
             this.panel1.TabIndex = 0;
@@ -92,6 +97,40 @@ namespace MPPPS
             this.Dgv_InvInfo.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_InvInfo_RowPostPaint);
             this.Dgv_InvInfo.Sorted += new System.EventHandler(this.Dgv_InvInfo_Sorted);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.btnHMCDClear);
+            this.groupBox1.Controls.Add(this.txtHMCD);
+            this.groupBox1.Font = new System.Drawing.Font("Yu Gothic UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.groupBox1.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.groupBox1.Location = new System.Drawing.Point(15, 7);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(15);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(15);
+            this.groupBox1.Size = new System.Drawing.Size(580, 69);
+            this.groupBox1.TabIndex = 10;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "検索条件";
+            // 
+            // btnHMCDClear
+            // 
+            this.btnHMCDClear.Location = new System.Drawing.Point(272, 20);
+            this.btnHMCDClear.Name = "btnHMCDClear";
+            this.btnHMCDClear.Size = new System.Drawing.Size(102, 31);
+            this.btnHMCDClear.TabIndex = 11;
+            this.btnHMCDClear.Text = "品番クリア";
+            this.btnHMCDClear.UseVisualStyleBackColor = true;
+            this.btnHMCDClear.Click += new System.EventHandler(this.btnHMCDClear_Click);
+            // 
+            // txtHMCD
+            // 
+            this.txtHMCD.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.txtHMCD.Location = new System.Drawing.Point(35, 21);
+            this.txtHMCD.Name = "txtHMCD";
+            this.txtHMCD.Size = new System.Drawing.Size(231, 34);
+            this.txtHMCD.TabIndex = 10;
+            this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
+            // 
             // Frm092_CutStoreInvInfo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 23F);
@@ -105,9 +144,12 @@ namespace MPPPS
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Frm092_CutStoreInvInfo";
             this.Text = "[KMD009SF] 切削ストア - 切削ストア在庫情報 - Ver.230613.01a";
+            this.panel1.ResumeLayout(false);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_InvInfo)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -120,5 +162,8 @@ namespace MPPPS
         private ToolStripStatusLabel toolStripStatusLabel1;
         private Panel panel2;
         private DataGridView Dgv_InvInfo;
+        private GroupBox groupBox1;
+        private Button btnHMCDClear;
+        private TextBox txtHMCD;
     }
 }

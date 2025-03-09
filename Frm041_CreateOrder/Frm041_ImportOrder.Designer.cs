@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace MPPPS
 {
-    partial class Frm041_CreateOrder
+    partial class Frm041_ImportOrder
     {
         /// <summary>
         /// Required designer variable.
@@ -31,7 +31,7 @@ namespace MPPPS
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm041_CreateOrder));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm041_ImportOrder));
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();

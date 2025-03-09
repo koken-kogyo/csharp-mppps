@@ -55,7 +55,7 @@ namespace MPPPS
             // Btn_ChipMstMaint
             // 
             this.Btn_ChipMstMaint.Enabled = false;
-            this.Btn_ChipMstMaint.Font = new System.Drawing.Font("Yu Gothic UI", 10F);
+            this.Btn_ChipMstMaint.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Btn_ChipMstMaint.Location = new System.Drawing.Point(12, 53);
             this.Btn_ChipMstMaint.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_ChipMstMaint.Name = "Btn_ChipMstMaint";
@@ -66,7 +66,7 @@ namespace MPPPS
             // 
             // Btn_EqMstMaint
             // 
-            this.Btn_EqMstMaint.Font = new System.Drawing.Font("Yu Gothic UI", 10F);
+            this.Btn_EqMstMaint.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Btn_EqMstMaint.Location = new System.Drawing.Point(12, 11);
             this.Btn_EqMstMaint.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_EqMstMaint.Name = "Btn_EqMstMaint";

@@ -58,21 +58,21 @@
       <Project>{ebb246ec-4547-402e-a4c1-43fc9b711c18}</Project>
       <Name>CommonLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Frm041_CreateOrder\Frm041_CreateOrder.csproj">
+    <ProjectReference Include="..\Frm041_CreateOrder\Frm041_ImportOrder.csproj">
       <Project>{830bfd0c-7f74-4e82-9da8-1e815b096b57}</Project>
-      <Name>Frm041_CreateOrder</Name>
+      <Name>Frm041_ImportOrder</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Frm042_OrderEqualize\Frm042_OrderEqualize.csproj">
+    <ProjectReference Include="..\Frm042_OrderEqualize\Frm042_InfoOrder.csproj">
       <Project>{44978783-c0a5-4f51-b0f9-db26b67d5d27}</Project>
-      <Name>Frm042_OrderEqualize</Name>
+      <Name>Frm042_InfoOrder</Name>
     </ProjectReference>
     <ProjectReference Include="..\Frm043_CreateAddOrder\Frm043_CreateAddOrder.csproj">
       <Project>{27317589-5cb8-4623-91ef-006e686253b1}</Project>
       <Name>Frm043_CreateAddOrder</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Frm044_OrderInfo\Frm044_CreatePlanOrder.csproj">
+    <ProjectReference Include="..\Frm044_OrderInfo\Frm044_ImportPlan.csproj">
       <Project>{2e385132-9953-4ed3-8887-e37200251fe1}</Project>
-      <Name>Frm044_CreatePlanOrder</Name>
+      <Name>Frm044_ImportPlan</Name>
     </ProjectReference>
     <ProjectReference Include="..\Frm045_MfgProgress\Frm045_MfgProgress.csproj">
       <Project>{91088bc9-59b8-487c-af5d-813b48661bb6}</Project>

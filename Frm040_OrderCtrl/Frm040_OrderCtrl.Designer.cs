@@ -33,11 +33,11 @@ namespace MPPPS
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm040_OrderCtrl));
             this.Btn_Close = new System.Windows.Forms.Button();
+            this.Btn_InfoPlan = new System.Windows.Forms.Button();
+            this.Btn_ImportPlan = new System.Windows.Forms.Button();
             this.Btn_MfgProgress = new System.Windows.Forms.Button();
-            this.Btn_OrderInfo = new System.Windows.Forms.Button();
-            this.Btn_CreateAddOrder = new System.Windows.Forms.Button();
-            this.Btn_OrderEqualize = new System.Windows.Forms.Button();
-            this.Btn_CreateOrder = new System.Windows.Forms.Button();
+            this.Btn_InfoOrder = new System.Windows.Forms.Button();
+            this.Btn_ImportOrder = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Btn_Close
@@ -54,79 +54,79 @@ namespace MPPPS
             this.Btn_Close.UseVisualStyleBackColor = false;
             this.Btn_Close.Click += new System.EventHandler(this.Btn_Close_Click);
             // 
+            // Btn_InfoPlan
+            // 
+            this.Btn_InfoPlan.Enabled = false;
+            this.Btn_InfoPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_InfoPlan.Location = new System.Drawing.Point(317, 53);
+            this.Btn_InfoPlan.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_InfoPlan.Name = "Btn_InfoPlan";
+            this.Btn_InfoPlan.Size = new System.Drawing.Size(300, 38);
+            this.Btn_InfoPlan.TabIndex = 12;
+            this.Btn_InfoPlan.Text = "内示情報";
+            this.Btn_InfoPlan.UseVisualStyleBackColor = true;
+            this.Btn_InfoPlan.Click += new System.EventHandler(this.Btn_MfgProgress_Click);
+            // 
+            // Btn_ImportPlan
+            // 
+            this.Btn_ImportPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_ImportPlan.Location = new System.Drawing.Point(317, 11);
+            this.Btn_ImportPlan.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_ImportPlan.Name = "Btn_ImportPlan";
+            this.Btn_ImportPlan.Size = new System.Drawing.Size(300, 38);
+            this.Btn_ImportPlan.TabIndex = 11;
+            this.Btn_ImportPlan.Text = "内示取込印刷";
+            this.Btn_ImportPlan.UseVisualStyleBackColor = true;
+            this.Btn_ImportPlan.Click += new System.EventHandler(this.Btn_CreateMaybeOrder_Click);
+            // 
             // Btn_MfgProgress
             // 
             this.Btn_MfgProgress.Enabled = false;
             this.Btn_MfgProgress.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_MfgProgress.Location = new System.Drawing.Point(317, 53);
+            this.Btn_MfgProgress.Location = new System.Drawing.Point(12, 95);
             this.Btn_MfgProgress.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_MfgProgress.Name = "Btn_MfgProgress";
             this.Btn_MfgProgress.Size = new System.Drawing.Size(300, 38);
-            this.Btn_MfgProgress.TabIndex = 12;
+            this.Btn_MfgProgress.TabIndex = 10;
             this.Btn_MfgProgress.Text = "加工進捗情報表示";
             this.Btn_MfgProgress.UseVisualStyleBackColor = true;
-            this.Btn_MfgProgress.Click += new System.EventHandler(this.Btn_MfgProgress_Click);
+            this.Btn_MfgProgress.Click += new System.EventHandler(this.Btn_CreateOrder_Click);
             // 
-            // Btn_OrderInfo
+            // Btn_InfoOrder
             // 
-            this.Btn_OrderInfo.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_OrderInfo.Location = new System.Drawing.Point(317, 11);
-            this.Btn_OrderInfo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Btn_OrderInfo.Name = "Btn_OrderInfo";
-            this.Btn_OrderInfo.Size = new System.Drawing.Size(300, 38);
-            this.Btn_OrderInfo.TabIndex = 11;
-            this.Btn_OrderInfo.Text = "内示情報作成";
-            this.Btn_OrderInfo.UseVisualStyleBackColor = true;
-            this.Btn_OrderInfo.Click += new System.EventHandler(this.Btn_CreateMaybeOrder_Click);
+            this.Btn_InfoOrder.Enabled = false;
+            this.Btn_InfoOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_InfoOrder.Location = new System.Drawing.Point(12, 53);
+            this.Btn_InfoOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_InfoOrder.Name = "Btn_InfoOrder";
+            this.Btn_InfoOrder.Size = new System.Drawing.Size(300, 38);
+            this.Btn_InfoOrder.TabIndex = 9;
+            this.Btn_InfoOrder.Text = "手配情報";
+            this.Btn_InfoOrder.UseVisualStyleBackColor = true;
+            this.Btn_InfoOrder.Click += new System.EventHandler(this.Btn_OrderEqualize_Click);
             // 
-            // Btn_CreateAddOrder
+            // Btn_ImportOrder
             // 
-            this.Btn_CreateAddOrder.Enabled = false;
-            this.Btn_CreateAddOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_CreateAddOrder.Location = new System.Drawing.Point(12, 95);
-            this.Btn_CreateAddOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Btn_CreateAddOrder.Name = "Btn_CreateAddOrder";
-            this.Btn_CreateAddOrder.Size = new System.Drawing.Size(300, 38);
-            this.Btn_CreateAddOrder.TabIndex = 10;
-            this.Btn_CreateAddOrder.Text = "追加オーダーの作成";
-            this.Btn_CreateAddOrder.UseVisualStyleBackColor = true;
-            this.Btn_CreateAddOrder.Click += new System.EventHandler(this.Btn_CreateOrder_Click);
-            // 
-            // Btn_OrderEqualize
-            // 
-            this.Btn_OrderEqualize.Enabled = false;
-            this.Btn_OrderEqualize.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_OrderEqualize.Location = new System.Drawing.Point(12, 53);
-            this.Btn_OrderEqualize.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Btn_OrderEqualize.Name = "Btn_OrderEqualize";
-            this.Btn_OrderEqualize.Size = new System.Drawing.Size(300, 38);
-            this.Btn_OrderEqualize.TabIndex = 9;
-            this.Btn_OrderEqualize.Text = "切削オーダーの平準化";
-            this.Btn_OrderEqualize.UseVisualStyleBackColor = true;
-            this.Btn_OrderEqualize.Click += new System.EventHandler(this.Btn_OrderEqualize_Click);
-            // 
-            // Btn_CreateOrder
-            // 
-            this.Btn_CreateOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_CreateOrder.Location = new System.Drawing.Point(12, 11);
-            this.Btn_CreateOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Btn_CreateOrder.Name = "Btn_CreateOrder";
-            this.Btn_CreateOrder.Size = new System.Drawing.Size(300, 38);
-            this.Btn_CreateOrder.TabIndex = 8;
-            this.Btn_CreateOrder.Text = "手配情報作成";
-            this.Btn_CreateOrder.UseVisualStyleBackColor = true;
-            this.Btn_CreateOrder.Click += new System.EventHandler(this.Btn_CreateOrder_Click);
+            this.Btn_ImportOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_ImportOrder.Location = new System.Drawing.Point(12, 11);
+            this.Btn_ImportOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_ImportOrder.Name = "Btn_ImportOrder";
+            this.Btn_ImportOrder.Size = new System.Drawing.Size(300, 38);
+            this.Btn_ImportOrder.TabIndex = 8;
+            this.Btn_ImportOrder.Text = "手配取込印刷";
+            this.Btn_ImportOrder.UseVisualStyleBackColor = true;
+            this.Btn_ImportOrder.Click += new System.EventHandler(this.Btn_CreateOrder_Click);
             // 
             // Frm040_OrderCtrl
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(629, 145);
             this.Controls.Add(this.Btn_Close);
+            this.Controls.Add(this.Btn_InfoPlan);
+            this.Controls.Add(this.Btn_ImportPlan);
             this.Controls.Add(this.Btn_MfgProgress);
-            this.Controls.Add(this.Btn_OrderInfo);
-            this.Controls.Add(this.Btn_CreateAddOrder);
-            this.Controls.Add(this.Btn_OrderEqualize);
-            this.Controls.Add(this.Btn_CreateOrder);
+            this.Controls.Add(this.Btn_InfoOrder);
+            this.Controls.Add(this.Btn_ImportOrder);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -140,10 +140,10 @@ namespace MPPPS
         #endregion
 
         private Button Btn_Close;
+        private Button Btn_InfoPlan;
+        private Button Btn_ImportPlan;
         private Button Btn_MfgProgress;
-        private Button Btn_OrderInfo;
-        private Button Btn_CreateAddOrder;
-        private Button Btn_OrderEqualize;
-        private Button Btn_CreateOrder;
+        private Button Btn_InfoOrder;
+        private Button Btn_ImportOrder;
     }
 }

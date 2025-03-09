@@ -16,7 +16,7 @@ using System.Windows.Forms;
 
 namespace MPPPS
 {
-    public partial class Frm041_CreateOrder : Form
+    public partial class Frm041_ImportOrder : Form
     {
         // 共通クラス
         private readonly Common cmn;
@@ -29,7 +29,7 @@ namespace MPPPS
         /// コンストラクター
         /// </summary>
         /// <param name="common">共通クラス</param>
-        public Frm041_CreateOrder(Common cmn)
+        public Frm041_ImportOrder(Common cmn)
         {
             InitializeComponent();
 
@@ -691,7 +691,7 @@ namespace MPPPS
                     .Replace("雛形", "_" + cardDay.ToString("yyyyMMdd") 
                                    + "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
                     .Replace(".xlsx", ".pdf");
-                cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[idx].RootPath}\{pdfName}");
+                cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[0].RootPath}\{pdfName}"); // 0:生産計画システム出力先フォルダ
 
                 // 製造指示カード雛形を閉じる
                 cmn.Fa.CloseExcelFile2(false);
@@ -747,7 +747,7 @@ namespace MPPPS
                     cmn.Fa.SetOrderCard(ref cardDay, ref r, ref row, ref col);
                     //Debug.WriteLine("[StopWatch] Read終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW3).TotalSeconds.ToString("F3") + "秒)");
 
-                    if (cardCnt == 50) break;
+                    // Debug if (cardCnt == 50) break;
                     if (cardCnt % 5 == 0)
                     {
                         toolStripStatusLabel1.Text = progressmsg + $" - {cardCnt}件 / {cardDt.Rows.Count}件中 作成中...";

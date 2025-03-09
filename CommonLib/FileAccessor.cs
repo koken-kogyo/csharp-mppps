@@ -1,4 +1,5 @@
 ﻿using LumenWorks.Framework.IO.Csv;
+using QRCoder;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,6 +21,8 @@ using Microsoft.Win32;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
+using System.Drawing;
+using System.Threading;
 
 namespace MPPPS
 {
@@ -63,6 +66,9 @@ namespace MPPPS
         public Excel.Application oXls;     // Excel オブジェクト
         public Excel.Workbook oWBook;      // Workbook オブジェクト
         public Excel.Worksheet oWSheet;    // Worksheet オブジェクト
+
+        // QRCoder
+        public QRCodeGenerator oQRGenerator;
 
         public FileAccessor(Common cmn)
         {
@@ -529,10 +535,16 @@ namespace MPPPS
 
         }
 
+        /// <summary>
+        /// Excel を立ち上げる（オプションでアプリの表示／非表示を切り替える）
+        /// </summary>
+        /// <param name="idx">ファイルシステム設定ファイルのインデックス番号</param>
         public void OpenExcel2(int idx)
         {
             oXls = new Excel.Application();
             oXls.Visible = cmn.FsCd[idx].VisibleExcel;  // Excelのウィンドウの表示/非表示を設定ファイルから取得
+
+            oQRGenerator = new QRCodeGenerator();
         }
 
         /// <summary>
@@ -599,6 +611,12 @@ namespace MPPPS
         public void CloseExcel2()
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            // アプリケーションの終了前に破棄可能なオブジェクトを破棄します。
+            if (oQRGenerator != null)
+            {
+                oQRGenerator.Dispose();
+            }
 
             // アプリケーションの終了前に破棄可能なオブジェクトを破棄します。
             if (oWBook != null)
@@ -704,51 +722,150 @@ namespace MPPPS
             }
         }
 
+        // https://mitosuya.net/excel-high-performance
+        public void ReadExcelToDatatble2() 
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            dynamic xlApp = null;
+            dynamic xlWbooks = null;
+            dynamic xlWbook = null;
+            dynamic xlSheets = null;
+            dynamic xlSheet = null;
+            dynamic xlRange = null;
+            dynamic xlCell = null;
+            try
+            {
+                Type objectClassType = Type.GetTypeFromProgID("Excel.Application");
+                xlApp = Activator.CreateInstance(objectClassType);
+                xlApp.ScreenUpdating = false; // screenUpdating;
+                xlApp.EnableEvents = false; // enableEvents;
+
+                xlWbooks = xlApp.Workbooks;
+                xlWbook = xlWbooks.Open(@"C:\Users\watuw\Desktop\遅延(EM-Y版).xlsm");
+                xlApp.Calculation = false; // calculation;
+
+                xlSheets = xlWbook.Worksheets;
+                xlSheet = xlSheets.Item("コード票");
+                var isBulk =true;
+                if (isBulk) //一括の場合
+                {
+                    object[,] values = new object[100, 100];
+                    //for (int iRow = 0; iRow < 100; iRow++)
+                    //{
+                    //    for (int iCol = 0; iCol < 100; iCol++)
+                    //    {
+                    //        values[iRow, iCol] = (iRow + 1).ToString() + (iCol + 1).ToString();
+                    //    }
+                    //}
+
+                    try
+                    {
+                        xlRange = xlSheet.Range("A1:CV100");
+                        values = xlRange.Value;
+                        //values = xlSheet.Range("A1:CV100");
+                    }
+                    finally
+                    {
+                        Marshal.ReleaseComObject(xlRange);
+                    }
+                }
+                else //1セルずつの場合
+                {
+                    for (int iRow = 1; iRow <= 100; iRow++)
+                    {
+                        for (int iCol = 1; iCol <= 100; iCol++)
+                        {
+                            try
+                            {
+                                xlCell = xlSheet.Cells(iRow, iCol);
+                                xlCell.Value = (iRow).ToString() + (iCol).ToString();
+                            }
+                            finally
+                            {
+                                Marshal.ReleaseComObject(xlCell);
+                            }
+                        }
+                    }
+                }
+
+                xlApp.Calculation = true; // CALCULATION_DEFAULT;
+//                xlWbook.Save();
+            }
+            finally
+            {
+                if (xlWbook != null)
+                {
+                    //xlWbook.Saved = true;
+                }
+                xlApp.EnableEvents = true;
+                xlApp.ScreenUpdating = true;
+
+                //COMオブジェクトの開放
+                Marshal.ReleaseComObject(xlSheet);
+                Marshal.ReleaseComObject(xlSheets);
+                Marshal.ReleaseComObject(xlWbook);
+                Marshal.ReleaseComObject(xlWbooks);
+                //Excelアプリケーション終了
+                xlApp.Quit();
+                Marshal.ReleaseComObject(xlApp);
+
+                //計測結果表示
+                sw.Stop();
+                TimeSpan ts = sw.Elapsed;
+                //txtResult.Text = $"{ts.TotalSeconds:0.00}";
+            }
+        }
+
         /// <summary>
-        /// Excel シートからデータテーブルへインポート
+        /// Excel コード票をデータテーブルへインポート
         /// </summary>
-        /// <param name="worksheetName">ワークシート名称</param>
-        /// <param name="saveAsLocation">保存先</param>
-        /// <param name="ReporType">レポート種別</param>
-        /// <param name="HeaderLine">見出し行</param>
-        /// <param name="ColumnStart">開始列</param>
         /// <returns></returns>
-        public System.Data.DataTable ReadExcelToDatatble(Excel.Workbook excelworkBook, 
-            string worksheetName, string saveAsLocation, string ReporType, int HeaderLine, int ColumnStart)
+        public System.Data.DataTable ReadExcelToDatatble()
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             System.Data.DataTable dataTable = new System.Data.DataTable();
-            Excel.Worksheet excelSheet;
-            Excel.Range range;
+            Excel.Worksheet excelSheet = new Excel.Worksheet();
+            //Excel.Range range;
             try
             {
-                // Workk sheet
-                excelSheet = (Excel.Worksheet)
-                                      excelworkBook.Worksheets.Item[worksheetName];
-                range = excelSheet.UsedRange;
-                int cl = range.Columns.Count;
+                // コード票シートを検索
+                foreach (Excel.Worksheet s in oWBook.Worksheets)
+                {
+                    if (s.Name == "コード票" || s.Name == "ｺｰﾄﾞ票")
+                    {
+                        excelSheet = s;
+                        break;
+                    }
+                }
+                //range = excelSheet.Range[excelSheet.Cells[1, 1], excelSheet.Cells[9999, 37]];
+                //range = excelSheet.UsedRange;
+                int cl = 37;    // 最終列 （旧：range.Columns.Count）
+                int hl = 4;     // タイトル行番号
 
                 // loop through each row and add values to our sheet
-                int rowcount = range.Rows.Count;
+                //int rowcount = range.Rows.Count;
 
                 //create the header of table
-                for (int j = ColumnStart; j <= cl; j++)
+                for (int j = 1; j <= cl; j++)
                 {
                     dataTable.Columns.Add(Convert.ToString
-                                         (range.Cells[HeaderLine, j].Value2), typeof(string));
+                                         (excelSheet.Cells[hl, j].Value2), typeof(string));
                 }
 
                 //filling the table from  excel file                
-                for (int i = HeaderLine + 1; i <= rowcount; i++)
+                for (int row = 7; row <= 9999; row++)
                 {
+                    string s = Convert.ToString(excelSheet.Cells[row, 1].Value2);
+                    if (s == "" || s == "z") break;
+
                     DataRow dr = dataTable.NewRow();
-                    for (int j = ColumnStart; j <= cl; j++)
+                    for (int col = 1; col <= cl; col++)
                     {
-
-                        dr[j - ColumnStart] = Convert.ToString(range.Cells[i, j].Value2);
+                        dr[col - 1] = Convert.ToString(excelSheet.Cells[row, col].Value2);
                     }
-
                     dataTable.Rows.InsertAt(dr, dataTable.Rows.Count + 1);
                 }
 
@@ -763,7 +880,6 @@ namespace MPPPS
             finally
             {
                 excelSheet = null;
-                range = null;
             }
         }
 
@@ -1268,14 +1384,33 @@ namespace MPPPS
             }
             oWSheet.Cells[row + 18, col].Value = r["NOTE"].ToString();
 
-            // QRコードを作成
-
-            // QRコードを作成してビットマップにした後
-            // スマート棚コン用QRコード作成
+            // スマート棚コン用QRコード画像ファイルの作成と保存
+            string tempFile1 = @Path.GetTempPath() + Common.QR_HMCD_IMG;
+            using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
+                $"{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+            using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
+            {
+                byte[] qrCodeImage = qrCode.GetGraphic(20);
+                using (MemoryStream ms = new MemoryStream(qrCodeImage))
+                {
+                    // QRコードを作成しビットマップにした後ファイルに保存
+                    using (Bitmap qrBmp = new Bitmap(ms))
+                    {
+                        qrBmp.Save(tempFile1);
+                    }
+                }
+            }
+            
+            // 画像が保存できたか確認 
+            if (!System.IO.File.Exists(tempFile1)) Thread.Sleep(100);
+            
+            // テスト用のQRコード画像
             var fn = @"\\kmtsvr\共有SVEM02\Koken\切削生産計画システム\雛形\QR.bmp";// こちらサンプル画像
+
+            // スマート棚コン用QRコードをExcelに作成
             Excel.Range rng = oWSheet.Cells[row, col + 6];
             Shape shp = oWSheet.Shapes.AddPicture2(
-                fn
+                tempFile1
                 , Office.MsoTriState.msoFalse   // LinkToFile           図を作成元のファイルにリンクするかどうか
                 , Office.MsoTriState.msoTrue    // SaveWithDocument     上記がFalseの場合、こちらをTrueにしないと落ちる（ハマった）
                 , rng.Left + 8                  // Left [ Single ]
@@ -1288,10 +1423,31 @@ namespace MPPPS
             shp.Top = (float)rng.Top + 12;
             shp.Placement = XlPlacement.xlFreeFloating; // セルに合わせて移動やサイズ変更しない
 
+
+            // i-Reporter用QRコード画像ファイルの作成と保存
+            string tempFile2 = @Path.GetTempPath() + Common.QR_ODRNO_IMG;
+            using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
+                $"{r["ODRNO"].ToString()}\t{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+            using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
+            {
+                byte[] qrCodeImage = qrCode.GetGraphic(20);
+                using (MemoryStream ms = new MemoryStream(qrCodeImage))
+                {
+                    // QRコードを作成しビットマップにした後ファイルに保存
+                    using (Bitmap qrBmp = new Bitmap(ms))
+                    {
+                        qrBmp.Save(tempFile2);
+                    }
+                }
+            }
+
+            //画像を保存できたかの確認 
+            if (!System.IO.File.Exists(tempFile2)) Thread.Sleep(100);
+
             // i-Reporter用QRコード作成
             rng = oWSheet.Cells[row + 18, col + 6];
             shp = oWSheet.Shapes.AddPicture2(
-                fn
+                tempFile2
                 , Office.MsoTriState.msoFalse   // LinkToFile           図を作成元のファイルにリンクするかどうか
                 , Office.MsoTriState.msoTrue    // SaveWithDocument     上記がFalseの場合、こちらをTrueにしないと落ちる（ハマった）
                 , rng.Left + 8                  // Left [ Single ]
