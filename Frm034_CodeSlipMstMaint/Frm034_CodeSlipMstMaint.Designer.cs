@@ -43,6 +43,7 @@ namespace MPPPS
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.btnNextDiffer = new System.Windows.Forms.Button();
             this.btnUpdateDatabase = new System.Windows.Forms.Button();
             this.btnReadExcelMaster = new System.Windows.Forms.Button();
             this.btnConvertMP = new System.Windows.Forms.Button();
@@ -63,7 +64,7 @@ namespace MPPPS
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1007, 59);
+            this.panel1.Size = new System.Drawing.Size(1262, 59);
             this.panel1.TabIndex = 3;
             // 
             // groupBox2
@@ -141,7 +142,7 @@ namespace MPPPS
             this.txtHMCD.Font = new System.Drawing.Font("Yu Gothic UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.txtHMCD.Location = new System.Drawing.Point(27, 21);
             this.txtHMCD.Name = "txtHMCD";
-            this.txtHMCD.Size = new System.Drawing.Size(165, 32);
+            this.txtHMCD.Size = new System.Drawing.Size(165, 38);
             this.txtHMCD.TabIndex = 10;
             this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
             // 
@@ -161,7 +162,7 @@ namespace MPPPS
             "ﾚｰｻﾞｰ"});
             this.cmbMaterial.Location = new System.Drawing.Point(321, 18);
             this.cmbMaterial.Name = "cmbMaterial";
-            this.cmbMaterial.Size = new System.Drawing.Size(79, 33);
+            this.cmbMaterial.Size = new System.Drawing.Size(79, 39);
             this.cmbMaterial.TabIndex = 9;
             this.cmbMaterial.SelectedIndexChanged += new System.EventHandler(this.cmbMaterial_SelectedIndexChanged);
             // 
@@ -170,30 +171,42 @@ namespace MPPPS
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 325);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 321);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 18, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1007, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1262, 26);
             this.statusStrip1.TabIndex = 5;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(112, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(143, 20);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.btnNextDiffer);
             this.panel2.Controls.Add(this.btnUpdateDatabase);
             this.panel2.Controls.Add(this.btnReadExcelMaster);
             this.panel2.Controls.Add(this.btnConvertMP);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 277);
+            this.panel2.Location = new System.Drawing.Point(0, 273);
             this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1007, 48);
+            this.panel2.Size = new System.Drawing.Size(1262, 48);
             this.panel2.TabIndex = 6;
+            // 
+            // btnNextDiffer
+            // 
+            this.btnNextDiffer.BackColor = System.Drawing.Color.LightPink;
+            this.btnNextDiffer.Location = new System.Drawing.Point(635, 4);
+            this.btnNextDiffer.Name = "btnNextDiffer";
+            this.btnNextDiffer.Size = new System.Drawing.Size(164, 41);
+            this.btnNextDiffer.TabIndex = 3;
+            this.btnNextDiffer.Text = "次の相違点";
+            this.btnNextDiffer.UseVisualStyleBackColor = false;
+            this.btnNextDiffer.Click += new System.EventHandler(this.btnNextDiffer_Click);
             // 
             // btnUpdateDatabase
             // 
@@ -220,7 +233,7 @@ namespace MPPPS
             // btnConvertMP
             // 
             this.btnConvertMP.BackColor = System.Drawing.Color.LightPink;
-            this.btnConvertMP.Location = new System.Drawing.Point(635, 4);
+            this.btnConvertMP.Location = new System.Drawing.Point(805, 3);
             this.btnConvertMP.Name = "btnConvertMP";
             this.btnConvertMP.Size = new System.Drawing.Size(227, 41);
             this.btnConvertMP.TabIndex = 0;
@@ -239,8 +252,9 @@ namespace MPPPS
             this.Dgv_CodeSlipMst.Name = "Dgv_CodeSlipMst";
             this.Dgv_CodeSlipMst.RowHeadersWidth = 51;
             this.Dgv_CodeSlipMst.RowTemplate.Height = 24;
-            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1007, 218);
+            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1262, 214);
             this.Dgv_CodeSlipMst.TabIndex = 7;
+            this.Dgv_CodeSlipMst.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.Dgv_CodeSlipMst_CellMouseDown);
             this.Dgv_CodeSlipMst.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.Dgv_CodeSlipMst_ColumnWidthChanged);
             this.Dgv_CodeSlipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_CodeSlipMst_RowPostPaint);
             this.Dgv_CodeSlipMst.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.Dgv_CodeSlipMst_RowsRemoved);
@@ -249,7 +263,7 @@ namespace MPPPS
             // 
             this.AllowDrop = true;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(1007, 347);
+            this.ClientSize = new System.Drawing.Size(1262, 347);
             this.Controls.Add(this.Dgv_CodeSlipMst);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.statusStrip1);
@@ -288,5 +302,6 @@ namespace MPPPS
         private GroupBox groupBox2;
         private RadioButton tglViewSimple;
         private RadioButton tglViewNormal;
+        private Button btnNextDiffer;
     }
 }

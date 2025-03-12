@@ -382,8 +382,9 @@ namespace MPPPS
                 }
                 dayOfNextMonth++;
             }
-            // 当日の色を変更
-            CalendarToday();
+
+            // 集計値を土曜日欄に表示
+            CalendarAddSummary(ref emOrderDt);
 
             // 対象月の稼働日数を算出（非同期処理データテーブルの為処理の後ろの方で実行）
             int days = (int)dtS0820working.Select(String.Format(
@@ -396,7 +397,33 @@ namespace MPPPS
             toolStripStatusLabel2.Text = "";
         }
 
-        // 当日のカレンダーのフォント色を変更
+        // DGV上の月曜日から金曜日までの件数をサマリーして土曜日にぶち込む
+        private void CalendarAddSummary(ref DataTable emOrderDt)
+        {
+            for (int row = 0; row < 6; row++)
+            {
+                int totalEMQty = 0;
+                for (int col = 0; col < 7; col++)
+                {
+                    // 当日のカレンダーのフォント色を変更
+                    var eddt = GetCurrentDateTime(Dgv_Calendar[col, row]);
+                    if (eddt == DateTime.Now.Date)
+                    {
+                        Dgv_Calendar[col, row].Style.ForeColor = Color.Red;
+                    }
+                    if (emOrderDt.Select($"EDDT='{eddt}'").Length > 0)
+                    {
+                        totalEMQty += 
+                            int.Parse(emOrderDt.Select($"EDDT='{eddt}'")[0]["EM合計本数"].ToString()) - 
+                            int.Parse(emOrderDt.Select($"EDDT='{eddt}'")[0]["EM9取消本数"].ToString());
+                    }
+                }
+                if (totalEMQty > 0) 
+                    Dgv_Calendar[6, row].Value += $"\n {totalEMQty.ToString("#,0")}本";
+            }
+        }
+
+        
         private void CalendarToday()
         {
             for (int row = 0; row < 6; row++)
@@ -733,12 +760,13 @@ namespace MPPPS
                 int cardRows = 21;  // 1カードの行数（余白含む）
                 int row = 0;
                 int col = 0;
+                cmn.Fa.CreateTemplateCard(); // テンプレートオブジェクトの作成（製造指示カードの雛形を作成）
                 for (int i = 0; i < cardDt.Rows.Count; i++)
                 {
                     DataRow r = cardDt.Rows[i];
 
                     // 書き込む先頭セル番号を計算
-                    col = (cardCnt % 2 != 0) ? 2 : 11;
+                    col = (cardCnt % 2 != 0) ? 1 : 10;
                     row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
 
                     // カードに値をセット
@@ -754,6 +782,7 @@ namespace MPPPS
                     }
                     cardCnt++;
                 }
+                cmn.Fa.ClearZanOrderCard(cardCnt - 1);
                 toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件のカードが作成されました.";
             }
             // ファイルの保存に失敗すると Exception が発生する

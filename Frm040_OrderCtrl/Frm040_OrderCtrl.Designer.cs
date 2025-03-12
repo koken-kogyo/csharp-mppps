@@ -44,7 +44,7 @@ namespace MPPPS
             // 
             this.Btn_Close.AutoSize = true;
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
-            this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_Close.Location = new System.Drawing.Point(318, 95);
             this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_Close.Name = "Btn_Close";
@@ -57,7 +57,7 @@ namespace MPPPS
             // Btn_InfoPlan
             // 
             this.Btn_InfoPlan.Enabled = false;
-            this.Btn_InfoPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_InfoPlan.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_InfoPlan.Location = new System.Drawing.Point(317, 53);
             this.Btn_InfoPlan.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_InfoPlan.Name = "Btn_InfoPlan";
@@ -69,7 +69,7 @@ namespace MPPPS
             // 
             // Btn_ImportPlan
             // 
-            this.Btn_ImportPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_ImportPlan.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_ImportPlan.Location = new System.Drawing.Point(317, 11);
             this.Btn_ImportPlan.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_ImportPlan.Name = "Btn_ImportPlan";
@@ -82,7 +82,7 @@ namespace MPPPS
             // Btn_MfgProgress
             // 
             this.Btn_MfgProgress.Enabled = false;
-            this.Btn_MfgProgress.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_MfgProgress.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_MfgProgress.Location = new System.Drawing.Point(12, 95);
             this.Btn_MfgProgress.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_MfgProgress.Name = "Btn_MfgProgress";
@@ -95,7 +95,7 @@ namespace MPPPS
             // Btn_InfoOrder
             // 
             this.Btn_InfoOrder.Enabled = false;
-            this.Btn_InfoOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_InfoOrder.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_InfoOrder.Location = new System.Drawing.Point(12, 53);
             this.Btn_InfoOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_InfoOrder.Name = "Btn_InfoOrder";
@@ -107,7 +107,7 @@ namespace MPPPS
             // 
             // Btn_ImportOrder
             // 
-            this.Btn_ImportOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_ImportOrder.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_ImportOrder.Location = new System.Drawing.Point(12, 11);
             this.Btn_ImportOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_ImportOrder.Name = "Btn_ImportOrder";

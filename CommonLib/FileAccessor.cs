@@ -63,12 +63,16 @@ namespace MPPPS
         }
 
         // Interop.Excel 
-        public Excel.Application oXls;     // Excel オブジェクト
-        public Excel.Workbook oWBook;      // Workbook オブジェクト
-        public Excel.Worksheet oWSheet;    // Worksheet オブジェクト
+        public Excel.Application oXls;      // Excel オブジェクト
+        public Excel.Workbook oWBook;       // Workbook オブジェクト
+        public Excel.Worksheet oWSheet;     // Worksheet オブジェクト
+        public Excel.Range oRange;          // Range オブジェクト
 
         // QRCoder
         public QRCodeGenerator oQRGenerator;
+
+        // 製造指示カード雛形オブジェクト
+        private object[,] templateCardObject = new object[20, 8]; // ※Excel[20行, 8列]、配列番号が 1からスタートするので注意！
 
         public FileAccessor(Common cmn)
         {
@@ -722,11 +726,17 @@ namespace MPPPS
             }
         }
 
-        // https://mitosuya.net/excel-high-performance
-        public void ReadExcelToDatatble2() 
+        /// <summary>
+        /// Excel コード票をデータテーブルへインポート
+        //    https://mitosuya.net/excel-high-performance
+        /// </summary>
+        /// <param name="path">パス</param>
+        /// <returns></returns>
+        public System.Data.DataTable ReadExcelToDatatble2(string path)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
+            Console.WriteLine($"計測開始" + sw);
 
             dynamic xlApp = null;
             dynamic xlWbooks = null;
@@ -735,87 +745,120 @@ namespace MPPPS
             dynamic xlSheet = null;
             dynamic xlRange = null;
             dynamic xlCell = null;
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             try
             {
                 Type objectClassType = Type.GetTypeFromProgID("Excel.Application");
                 xlApp = Activator.CreateInstance(objectClassType);
                 xlApp.ScreenUpdating = false; // screenUpdating;
                 xlApp.EnableEvents = false; // enableEvents;
+                xlApp.Visible = false;
+
+                /*
+                 * 今回ここでは使用しない
+                // 再計算の停止
+                // https://qiita.com/kob58im/items/780d5b7ddb854b57e98b
+                Excel.XlCalculation calcModeBackup = xlApp.Calculation;
+                xlApp.Calculation = Excel.XlCalculation.xlCalculationManual;
+                xlApp.Calculation = CALCULATION_DEFAULT;
+                xlApp.Calculation = false; // calculation;
+                */
 
                 xlWbooks = xlApp.Workbooks;
-                xlWbook = xlWbooks.Open(@"C:\Users\watuw\Desktop\遅延(EM-Y版).xlsm");
-                xlApp.Calculation = false; // calculation;
+                xlWbook = xlApp.Workbooks.Open(
+                    @path,
+                    Type.Missing,   // （省略可能）不明
+                    ReadOnly: true  // （省略可能）ReadOnly (True / False )
+                );
 
                 xlSheets = xlWbook.Worksheets;
-                xlSheet = xlSheets.Item("コード票");
-                var isBulk =true;
-                if (isBulk) //一括の場合
+                foreach (Excel.Worksheet sheet in xlSheets)
                 {
-                    object[,] values = new object[100, 100];
-                    //for (int iRow = 0; iRow < 100; iRow++)
-                    //{
-                    //    for (int iCol = 0; iCol < 100; iCol++)
-                    //    {
-                    //        values[iRow, iCol] = (iRow + 1).ToString() + (iCol + 1).ToString();
-                    //    }
-                    //}
-
-                    try
+                    if (sheet.Name == "コード票" || sheet.Name == "コード表" ||
+                        sheet.Name == "ｺｰﾄﾞ票" || sheet.Name == "ｺｰﾄﾞ表")
                     {
-                        xlRange = xlSheet.Range("A1:CV100");
-                        values = xlRange.Value;
-                        //values = xlSheet.Range("A1:CV100");
-                    }
-                    finally
-                    {
-                        Marshal.ReleaseComObject(xlRange);
+                        xlSheet = sheet;
+                        break;
                     }
                 }
-                else //1セルずつの場合
+
+                // ExcelRangeをオブジェクト配列にコピー
+                object[,] values = new object[3000, 36]; // 0～36列
+                try
                 {
-                    for (int iRow = 1; iRow <= 100; iRow++)
+                    xlRange = xlSheet.Range("A4:AK3000"); //AK:37
+                    values = xlRange.Value;
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(xlRange);
+                }
+
+                // データテーブルヘッダーを作成
+                for (int j = 1; j <= 37; j++)
+                {
+                    dataTable.Columns.Add(values[1, j].ToString());
+                }
+
+                // データテーブルを作成
+                for (int row = 2; row <= 3000; row++)
+                {
+                    if (values[row, 1] is null) break;
+
+                    string s = values[row, 1].ToString();
+                    if (s != "" && s != "0" && s != "z")
                     {
-                        for (int iCol = 1; iCol <= 100; iCol++)
+                        DataRow dr = dataTable.NewRow();
+                        for (int col = 1; col <= 37; col++)
                         {
-                            try
+                            if (values[row, col] != null)
                             {
-                                xlCell = xlSheet.Cells(iRow, iCol);
-                                xlCell.Value = (iRow).ToString() + (iCol).ToString();
-                            }
-                            finally
-                            {
-                                Marshal.ReleaseComObject(xlCell);
+                                dr[col - 1] = values[row, col].ToString();
                             }
                         }
+                        dataTable.Rows.InsertAt(dr, dataTable.Rows.Count + 1);
                     }
                 }
-
-                xlApp.Calculation = true; // CALCULATION_DEFAULT;
-//                xlWbook.Save();
+            }
+            catch 
+            {
+                dataTable = null;
             }
             finally
             {
-                if (xlWbook != null)
-                {
-                    //xlWbook.Saved = true;
-                }
                 xlApp.EnableEvents = true;
                 xlApp.ScreenUpdating = true;
+                // xlApp.Visible = true;
 
                 //COMオブジェクトの開放
-                Marshal.ReleaseComObject(xlSheet);
-                Marshal.ReleaseComObject(xlSheets);
-                Marshal.ReleaseComObject(xlWbook);
-                Marshal.ReleaseComObject(xlWbooks);
+                if (xlSheet != null) Marshal.ReleaseComObject(xlSheet);
+                if (xlSheets != null) Marshal.ReleaseComObject(xlSheets);
+                if (xlWbook != null)
+                {
+                    xlApp.DisplayAlerts = false;
+                    xlWbook.Close();
+                    // Marshal.ReleaseComObject(xlWbook); Closeするとオブジェクトがなくなる？？？
+                    xlWbook = null;
+                }
+                if (xlWbooks != null) Marshal.ReleaseComObject(xlWbooks);
+
                 //Excelアプリケーション終了
                 xlApp.Quit();
                 Marshal.ReleaseComObject(xlApp);
+                xlApp = null;
+
+                // アプリケーションの終了前にガベージ コレクトを強制します。
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
 
                 //計測結果表示
                 sw.Stop();
                 TimeSpan ts = sw.Elapsed;
-                //txtResult.Text = $"{ts.TotalSeconds:0.00}";
+                Console.WriteLine($"{ts.TotalSeconds:0.00}");
             }
+            //
+            return dataTable;
         }
 
         /// <summary>
@@ -1172,119 +1215,6 @@ namespace MPPPS
             }
         }
 
-        // コピペだと遅いなぁ
-        /*
-* Visible = true;
-[StopWatch] Header開始 16:28:50
-[StopWatch] Header終了 16:28:54 (4.578秒)
-[StopWatch] Header開始 16:28:55
-[StopWatch] Header終了 16:28:58 (2.492秒) * ページ数
-[StopWatch] 終了 16:29:30 (41.910秒)
-* Visible = false;
-[StopWatch] Header開始 16:45:14
-[StopWatch] Header終了 16:45:16 (2.095秒)
-[StopWatch] Header開始 16:45:16
-[StopWatch] Header終了 16:45:16 (0.423秒) * ページ数
-[StopWatch] 終了 16:45:27 (14.835秒) 50件で
-         */
-
-        // コピペじゃないパターン時間かけて作ったけど更に遅くなった^^;
-        /*
-* Visible = true;
-[StopWatch] 開始 20:37:31
-[StopWatch] 終了 20:39:27 (115.663秒)
-* Visible = false;
-[StopWatch] 開始 20:42:55
-[StopWatch] 終了 20:43:48 (52.037秒)
-                    // 書式設定
-                    // 品番T
-                    oWSheet.Range[oWSheet.Cells[row + 0, col - 1], oWSheet.Cells[row + 2, col - 1]].Merge(); 
-                    oWSheet.Range[oWSheet.Cells[row + 0, col - 1], oWSheet.Cells[row + 2, col - 1]].Font.Size = oWSheet.Range["A1:A3"].Font.Size;
-                    // 品番
-                    oWSheet.Range[oWSheet.Cells[row + 0, col + 0], oWSheet.Cells[row + 2, col + 5]].Merge();
-                    oWSheet.Range[oWSheet.Cells[row + 0, col + 0], oWSheet.Cells[row + 2, col + 5]].Font.Size = oWSheet.Range["B1:G3"].Font.Size;
-                    oWSheet.Range[oWSheet.Cells[row + 0, col + 0], oWSheet.Cells[row + 2, col + 5]].Font.Bold = oWSheet.Range["B1:G3"].Font.Bold;
-                    oWSheet.Range[oWSheet.Cells[row + 0, col + 0], oWSheet.Cells[row + 2, col + 5]].HorizontalAlignment = oWSheet.Range["B1:G3"].HorizontalAlignment;
-                    // ｽﾏｰﾄﾀﾅｺﾝ用QR
-                    oWSheet.Range[oWSheet.Cells[row + 0, col + 6], oWSheet.Cells[row + 2, col + 6]].Merge();
-                    oWSheet.Range[oWSheet.Cells[row + 0, col + 6], oWSheet.Cells[row + 2, col + 6]].Font.Size = oWSheet.Range["H1:H3"].Font.Size;
-                    oWSheet.Range[oWSheet.Cells[row + 0, col + 6], oWSheet.Cells[row + 2, col + 6]].Font.Color = oWSheet.Range["H1:H3"].Font.Color;
-                    oWSheet.Range[oWSheet.Cells[row + 0, col + 6], oWSheet.Cells[row + 2, col + 6]].VerticalAlignment = oWSheet.Range["H1:H3"].VerticalAlignment;
-                    // 品名
-                    oWSheet.Range[oWSheet.Cells[row + 3, col + 0], oWSheet.Cells[row + 3, col + 6]].Merge();
-                    oWSheet.Range[oWSheet.Cells[row + 3, col + 0], oWSheet.Cells[row + 3, col + 6]].Font.Size = oWSheet.Range["B4:H4"].Font.Size;
-                    // 注文番号、その他情報
-                    for (int i = 4; i <= 6; i++)
-                    {
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 0], oWSheet.Cells[row + i, col + 2]].Merge();
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 3], oWSheet.Cells[row + i, col + 4]].Merge();
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 5], oWSheet.Cells[row + i, col + 6]].Merge();
-                    }
-                    oWSheet.Range[oWSheet.Cells[row + 5, col + 0], oWSheet.Cells[row + 5, col + 2]].Font.Bold = oWSheet.Range["B6:D6"].Font.Bold;
-                    oWSheet.Range[oWSheet.Cells[row + 6, col + 0], oWSheet.Cells[row + 6, col + 2]].Font.Bold = oWSheet.Range["B7:D7"].Font.Bold;
-                    // 設備名T
-                    oWSheet.Range[oWSheet.Cells[row + 7, col + 0], oWSheet.Cells[row + 7, col + 1]].Merge();
-                    oWSheet.Range[oWSheet.Cells[row + 7, col + 0], oWSheet.Cells[row + 7, col + 1]].Font.Size = oWSheet.Range["B8:C8"].Font.Size;
-                    // 加工時間T
-                    oWSheet.Range[oWSheet.Cells[row + 7, col + 2], oWSheet.Cells[row + 7, col + 3]].Merge();
-                    oWSheet.Range[oWSheet.Cells[row + 7, col + 2], oWSheet.Cells[row + 7, col + 3]].Font.Size = oWSheet.Range["D8:E8"].Font.Size;
-                    oWSheet.Range[oWSheet.Cells[row + 7, col + 2], oWSheet.Cells[row + 7, col + 3]].ShrinkToFit = oWSheet.Range["D8:E8"].ShrinkToFit;
-                    // 数量T
-                    oWSheet.Range[oWSheet.Cells[row + 7, col + 4], oWSheet.Cells[row + 7, col + 5]].Merge();
-                    oWSheet.Range[oWSheet.Cells[row + 7, col + 4], oWSheet.Cells[row + 7, col + 5]].Font.Size = oWSheet.Range["F8:G8"].Font.Size;
-                    // 納期T
-                    oWSheet.Range[oWSheet.Cells[row + 7, col + 6], oWSheet.Cells[row + 7, col + 6]].Font.Size = oWSheet.Range["H8:H8"].Font.Size;
-                    for (int i = 8; i <= 18; i = i + 2)
-                    {
-                        oWSheet.Range[oWSheet.Cells[row + i, col - 1], oWSheet.Cells[row + i + 1, col - 1]].Merge();
-                        // 設備名
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 0], oWSheet.Cells[row + i + 1, col + 1]].Merge();
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 0], oWSheet.Cells[row + i + 1, col + 1]].Font.Size = oWSheet.Range["B9:C10"].Font.Size;
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 2], oWSheet.Cells[row + i + 1, col + 3]].Merge();
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 2], oWSheet.Cells[row + i + 1, col + 3]].Font.Size = oWSheet.Range["D9:E10"].Font.Size;
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 4], oWSheet.Cells[row + i + 1, col + 5]].Merge();
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 4], oWSheet.Cells[row + i + 1, col + 5]].Font.Size = oWSheet.Range["F9:G10"].Font.Size;
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 6], oWSheet.Cells[row + i + 1, col + 6]].Merge();
-                        oWSheet.Range[oWSheet.Cells[row + i, col + 6], oWSheet.Cells[row + i + 1, col + 6]].Font.Size = oWSheet.Range["H9:H10"].Font.Size;
-                    }
-                    oWSheet.Range[oWSheet.Cells[row + 18, col - 1], oWSheet.Cells[row + 19, col - 1]].Merge();
-                    // 備考
-                    oWSheet.Range[oWSheet.Cells[row + 18, col + 0], oWSheet.Cells[row + 19, col + 5]].Merge();
-                    // i-Reporter用
-                    oWSheet.Range[oWSheet.Cells[row + 18, col + 6], oWSheet.Cells[row + 19, col + 6]].Merge();
-                    oWSheet.Range[oWSheet.Cells[row + 18, col + 6], oWSheet.Cells[row + 19, col + 6]].Font.Size = oWSheet.Range["H19:H20"].Font.Size;
-                    oWSheet.Range[oWSheet.Cells[row + 18, col + 6], oWSheet.Cells[row + 19, col + 6]].Font.Color = oWSheet.Range["H19:H20"].Font.Color;
-                    oWSheet.Range[oWSheet.Cells[row + 18, col + 6], oWSheet.Cells[row + 19, col + 6]].VerticalAlignment = oWSheet.Range["H19:H20"].VerticalAlignment;
-
-                    // 罫線
-                    var rng = oWSheet.Range[oWSheet.Cells[row + 0, col - 1], oWSheet.Cells[row + 19, col + 6]];
-                    rng.Borders[Excel.XlBordersIndex.xlEdgeLeft].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    rng.Borders[Excel.XlBordersIndex.xlEdgeRight].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    rng.Borders[Excel.XlBordersIndex.xlEdgeBottom].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    rng.Borders[Excel.XlBordersIndex.xlEdgeTop].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    rng.Borders[Excel.XlBordersIndex.xlEdgeTop].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    rng.Borders[Excel.XlBordersIndex.xlInsideVertical].LineStyle = Excel.XlLineStyle.xlContinuous;
-                    rng.Borders[Excel.XlBordersIndex.xlInsideHorizontal].LineStyle = Excel.XlLineStyle.xlContinuous;
-
-                    // タイトル
-                    oWSheet.Cells[row + 0, col - 1].Value = "品番";
-                    oWSheet.Cells[row + 0, col + 6].Value = "ｽﾏｰﾄﾀﾅｺﾝ用";
-                    oWSheet.Cells[row + 3, col - 1].Value = "品名";
-                    oWSheet.Cells[row + 4, col - 1].Value = "注文番号";
-                    oWSheet.Cells[row + 4, col + 3].Value = "ｻｲｽﾞx全長";
-                    oWSheet.Cells[row + 5, col - 1].Value = "注文日付";
-                    oWSheet.Cells[row + 5, col + 3].Value = "収容数";
-                    oWSheet.Cells[row + 6, col - 1].Value = "注文数量";
-                    oWSheet.Cells[row + 6, col + 3].Value = "協力工場";
-                    oWSheet.Cells[row + 7, col + 0].Value = "設備名";
-                    oWSheet.Cells[row + 7, col + 2].Value = "加工時間(分)";
-                    oWSheet.Cells[row + 7, col + 4].Value = "数量";
-                    oWSheet.Cells[row + 7, col + 6].Value = "納期";
-                    oWSheet.Cells[row + 16, col - 1].Value = "検査";
-                    oWSheet.Cells[row + 18, col - 1].Value = "備考";
-                    oWSheet.Cells[row + 18, col + 6].Value = "i-Reporter用";
-         * */
-
         // Excelコピペした後に前のデータをクリアする
         private void ClearCardByPage(ref int rowbase)
         {
@@ -1315,18 +1245,74 @@ namespace MPPPS
 
         }
 
+        // 指示書カードテンプレートオブジェクトの作成 [A1:H20]
+        public void CreateTemplateCard()
+        {
+            oRange = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[20, 8]]; // ※20行8列
+            templateCardObject = oRange.Value;
+            //// 以下デバッグ用（Range を Object に代入してコンソールで確認）
+            //templateCardObject[9, 1] = null;    // 工程①
+            //templateCardObject[11, 1] = null;   // 工程②
+            //templateCardObject[13, 1] = null;   // 工程③
+            //templateCardObject[15, 1] = null;   // 工程④
+            //for (int row = 1; row <= templateCardObject.GetLength(0); row++)
+            //{
+            //    for (int col = 1; col <= templateCardObject.GetLength(1); col++)
+            //    {
+            //        if (templateCardObject[row, col] != null)  // ※セルの結合している場所はnullになっていた
+            //            Console.WriteLine(templateCardObject[row, col].ToString());
+            //    }
+            //}
+        }
+        // 最終頁の残り分のデータをクリア
+        public void ClearZanOrderCard(int cardCnt)
+        {
+            if (cardCnt == 0) return;
+            var rowoff = templateCardObject.GetLength(0);
+            var coloff = templateCardObject.GetLength(1);
+            int remain;
+            int pagesu = Math.DivRem(cardCnt, 4, out remain);
+            int row = (pagesu * (rowoff + 1) * 2) + 1;
+            int col = 1;
+
+            // 右上
+            if (remain <= 1)
+            {
+                oRange = oWSheet.Range[oWSheet.Cells[row, col + coloff + 1]
+                    , oWSheet.Cells[row + rowoff - 1, col + coloff + coloff]];
+                oRange.Value = templateCardObject;
+            }
+            // 左下
+            if (remain <= 2)
+            {
+                oRange = oWSheet.Range[oWSheet.Cells[row + rowoff + 1, col]
+                , oWSheet.Cells[row + rowoff + 1 + rowoff - 1, col + coloff - 1]];
+                oRange.Value = templateCardObject;
+            }
+            // 右下
+            if (remain <= 3)
+            {
+                oRange = oWSheet.Range[oWSheet.Cells[row + rowoff + 1, col + coloff + 1]
+                , oWSheet.Cells[row + rowoff + 1 + rowoff - 1, col + coloff + coloff]];
+                oRange.Value = templateCardObject;
+            }
+        }
         // 1カード作成（DataRow1件分を作成）
         public void SetOrderCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col)
         {
-            if (row > 40) // 2頁目以降に判定を行う
+            // テンプレートオブジェクトをクローン
+            object[,] obj = templateCardObject.Clone() as object[,];
+            var rowoff = templateCardObject.GetLength(0);
+            var coloff = templateCardObject.GetLength(1);
+
+            if (row > 40) // 2頁目以降に1頁目の雛形書式をコピペ＆行の高さも1ページ目に合わせる
             {
-                if ((row - 1) % 42 == 0 && col <= 2) // 各頁の最初のカード作成前に1頁目の雛形書式をコピー
+                if ((row - 1) % 42 == 0 && col <= 2)
                 {
                     // A1:Q42をコピペ
                     var range = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[42, 17]];
                     range.Copy(oWSheet.Cells[row, 1]);
-                    // 必要ない値のみクリア
-                    ClearCardByPage(ref row);
+                    //ClearCardByPage(ref row);
                     // 行の高さはコピペされないのでRows(1:42)を複製
                     for (int y = 1; y <= 42; y++)
                         oWSheet.Rows[row + y - 1].RowHeight = oWSheet.Rows[y].RowHeight;
@@ -1334,55 +1320,61 @@ namespace MPPPS
             }
 
             // 値を設定
-            oWSheet.Cells[row + 0, col].Value = r["HMCD"].ToString();
-            oWSheet.Cells[row + 3, col].Value = r["HMNM"].ToString();
-            oWSheet.Cells[row + 4, col].Value = r["ODRNO"].ToString();
-            oWSheet.Cells[row + 5, col].Value = cardDay.ToString("yyyy.MM.dd");
-            oWSheet.Cells[row + 6, col].Value = r["ODRQTY"].ToString();
-            oWSheet.Cells[row + 4, col + 5].Value = r["MATESIZE"].ToString() + r["LENGTH"].ToString() != "" ? " x " + r["LENGTH"] : "";
-            oWSheet.Cells[row + 5, col + 5].Value = r["BOXQTY"].ToString();
-            oWSheet.Cells[row + 6, col + 5].Value = r["PARTNER"].ToString();
+            obj[1, 2] = r["HMCD"].ToString();
+            obj[4, 2] = r["HMNM"].ToString();
+            obj[5, 2] = r["ODRNO"].ToString();
+            obj[6, 2] = cardDay.ToString("yyyy.MM.dd");
+            obj[7, 2] = r["ODRQTY"].ToString();
+            obj[5, 7] = r["MATESIZE"].ToString() + r["LENGTH"].ToString() != "" ? " x " + r["LENGTH"] : "";
+            obj[6, 7] = r["BOXQTY"].ToString();
+            obj[7, 7] = r["PARTNER"].ToString();
             if (r["KT1MCGCD"].ToString() == "")
             {
-                oWSheet.Cells[row + 8, col - 1].Value = "";
+                obj[9, 1] = "";
             }
             else 
             {
-                oWSheet.Cells[row + 8, col - 1].Value = "工程①";
-                oWSheet.Cells[row + 8, col].Value = r["KT1MCGCD"].ToString() + "-" + r["KT1MCCD"].ToString();
+                obj[9, 1] = "工程①";
+                obj[9, 2] = r["KT1MCGCD"].ToString() + "-" + r["KT1MCCD"].ToString();
             }
             if (r["KT2MCGCD"].ToString() == "")
             {
-                oWSheet.Cells[row + 10, col - 1].Value = "";
+                obj[11, 1] = "";
             }
             else
             {
-                oWSheet.Cells[row + 10, col - 1].Value = "工程②";
-                oWSheet.Cells[row + 10, col].Value = r["KT2MCGCD"].ToString() + "-" + r["KT2MCCD"].ToString();
+                obj[11, 1] = "工程②";
+                obj[11, 2] = r["KT2MCGCD"].ToString() + "-" + r["KT2MCCD"].ToString();
             }
             if (r["KT3MCGCD"].ToString() == "")
             {
-                oWSheet.Cells[row + 12, col - 1].Value = "";
+                obj[13, 1] = "";
             }
             else
             {
-                oWSheet.Cells[row + 12, col - 1].Value = "工程③";
-                oWSheet.Cells[row + 12, col].Value = r["KT3MCGCD"].ToString() + "-" + r["KT3MCCD"].ToString();
+                obj[13, 1] = "工程③";
+                obj[13, 2] = r["KT3MCGCD"].ToString() + "-" + r["KT3MCCD"].ToString();
             }
             if (r["KT4MCGCD"].ToString() == "")
             {
-                oWSheet.Cells[row + 14, col - 1].Value = "";
+                obj[15, 1] = "";
             }
             else
             {
-                oWSheet.Cells[row + 14, col - 1].Value = "工程④";
-                oWSheet.Cells[row + 14, col].Value = r["KT4MCGCD"].ToString() + "-" + r["KT4MCCD"].ToString();
+                obj[15, 1] = "工程④";
+                obj[15, 2] = r["KT4MCGCD"].ToString() + "-" + r["KT4MCCD"].ToString();
             }
             if (r["KT5MCGCD"].ToString() != "")
             {
-                oWSheet.Cells[row + 16, col].Value = r["KT5MCGCD"].ToString() + "-" + r["KT5MCCD"].ToString();
+                obj[17, 2] = r["KT5MCGCD"].ToString() + "-" + r["KT5MCCD"].ToString();
             }
-            oWSheet.Cells[row + 18, col].Value = r["NOTE"].ToString();
+            obj[19, 2] = r["NOTE"].ToString();
+
+            // 設定したオブジェクトをレンジに貼り付け
+            oRange = oWSheet.Range[oWSheet.Cells[row, col], oWSheet.Cells[row + rowoff - 1, col + coloff - 1]];
+            oRange.Value = obj;
+
+
 
             // スマート棚コン用QRコード画像ファイルの作成と保存
             string tempFile1 = @Path.GetTempPath() + Common.QR_HMCD_IMG;
@@ -1400,15 +1392,12 @@ namespace MPPPS
                     }
                 }
             }
-            
             // 画像が保存できたか確認 
             if (!System.IO.File.Exists(tempFile1)) Thread.Sleep(100);
-            
             // テスト用のQRコード画像
-            var fn = @"\\kmtsvr\共有SVEM02\Koken\切削生産計画システム\雛形\QR.bmp";// こちらサンプル画像
-
+            //var fn = @"\\kmtsvr\共有SVEM02\Koken\切削生産計画システム\雛形\QR.bmp";// こちらサンプル画像
             // スマート棚コン用QRコードをExcelに作成
-            Excel.Range rng = oWSheet.Cells[row, col + 6];
+            Excel.Range rng = oWSheet.Cells[row, col + 7];
             Shape shp = oWSheet.Shapes.AddPicture2(
                 tempFile1
                 , Office.MsoTriState.msoFalse   // LinkToFile           図を作成元のファイルにリンクするかどうか
@@ -1422,6 +1411,7 @@ namespace MPPPS
             shp.Left = (float)rng.Left + 8;
             shp.Top = (float)rng.Top + 12;
             shp.Placement = XlPlacement.xlFreeFloating; // セルに合わせて移動やサイズ変更しない
+
 
 
             // i-Reporter用QRコード画像ファイルの作成と保存
@@ -1440,12 +1430,10 @@ namespace MPPPS
                     }
                 }
             }
-
             //画像を保存できたかの確認 
             if (!System.IO.File.Exists(tempFile2)) Thread.Sleep(100);
-
             // i-Reporter用QRコード作成
-            rng = oWSheet.Cells[row + 18, col + 6];
+            rng = oWSheet.Cells[row + 18, col + 7];
             shp = oWSheet.Shapes.AddPicture2(
                 tempFile2
                 , Office.MsoTriState.msoFalse   // LinkToFile           図を作成元のファイルにリンクするかどうか

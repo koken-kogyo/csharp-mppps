@@ -40,10 +40,10 @@ namespace MPPPS
             // Btn_OrderEqualize
             // 
             this.Btn_OrderEqualize.Enabled = false;
-            this.Btn_OrderEqualize.Font = new System.Drawing.Font("Yu Gothic UI", 10F);
+            this.Btn_OrderEqualize.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Btn_OrderEqualize.Location = new System.Drawing.Point(12, 57);
             this.Btn_OrderEqualize.Name = "Btn_OrderEqualize";
-            this.Btn_OrderEqualize.Size = new System.Drawing.Size(251, 38);
+            this.Btn_OrderEqualize.Size = new System.Drawing.Size(300, 38);
             this.Btn_OrderEqualize.TabIndex = 14;
             this.Btn_OrderEqualize.Text = "帳票出力";
             this.Btn_OrderEqualize.UseVisualStyleBackColor = true;
@@ -52,10 +52,10 @@ namespace MPPPS
             // Btn_CreateOrder
             // 
             this.Btn_CreateOrder.Enabled = false;
-            this.Btn_CreateOrder.Font = new System.Drawing.Font("Yu Gothic UI", 10F);
+            this.Btn_CreateOrder.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Btn_CreateOrder.Location = new System.Drawing.Point(12, 12);
             this.Btn_CreateOrder.Name = "Btn_CreateOrder";
-            this.Btn_CreateOrder.Size = new System.Drawing.Size(251, 38);
+            this.Btn_CreateOrder.Size = new System.Drawing.Size(300, 38);
             this.Btn_CreateOrder.TabIndex = 13;
             this.Btn_CreateOrder.Text = "切削オーダー指示書";
             this.Btn_CreateOrder.UseVisualStyleBackColor = true;
@@ -64,10 +64,10 @@ namespace MPPPS
             // Btn_Close
             // 
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
-            this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
-            this.Btn_Close.Location = new System.Drawing.Point(268, 57);
+            this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.Btn_Close.Location = new System.Drawing.Point(316, 57);
             this.Btn_Close.Name = "Btn_Close";
-            this.Btn_Close.Size = new System.Drawing.Size(251, 38);
+            this.Btn_Close.Size = new System.Drawing.Size(300, 38);
             this.Btn_Close.TabIndex = 15;
             this.Btn_Close.Text = "終了";
             this.Btn_Close.UseVisualStyleBackColor = false;
@@ -75,9 +75,8 @@ namespace MPPPS
             // 
             // Frm050_MfgCtrl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(531, 118);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(628, 101);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_OrderEqualize);
             this.Controls.Add(this.Btn_CreateOrder);

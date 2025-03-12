@@ -61,8 +61,7 @@ namespace MPPPS
         public static readonly string OFD_INIT_DIR = @"%USERPROFILE%\Desktop";  // 初期表示させるディレクトリ
         public static readonly string OFD_TITLE_OPEN = "ファイルを開く";        // タイトル (開く)
         public static readonly string OFD_FILE_TYPE_CSV = "CSV ファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*"; // ファイルの種類 (CSV)
-        public static readonly string OFD_FILE_TYPE_XLS = "Excel ファイル (*.xlsx; *.xls)|*.xlsx;*.xls|CSV ファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*"; // ファイルの種類 (Excel)
-        public static readonly string OFD_FILE_TYPE_MACRO = "Excel Macro ファイル (*.xlsm)|*.xlsm|Excel ファイル (*.xlsx; *.xls)|*.xlsx;*.xls|すべてのファイル (*.*)|*.*"; // ファイルの種類 (Macro)
+        public static readonly string OFD_FILE_TYPE_XLS = "Excel ファイル (*.xlsx; *.xlsm; *.xls)|*.xlsx;*.xlsm;*.xls|CSV ファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*"; // ファイルの種類 (Excel)
 
         // SaveFileDialog
         public static readonly string SFD_INIT_DIR = @"%USERPROFILE%\Desktop";  // 初期表示させるディレクトリ

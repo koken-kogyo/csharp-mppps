@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.VisualBasic;
 
 namespace MPPPS
 {
@@ -18,6 +18,7 @@ namespace MPPPS
         private DataTable equipMstDt = new DataTable(); // 設備マスタを保持
         private DataTable codeSlipDt = new DataTable(); // コード票マスタを保持
         private bool loadedFlg = false;
+        private int errorRow = 0;
 
         public Frm034_CodeSlipMstMaint(Common cmn)
         {
@@ -79,6 +80,14 @@ namespace MPPPS
 
             // トグルボタンを標準表示側に設定
             tglViewNormal.Select();
+
+            // 次の相違点ボタンを非活性化
+            errorRow = 0;
+            btnNextDiffer.BackColor = SystemColors.Control;
+            btnNextDiffer.Enabled = false;
+
+            // 件数を表示
+            toolStripStatusLabel1.Text = Dgv_CodeSlipMst.Rows.Count + "件を読み込みました。";
 
             loadedFlg = true;
 
@@ -381,14 +390,19 @@ namespace MPPPS
             MessageBox.Show("更新が終了しました．");
         }
 
-        private void btnReadExcelMaster_Click(object sender, EventArgs e)
+        // 最新のコード票マスタを読み込み変更点をチェック
+        private async void btnReadExcelMaster_Click(object sender, EventArgs e)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            Console.WriteLine($"計測開始[DialogBox]");
+
             // OpenFileDialog クラスのインスタンスを作成
             OpenFileDialog ofd = new OpenFileDialog()
             {
                 FileName = "",                           // 既定のファイル名
                 InitialDirectory = Common.OFD_INIT_DIR,  // 既定のディレクトリ名
-                Filter = Common.OFD_FILE_TYPE_MACRO,     // [ファイルの種類] の選択肢
+                Filter = Common.OFD_FILE_TYPE_XLS,       // [ファイルの種類] の選択肢
                 FilterIndex = 1,                         // [ファイルの種類] の既定値
                 Title = Common.OFD_TITLE_OPEN,           // ダイアログのタイトル
                 RestoreDirectory = true,                 // ダイアログを閉じる前に現在のディレクトリを復元
@@ -396,74 +410,124 @@ namespace MPPPS
                 CheckPathExists = true                   // 存在しないパスが指定されたとき警告を表示 (既定値: true)
             };
 
+            //計測結果表示
+            sw.Stop();
+            TimeSpan ts = sw.Elapsed;
+            Console.WriteLine($"{ts.TotalSeconds:0.00}");
+
             // ダイアログを表示
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 // [開く] ボタンがクリックされたとき、選択されたファイル名を表示
-                Console.WriteLine(ofd.FileName);
+                toolStripStatusLabel1.Text = $"[{ofd.FileName}]を解析中... しばらくお待ちください。";
+
+                // 次の相違点ボタンを非活性化
+                btnNextDiffer.BackColor = SystemColors.Control;
+                btnNextDiffer.Enabled = false;
+                Dgv_CodeSlipMst.FirstDisplayedScrollingRowIndex = 0;
+                errorRow = 0;
 
                 //cmn.Fa.OpenExcelFile(ofd.FileName);
 
-                //DataTable dataTable = new DataTable();
+                DataTable excelCodeSlipDt = new DataTable();
 
-                cmn.Fa.ReadExcelToDatatble2();
+                await Task.Run(() => excelCodeSlipDt = cmn.Fa.ReadExcelToDatatble2(ofd.FileName));
 
+                if (excelCodeSlipDt == null) return;
+                if (excelCodeSlipDt.Rows.Count <= 0) return;
 
-                //cmn.Fa.CloseExcelFile();
+                // コード票マスタデータテーブルと読み込んだExcelとを比較
+                int differCount = 0;
+                for (int row = 0; row < Dgv_CodeSlipMst.Rows.Count; row++)
+                {
+                    string s = Dgv_CodeSlipMst[0, row].Value.ToString();
+                    DataRow[] excelDr = excelCodeSlipDt.Select($"品番='{s}'");
+                    if (excelDr.Length == 1)
+                    {
+                        for (int col = 0; col < 37; col++)
+                        {
+                            //if (codeSlipDt.Columns[col].DataType.ToString() == "System.Decimal") // decimal型に変換（変換に神経を使って嫌だDBNullとか分けわからん）
+                            if (col == 3)
+                            { 
+                                decimal xslsnum;
+                                if (!decimal.TryParse(excelDr[0][col].ToString(), out xslsnum))
+                                    xslsnum = 0;
+                                decimal dbnum;
+                                if (!decimal.TryParse(Dgv_CodeSlipMst[col, row].Value.ToString(), out dbnum))
+                                    dbnum = 0;
+                                // decimal型で比較
+                                if (xslsnum != dbnum)
+                                {
+                                    Dgv_CodeSlipMst[col, row].Style.BackColor = Color.LightCoral;
+                                    differCount++;
+                                }
+                            }
+                            else if (excelDr[0][col].ToString() != Dgv_CodeSlipMst[col, row].Value.ToString())
+                            {
+                                Dgv_CodeSlipMst[col, row].Style.BackColor = Color.LightCoral;
+                                differCount++;
+                            }
+                        }
+                    }
+                }
 
-                MessageBox.Show("更新が終了しました．");
-
-                //int csvCount = cmn.Fa.ReadCSVFile(ofd.FileName, Encoding.GetEncoding("shift-jis"), true, Common.TABLE_ID_KD8430, ref dataTable);
-
-
-                //                // DataGridView の内容を全行削除
-                //                cmn.RemoveDagaGridViewRows(Dgv_MpOrderTbl);
-
-                //                // DataGridView の書式設定
-                //                FormatDataGridView(dataTable);
-
-                //                // KD8430 切削コード票マスタのテーブル情報取得
-                //                int dataCount = 0;
-                //                DataSet dataSetTblInfo = new DataSet();
-                //                dataCount = cmn.Dba.GetTableInfo(ref dataSetTblInfo, Common.TABLE_ID_KD8430);
-                //                if (dataCount <= 0)
-                //                {
-                //                    // テーブル情報なし
-                //                    Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
-                //                    string msgBodyExtStr = string.Format(Common.MSG_BODY_EXT_STR_TABLE_ID, Common.TABLE_ID_KD8430);
-                //                    cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_803, Common.MSG_TYPE_F, MessageBoxButtons.OK,
-                //                                       Common.MSGBOX_TXT_FATAL, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, msgBodyExtStr);
-
-                //                    // 件数表示クリア
-                //                    Tsl_Msg.Text = null;
-                //                }
-                //                else
-                //                {
-                //                    // 書式チェックと数値補正
-                //                    bool isValid = true;
-                //                    CheckCsvData(dataTable, dataSetTblInfo, ref isValid);
-
-                //                    // データ テーブルを DataGridView に反映して再描画
-                //                    Dgv_MpOrderTbl.DataSource = dataTable;
-
-                //                    // 再描画
-                //                    Dgv_MpOrderTbl.Refresh();
-
-                //                    if (isValid)
-                //                    {
-                //                        // 更新系ボタンを有効化
-                //                        SetEnableDisableUpdatingButtons();
-
-                //                        // 読み込み完了メッセージ表示
-                //                        Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
-                //                        cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_405, Common.MSG_TYPE_I, MessageBoxButtons.OK,
-                //                                           Common.MSGBOX_TXT_INFO, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
-
-                //                        // 読み込み件数表示
-                //                        Tsl_Msg.Text = csvCount + Common.TSL_TEXT_READ_FILE_COUNT;
-                //                    }
-                //                }
+                //
+                if (differCount > 0)
+                {
+                    // 次の相違点ボタンを非活性化
+                    btnNextDiffer.BackColor = Color.LightCoral;
+                    btnNextDiffer.Enabled = true;
+                    toolStripStatusLabel1.Text = $"{differCount.ToString("#,0")}件の相違を確認しました。";
+                }
+                else
+                {
+                    toolStripStatusLabel1.Text = $"相違はありませんでした。";
+                }
+                ofd.Dispose();
+                MessageBox.Show("変更点のチェックが完了しました。");
             }
+        }
+
+
+        // 次の相違点ボタン
+        private void btnNextDiffer_Click(object sender, EventArgs e)
+        {
+            if (NextError() == false)
+            {
+                var msg = "検索が終了しました。\n\n先頭から再度実行しますか？";
+                if (MessageBox.Show(msg, "質問", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+                    == DialogResult.No) return;
+                //Dgv_CodeSlipMst.FirstDisplayedScrollingRowIndex = 0;
+                errorRow = 0;
+                NextError();
+            }
+        }
+        private bool NextError()
+        {
+            var hit = false;
+            var startRow = errorRow + 1;
+            for (int row = startRow; row < Dgv_CodeSlipMst.Rows.Count; row++)
+            {
+                for (int col = 0; col < Dgv_CodeSlipMst.Columns.Count; col++)
+                {
+                    if (Dgv_CodeSlipMst[col, row].Style.BackColor == Color.LightCoral)
+                    {
+                        Dgv_CodeSlipMst.FirstDisplayedScrollingRowIndex = row - 1;
+                        errorRow = row;
+                        hit = true;
+                        break;
+                    }
+                }
+                if (hit) break;
+            }
+            return hit;
+        }
+
+        // 品番右クリックでクリップボードにコピー
+        private void Dgv_CodeSlipMst_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.ColumnIndex == 0)
+                Clipboard.SetText(Dgv_CodeSlipMst[e.ColumnIndex, e.RowIndex].Value.ToString());
         }
     }
 }

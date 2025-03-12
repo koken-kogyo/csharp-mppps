@@ -78,7 +78,7 @@ namespace MPPPS
             // 
             // Btn_CodeSlipMstMaint
             // 
-            this.Btn_CodeSlipMstMaint.Font = new System.Drawing.Font("Yu Gothic UI", 10F);
+            this.Btn_CodeSlipMstMaint.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Btn_CodeSlipMstMaint.Location = new System.Drawing.Point(318, 11);
             this.Btn_CodeSlipMstMaint.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_CodeSlipMstMaint.Name = "Btn_CodeSlipMstMaint";
@@ -91,7 +91,7 @@ namespace MPPPS
             // Frm030_MasterMaint
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(629, 101);
+            this.ClientSize = new System.Drawing.Size(628, 101);
             this.Controls.Add(this.Btn_CodeSlipMstMaint);
             this.Controls.Add(this.Btn_ChipMstMaint);
             this.Controls.Add(this.Btn_EqMstMaint);
