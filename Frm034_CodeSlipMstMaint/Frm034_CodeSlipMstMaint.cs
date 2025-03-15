@@ -254,6 +254,7 @@ namespace MPPPS
                 "HT",
                 "母材品番",
                 "母材略称",
+                "母材長さ",
                 "容器",
                 "検索ｷｰ" 
             };
@@ -266,7 +267,13 @@ namespace MPPPS
                     Dgv_CodeSlipMst.Columns[i + offset].Width = 40;
                     
                 }
-                if (i == 0 || i == 7 || i == 12) // 工程数, ストア, 容器
+                if (i == 12)
+                {
+                    Dgv_CodeSlipMst.Columns[i + offset].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    Dgv_CodeSlipMst.Columns[i + offset].Width = 60;
+                    Dgv_CodeSlipMst.Columns[i + offset].DefaultCellStyle.Format = "#,0";
+                }
+                if (i == 0 || i == 7 || i == 13) // 工程数, ストア, 容器
                 {
                     Dgv_CodeSlipMst.Columns[i + offset].Width = 40;
                 }
@@ -289,7 +296,8 @@ namespace MPPPS
                     Dgv_CodeSlipMst.Columns[i + offset].HeaderText = s4[i];
                     Dgv_CodeSlipMst.Columns[i + offset].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
                     Dgv_CodeSlipMst.Columns[i + offset].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                    Dgv_CodeSlipMst.Columns[i + offset].Width = 40;
+                    if (i <= 2) Dgv_CodeSlipMst.Columns[i + offset].Width = 40;
+                    if (i >= 3) Dgv_CodeSlipMst.Columns[i + offset].Width = 50;
                     if (j % 2 != 0)
                         Dgv_CodeSlipMst.Columns[i + offset].DefaultCellStyle.BackColor = Color.LightCyan;
                 }
@@ -306,8 +314,8 @@ namespace MPPPS
             // Excelで使用している列
             for (int i = 7; i < 31; i++)
                 Dgv_CodeSlipMst.Columns[i].Visible = v;
-            // 工程１～工程６ 41,46,51,56,61,66,
-            for (int i = 41; i < 67; i = i + 5)
+            // 工程１～工程６ A5M2の行番号43,44,48,49,53,54,58,59,63,64,68,69,
+            for (int i = 42; i < 68; i = i + 5)
             {
                 Dgv_CodeSlipMst.Columns[i + 0].Visible = v; // LOT
                 Dgv_CodeSlipMst.Columns[i + 1].Visible = v; // 帳票定義ID
@@ -316,11 +324,12 @@ namespace MPPPS
             Dgv_CodeSlipMst.Columns[33].Visible = v;        // HT
             Dgv_CodeSlipMst.Columns[34].Visible = v;        // 母材品番
             Dgv_CodeSlipMst.Columns[35].Visible = v;        // 母材略称
-            Dgv_CodeSlipMst.Columns[37].Visible = v;        // 工程検索キー
-            Dgv_CodeSlipMst.Columns[68].Visible = false;    // INSTID
-            Dgv_CodeSlipMst.Columns[69].Visible = false;    // INSTDT
-            Dgv_CodeSlipMst.Columns[70].Visible = false;    // UPDTID
-            Dgv_CodeSlipMst.Columns[71].Visible = false;    // UPDTDT
+            Dgv_CodeSlipMst.Columns[36].Visible = v;        // 母材長さ
+            Dgv_CodeSlipMst.Columns[38].Visible = v;        // 工程検索キー
+            Dgv_CodeSlipMst.Columns[69].Visible = false;    // INSTID
+            Dgv_CodeSlipMst.Columns[70].Visible = false;    // INSTDT
+            Dgv_CodeSlipMst.Columns[71].Visible = false;    // UPDTID
+            Dgv_CodeSlipMst.Columns[72].Visible = false;    // UPDTDT
         }
 
         // 新システム用に変換
@@ -329,7 +338,7 @@ namespace MPPPS
             foreach (DataGridViewRow r in Dgv_CodeSlipMst.Rows)
             {
                 var searchKeys = ""; // [MCGCD-MCCD:]
-                var col = 38; // 工程1の列番号
+                var col = 39; // [工程１設備グループ]の列番号 A5M2の40行目
                 for (int j = 7; j <= 23; j++) //7:SW ～ 23:TN
                 {
                     if (r.Cells[j].Value != null && r.Cells[j].Value != DBNull.Value)

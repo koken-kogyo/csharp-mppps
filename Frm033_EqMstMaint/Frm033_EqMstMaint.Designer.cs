@@ -33,6 +33,7 @@ namespace MPPPS
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm033_EqMstMaint));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnColumnsAutoFit = new System.Windows.Forms.Button();
             this.btnDisplayReduction = new System.Windows.Forms.Button();
             this.cmbMCGCD = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -43,7 +44,6 @@ namespace MPPPS
             this.btnReloadDatabase = new System.Windows.Forms.Button();
             this.btnUpdateDatabase = new System.Windows.Forms.Button();
             this.Dgv_EquipMst = new System.Windows.Forms.DataGridView();
-            this.btnColumnsAutoFit = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -64,12 +64,23 @@ namespace MPPPS
             this.panel1.Size = new System.Drawing.Size(1000, 57);
             this.panel1.TabIndex = 0;
             // 
+            // btnColumnsAutoFit
+            // 
+            this.btnColumnsAutoFit.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnColumnsAutoFit.Location = new System.Drawing.Point(700, 0);
+            this.btnColumnsAutoFit.Name = "btnColumnsAutoFit";
+            this.btnColumnsAutoFit.Size = new System.Drawing.Size(100, 57);
+            this.btnColumnsAutoFit.TabIndex = 5;
+            this.btnColumnsAutoFit.Text = "列幅調整";
+            this.btnColumnsAutoFit.UseVisualStyleBackColor = true;
+            this.btnColumnsAutoFit.Click += new System.EventHandler(this.btnColumnsAutoFit_Click);
+            // 
             // btnDisplayReduction
             // 
             this.btnDisplayReduction.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnDisplayReduction.Location = new System.Drawing.Point(824, 0);
+            this.btnDisplayReduction.Location = new System.Drawing.Point(800, 0);
             this.btnDisplayReduction.Name = "btnDisplayReduction";
-            this.btnDisplayReduction.Size = new System.Drawing.Size(88, 57);
+            this.btnDisplayReduction.Size = new System.Drawing.Size(100, 57);
             this.btnDisplayReduction.TabIndex = 1;
             this.btnDisplayReduction.Text = "表示縮小";
             this.btnDisplayReduction.UseVisualStyleBackColor = true;
@@ -82,7 +93,7 @@ namespace MPPPS
             this.cmbMCGCD.FormattingEnabled = true;
             this.cmbMCGCD.Location = new System.Drawing.Point(93, 12);
             this.cmbMCGCD.Name = "cmbMCGCD";
-            this.cmbMCGCD.Size = new System.Drawing.Size(233, 33);
+            this.cmbMCGCD.Size = new System.Drawing.Size(233, 39);
             this.cmbMCGCD.TabIndex = 0;
             this.cmbMCGCD.SelectedIndexChanged += new System.EventHandler(this.cmbMCGCD_SelectedIndexChanged);
             // 
@@ -91,16 +102,16 @@ namespace MPPPS
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(10, 17);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(84, 20);
+            this.label1.Size = new System.Drawing.Size(102, 25);
             this.label1.TabIndex = 4;
             this.label1.Text = "設備選択：";
             // 
             // btnDisplayExpantion
             // 
             this.btnDisplayExpantion.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnDisplayExpantion.Location = new System.Drawing.Point(912, 0);
+            this.btnDisplayExpantion.Location = new System.Drawing.Point(900, 0);
             this.btnDisplayExpantion.Name = "btnDisplayExpantion";
-            this.btnDisplayExpantion.Size = new System.Drawing.Size(88, 57);
+            this.btnDisplayExpantion.Size = new System.Drawing.Size(100, 57);
             this.btnDisplayExpantion.TabIndex = 2;
             this.btnDisplayExpantion.Text = "表示拡大";
             this.btnDisplayExpantion.UseVisualStyleBackColor = true;
@@ -113,16 +124,16 @@ namespace MPPPS
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel1});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 310);
+            this.toolStrip1.Location = new System.Drawing.Point(0, 309);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1000, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1000, 26);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
             // toolStripLabel1
             // 
             this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(101, 22);
+            this.toolStripLabel1.Size = new System.Drawing.Size(124, 23);
             this.toolStripLabel1.Text = "toolStripLabel1";
             // 
             // panel2
@@ -130,7 +141,7 @@ namespace MPPPS
             this.panel2.Controls.Add(this.btnReloadDatabase);
             this.panel2.Controls.Add(this.btnUpdateDatabase);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 252);
+            this.panel2.Location = new System.Drawing.Point(0, 251);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1000, 58);
             this.panel2.TabIndex = 2;
@@ -168,25 +179,14 @@ namespace MPPPS
             this.Dgv_EquipMst.Name = "Dgv_EquipMst";
             this.Dgv_EquipMst.RowHeadersWidth = 51;
             this.Dgv_EquipMst.RowTemplate.Height = 24;
-            this.Dgv_EquipMst.Size = new System.Drawing.Size(1000, 195);
+            this.Dgv_EquipMst.Size = new System.Drawing.Size(1000, 194);
             this.Dgv_EquipMst.TabIndex = 3;
             this.Dgv_EquipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_EquipMst_RowPostPaint);
             this.Dgv_EquipMst.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Dgv_EquipMst_KeyDown);
             // 
-            // btnColumnsAutoFit
-            // 
-            this.btnColumnsAutoFit.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnColumnsAutoFit.Location = new System.Drawing.Point(736, 0);
-            this.btnColumnsAutoFit.Name = "btnColumnsAutoFit";
-            this.btnColumnsAutoFit.Size = new System.Drawing.Size(88, 57);
-            this.btnColumnsAutoFit.TabIndex = 5;
-            this.btnColumnsAutoFit.Text = "列幅調整";
-            this.btnColumnsAutoFit.UseVisualStyleBackColor = true;
-            this.btnColumnsAutoFit.Click += new System.EventHandler(this.btnColumnsAutoFit_Click);
-            // 
             // Frm033_EqMstMaint
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1000, 335);
             this.Controls.Add(this.Dgv_EquipMst);

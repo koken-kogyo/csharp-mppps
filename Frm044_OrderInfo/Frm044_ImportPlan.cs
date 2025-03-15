@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,6 +23,7 @@ namespace MPPPS
         private DateTime targetMonth;                   // 処理対象月を設定
         private DataTable orderDt = new DataTable();    // 内示状況を保持（カレンダー詳細情報で使用）
         private DataTable dtS0820working;               // カレンダーテーブルを保持
+        private string progressmsg;
 
         /// <summary>
         /// コンストラクター
@@ -103,6 +105,9 @@ namespace MPPPS
             // 選択セルの解除
             Dgv_Calendar.ClearSelection();
 
+            // 内示カード印刷ボタン
+            Btn_PrintPlan.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintPlan.Enabled = false;
         }
 
         // EMデータテーブルとMPデータテーブルをマージ
@@ -115,21 +120,22 @@ namespace MPPPS
             if (orderDt.Columns.Count == 3)
             {
                 orderDt.Columns.Add("MP本数", typeof(long));
-                orderDt.Columns.Add("MP実績数", typeof(long));
+                orderDt.Columns.Add("内示カード出力日時", typeof(DateTime));
             }
 
             // MPデータの内容をEM注文データにマージ
             foreach (DataRow r in orderDt.Rows)
             {
-                if (mpOrderDt.Select($"EDDT='{r["EDDT"]}'").Length > 0)
+                DataRow[] mpDr = mpOrderDt.Select($"WEEKEDDT='{r["WEEKEDDT"]}' and HMCD='{r["HMCD"]}'");
+                if (mpDr.Length > 0)
                 {
-                    r["MP本数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP本数"];
-                    r["MP実績数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP実績数"];
+                    r["MP本数"] = mpDr[0]["MP本数"];
+                    r["内示カード出力日時"] = mpDr[0]["内示カード出力日時"];
                 }
                 else
                 {
                     r["MP本数"] = 0;
-                    r["MP実績数"] = 0;
+                    r["内示カード出力日時"] = DateTime.Parse("1900/01/01");
                 }
             }
         }
@@ -141,7 +147,7 @@ namespace MPPPS
             ClearCalendar();
 
             // データベースから注文情報を非同期並列処理で取得（EM_Oracle:D0440, MP_MySQL:KD8440)
-            toolStripStatusLabel.Text = "内示データ確認中...";
+            toolStripStatusLabel1.Text = "内示データ確認中...";
             DataTable emPlanDt = new DataTable();
             DataTable mpPlanDt = new DataTable();
             bool retEM = false;
@@ -164,29 +170,58 @@ namespace MPPPS
             {
                 int column = (int)dayOfPrevMonth.DayOfWeek;
                 Dgv_Calendar[column, row].Value = dayOfPrevMonth.Day;
-                if (orderDt.Select($"EDDT='{dayOfPrevMonth}' and MP本数=0 and EM本数>0").Count() != 0)
+                Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
+                if (column == 0)
                 {
-                    // 取込データなし
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
+                    // 日曜日
+                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
                 }
-                else if (orderDt.Select($"EDDT='{dayOfPrevMonth}' and MP本数>0").Count() != 0)
+                else if (column == 6)
                 {
-                    // 取込済
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PLANED;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
+                    // 土曜日
+                    if (dtS0820working.Select($"YMD='{dayOfPrevMonth}'").Count() == 0)
+                    {
+                        // 本社非稼働日
+                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
+                    }
+                }
+                else if (column == 1)
+                {
+                    //DateTime firstDayOfWeek = currentDate.AddDays(((int)currentDate.DayOfWeek - 1) * -1);
+                    int a = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数=0 and EM本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    int b = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数>0 and EM本数=MP本数")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    int c = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数>0 and EM本数<>MP本数")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    if (orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数=0 and EM本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
+                    {
+                        // 注文あり取込データなし
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
+                        }
+                    }
+                    else if (orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
+                    {
+                        // 注文データ取込済
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
+                        }
+                    }
+                    if (dtS0820working.Select($"YMD='{dayOfPrevMonth}'").Count() == 0)
+                    {
+                        // 本社非稼働日
+                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    }
                 }
                 else if (dtS0820working.Select($"YMD='{dayOfPrevMonth}'").Count() == 0)
                 {
                     // 本社非稼働日
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
-                }
-                else
-                {
-                    // 本社稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_OTHERMONTH;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
                 }
                 dayOfPrevMonth = dayOfPrevMonth.AddDays(-1);
             }
@@ -199,6 +234,7 @@ namespace MPPPS
                 // 日付を設定
                 int column = (int)currentDate.DayOfWeek;
                 Dgv_Calendar[column, row].Value = day;
+                Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 // 土曜日：青
                 // 日曜日とEMお休み日：ピンク
                 // 取込済：薄緑
@@ -208,38 +244,54 @@ namespace MPPPS
                 {
                     // 日曜日
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
                 else if (column == 6)
                 {
                     // 土曜日
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
+                    if (dtS0820working.Select($"YMD='{currentDate}'").Count() == 0)
+                    {
+                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
+                    }
                     row++;
                 }
-                else if (orderDt.Select($"EDDT='{currentDate}' and MP本数=0 and EM本数>0").Count() != 0)
+                // 週初めの月曜日にデータを集めたので週1回判定
+                else if (column == 1)
                 {
-                    // 注文あり取込データなし
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
-                }
-                else if (orderDt.Select($"EDDT='{currentDate}' and MP本数>0").Count() != 0)
-                {
-                    // 注文データ取込済
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PLANED;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
+                    DateTime firstDayOfWeek = currentDate.AddDays(((int)currentDate.DayOfWeek - 1) * -1);
+                    int a = orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数=0 and EM本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    int b = orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数>0 and EM本数=MP本数")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    int c = orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数>0 and EM本数<>MP本数")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    if (orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数=0 and EM本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
+                    {
+                        // 注文あり取込データなし
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
+                        }
+                    }
+                    else if (orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
+                    {
+                        // 注文データ取込済
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
+                       }
+                    }
+                    if (dtS0820working.Select($"YMD='{currentDate}'").Count() == 0)
+                    {
+                        // 本社非稼働日
+                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    }
                 }
                 else if (dtS0820working.Select($"YMD='{currentDate}'").Count() == 0)
                 {
                     // 本社非稼働日
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
-                }
-                else
-                {
-                    // 本社稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_WORKING;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
             }
 
@@ -250,51 +302,64 @@ namespace MPPPS
                 DateTime nextDate = new DateTime(targetMonth.AddMonths(1).Year, targetMonth.AddMonths(1).Month, dayOfNextMonth);
                 int column = (int)nextDate.DayOfWeek;
                 Dgv_Calendar[column, row].Value = dayOfNextMonth;
+                Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
                 if (column == 0)
                 {
                     // 日曜日
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
                 }
                 else if (column == 6)
                 {
                     // 土曜日
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
+                    if (dtS0820working.Select($"YMD='{nextDate}'").Count() == 0)
+                    { 
+                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
+                    }
                     row++;
                 }
-                else if (orderDt.Select($"EDDT='{nextDate}' and MP本数=0 and EM本数>0").Count() != 0)
+                else if (column == 1)
                 {
-                    // 注文あり取込データなし
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
-                }
-                else if (orderDt.Select($"EDDT='{nextDate}' and MP本数>0").Count() != 0)
-                {
-                    // 注文データ取込済
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PLANED;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
+                    DateTime firstDayOfWeek = nextDate.AddDays(((int)nextDate.DayOfWeek - 1) * -1);
+                    int a = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数=0 and EM本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    int b = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数>0 and EM本数=MP本数")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    int c = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数>0 and EM本数<>MP本数")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    if (orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数=0 and EM本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
+                    {
+                        // 注文あり取込データなし
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
+                        }
+                    }
+                    else if (orderDt.Select($"WEEKEDDT='{nextDate}' and MP本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
+                    {
+                        // 注文データ取込済
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
+                        }
+                    }
+                    if (dtS0820working.Select($"YMD='{nextDate}'").Count() == 0)
+                    {
+                        // 本社非稼働日
+                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    }
                 }
                 else if (dtS0820working.Select($"YMD='{nextDate}'").Count() == 0)
                 {
                     // 本社非稼働日
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
-                }
-                else
-                {
-                    // 本社稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_OTHERMONTH;
-                    Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_DIMGRAY;
                 }
                 dayOfNextMonth++;
             }
 
             // 集計値を土曜日欄に表示
             CalendarAddSummary(ref emPlanDt, ref mpPlanDt);
-
-            // 当日のフォントの色を変える
-            //CalendarToday();
 
             // 対象月の稼働日数を算出（非同期処理データテーブルの為処理の後ろの方で実行）
             int days = (int)dtS0820working.Select(String.Format(
@@ -303,7 +368,7 @@ namespace MPPPS
             CalendarLabel.Text = $"{targetMonth.Month}月 カレンダー ({days}日稼働)";
             PrevMonthButton.Enabled = true;
             NextMonthButton.Enabled = true;
-            toolStripStatusLabel.Text = "";
+            toolStripStatusLabel1.Text = "";
         }
 
         // DGV上の月曜日から金曜日までの件数をサマリーして土曜日にぶち込む
@@ -320,13 +385,32 @@ namespace MPPPS
                     {
                         Dgv_Calendar[col, row].Style.ForeColor = Color.Red;
                     }
-                    if (emOrderDt.Select($"EDDT='{eddt}'").Length > 0)
+                    if (col == 1)
                     {
-                        totalEMQty += int.Parse(emOrderDt.Select($"EDDT='{eddt}'")[0]["EM本数"].ToString());
-                    }
-                    if (mpOrderDt.Select($"EDDT='{eddt}'").Length > 0)
-                    {
-                        totalMPQty += int.Parse(mpOrderDt.Select($"EDDT='{eddt}'")[0]["MP本数"].ToString());
+                        if (emOrderDt.Select($"WEEKEDDT='{eddt}'").Length > 0)
+                        {
+                            var result = orderDt.Select($"WEEKEDDT='{eddt}'")
+                                .GroupBy(g => g["WEEKEDDT"].ToString())
+                                .Select(grp => new
+                                {
+                                    KEY = grp.Key,
+                                    QTY = grp.Sum(r => r.Field<decimal>("EM本数"))
+                                });
+                            decimal total = result.Sum(r => r.QTY);
+                            totalEMQty += (int)result.Sum(r => r.QTY);
+                        }
+                        if (mpOrderDt.Select($"WEEKEDDT='{eddt}'").Length > 0)
+                        {
+                            var result = orderDt.Select($"WEEKEDDT='{eddt}' and MP本数>0")
+                                .GroupBy(g => g["WEEKEDDT"].ToString())
+                                .Select(grp => new
+                                {
+                                    KEY = grp.Key,
+                                    QTY = grp.Sum(r => r.Field<Int64>("MP本数"))
+                                });
+                            Int64 total = result.Sum(r => r.QTY);
+                            totalMPQty += (int)result.Sum(r => r.QTY);
+                        }
                     }
                 }
                 var diff = totalEMQty - totalMPQty;
@@ -399,37 +483,59 @@ namespace MPPPS
                 Dgv_Calendar.Rows[i].Height = (Dgv_Calendar.Height - Dgv_Calendar.ColumnHeadersHeight) / 6 - 4;
             for (var i = 0; i < 7; i++)
                 Dgv_Calendar.Columns[i].Width = (Dgv_Calendar.Width / 7);
-            Btn_ImportPlan.Width = Dgv_Calendar.Width - 5;
+            Btn_ImportPlan.Width = (Dgv_Calendar.Width / 2) - 5;
+            Btn_PrintPlan.Left = Btn_ImportPlan.Width + 5;
+            Btn_PrintPlan.Width = (Dgv_Calendar.Width / 2) - 5;
         }
 
         // ステータスにDB状態（取込済、印刷済）を表示（複数選択可能）
         private void Dgv_Calendar_MouseUp(object sender, MouseEventArgs e)
         {
-            toolStripStatusLabel.Text = "";
+            toolStripStatusLabel1.Text = "";
+            Btn_PrintPlan.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintPlan.Enabled = false;
             int emQty = 0;
             int mpQty = 0;
-            int emJiQty = 0;
-            int mpJiQty = 0;
-            foreach (DataGridViewCell c in Dgv_Calendar.SelectedCells)
+            int countHMCD = 0;
+            int cardPrint = 0;
+            foreach (DataGridViewRow r in Dgv_Calendar.SelectedRows)
             {
-                var planDay = GetCurrentDateTime(c);
-                if (orderDt.Select($"EDDT='{planDay}'").Length > 0)
+                var planDay = GetCurrentDateTime(r.Cells[1]);
+                if (orderDt.Select($"WEEKEDDT='{planDay}'").Length > 0)
                 {
-                    DataRow r = orderDt.Select($"EDDT='{planDay}'")[0];
-                    emQty += Int32.Parse(r["EM本数"].ToString());
-                    mpQty += Int32.Parse(r["MP本数"].ToString());
-                    emJiQty += Int32.Parse(r["EM実績数"].ToString());
-                    mpJiQty += Int32.Parse(r["MP実績数"].ToString());
+                    //DataRow r = orderDt.Select($"EDDT='{planDay}'")[0];
+
+                    var result = orderDt.Select($"WEEKEDDT='{planDay}'")
+                        .GroupBy(g => g["WEEKEDDT"].ToString())
+                        .Select(grp => new
+                        {
+                            KEY = grp.Key,
+                            EMQTY = grp.Sum(s => s.Field<decimal>("EM本数")),
+                            MPQTY = grp.Sum(s => s.Field<Int64>("MP本数"))
+                        });
+                    emQty += (int)result.Sum(res => res.EMQTY);
+                    mpQty += (int)result.Sum(res => res.MPQTY);
+                    countHMCD += orderDt.Select($"WEEKEDDT='{planDay}'").Count();
+                    cardPrint += orderDt.Select($"WEEKEDDT='{planDay}' and 内示カード出力日時>'2000/1/1'").Count();
                 }
+            }
+            // 内示カード印刷ボタン活性化
+            if (countHMCD > 0 && countHMCD != cardPrint)
+            {
+                Btn_PrintPlan.BackColor = Common.FRM40_BG_COLOR_PRINTED;
+                Btn_PrintPlan.Enabled = true;
             }
             if (emQty - mpQty == 0)
             {
-                toolStripStatusLabel.Text = $"手配日程 {emQty.ToString("#,0")}本";
-                toolStripStatusLabel.Text += (emJiQty > 0) ? $" ／ 実績数 {emJiQty.ToString("#,0")}本" : "";
+                toolStripStatusLabel1.Text = $"手配日程 {emQty.ToString("#,0")}本 ／ ";
+                toolStripStatusLabel1.Text +=
+                    (countHMCD == cardPrint) ? $"印刷済み {cardPrint.ToString("#,0")}件" : 
+                    (cardPrint == 0) ? $"品番点数 {countHMCD.ToString("#,0")}件" :
+                    $"未印刷 {countHMCD - cardPrint}件";
             }
             else
             {
-                toolStripStatusLabel.Text = $"手配日程 EM{emQty.ToString("#,0")}本 / MP{mpQty.ToString("#,0")}本";
+                toolStripStatusLabel1.Text = $"手配日程 EM{emQty.ToString("#,0")}本 / MP{mpQty.ToString("#,0")}本";
             }
         }
 
@@ -452,7 +558,7 @@ namespace MPPPS
                 "よろしいですか？", "手配日程データ再作成", MessageBoxButtons.YesNo, 
                 MessageBoxIcon.Question) == DialogResult.No) return;
 
-            toolStripStatusLabel.Text = "内示データ取込中...";
+            toolStripStatusLabel1.Text = "内示データ取込中...";
 
             // データベースから注文情報を非同期並列処理で取得（Oracle:D0410, MySQL:KD8430)
             DataTable emOrderDt = new DataTable();
@@ -461,11 +567,176 @@ namespace MPPPS
             if (await Task.Run(() => cmn.Dba.GetEmPlan(ref emOrderDt)) == false) return;
 
             // MP切削手配日程ファイルを全削除して、EM手配日程ファイルをそのまま取り込む
+            // トランザクション処理の為、Delete命令で削除しImport成功後Commit
             if (await Task.Run(() => cmn.Dba.ImportMpPlan(ref emOrderDt)) == false) return;
 
             // 取込後、再読み込みして表示
             PopulateCalendar();
 
+        }
+
+
+        // おまけ関数
+        private int GetWeekNum(DateTime dt)
+        {
+            int weekNum = 0;
+            DateTime firstDayOfMonth = new DateTime(dt.Year, dt.Month, 1);
+            DateTimeFormatInfo dfi = DateTimeFormatInfo.CurrentInfo;
+            Calendar cal = dfi.Calendar;
+            weekNum = cal.GetWeekOfYear(dt, dfi.CalendarWeekRule, dfi.FirstDayOfWeek);
+            weekNum -= cal.GetWeekOfYear(firstDayOfMonth, dfi.CalendarWeekRule, dfi.FirstDayOfWeek) - 1;
+            return weekNum;
+        }
+
+
+        // 内示カード印刷
+        private async void Btn_PrintPlan_Click(object sender, EventArgs e)
+        {
+            // モニターサイズの倍率チェック
+            int idx = (cmn.ScreenMagnification == 1d) ? 1 : (cmn.ScreenMagnification == 1.25d) ? 2 : 9;
+            if (idx == 9)
+            {
+                Debug.WriteLine(Common.MSG_NO_PATTERN_FILE);
+                cmn.ShowMessageBox(Common.MY_PGM_ID, Common.MSG_CD_105, Common.MSG_TYPE_W, MessageBoxButtons.OK, Common.MSG_NO_PATTERN_FILE, MessageBoxIcon.Warning);
+                return;
+            }
+            // 雛形ファイルの存在チェック
+            idx += 2; // 内示カードのcmn.FsCd内の配列番号
+            var templateFi = new FileInfo($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
+            if (!templateFi.Exists)
+            {
+                Debug.WriteLine(Common.MSG_NO_PATTERN_FILE);
+                cmn.ShowMessageBox(Common.MY_PGM_ID, Common.MSG_CD_103, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSG_NO_PATTERN_FILE, MessageBoxIcon.Error);
+                return;
+            }
+
+            // 印刷ボタン非活性化
+            Btn_PrintPlan.BackColor = SystemColors.Control;
+            Btn_PrintPlan.Enabled = false;
+
+            // ステータス表示
+            toolStripStatusLabel1.Text = "内示カード印刷中...";
+
+            // Excelアプリケーションを起動
+            cmn.Fa.OpenExcel2(idx);
+
+            // 選択セルの並び替え
+            var query = from DataGridViewRow r in Dgv_Calendar.SelectedRows
+                        orderby r.Index
+                        select r;
+            int ret = 0;
+            foreach (DataGridViewRow r in query)
+            {
+                // 対象日の製造指示カードを作成し印刷
+                DateTime cardDay = GetCurrentDateTime(r.Cells[1]);
+
+                progressmsg = $"【{cardDay.ToString("M月")}" +
+                    $"{GetWeekNum(cardDay)}週】製造指示カード";
+
+                // 製造指示カード雛形を開く（拡縮倍率にあった帳票を選択）
+                cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
+
+                // 製造指示データをDataTableに読み込む
+                toolStripStatusLabel1.Text = progressmsg + " データ読み込み中...";
+                DataTable cardDt = new DataTable();
+                await Task.Run(() => cmn.Dba.GetPlanCardPrintInfo(cardDay, ref cardDt));
+                if (ret < 0) break;
+
+                // 製造指示カード雛形に製造指示データをセット
+                // 設定ファイルの場所にPDFとして保存して起動
+                toolStripStatusLabel1.Text = progressmsg + $" - 1件 / {cardDt.Rows.Count}件中 作成中...";
+                await Task.Run(() => ret = PrintPlanCard(cardDay, ref cardDt));
+                if (ret != 0) break;
+
+                // ExcelブックからPDFを作成
+                var pdfName = cmn.FsCd[idx].FileName
+                    .Replace("雛形", "_" + cardDay.ToString("yyyyMMdd")
+                                   + "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
+                    .Replace(".xlsx", ".pdf");
+                cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[0].RootPath}\{pdfName}"); // 0:生産計画システム出力先フォルダ
+
+                // 製造指示カード雛形を閉じる
+                cmn.Fa.CloseExcelFile2(false);
+
+                // KD8470:切削内示カードファイルに印刷済みを出力
+                //cmn.Dba.InsertPlanCardDay(cardDay);
+            }
+
+            // Excelアプリケーションを閉じる
+            cmn.Fa.CloseExcel2();
+
+            // 取込後、再読み込みして表示
+            PopulateCalendar();
+        }
+
+        /// <summary>
+        /// 内示カード作成
+        /// </summary>
+        /// <param name="cardDay">完了予定日</param>
+        /// 
+        /// <returns>結果 (0: 保存成功 (保存件数), -1: 保存失敗, -2: 認証失敗)</returns>
+        public int PrintPlanCard(DateTime cardDay, ref System.Data.DataTable cardDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+
+            try
+            {
+                // Excelシートの作成
+                int baseRow = 1;
+                int cardCnt = 1;    // ※手配件数とカード枚数は異なる（ロットで分割するため）
+                int cardRows = 11;  // 1カードの行数（余白含む）
+                int row = 0;
+                int col = 0;
+                cmn.Fa.CreateTemplatePlanCard(); // テンプレートオブジェクトの作成（内示カードの雛形を作成）
+                for (int i = 0; i < cardDt.Rows.Count; i++)
+                {
+                    DataRow r = cardDt.Rows[i];
+
+                    // 書き込む先頭セル番号を計算
+                    col = (cardCnt % 2 != 0) ? 1 : 10;
+                    row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
+
+                    // カードに値をセット
+                    //DateTime SW3 = DateTime.Now;
+                    //Debug.WriteLine("[StopWatch] Read開始 ");
+                    cmn.Fa.SetPlanCard(ref cardDay, ref r, ref row, ref col);
+                    //Debug.WriteLine("[StopWatch] Read終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW3).TotalSeconds.ToString("F3") + "秒)");
+
+                    // Debug if (cardCnt == 50) break;
+                    if (cardCnt % 5 == 0)
+                    {
+                        toolStripStatusLabel1.Text = progressmsg + $" - {cardCnt}件 / {cardDt.Rows.Count}件中 作成中...";
+                    }
+                    cardCnt++;
+                }
+                // 印刷枚数が10の倍数でなかった場合、コピペした物をクリア（COMアクセスを減らす為最後にクリア処理）
+                if ((cardCnt - 1) % 10 != 0)
+                    cmn.Fa.ClearZanPlanCard(cardCnt - 1);
+                toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件のカードが作成されました.";
+            }
+            // ファイルの保存に失敗すると Exception が発生する
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception Source = " + e.Source);
+                Debug.WriteLine("Exception Message = " + e.Message);
+
+                cmn.Fa.CloseExcel2();
+
+                // 戻り値でエラー種別を判定
+                if (cmn.ConvertDecToHex(e.HResult) == Common.HRESULT_FILE_IN_USE)
+                {
+                    // ファイル使用中
+                    ret = Common.SFD_RET_FILE_IN_USE;
+                }
+                else
+                {
+                    // それ以外
+                    ret = Common.SFD_RET_SAVE_FAILED;
+                }
+            }
+            return ret;
         }
 
 

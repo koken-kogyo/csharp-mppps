@@ -424,7 +424,7 @@ namespace MPPPS
             }
             else // チェック「オフ」だったとき
             {
-                Cbx_OracleVer.Text = Cbx_OracleVer.Items[1].ToString();
+                Cbx_OracleVer.Text = Cbx_OracleVer.Items[2].ToString();
                 Cbx_Schema.Text = cmn.DbCd[Common.DB_CONFIG_EM].Schema;
                 //▼[デバッグ][MOD] 評価用初期表示
                 // リリース時には元に戻すこと

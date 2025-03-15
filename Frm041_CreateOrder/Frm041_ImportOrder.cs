@@ -108,7 +108,7 @@ namespace MPPPS
             Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_ImportOrder.Enabled = false;
 
-            // 注文データ取り込みボタン
+            // 製造指示カード印刷ボタン
             Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintOrder.Enabled = false;
         }
@@ -685,13 +685,23 @@ namespace MPPPS
                 return;
             }
 
+            // 印刷ボタン非活性化
+            Btn_PrintOrder.BackColor = SystemColors.Control;
+            Btn_PrintOrder.Enabled = false;
+
+            // ステータス表示
             toolStripStatusLabel1.Text = "製造指示カード印刷中...";
 
             // Excelアプリケーションを起動
             cmn.Fa.OpenExcel2(idx);
 
+            // 選択セルの並び替え
+            var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
+                        where c.Style.BackColor == Common.FRM40_BG_COLOR_IMPORTED
+                        orderby c.RowIndex, c.ColumnIndex
+                        select c;
             int ret = 0;
-            foreach (DataGridViewCell c in Dgv_Calendar.SelectedCells)
+            foreach (DataGridViewCell c in query)
             {
                 // 対象日の製造指示カードを作成し印刷
                 var cardDay = GetCurrentDateTime(c);
@@ -704,7 +714,7 @@ namespace MPPPS
                 // 製造指示データをDataTableに読み込む
                 toolStripStatusLabel1.Text = progressmsg + " データ読み込み中...";
                 DataTable cardDt = new DataTable();
-                await Task.Run(() => cmn.Dba.GetCardPrintInfo(cardDay, ref cardDt));
+                await Task.Run(() => cmn.Dba.GetOrderCardPrintInfo(cardDay, ref cardDt));
                 if (ret < 0) break;
 
                 // 製造指示カード雛形に製造指示データをセット
@@ -725,6 +735,10 @@ namespace MPPPS
 
                 // 出力済ステータスに更新
                 cmn.Dba.UpdatePrintCardDay(cardDay);
+
+                // 選択セルを解除
+                c.Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
+                c.Selected = false;
             }
             
             // Excelアプリケーションを閉じる
@@ -760,7 +774,7 @@ namespace MPPPS
                 int cardRows = 21;  // 1カードの行数（余白含む）
                 int row = 0;
                 int col = 0;
-                cmn.Fa.CreateTemplateCard(); // テンプレートオブジェクトの作成（製造指示カードの雛形を作成）
+                cmn.Fa.CreateTemplateOrderCard(); // テンプレートオブジェクトの作成（製造指示カードの雛形を作成）
                 for (int i = 0; i < cardDt.Rows.Count; i++)
                 {
                     DataRow r = cardDt.Rows[i];
@@ -782,7 +796,9 @@ namespace MPPPS
                     }
                     cardCnt++;
                 }
-                cmn.Fa.ClearZanOrderCard(cardCnt - 1);
+                // 印刷枚数が４の倍数でなかった場合、コピペした物をクリア（COMアクセスを減らす為最後にクリア処理）
+                if ((cardCnt - 1) % 4 != 0)
+                    cmn.Fa.ClearZanOrderCard(cardCnt - 1);
                 toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件のカードが作成されました.";
             }
             // ファイルの保存に失敗すると Exception が発生する

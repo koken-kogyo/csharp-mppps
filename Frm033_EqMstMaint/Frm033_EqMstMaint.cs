@@ -94,6 +94,8 @@ namespace MPPPS
                 "稼働時間",
                 "",
                 "",
+                "切断刃厚",
+                "端材長",
                 "段取り１",
                 "CT",
                 "段取り２",
@@ -115,18 +117,19 @@ namespace MPPPS
                     Dgv_EquipMst.Columns[i + 0].ReadOnly = true;
                     Dgv_EquipMst.Columns[i + 1].ReadOnly = true;
                 }
-                if (i == 6 || i == 10 || i == 12 || i == 14)
+                if (i == 6 || i == 9 || i == 10 || i == 12 || i == 14 || i == 16)
                 {
                     Dgv_EquipMst.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
                     Dgv_EquipMst.Columns[i].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                    Dgv_EquipMst.Columns[i].DefaultCellStyle.Format = "#,0";
+                    if (i != 9)
+                        Dgv_EquipMst.Columns[i].DefaultCellStyle.Format = "#,0";
                 }
             }
             offset += s1.Length;
 
             // デフォルトセルスタイル
-            Dgv_EquipMst.Columns[16].DefaultCellStyle.Format = "yyyy/MM/dd HH:mm:ss"; // 登録日時
-            Dgv_EquipMst.Columns[18].DefaultCellStyle.Format = "yyyy/MM/dd HH:mm:ss"; // 更新日時
+            Dgv_EquipMst.Columns[18].DefaultCellStyle.Format = "yyyy/MM/dd HH:mm:ss"; // 登録日時
+            Dgv_EquipMst.Columns[20].DefaultCellStyle.Format = "yyyy/MM/dd HH:mm:ss"; // 更新日時
 
             // DataGridViewの非表示設定
             Dgv_EquipMst.Columns[7].Visible = false;    // FLG1

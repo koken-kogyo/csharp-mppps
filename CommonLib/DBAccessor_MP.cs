@@ -2692,7 +2692,8 @@ namespace MPPPS
                 + "UPDTID, "
                 + "UPDTDT, "
                 + "JIQTY, "
-                + "SEQ "
+                + "SEQ, "
+                + "WEEKEDDT "
                 + ") "
                 + "values "
                 + "("
@@ -2736,7 +2737,8 @@ namespace MPPPS
                 + "'" + r["UPDTID"].ToString() + "',"
                 + "'" + r["UPDTDT"] + "',"
                 + r["JIQTY"] + ","
-                + r["SEQ"]
+                + r["SEQ"] + ","
+                + "'" + r["WEEKEDDT"] + "'"
                 + ")"
                 ;
             return sql;
@@ -3033,7 +3035,7 @@ namespace MPPPS
         /// <param name="dt">製造指示カードデータ</param>
         /// <param name="eddt">完了予定日</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int GetCardPrintInfo(DateTime eddt, ref DataTable mpDt)
+        public int GetOrderCardPrintInfo(DateTime eddt, ref DataTable mpDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -3074,7 +3076,7 @@ namespace MPPPS
                     + ",b.KT5CT "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b " // 仮　本来は Common.TABLEだけどメンテしてないのでM0500にしておく
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
                     + "WHERE "
                     + "a.HMCD = b.HMCD "
                     + "and a.ODRSTS <> '9' "
@@ -3188,7 +3190,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 内示情報データ取得
+        /// 内示サマリー情報取得
         /// </summary>
         /// <param name="mpDt">内示情報データ</param>
         /// <param name="firstDayOfMonth">検査対象月</param>
@@ -3205,18 +3207,24 @@ namespace MPPPS
                 // MPデータベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                string yyyyMMdd = firstDayOfMonth.AddMonths(3).ToString("yyyy/MM/dd");
+                string yyyyMMdd = firstDayOfMonth.AddMonths(2).ToString("yyyy/MM/dd");
                 string sql = "SELECT "
-                    + "EDDT "
+                    + "a.WEEKEDDT "
+                    + ", a.HMCD"
                     + ", SUM(ODRQTY) \"MP本数\" "
-                    + ", SUM(JIQTY) \"MP実績数\" "
+                    + ", MAX(IFNULL(PLANCARDDT, CONVERT('1900/01/01', DATETIME))) \"内示カード出力日時\" "
                     + "FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " a "
+                    + "LEFT OUTER JOIN "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " b "
+                    + "ON "
+                        + "b.HMCD = a.HMCD and "
+                        + "b.WEEKEDDT = a.WEEKEDDT "
                     + "WHERE "
                     + "ODCD like '6060%' "
                     + $"and EDDT < convert('{yyyyMMdd}', date) "
-                    + "GROUP BY EDDT "
-                    + "ORDER BY EDDT "
+                    + "GROUP BY a.WEEKEDDT, a.HMCD "
+                    + "ORDER BY a.WEEKEDDT, a.HMCD "
                 ;
                 using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
                 {
@@ -3299,6 +3307,100 @@ namespace MPPPS
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
+
+        /// <summary>
+        /// 内示カード(SW工程)に印刷するデータの取得
+        /// </summary>
+        /// <param name="dt">内示カードデータ</param>
+        /// <param name="weekeddt">週初完了予定日</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int GetPlanCardPrintInfo(DateTime weekeddt, ref DataTable mpDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql =
+                "SELECT "
+                    + "a.EDDT "
+                    + ",a.ODRQTY "
+                    + ",a.HMCD "
+                    + ",b.HMNM "
+                    + ",b.MATESIZE "
+                    + ",b.LENGTH "
+                    + ",b.BOXQTY "
+                    + ",b.PARTNER "
+                    + ",b.MATERIALLEN "
+                    + ",b.NOTE"
+                    + ",b.KT1MCGCD "
+                    + ",b.KT1MCCD "
+                    + ",b.KT1CT "
+                    + ",b.KT2MCGCD "
+                    + ",b.KT2MCCD "
+                    + ",b.KT2CT "
+                    + ",b.KT3MCGCD "
+                    + ",b.KT3MCCD "
+                    + ",b.KT3CT "
+                    + ",b.KT4MCGCD "
+                    + ",b.KT4MCCD "
+                    + ",b.KT4CT "
+                    + ",b.KT5MCGCD "
+                    + ",b.KT5MCCD "
+                    + ",b.KT5CT "
+                    + ",c.CUTTHICKNESS "
+                    + ",c.SCRAPLEN "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " a, "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b, "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420 + " c "
+                    + "WHERE "
+                    + "a.HMCD = b.HMCD "
+                    + "and a.ODRSTS <> '9' "
+                    + "and a.ODCD like '6060%' "
+                    + $"and a.WEEKEDDT = '{weekeddt}' "
+                    + "and b.KT1MCGCD = c.MCGCD "
+                    + "and b.KT1MCCD = c.MCCD "
+                    + "and b.KT1MCGCD = 'SW' "
+                    + "ORDER BY "
+                    + "c.MCSEQ "
+                    + ", b.MATESIZE "
+                    + ", a.HMCD "
+                    + ", a.EDDT"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpDt);
+                        ret = mpDt.Rows.Count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+
+
 
         // ********** 設備マスタ関連 **********
         /// <summary>

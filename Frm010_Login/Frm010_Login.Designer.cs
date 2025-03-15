@@ -66,7 +66,7 @@ namespace MPPPS
             this.Lbl_DestDB.Location = new System.Drawing.Point(380, 29);
             this.Lbl_DestDB.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_DestDB.Name = "Lbl_DestDB";
-            this.Lbl_DestDB.Size = new System.Drawing.Size(70, 25);
+            this.Lbl_DestDB.Size = new System.Drawing.Size(57, 20);
             this.Lbl_DestDB.TabIndex = 6;
             this.Lbl_DestDB.Text = "接続先:";
             // 
@@ -77,7 +77,7 @@ namespace MPPPS
             this.Lbl_UserId.Location = new System.Drawing.Point(380, 101);
             this.Lbl_UserId.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_UserId.Name = "Lbl_UserId";
-            this.Lbl_UserId.Size = new System.Drawing.Size(93, 25);
+            this.Lbl_UserId.Size = new System.Drawing.Size(75, 20);
             this.Lbl_UserId.TabIndex = 9;
             this.Lbl_UserId.Text = "ユーザー ID:";
             // 
@@ -88,7 +88,7 @@ namespace MPPPS
             this.Lbl_Passwd.Location = new System.Drawing.Point(380, 138);
             this.Lbl_Passwd.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_Passwd.Name = "Lbl_Passwd";
-            this.Lbl_Passwd.Size = new System.Drawing.Size(83, 25);
+            this.Lbl_Passwd.Size = new System.Drawing.Size(67, 20);
             this.Lbl_Passwd.TabIndex = 1;
             this.Lbl_Passwd.Text = "パスワード:";
             // 
@@ -99,7 +99,7 @@ namespace MPPPS
             this.Chk_MemUserId.Location = new System.Drawing.Point(384, 166);
             this.Chk_MemUserId.Margin = new System.Windows.Forms.Padding(4);
             this.Chk_MemUserId.Name = "Chk_MemUserId";
-            this.Chk_MemUserId.Size = new System.Drawing.Size(195, 29);
+            this.Chk_MemUserId.Size = new System.Drawing.Size(159, 24);
             this.Chk_MemUserId.TabIndex = 3;
             this.Chk_MemUserId.Text = "ユーザー ID を記憶する";
             this.Chk_MemUserId.UseVisualStyleBackColor = true;
@@ -113,11 +113,12 @@ namespace MPPPS
             this.Cbx_OracleVer.FormattingEnabled = true;
             this.Cbx_OracleVer.Items.AddRange(new object[] {
             "Oracle 10g",
-            "Oracle 11g"});
+            "Oracle 11g",
+            "Oracle 19c"});
             this.Cbx_OracleVer.Location = new System.Drawing.Point(472, 23);
             this.Cbx_OracleVer.Margin = new System.Windows.Forms.Padding(4);
             this.Cbx_OracleVer.Name = "Cbx_OracleVer";
-            this.Cbx_OracleVer.Size = new System.Drawing.Size(134, 36);
+            this.Cbx_OracleVer.Size = new System.Drawing.Size(134, 29);
             this.Cbx_OracleVer.TabIndex = 7;
             // 
             // Cbx_Schema
@@ -129,11 +130,13 @@ namespace MPPPS
             "KOKEN_1",
             "KOKEN_7",
             "KOKEN_3",
-            "KOKEN_QA"});
+            "KOKEN_QA",
+            "KOKEN_Y",
+            "KOKEN_5"});
             this.Cbx_Schema.Location = new System.Drawing.Point(472, 60);
             this.Cbx_Schema.Margin = new System.Windows.Forms.Padding(4);
             this.Cbx_Schema.Name = "Cbx_Schema";
-            this.Cbx_Schema.Size = new System.Drawing.Size(134, 36);
+            this.Cbx_Schema.Size = new System.Drawing.Size(134, 29);
             this.Cbx_Schema.TabIndex = 8;
             // 
             // Tbx_UserId
@@ -143,7 +146,7 @@ namespace MPPPS
             this.Tbx_UserId.Location = new System.Drawing.Point(472, 98);
             this.Tbx_UserId.Margin = new System.Windows.Forms.Padding(4);
             this.Tbx_UserId.Name = "Tbx_UserId";
-            this.Tbx_UserId.Size = new System.Drawing.Size(134, 34);
+            this.Tbx_UserId.Size = new System.Drawing.Size(134, 29);
             this.Tbx_UserId.TabIndex = 0;
             this.Tbx_UserId.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tbx_UserId_KeyDown);
             // 
@@ -154,7 +157,7 @@ namespace MPPPS
             this.Tbx_Passwd.Location = new System.Drawing.Point(472, 135);
             this.Tbx_Passwd.Margin = new System.Windows.Forms.Padding(4);
             this.Tbx_Passwd.Name = "Tbx_Passwd";
-            this.Tbx_Passwd.Size = new System.Drawing.Size(134, 34);
+            this.Tbx_Passwd.Size = new System.Drawing.Size(134, 29);
             this.Tbx_Passwd.TabIndex = 2;
             this.Tbx_Passwd.UseSystemPasswordChar = true;
             this.Tbx_Passwd.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tbx_Passwd_KeyDown);

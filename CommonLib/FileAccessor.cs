@@ -72,7 +72,10 @@ namespace MPPPS
         public QRCodeGenerator oQRGenerator;
 
         // 製造指示カード雛形オブジェクト
-        private object[,] templateCardObject = new object[20, 8]; // ※Excel[20行, 8列]、配列番号が 1からスタートするので注意！
+        private object[,] templateOrderCardObject = new object[20, 8]; // ※Excel[20行, 8列]、配列番号が 1からスタートするので注意！
+        
+        // 内示カード雛形オブジェクト
+        private object[,] templatePlanCardObject = new object[10, 8]; // ※Excel[10行, 8列]、配列番号が 1からスタートするので注意！
 
         public FileAccessor(Common cmn)
         {
@@ -1245,22 +1248,22 @@ namespace MPPPS
 
         }
 
-        // 指示書カードテンプレートオブジェクトの作成 [A1:H20]
-        public void CreateTemplateCard()
+        // 製造指示書カードテンプレートオブジェクトの作成 [A1:H20]
+        public void CreateTemplateOrderCard()
         {
             oRange = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[20, 8]]; // ※20行8列
-            templateCardObject = oRange.Value;
+            templateOrderCardObject = oRange.Value;
             //// 以下デバッグ用（Range を Object に代入してコンソールで確認）
-            //templateCardObject[9, 1] = null;    // 工程①
-            //templateCardObject[11, 1] = null;   // 工程②
-            //templateCardObject[13, 1] = null;   // 工程③
-            //templateCardObject[15, 1] = null;   // 工程④
-            //for (int row = 1; row <= templateCardObject.GetLength(0); row++)
+            //templateOrderCardObject[9, 1] = null;    // 工程①
+            //templateOrderCardObject[11, 1] = null;   // 工程②
+            //templateOrderCardObject[13, 1] = null;   // 工程③
+            //templateOrderCardObject[15, 1] = null;   // 工程④
+            //for (int row = 1; row <= templateOrderCardObject.GetLength(0); row++)
             //{
-            //    for (int col = 1; col <= templateCardObject.GetLength(1); col++)
+            //    for (int col = 1; col <= templateOrderCardObject.GetLength(1); col++)
             //    {
-            //        if (templateCardObject[row, col] != null)  // ※セルの結合している場所はnullになっていた
-            //            Console.WriteLine(templateCardObject[row, col].ToString());
+            //        if (templateOrderCardObject[row, col] != null)  // ※セルの結合している場所はnullになっていた
+            //            Console.WriteLine(templateOrderCardObject[row, col].ToString());
             //    }
             //}
         }
@@ -1268,8 +1271,8 @@ namespace MPPPS
         public void ClearZanOrderCard(int cardCnt)
         {
             if (cardCnt == 0) return;
-            var rowoff = templateCardObject.GetLength(0);
-            var coloff = templateCardObject.GetLength(1);
+            var rowoff = templateOrderCardObject.GetLength(0);
+            var coloff = templateOrderCardObject.GetLength(1);
             int remain;
             int pagesu = Math.DivRem(cardCnt, 4, out remain);
             int row = (pagesu * (rowoff + 1) * 2) + 1;
@@ -1280,42 +1283,70 @@ namespace MPPPS
             {
                 oRange = oWSheet.Range[oWSheet.Cells[row, col + coloff + 1]
                     , oWSheet.Cells[row + rowoff - 1, col + coloff + coloff]];
-                oRange.Value = templateCardObject;
+                oRange.Value = templateOrderCardObject;
             }
             // 左下
             if (remain <= 2)
             {
                 oRange = oWSheet.Range[oWSheet.Cells[row + rowoff + 1, col]
                 , oWSheet.Cells[row + rowoff + 1 + rowoff - 1, col + coloff - 1]];
-                oRange.Value = templateCardObject;
+                oRange.Value = templateOrderCardObject;
             }
             // 右下
             if (remain <= 3)
             {
                 oRange = oWSheet.Range[oWSheet.Cells[row + rowoff + 1, col + coloff + 1]
                 , oWSheet.Cells[row + rowoff + 1 + rowoff - 1, col + coloff + coloff]];
-                oRange.Value = templateCardObject;
+                oRange.Value = templateOrderCardObject;
             }
         }
         // 1カード作成（DataRow1件分を作成）
         public void SetOrderCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col)
         {
             // テンプレートオブジェクトをクローン
-            object[,] obj = templateCardObject.Clone() as object[,];
-            var rowoff = templateCardObject.GetLength(0);
-            var coloff = templateCardObject.GetLength(1);
+            object[,] obj = templateOrderCardObject.Clone() as object[,];
+            var rowoff = templateOrderCardObject.GetLength(0);
+            var coloff = templateOrderCardObject.GetLength(1);
 
             if (row > 40) // 2頁目以降に1頁目の雛形書式をコピペ＆行の高さも1ページ目に合わせる
             {
                 if ((row - 1) % 42 == 0 && col <= 2)
                 {
                     // A1:Q42をコピペ
-                    var range = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[42, 17]];
+                    Excel.Range range = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[42, 17]];
                     range.Copy(oWSheet.Cells[row, 1]);
-                    //ClearCardByPage(ref row);
-                    // 行の高さはコピペされないのでRows(1:42)を複製
-                    for (int y = 1; y <= 42; y++)
-                        oWSheet.Rows[row + y - 1].RowHeight = oWSheet.Rows[y].RowHeight;
+                    // 遅いので廃止 ⇒ ClearCardByPage(ref row);
+                    // 遅いので廃止 ⇒ 行の高さはコピペされないのでRows(1:42)を複製
+                    //for (int y = 1; y <= 42; y++)
+                    //    oWSheet.Rows[row + y - 1].RowHeight = oWSheet.Rows[y].RowHeight;
+                    double rh1 = oWSheet.Rows[1].RowHeight;
+                    double rh4 = oWSheet.Rows[4].RowHeight;
+                    double rh9 = oWSheet.Rows[9].RowHeight;
+                    double rh19 = oWSheet.Rows[19].RowHeight;
+                    for (int z = 0; z <= 21; z+=21)
+                    {
+                        // 品番1行目～3行目
+                        range = oWSheet.Range[oWSheet.Rows[row + z + 0], oWSheet.Rows[row + z + 2]];
+                        range.RowHeight = rh1;
+                        // 品名4行目～注文数量7行目
+                        range = oWSheet.Range[oWSheet.Rows[row + z + 3], oWSheet.Rows[row + z + 6]];
+                        range.RowHeight = rh4;
+                        // 工程①9行目～検査18行目
+                        range = oWSheet.Range[oWSheet.Rows[row + z + 8], oWSheet.Rows[row + z + 17]];
+                        range.RowHeight = rh9;
+                        // 備考19行目～20行目
+                        range = oWSheet.Range[oWSheet.Rows[row + z + 18], oWSheet.Rows[row + z + 19]];
+                        range.RowHeight = rh19;
+                    }
+                    // 行タイトル8行目
+                    double rh8 = oWSheet.Rows[8].RowHeight;
+                    oWSheet.Rows[row + 7].RowHeight = rh8;
+                    oWSheet.Rows[row + 21 + 7].RowHeight = rh8;
+                    // 最終行（調整用）21行目
+                    double rh21 = oWSheet.Rows[21].RowHeight;
+                    oWSheet.Rows[row + 20].RowHeight = rh21;
+                    oWSheet.Rows[row + 21 + 20].RowHeight = rh21;
+
                 }
             }
 
@@ -1335,7 +1366,7 @@ namespace MPPPS
             else 
             {
                 obj[9, 1] = "工程①";
-                obj[9, 2] = r["KT1MCGCD"].ToString() + "-" + r["KT1MCCD"].ToString();
+                obj[9, 2] = RemoveDuplicates(r["KT1MCGCD"].ToString(), r["KT1MCCD"].ToString(),1);
             }
             if (r["KT2MCGCD"].ToString() == "")
             {
@@ -1344,7 +1375,7 @@ namespace MPPPS
             else
             {
                 obj[11, 1] = "工程②";
-                obj[11, 2] = r["KT2MCGCD"].ToString() + "-" + r["KT2MCCD"].ToString();
+                obj[11, 2] = RemoveDuplicates(r["KT2MCGCD"].ToString(), r["KT2MCCD"].ToString(), 1);
             }
             if (r["KT3MCGCD"].ToString() == "")
             {
@@ -1353,7 +1384,7 @@ namespace MPPPS
             else
             {
                 obj[13, 1] = "工程③";
-                obj[13, 2] = r["KT3MCGCD"].ToString() + "-" + r["KT3MCCD"].ToString();
+                obj[13, 2] = RemoveDuplicates(r["KT3MCGCD"].ToString(), r["KT3MCCD"].ToString(), 1);
             }
             if (r["KT4MCGCD"].ToString() == "")
             {
@@ -1362,11 +1393,11 @@ namespace MPPPS
             else
             {
                 obj[15, 1] = "工程④";
-                obj[15, 2] = r["KT4MCGCD"].ToString() + "-" + r["KT4MCCD"].ToString();
+                obj[15, 2] = RemoveDuplicates(r["KT4MCGCD"].ToString(), r["KT4MCCD"].ToString(), 1);
             }
             if (r["KT5MCGCD"].ToString() != "")
             {
-                obj[17, 2] = r["KT5MCGCD"].ToString() + "-" + r["KT5MCCD"].ToString();
+                obj[17, 2] = RemoveDuplicates(r["KT5MCGCD"].ToString(), r["KT5MCCD"].ToString(), 1);
             }
             obj[19, 2] = r["NOTE"].ToString();
 
@@ -1450,6 +1481,8 @@ namespace MPPPS
 
         }
 
+
+
         /// <summary>
         /// 現在開いているブックをPDFに変換して保存
         /// </summary>
@@ -1464,6 +1497,159 @@ namespace MPPPS
 
             // PDFを標準アプリケーションで開く
             Process.Start($@"{filePath}");
+        }
+
+
+        private string RemoveDuplicates(string mcgcd, string mccd, int modeConnect)
+        {
+            string prefix = string.Empty;
+            if (mcgcd == null) return string.Empty;
+            if (modeConnect != 1) prefix += " > ";
+            if (mcgcd != string.Empty)
+            {
+                if (mcgcd == mccd) return prefix + mcgcd;
+                return prefix + $"{mcgcd}-{mccd}";
+            }
+            return string.Empty;
+        }
+
+        // 内示カードテンプレートオブジェクトの作成 [A1:H10]
+        public void CreateTemplatePlanCard()
+        {
+            oRange = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[10, 8]]; // ※10行8列
+            templatePlanCardObject = oRange.Value;
+        }
+        // 最終頁の残り分のデータをクリア
+        public void ClearZanPlanCard(int cardCnt)
+        {
+            if (cardCnt == 0) return;
+            var rowoff = templatePlanCardObject.GetLength(0);
+            var coloff = templatePlanCardObject.GetLength(1);
+            int remain;
+            int pagesu = Math.DivRem(cardCnt, 10, out remain);
+            int startrow = (pagesu) * ((rowoff + 1) * 5) + 1; // 端数頁の開始行番号
+            // クリア開始行を特定 -1して/2してroundupして * rowoff
+            int row = startrow + ((int)Math.Ceiling((remain - 1) / 2d) * (rowoff + 1)); // 余りが終わった以降の行番号
+            for (int clearCnt = remain; clearCnt < 10; clearCnt++)
+            {
+                // ←左
+                if (clearCnt % 2 == 0)
+                {
+                    oRange = oWSheet.Range[oWSheet.Cells[row, 1]
+                    , oWSheet.Cells[row + rowoff - 1, coloff]];
+                    oRange.Value = templatePlanCardObject;
+                }
+                // 右→
+                else
+                {
+                    oRange = oWSheet.Range[oWSheet.Cells[row, coloff + 2]
+                        , oWSheet.Cells[row + rowoff - 1, coloff + 2 + coloff - 1]];
+                    oRange.Value = templatePlanCardObject;
+                    row += rowoff + 1;
+                }
+            }
+        }
+        // 1カード作成（DataRow1件分を作成）
+        public void SetPlanCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col)
+        {
+            // テンプレートオブジェクトをクローン
+            object[,] obj = templatePlanCardObject.Clone() as object[,];
+            var rowoff = templatePlanCardObject.GetLength(0);
+            var coloff = templatePlanCardObject.GetLength(1);
+
+            if (row > 50) // 2頁目以降に1頁目の雛形書式をコピペ＆行の高さも1ページ目に合わせる
+            {
+                if ((row - 1) % 55 == 0 && col <= 2)
+                {
+                    // A1:Q55をコピペ
+                    var range = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[55, 17]];
+                    range.Copy(oWSheet.Cells[row, 1]);
+                    // 遅いので廃止 ⇒ ClearCardByPage(ref row);
+                    // 遅いので廃止 ⇒ 行の高さはコピペされないのでRows(1:55)を複製
+                    //for (int y = 1; y <= 55; y++)
+                    //    oWSheet.Rows[row + y - 1].RowHeight = oWSheet.Rows[y].RowHeight;
+                    double rh1 = oWSheet.Rows[1].RowHeight;
+                    double rh11 = oWSheet.Rows[11].RowHeight;
+                    // 全行の高さを一旦設定、1行目～54行目
+                    range = oWSheet.Range[oWSheet.Rows[row + 0], oWSheet.Rows[row + 53]];
+                    range.RowHeight = rh1;
+                    // 調整用の行高さを個別で設定、21行目
+                    double rh21 = oWSheet.Rows[21].RowHeight;
+                    oWSheet.Rows[row + 10].RowHeight = rh11;
+                    oWSheet.Rows[row + 21].RowHeight = rh11;
+                    oWSheet.Rows[row + 32].RowHeight = rh11;
+                    oWSheet.Rows[row + 43].RowHeight = rh11;
+                    oWSheet.Rows[row + 54].RowHeight = oWSheet.Rows[55].RowHeight;
+                }
+            }
+            // バー材使用本数を計算
+            double ans = 0;
+            if (r["LENGTH"].ToString() != "")
+            {
+                double len = Convert.ToDouble(r["LENGTH"].ToString());
+                double thickness = Convert.ToDouble(r["CUTTHICKNESS"].ToString());
+                int material = Convert.ToInt32(r["MATERIALLEN"].ToString());
+                int qty = Convert.ToInt32(r["ODRQTY"].ToString());
+                ans = ((len + thickness) * qty) / material;
+            }
+            // 値を設定
+            obj[1, 2] = r["HMCD"].ToString();
+            obj[3, 2] = r["HMNM"].ToString();
+            obj[5, 2] = r["ODRQTY"].ToString();
+            obj[5, 8] = r["MATESIZE"].ToString();
+            obj[7, 8] = r["LENGTH"].ToString();
+            obj[9, 8] = (ans == 0) ? "" : ans.ToString("F2") + "本"; // 小数点以下2桁
+            var tmp = "";
+            tmp += RemoveDuplicates(r["KT1MCGCD"].ToString(), r["KT1MCCD"].ToString(), 1);
+            tmp += RemoveDuplicates(r["KT2MCGCD"].ToString(), r["KT2MCCD"].ToString(), 2);
+            tmp += RemoveDuplicates(r["KT3MCGCD"].ToString(), r["KT3MCCD"].ToString(), 3);
+            tmp += RemoveDuplicates(r["KT4MCGCD"].ToString(), r["KT4MCCD"].ToString(), 4);
+            tmp += RemoveDuplicates(r["KT5MCGCD"].ToString(), r["KT5MCCD"].ToString(), 5);
+            obj[7, 2] = tmp;
+            obj[9, 2] = r["NOTE"].ToString();
+
+            // 設定したオブジェクトをレンジに貼り付け
+            oRange = oWSheet.Range[oWSheet.Cells[row, col], oWSheet.Cells[row + rowoff - 1, col + coloff - 1]];
+            oRange.Value = obj;
+
+
+
+            // スマート棚コン用QRコード画像ファイルの作成と保存
+            string tempFile1 = @Path.GetTempPath() + Common.QR_HMCD_IMG;
+            using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
+                $"{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+            using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
+            {
+                byte[] qrCodeImage = qrCode.GetGraphic(20);
+                using (MemoryStream ms = new MemoryStream(qrCodeImage))
+                {
+                    // QRコードを作成しビットマップにした後ファイルに保存
+                    using (Bitmap qrBmp = new Bitmap(ms))
+                    {
+                        qrBmp.Save(tempFile1);
+                    }
+                }
+            }
+            // 画像が保存できたか確認 
+            if (!System.IO.File.Exists(tempFile1)) Thread.Sleep(100);
+            // テスト用のQRコード画像
+            //var fn = @"\\kmtsvr\共有SVEM02\Koken\切削生産計画システム\雛形\QR.bmp";// こちらサンプル画像
+            // スマート棚コン用QRコードをExcelに作成
+            Excel.Range rng = oWSheet.Cells[row, col + 7];
+            Shape shp = oWSheet.Shapes.AddPicture2(
+                tempFile1
+                , Office.MsoTriState.msoFalse   // LinkToFile           図を作成元のファイルにリンクするかどうか
+                , Office.MsoTriState.msoTrue    // SaveWithDocument     上記がFalseの場合、こちらをTrueにしないと落ちる（ハマった）
+                , rng.Left + 8                  // Left [ Single ]
+                , rng.Top + 12                  // Top [Single]
+                , 42                            // Width [Single]  (旧：rng.Width - 14）
+                , 44                            // Height [Single]（旧：rng.Height - 14）
+                , Office.MsoPictureCompress.msoPictureCompressFalse //Compress 画像を挿入するときに圧縮するかどうか
+            );
+            shp.Left = (float)rng.Left + 8;
+            shp.Top = (float)rng.Top + 12;
+            shp.Placement = XlPlacement.xlFreeFloating; // セルに合わせて移動やサイズ変更しない
+
         }
 
 

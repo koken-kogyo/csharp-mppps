@@ -751,6 +751,8 @@ namespace MPPPS
         public const string TABLE_ID_KD8440 = "kd8440";   // 切削手配日程ファイル (内示)
         public const string TABLE_ID_KD8450 = "kd8450";   // 切削オーダーファイル (確定)
         public const string TABLE_ID_KD8460 = "kd8460";   // 切削在庫ファイル
+        public const string TABLE_ID_KD8470 = "kd8470";   // 切削内示カードファイル
+        public const string TABLE_ID_KD8480 = "kd8480";   // 切削日報兼実績ファイル
         public const string TABLE_ID_KM8400 = "km8400";   // 切削生産計画システム利用者マスター
         public const string TABLE_ID_KM8410 = "km8410";   // 切削刃具マスター
         public const string TABLE_ID_KM8420 = "km8420";   // 切削設備マスター

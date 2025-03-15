@@ -1303,16 +1303,18 @@ namespace MPPPS
                 string yyyyMMdd = firstDayOfMonth.AddMonths(3).ToString("yyyy/MM/dd");
                 string sql;
                 sql = "SELECT "
-                    + "EDDT "
+                    + "NEXT_DAY(EDDT - 7, 2) WEEKEDDT "
+                    + ", HMCD "
                     + ", SUM(ODRQTY) \"EM本数\" "
-                    + ", SUM(JIQTY) \"EM実績数\" "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0440 + " "
                     + "WHERE "
-                    + "ODCD like '6060%' "
-                    + $"and EDDT < to_date('{yyyyMMdd}','YYYY/MM/DD') "
-                    + "GROUP BY EDDT "
-                    + "ORDER BY EDDT "
+                        + "ODCD like '6060%' "
+                        + $"and EDDT < to_date('{yyyyMMdd}','YYYY/MM/DD') "
+                    + "GROUP BY "
+                        + "NEXT_DAY(EDDT - 7, 2) ,HMCD "
+                    + "ORDER BY "
+                        + "NEXT_DAY(EDDT - 7, 2) ,HMCD "
                 ;
                 using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
                 {
@@ -1364,7 +1366,8 @@ namespace MPPPS
                 cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
 
                 string sql;
-                sql = "SELECT * "
+                sql = "SELECT "
+                    + Common.TABLE_ID_D0440 + ".*, NEXT_DAY(EDDT - 7, 2) WEEKEDDT "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0440 + " "
                     + "WHERE "

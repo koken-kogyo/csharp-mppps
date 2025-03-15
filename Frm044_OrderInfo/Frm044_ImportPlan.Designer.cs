@@ -37,8 +37,9 @@ namespace MPPPS
             this.NextMonthButton = new System.Windows.Forms.Button();
             this.PrevMonthButton = new System.Windows.Forms.Button();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.Btn_PrintPlan = new System.Windows.Forms.Button();
             this.Btn_ImportPlan = new System.Windows.Forms.Button();
             this.Dgv_Calendar = new System.Windows.Forms.DataGridView();
             this.panel1.SuspendLayout();
@@ -104,22 +105,23 @@ namespace MPPPS
             // 
             this.statusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel});
+            this.toolStripStatusLabel1});
             this.statusStrip.Location = new System.Drawing.Point(0, 537);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(852, 29);
             this.statusStrip.TabIndex = 11;
             this.statusStrip.Text = "statusStrip1";
             // 
-            // toolStripStatusLabel
+            // toolStripStatusLabel1
             // 
-            this.toolStripStatusLabel.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(162, 23);
-            this.toolStripStatusLabel.Text = "toolStripStatusLabel";
+            this.toolStripStatusLabel1.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(162, 23);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.Btn_PrintPlan);
             this.panel2.Controls.Add(this.Btn_ImportPlan);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel2.Location = new System.Drawing.Point(0, 495);
@@ -127,15 +129,27 @@ namespace MPPPS
             this.panel2.Size = new System.Drawing.Size(852, 42);
             this.panel2.TabIndex = 12;
             // 
+            // Btn_PrintPlan
+            // 
+            this.Btn_PrintPlan.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.Btn_PrintPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_PrintPlan.Location = new System.Drawing.Point(424, 4);
+            this.Btn_PrintPlan.Name = "Btn_PrintPlan";
+            this.Btn_PrintPlan.Size = new System.Drawing.Size(420, 35);
+            this.Btn_PrintPlan.TabIndex = 13;
+            this.Btn_PrintPlan.Text = "内示カード印刷";
+            this.Btn_PrintPlan.UseVisualStyleBackColor = false;
+            this.Btn_PrintPlan.Click += new System.EventHandler(this.Btn_PrintPlan_Click);
+            // 
             // Btn_ImportPlan
             // 
-            this.Btn_ImportPlan.BackColor = System.Drawing.Color.LightGreen;
+            this.Btn_ImportPlan.BackColor = System.Drawing.Color.MistyRose;
             this.Btn_ImportPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_ImportPlan.Location = new System.Drawing.Point(3, 3);
             this.Btn_ImportPlan.Name = "Btn_ImportPlan";
-            this.Btn_ImportPlan.Size = new System.Drawing.Size(846, 35);
+            this.Btn_ImportPlan.Size = new System.Drawing.Size(420, 35);
             this.Btn_ImportPlan.TabIndex = 11;
-            this.Btn_ImportPlan.Text = "手配日程データ取込";
+            this.Btn_ImportPlan.Text = "内示データ取込";
             this.Btn_ImportPlan.UseVisualStyleBackColor = false;
             this.Btn_ImportPlan.Click += new System.EventHandler(this.Btn_ImportPlan_Click);
             // 
@@ -147,11 +161,12 @@ namespace MPPPS
             this.Dgv_Calendar.Name = "Dgv_Calendar";
             this.Dgv_Calendar.RowHeadersWidth = 51;
             this.Dgv_Calendar.RowTemplate.Height = 24;
+            this.Dgv_Calendar.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.Dgv_Calendar.Size = new System.Drawing.Size(852, 440);
             this.Dgv_Calendar.TabIndex = 13;
             this.Dgv_Calendar.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Dgv_Calendar_MouseUp);
             // 
-            // Frm044_CreatePlanOrder
+            // Frm044_ImportPlan
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(852, 566);
@@ -162,7 +177,7 @@ namespace MPPPS
             this.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Name = "Frm044_CreatePlanOrder";
+            this.Name = "Frm044_ImportPlan";
             this.Text = "[KMD004SF] オーダー管理 - 内示情報作成 - Ver.230613.01a";
             this.Resize += new System.EventHandler(this.Frm044_CreateMaybeOrder_Resize);
             this.panel1.ResumeLayout(false);
@@ -182,9 +197,10 @@ namespace MPPPS
         private Button NextMonthButton;
         private Button PrevMonthButton;
         private StatusStrip statusStrip;
-        private ToolStripStatusLabel toolStripStatusLabel;
+        private ToolStripStatusLabel toolStripStatusLabel1;
         private Panel panel2;
         private Button Btn_ImportPlan;
         private DataGridView Dgv_Calendar;
+        private Button Btn_PrintPlan;
     }
 }
