@@ -785,11 +785,16 @@ namespace MPPPS
                     }
                 }
 
+                // 使用列数と行数を取得
+                int rowCount = xlSheet.UsedRange.Rows.Count;
+                int colCount = xlSheet.UsedRange.Columns.Count;             // 例）38列
+
                 // ExcelRangeをオブジェクト配列にコピー
-                object[,] values = new object[3000, 36]; // 0～36列
+                object[,] values = new object[rowCount, colCount - 1];      // 例）0～37配列
                 try
                 {
-                    xlRange = xlSheet.Range("A4:AK3000"); //AK:37
+                    // ※※※ 4行目がタイトルである事が前提 ※※※
+                    xlRange = xlSheet.Range($"A4:{GetCellA1(colCount)}{rowCount}");
                     values = xlRange.Value;
                 }
                 finally
@@ -797,22 +802,22 @@ namespace MPPPS
                     Marshal.ReleaseComObject(xlRange);
                 }
 
-                // データテーブルヘッダーを作成
-                for (int j = 1; j <= 37; j++)
+                // オブジェクトの１行目からデータテーブルヘッダーを作成
+                for (int j = 1; j <= colCount; j++)
                 {
                     dataTable.Columns.Add(values[1, j].ToString());
                 }
 
-                // データテーブルを作成
-                for (int row = 2; row <= 3000; row++)
+                // オブジェクトの２行目からデータテーブルを作成
+                for (int row = 2; row <= rowCount; row++)
                 {
                     if (values[row, 1] is null) break;
 
-                    string s = values[row, 1].ToString();
-                    if (s != "" && s != "0" && s != "z")
+                    string s = values[row, 1].ToString();   // 品番列の文字列
+                    if (s != "" && s != "0" && s != "z")    // 変な品番は対象外にする
                     {
                         DataRow dr = dataTable.NewRow();
-                        for (int col = 1; col <= 37; col++)
+                        for (int col = 1; col <= colCount; col++)
                         {
                             if (values[row, col] != null)
                             {
@@ -865,7 +870,27 @@ namespace MPPPS
         }
 
         /// <summary>
+        /// 列番号からエクセルの列名を得る　(例 5 → "E"）
+        /// https://nonbiri-dotnet.blogspot.com/2016/12/blog-post_10.html
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        static public string GetCellA1(int c)
+        {
+            string alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            string s = "";
+
+            for (; c > 0; c = (c - 1) / 26)
+            {
+                int n = (c - 1) % 26;
+                s = alpha.Substring(n, 1) + s;
+            }
+            return s;
+        }
+
+        /// <summary>
         /// Excel コード票をデータテーブルへインポート
+        /// COMアクセスが遅すぎて廃止
         /// </summary>
         /// <returns></returns>
         public System.Data.DataTable ReadExcelToDatatble()
@@ -1356,9 +1381,9 @@ namespace MPPPS
             obj[5, 2] = r["ODRNO"].ToString();
             obj[6, 2] = cardDay.ToString("yyyy.MM.dd");
             obj[7, 2] = r["ODRQTY"].ToString();
-            obj[5, 7] = r["MATESIZE"].ToString() + r["LENGTH"].ToString() != "" ? " x " + r["LENGTH"] : "";
-            obj[6, 7] = r["BOXQTY"].ToString();
-            obj[7, 7] = r["PARTNER"].ToString();
+            obj[5, 7] = r["MATESIZE"].ToString();
+            obj[6, 7] = r["LENGTH"].ToString();
+            obj[7, 7] = r["BOXQTY"].ToString();
             if (r["KT1MCGCD"].ToString() == "")
             {
                 obj[9, 1] = "";
@@ -1399,7 +1424,9 @@ namespace MPPPS
             {
                 obj[17, 2] = RemoveDuplicates(r["KT5MCGCD"].ToString(), r["KT5MCCD"].ToString(), 1);
             }
-            obj[19, 2] = r["NOTE"].ToString();
+            var note = r["NOTE"].ToString();
+            if (r["PARTNER"].ToString() != "") note += "\n" + r["PARTNER"].ToString();
+            obj[19, 2] = note;
 
             // 設定したオブジェクトをレンジに貼り付け
             oRange = oWSheet.Range[oWSheet.Cells[row, col], oWSheet.Cells[row + rowoff - 1, col + coloff - 1]];
@@ -1499,7 +1526,9 @@ namespace MPPPS
             Process.Start($@"{filePath}");
         }
 
-
+        // ①工程グループコードと設備コードがダブっている場合は１つに集約
+        // ②ダブっていない場合は[-]で連結
+        // ③工程①(mode==1)以外の場合は、先頭に連結文字[ > ]を挿入し返却
         private string RemoveDuplicates(string mcgcd, string mccd, int modeConnect)
         {
             string prefix = string.Empty;
@@ -1550,7 +1579,8 @@ namespace MPPPS
             }
         }
         // 1カード作成（DataRow1件分を作成）
-        public void SetPlanCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col)
+        public void SetPlanCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col
+            , ref System.Data.DataTable materialDt)
         {
             // テンプレートオブジェクトをクローン
             object[,] obj = templatePlanCardObject.Clone() as object[,];
@@ -1564,16 +1594,16 @@ namespace MPPPS
                     // A1:Q55をコピペ
                     var range = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[55, 17]];
                     range.Copy(oWSheet.Cells[row, 1]);
-                    // 遅いので廃止 ⇒ ClearCardByPage(ref row);
-                    // 遅いので廃止 ⇒ 行の高さはコピペされないのでRows(1:55)を複製
+                    // COMアクセスが遅いので廃止 ⇒ ClearCardByPage(ref row);
+                    // COMアクセスが遅いので廃止 ⇒ 行の高さはコピペされないのでRows(1:55)を複製
                     //for (int y = 1; y <= 55; y++)
                     //    oWSheet.Rows[row + y - 1].RowHeight = oWSheet.Rows[y].RowHeight;
-                    double rh1 = oWSheet.Rows[1].RowHeight;
-                    double rh11 = oWSheet.Rows[11].RowHeight;
-                    // 全行の高さを一旦設定、1行目～54行目
+                    double rh1 = oWSheet.Rows[1].RowHeight;     // 全行の高さ
+                    double rh11 = oWSheet.Rows[11].RowHeight;   // 調整用行の高さ
+                    // 全行の高さを一旦設定、雛形シート1行目～54行目をコピー
                     range = oWSheet.Range[oWSheet.Rows[row + 0], oWSheet.Rows[row + 53]];
                     range.RowHeight = rh1;
-                    // 調整用の行高さを個別で設定、21行目
+                    // 調整用の行高さを各カードの余白行に設定、雛形シートの55行目をコピー
                     double rh21 = oWSheet.Rows[21].RowHeight;
                     oWSheet.Rows[row + 10].RowHeight = rh11;
                     oWSheet.Rows[row + 21].RowHeight = rh11;
@@ -1583,22 +1613,35 @@ namespace MPPPS
                 }
             }
             // バー材使用本数を計算
-            double ans = 0;
+            string mateStr = string.Empty;
             if (r["LENGTH"].ToString() != "")
             {
-                double len = Convert.ToDouble(r["LENGTH"].ToString());
-                double thickness = Convert.ToDouble(r["CUTTHICKNESS"].ToString());
-                int material = Convert.ToInt32(r["MATERIALLEN"].ToString());
-                int qty = Convert.ToInt32(r["ODRQTY"].ToString());
-                ans = ((len + thickness) * qty) / material;
+                try
+                {
+                    // 個別の本数は必要ないでしょう
+                    //double len = Convert.ToDouble(r["LENGTH"].ToString());
+                    //double thickness = Convert.ToDouble(r["CUTTHICKNESS"].ToString());
+                    //int qty = Convert.ToInt32(r["ODRQTY"].ToString());
+                    //ans =((len + thickness) * qty) / material;
+                    DataRow[] m = materialDt.Select($"MATESIZE='{r["MATESIZE"].ToString()}'");
+                    double necessarylen = Convert.ToDouble(m[0]["NECESSARYLEN"].ToString());
+                    mateStr = $"{necessarylen.ToString("F1")} mm";
+                    int material = Convert.ToInt32(r["MATERIALLEN"].ToString()); // 材料長さがコード票に記載されていない
+                    double ans = necessarylen / material;
+                    mateStr += $"\n({ans.ToString("F1")} 本)"; // 小数点以下1桁
+                }
+                catch
+                {
+                    mateStr += "\n(計算ｴﾗｰ)";    // 型変換エラーは頻発するでしょう
+                }
             }
             // 値を設定
             obj[1, 2] = r["HMCD"].ToString();
             obj[3, 2] = r["HMNM"].ToString();
-            obj[5, 2] = r["ODRQTY"].ToString();
+            obj[5, 2] = DateTime.Parse(r["EDDT"].ToString()).ToString("M/d") + "(" + r["ODRQTY"].ToString() + ")";
             obj[5, 8] = r["MATESIZE"].ToString();
             obj[7, 8] = r["LENGTH"].ToString();
-            obj[9, 8] = (ans == 0) ? "" : ans.ToString("F2") + "本"; // 小数点以下2桁
+            obj[9, 8] = mateStr;
             var tmp = "";
             tmp += RemoveDuplicates(r["KT1MCGCD"].ToString(), r["KT1MCCD"].ToString(), 1);
             tmp += RemoveDuplicates(r["KT2MCGCD"].ToString(), r["KT2MCCD"].ToString(), 2);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -194,14 +195,20 @@ namespace MPPPS
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
                     int c = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数>0 and EM本数<>MP本数")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    int countHMCD = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
+                    int cardPrint = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and 内示カード出力日時>'2000/1/1'").Count();
                     if (orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数=0 and EM本数>0")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
                     {
                         // 注文あり取込データなし
                         for (int i = 1; i <= 5; i++)
-                        {
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
-                        }
+                    }
+                    else if (countHMCD == cardPrint && cardPrint > 0)
+                    {
+                        // 内示カード印刷済み
+                        for (int i = 1; i <= 5; i++)
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                     }
                     else if (orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数>0")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
@@ -264,23 +271,27 @@ namespace MPPPS
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
                     int c = orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数>0 and EM本数<>MP本数")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    int countHMCD = orderDt.Select($"WEEKEDDT='{currentDate}'").Count();
+                    int cardPrint = orderDt.Select($"WEEKEDDT='{currentDate}' and 内示カード出力日時>'2000/1/1'").Count();
                     if (orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数=0 and EM本数>0")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
                     {
                         // 注文あり取込データなし
                         for (int i = 1; i <= 5; i++)
-                        {
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
-                        }
+                    }
+                    else if (countHMCD == cardPrint && cardPrint > 0)
+                    {
+                        // 内示カード印刷済み
+                        for (int i = 1; i <= 5; i++)
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                     }
                     else if (orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数>0")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
                     {
                         // 注文データ取込済
                         for (int i = 1; i <= 5; i++)
-                        {
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
-                       }
                     }
                     if (dtS0820working.Select($"YMD='{currentDate}'").Count() == 0)
                     {
@@ -326,23 +337,27 @@ namespace MPPPS
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
                     int c = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数>0 and EM本数<>MP本数")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
+                    int countHMCD = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
+                    int cardPrint = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and 内示カード出力日時>'2000/1/1'").Count();
                     if (orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数=0 and EM本数>0")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
                     {
                         // 注文あり取込データなし
                         for (int i = 1; i <= 5; i++)
-                        {
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
-                        }
+                    }
+                    else if (countHMCD == cardPrint && cardPrint > 0)
+                    {
+                        // 内示カード印刷済み
+                        for (int i = 1; i <= 5; i++)
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                     }
                     else if (orderDt.Select($"WEEKEDDT='{nextDate}' and MP本数>0")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
                     {
                         // 注文データ取込済
                         for (int i = 1; i <= 5; i++)
-                        {
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
-                        }
                     }
                     if (dtS0820working.Select($"YMD='{nextDate}'").Count() == 0)
                     {
@@ -527,7 +542,7 @@ namespace MPPPS
             }
             if (emQty - mpQty == 0)
             {
-                toolStripStatusLabel1.Text = $"手配日程 {emQty.ToString("#,0")}本 ／ ";
+                toolStripStatusLabel1.Text = $"内示 {emQty.ToString("#,0")}本 ／ ";
                 toolStripStatusLabel1.Text +=
                     (countHMCD == cardPrint) ? $"印刷済み {cardPrint.ToString("#,0")}件" : 
                     (cardPrint == 0) ? $"品番点数 {countHMCD.ToString("#,0")}件" :
@@ -535,7 +550,7 @@ namespace MPPPS
             }
             else
             {
-                toolStripStatusLabel1.Text = $"手配日程 EM{emQty.ToString("#,0")}本 / MP{mpQty.ToString("#,0")}本";
+                toolStripStatusLabel1.Text = $"内示 EM{emQty.ToString("#,0")}本 / MP{mpQty.ToString("#,0")}本";
             }
         }
 
@@ -554,8 +569,8 @@ namespace MPPPS
         // 内示データ取込直し
         private async void Btn_ImportPlan_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("切削システム内の手配日程データを再作成します\n" + 
-                "よろしいですか？", "手配日程データ再作成", MessageBoxButtons.YesNo, 
+            if (MessageBox.Show("切削システム内の内示データを再作成します\n" + 
+                "よろしいですか？", "内示データ再作成", MessageBoxButtons.YesNo, 
                 MessageBoxIcon.Question) == DialogResult.No) return;
 
             toolStripStatusLabel1.Text = "内示データ取込中...";
@@ -577,6 +592,7 @@ namespace MPPPS
 
 
         // おまけ関数
+        // 引数で渡された日付が、その月の第何週なのかを数値で返却する関数
         private int GetWeekNum(DateTime dt)
         {
             int weekNum = 0;
@@ -628,21 +644,21 @@ namespace MPPPS
             foreach (DataGridViewRow r in query)
             {
                 // 対象日の製造指示カードを作成し印刷
-                DateTime cardDay = GetCurrentDateTime(r.Cells[1]);
+                DateTime cardDay = GetCurrentDateTime(r.Cells[1]); // 1:月曜日
 
                 progressmsg = $"【{cardDay.ToString("M月")}" +
-                    $"{GetWeekNum(cardDay)}週】製造指示カード";
+                    $"{GetWeekNum(cardDay)}週】内示カード";
 
-                // 製造指示カード雛形を開く（拡縮倍率にあった帳票を選択）
+                // 内示カード雛形を開く（拡縮倍率にあった帳票を選択）
                 cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
 
-                // 製造指示データをDataTableに読み込む
+                // 内示データをDataTableに読み込む
                 toolStripStatusLabel1.Text = progressmsg + " データ読み込み中...";
                 DataTable cardDt = new DataTable();
                 await Task.Run(() => cmn.Dba.GetPlanCardPrintInfo(cardDay, ref cardDt));
                 if (ret < 0) break;
 
-                // 製造指示カード雛形に製造指示データをセット
+                // 内示カード雛形に内示データをセット
                 // 設定ファイルの場所にPDFとして保存して起動
                 toolStripStatusLabel1.Text = progressmsg + $" - 1件 / {cardDt.Rows.Count}件中 作成中...";
                 await Task.Run(() => ret = PrintPlanCard(cardDay, ref cardDt));
@@ -655,11 +671,11 @@ namespace MPPPS
                     .Replace(".xlsx", ".pdf");
                 cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[0].RootPath}\{pdfName}"); // 0:生産計画システム出力先フォルダ
 
-                // 製造指示カード雛形を閉じる
+                // 内示カード雛形を閉じる
                 cmn.Fa.CloseExcelFile2(false);
 
                 // KD8470:切削内示カードファイルに印刷済みを出力
-                //cmn.Dba.InsertPlanCardDay(cardDay);
+                cmn.Dba.InsertPlanCard(cardDay);
             }
 
             // Excelアプリケーションを閉じる
@@ -689,29 +705,41 @@ namespace MPPPS
                 int cardRows = 11;  // 1カードの行数（余白含む）
                 int row = 0;
                 int col = 0;
+
+                // 材料毎の使用長さを算出し材料データテーブルを先に作成
+                DataTable materialDt = new DataTable();
+                CalculateMaterial(ref cardDt, ref materialDt);
+
                 cmn.Fa.CreateTemplatePlanCard(); // テンプレートオブジェクトの作成（内示カードの雛形を作成）
+
                 for (int i = 0; i < cardDt.Rows.Count; i++)
                 {
                     DataRow r = cardDt.Rows[i];
 
-                    // 書き込む先頭セル番号を計算
+                    // 書き込む先頭セル行番を計算
                     col = (cardCnt % 2 != 0) ? 1 : 10;
                     row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
 
-                    // カードに値をセット
-                    //DateTime SW3 = DateTime.Now;
-                    //Debug.WriteLine("[StopWatch] Read開始 ");
-                    cmn.Fa.SetPlanCard(ref cardDay, ref r, ref row, ref col);
-                    //Debug.WriteLine("[StopWatch] Read終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW3).TotalSeconds.ToString("F3") + "秒)");
-
-                    // Debug if (cardCnt == 50) break;
+                    try
+                    {
+                        // １カード分をExcelオブジェクトにセット（新規ページの１件目の場合はコピペ処理含む）
+                        cmn.Fa.SetPlanCard(ref cardDay, ref r, ref row, ref col, ref materialDt);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message + "(" + i + "行目)");
+                        Debug.WriteLine(r.ToString());
+                        throw ex;
+                    }
                     if (cardCnt % 5 == 0)
                     {
                         toolStripStatusLabel1.Text = progressmsg + $" - {cardCnt}件 / {cardDt.Rows.Count}件中 作成中...";
                     }
                     cardCnt++;
                 }
-                // 印刷枚数が10の倍数でなかった場合、コピペした物をクリア（COMアクセスを減らす為最後にクリア処理）
+                // 最終頁の余り件数をチェック
+                // 10の倍数でなかった場合、コピペした余分なデータをクリア
+                // ※COMアクセスを減らす為、ループ中でのクリア処理を廃止
                 if ((cardCnt - 1) % 10 != 0)
                     cmn.Fa.ClearZanPlanCard(cardCnt - 1);
                 toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件のカードが作成されました.";
@@ -738,6 +766,41 @@ namespace MPPPS
             }
             return ret;
         }
+
+        // 印字する週に使用する材料種類毎の使用する合計長さを各明細を印字する前に算出
+        private void CalculateMaterial(ref System.Data.DataTable cardDt, ref System.Data.DataTable materialDt)
+        {
+            // 材料種類ごとの必要長さを算出
+            var result = cardDt
+                .Select($"MATESIZE<>'' and LENGTH>0")
+                .GroupBy(g => g["MATESIZE"].ToString())
+                .Select(grp => new
+                {
+                    KEY = grp.Key,
+                    NECESSARYLEN = grp.Sum(s =>
+                        (
+                            Convert.ToDecimal(s["LENGTH"].ToString()) + 
+                            Convert.ToDecimal(s["CUTTHICKNESS"].ToString())
+                        ) * Convert.ToInt32(s["ODRQTY"].ToString())
+                    )
+                }); 
+
+            // 材料データテーブルに列を追加
+            if (materialDt.Columns.Count == 0)
+            {
+                materialDt.Columns.Add("MATESIZE", typeof(string));
+                materialDt.Columns.Add("NECESSARYLEN", typeof(decimal));
+            }
+            // 材料データテーブルに算出したキーと値を設定
+            foreach (var item in result)
+            {
+                DataRow r = materialDt.NewRow();
+                r["MATESIZE"] = item.KEY;
+                r["NECESSARYLEN"] = item.NECESSARYLEN;
+                materialDt.Rows.Add(r);
+            }
+        }
+
 
 
     }

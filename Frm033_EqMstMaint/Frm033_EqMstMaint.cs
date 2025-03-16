@@ -110,19 +110,19 @@ namespace MPPPS
             for (int i = 0; i < s1.Length; i++)
             {
                 Dgv_EquipMst.Columns[i + offset].HeaderText = s1[i];
-                if (i==0 || i==3)
+                if (i==0 || i==3) // 各SEQ
                 {
                     Dgv_EquipMst.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
                     Dgv_EquipMst.Columns[i].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                     Dgv_EquipMst.Columns[i + 0].ReadOnly = true;
                     Dgv_EquipMst.Columns[i + 1].ReadOnly = true;
                 }
-                if (i == 6 || i == 9 || i == 10 || i == 12 || i == 14 || i == 16)
+                if (i == 6 || i == 9 || i == 10 || i == 12 || i == 14 || i == 16)// 稼働時間、刃厚、端材長、各CT
                 {
                     Dgv_EquipMst.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
                     Dgv_EquipMst.Columns[i].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                     if (i != 9)
-                        Dgv_EquipMst.Columns[i].DefaultCellStyle.Format = "#,0";
+                        Dgv_EquipMst.Columns[i].DefaultCellStyle.Format = "#,0"; // 刃厚以外
                 }
             }
             offset += s1.Length;

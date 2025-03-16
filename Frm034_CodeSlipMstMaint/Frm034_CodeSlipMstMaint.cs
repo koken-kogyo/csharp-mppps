@@ -267,7 +267,7 @@ namespace MPPPS
                     Dgv_CodeSlipMst.Columns[i + offset].Width = 40;
                     
                 }
-                if (i == 12)
+                if (i == 12) // 母材長さ
                 {
                     Dgv_CodeSlipMst.Columns[i + offset].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                     Dgv_CodeSlipMst.Columns[i + offset].Width = 60;
@@ -453,7 +453,7 @@ namespace MPPPS
                     DataRow[] excelDr = excelCodeSlipDt.Select($"品番='{s}'");
                     if (excelDr.Length == 1)
                     {
-                        for (int col = 0; col < 37; col++)
+                        for (int col = 0; col < excelCodeSlipDt.Columns.Count; col++)
                         {
                             //if (codeSlipDt.Columns[col].DataType.ToString() == "System.Decimal") // decimal型に変換（変換に神経を使って嫌だDBNullとか分けわからん）
                             if (col == 3)
@@ -470,6 +470,16 @@ namespace MPPPS
                                     Dgv_CodeSlipMst[col, row].Style.BackColor = Color.LightCoral;
                                     differCount++;
                                 }
+                            }
+                            else if (Dgv_CodeSlipMst.Columns[col].DefaultCellStyle.Format == "#,0")
+                            {
+                                if (excelDr[0][col].ToString().Replace(",", "") != 
+                                    Dgv_CodeSlipMst[col, row].Value.ToString().Replace(",", ""))
+                                {
+                                    Dgv_CodeSlipMst[col, row].Style.BackColor = Color.LightCoral;
+                                    differCount++;
+                                }
+
                             }
                             else if (excelDr[0][col].ToString() != Dgv_CodeSlipMst[col, row].Value.ToString())
                             {

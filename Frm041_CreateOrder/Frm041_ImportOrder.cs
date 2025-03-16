@@ -734,7 +734,7 @@ namespace MPPPS
                 cmn.Fa.CloseExcelFile2(false);
 
                 // 出力済ステータスに更新
-                cmn.Dba.UpdatePrintCardDay(cardDay);
+                cmn.Dba.UpdatePrintOrderCardDay(cardDay);
 
                 // 選択セルを解除
                 c.Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;

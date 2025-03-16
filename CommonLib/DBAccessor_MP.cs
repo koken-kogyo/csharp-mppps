@@ -3116,7 +3116,7 @@ namespace MPPPS
         /// </summary>
         /// <param name="cardDay">検査対象月</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int UpdatePrintCardDay(DateTime cardDay)
+        public int UpdatePrintOrderCardDay(DateTime cardDay)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -3398,6 +3398,103 @@ namespace MPPPS
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
+        /// <summary>
+        /// 内示カード発行済み登録
+        /// </summary>
+        /// <param name="weekEddt">検査対象月</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int InsertPlanCard(DateTime weekEddt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+
+            MySqlConnection cnn = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+
+                // 計画出庫データ出力済みに更新 SQL
+                string sql =
+                "INSERT INTO "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " "
+                + "("
+                + "HMCD "
+                + ", WEEKEDDT "
+                + ", PLANQTY "
+                + ", PLANCARDDT "
+                + ", MPINSTID "
+                + ", MPINSTDT "
+                + ", MPUPDTID "
+                + ", MPUPDTDT "
+                + ") "
+                + "SELECT "
+                + "HMCD "
+                + ", WEEKEDDT "
+                + ", SUM(ODRQTY) "
+                + ", now() "
+                + ", '" + cmn.DrCommon.UpdtID + "' "
+                + ", now() "
+                + ", '" + cmn.DrCommon.UpdtID + "' "
+                + ", now() "
+                + "FROM "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
+                + "WHERE "
+                + $"WEEKEDDT = '{weekEddt.ToString()}' "
+                + "GROUP BY "
+                + "HMCD "
+                + "ORDER BY "
+                + "HMCD "
+                ;
+
+                using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
+                {
+                    using (MySqlTransaction txn = cnn.BeginTransaction())
+                    {
+                        try
+                        {
+                            int res = myCmd.ExecuteNonQuery();
+                            if (res >= 1)
+                            {
+                                txn.Commit();
+                                Debug.WriteLine(Common.TABLE_ID_KD8430 + " table data update succeed and commited.");
+                            }
+                            ret = res;
+                        }
+                        catch (Exception e)
+                        {
+                            txn.Rollback();
+                            Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
+
+                            Debug.WriteLine("Exception Source = " + e.Source);
+                            Debug.WriteLine("Exception Message = " + e.Message);
+                            if (cnn != null)
+                            {
+                                // 接続を閉じる
+                                cnn.Close();
+                            }
+                            ret = -1;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
 
 
 
