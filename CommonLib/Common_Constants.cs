@@ -418,6 +418,7 @@ namespace MPPPS
         public static readonly string MSG_CD_103 = "103";
         public static readonly string MSG_CD_104 = "104";
         public static readonly string MSG_CD_105 = "105";
+        public static readonly string MSG_CD_106 = "106";
         public static readonly string MSG_CD_200 = "200";
         public static readonly string MSG_CD_201 = "201";
         public static readonly string MSG_CD_202 = "202";

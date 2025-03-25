@@ -1333,22 +1333,22 @@ namespace MPPPS
             var rowoff = templateOrderCardObject.GetLength(0);
             var coloff = templateOrderCardObject.GetLength(1);
 
-            if (row > 40) // 2頁目以降に1頁目の雛形書式をコピペ＆行の高さも1ページ目に合わせる
+            if (row > 40) // 2頁目以降は1頁目の雛形書式をコピペ＆行の高さも1ページ目に合わせる
             {
                 if ((row - 1) % 42 == 0 && col <= 2)
                 {
-                    // A1:Q42をコピペ
+                    // A1:Q42を対象の行にコピペ
                     Excel.Range range = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[42, 17]];
                     range.Copy(oWSheet.Cells[row, 1]);
-                    // 遅いので廃止 ⇒ ClearCardByPage(ref row);
-                    // 遅いので廃止 ⇒ 行の高さはコピペされないのでRows(1:42)を複製
+                    // 毎回クリア処理を入れるのはかなり遅いので廃止 ⇒ ClearCardByPage(ref row);
+                    // COMアクセスを減らす為、42回ループは廃止 ⇒ 行の高さはコピペされないのでRows(1:42)を複製
                     //for (int y = 1; y <= 42; y++)
                     //    oWSheet.Rows[row + y - 1].RowHeight = oWSheet.Rows[y].RowHeight;
                     double rh1 = oWSheet.Rows[1].RowHeight;
                     double rh4 = oWSheet.Rows[4].RowHeight;
                     double rh9 = oWSheet.Rows[9].RowHeight;
                     double rh19 = oWSheet.Rows[19].RowHeight;
-                    for (int z = 0; z <= 21; z+=21)
+                    for (int z = 0; z <= 21; z+=21) // A4用紙の上段、下段
                     {
                         // 品番1行目～3行目
                         range = oWSheet.Range[oWSheet.Rows[row + z + 0], oWSheet.Rows[row + z + 2]];
@@ -1363,11 +1363,11 @@ namespace MPPPS
                         range = oWSheet.Range[oWSheet.Rows[row + z + 18], oWSheet.Rows[row + z + 19]];
                         range.RowHeight = rh19;
                     }
-                    // 行タイトル8行目
+                    // 行タイトル8行目を上段、下段に複製
                     double rh8 = oWSheet.Rows[8].RowHeight;
                     oWSheet.Rows[row + 7].RowHeight = rh8;
                     oWSheet.Rows[row + 21 + 7].RowHeight = rh8;
-                    // 最終行（調整用）21行目
+                    // 最終行（調整用）21行目を上段、下段に複製
                     double rh21 = oWSheet.Rows[21].RowHeight;
                     oWSheet.Rows[row + 20].RowHeight = rh21;
                     oWSheet.Rows[row + 21 + 20].RowHeight = rh21;
@@ -1379,7 +1379,7 @@ namespace MPPPS
             obj[1, 2] = r["HMCD"].ToString();
             obj[4, 2] = r["HMNM"].ToString();
             obj[5, 2] = r["ODRNO"].ToString();
-            obj[6, 2] = cardDay.ToString("yyyy.MM.dd");
+            obj[6, 2] = DateTime.Parse(r["EDDT"].ToString()).ToString("yyyy/MM/dd");
             obj[7, 2] = r["ODRQTY"].ToString();
             obj[5, 7] = r["MATESIZE"].ToString();
             obj[6, 7] = r["LENGTH"].ToString();
@@ -1508,8 +1508,6 @@ namespace MPPPS
 
         }
 
-
-
         /// <summary>
         /// 現在開いているブックをPDFに変換して保存
         /// </summary>
@@ -1548,6 +1546,7 @@ namespace MPPPS
             oRange = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[10, 8]]; // ※10行8列
             templatePlanCardObject = oRange.Value;
         }
+
         // 最終頁の残り分のデータをクリア
         public void ClearZanPlanCard(int cardCnt)
         {
@@ -1578,6 +1577,7 @@ namespace MPPPS
                 }
             }
         }
+
         // 1カード作成（DataRow1件分を作成）
         public void SetPlanCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col
             , ref System.Data.DataTable materialDt)
@@ -1655,8 +1655,6 @@ namespace MPPPS
             oRange = oWSheet.Range[oWSheet.Cells[row, col], oWSheet.Cells[row + rowoff - 1, col + coloff - 1]];
             oRange.Value = obj;
 
-
-
             // スマート棚コン用QRコード画像ファイルの作成と保存
             string tempFile1 = @Path.GetTempPath() + Common.QR_HMCD_IMG;
             using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
@@ -1691,7 +1689,7 @@ namespace MPPPS
             );
             shp.Left = (float)rng.Left + 8;
             shp.Top = (float)rng.Top + 12;
-            shp.Placement = XlPlacement.xlFreeFloating; // セルに合わせて移動やサイズ変更しない
+            shp.Placement = XlPlacement.xlFreeFloating; // セルに合わせて移動やサイズ変更しない（コピペした時にQRが複製されないようにしておく）
 
         }
 

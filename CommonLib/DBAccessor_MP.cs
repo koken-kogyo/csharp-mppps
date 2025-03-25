@@ -3033,9 +3033,9 @@ namespace MPPPS
         /// 製造指示カードに印刷するデータの取得
         /// </summary>
         /// <param name="dt">製造指示カードデータ</param>
-        /// <param name="eddt">完了予定日</param>
+        /// <param name="eddtfrom">開始完了予定日（月曜日）</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int GetOrderCardPrintInfo(DateTime eddt, ref DataTable mpDt)
+        public int GetOrderCardPrintInfo(DateTime eddtfrom, ref DataTable mpDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -3047,52 +3047,63 @@ namespace MPPPS
                 // 切削生産計画システム データベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                string sql =
-                "SELECT "
-                    + "a.ODRNO "
-                    + ",a.EDDT "
-                    + ",a.ODRQTY "
-                    + ",a.HMCD "
-                    + ",b.HMNM "
-                    + ",b.MATESIZE "
-                    + ",b.LENGTH "
-                    + ",b.BOXQTY "
-                    + ",b.PARTNER "
-                    + ",b.NOTE"
-                    + ",b.KT1MCGCD "
-                    + ",b.KT1MCCD "
-                    + ",b.KT1CT "
-                    + ",b.KT2MCGCD "
-                    + ",b.KT2MCCD "
-                    + ",b.KT2CT "
-                    + ",b.KT3MCGCD "
-                    + ",b.KT3MCCD "
-                    + ",b.KT3CT "
-                    + ",b.KT4MCGCD "
-                    + ",b.KT4MCCD "
-                    + ",b.KT4CT "
-                    + ",b.KT5MCGCD "
-                    + ",b.KT5MCCD "
-                    + ",b.KT5CT "
-                    + "FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
-                    + "WHERE "
-                    + "a.HMCD = b.HMCD "
-                    + "and a.ODRSTS <> '9' "
-                    + "and a.ODCD like '6060%' "
-                    + $"and a.EDDT = '{eddt}' "
-                    + "and MPCARDDT is null " // 製造指示カード発行日
-                    + "ORDER BY ODRNO"
+                // 並び替え順のパターンごとにデータテーブルを取得
+                string sql = GetOrderCardPrintInfoSQL(eddtfrom);
+
+                // 1.次工程の順番で印刷するパターン（SW）
+                string sqlSW = sql +
+                    "and b.KT1MCGCD = 'SW' " +
+                    "order by b.KT2MCGCD, b.KT2MCCD, a.HMCD, a.EDDT"
                 ;
-                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                using (DataTable patternSW = new DataTable())
                 {
-                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    using (MySqlCommand myCmd = new MySqlCommand(sqlSW, mpCnn))
                     {
-                        Debug.WriteLine("Read from DataTable:");
-                        // 結果取得
-                        myDa.Fill(mpDt);
-                        ret = mpDt.Rows.Count;
+                        using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                        {
+                            Debug.WriteLine("Read from DataTable:");
+                            // 結果取得
+                            myDa.Fill(patternSW);
+                            mpDt.Merge(patternSW);
+                        }
+                    }
+                }
+
+                // 2.納期の昇順で印刷するパターン（CN）
+                string sqlCN = sql + 
+                    "and b.KT1MCGCD = 'CN' " + 
+                    "order by a.EDDT, a.HMCD"
+                ;
+                using (DataTable patternCN = new DataTable())
+                {
+                    using (MySqlCommand myCmd = new MySqlCommand(sqlCN, mpCnn))
+                    {
+                        using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                        {
+                            Debug.WriteLine("Read from DataTable:");
+                            // 結果取得
+                            myDa.Fill(patternCN);
+                            mpDt.Merge(patternCN);
+                        }
+                    }
+                }
+
+                // 3.設備番号順で印刷するパターン
+                string sqlOT = sql +
+                    "and b.KT1MCGCD<>'SW' and b.KT1MCGCD <> 'CN' " +
+                    "order by b.KT1MCGCD, b.KT1MCCD, a.HMCD, a.EDDT"
+                ;
+                using (DataTable patternOT = new DataTable())
+                {
+                    using (MySqlCommand myCmd = new MySqlCommand(sqlOT, mpCnn))
+                    {
+                        using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                        {
+                            Debug.WriteLine("Read from DataTable:");
+                            // 結果取得
+                            myDa.Fill(patternOT);
+                            mpDt.Merge(patternOT);
+                        }
                     }
                 }
             }
@@ -3111,12 +3122,60 @@ namespace MPPPS
             return ret;
         }
 
+
+
+        private string GetOrderCardPrintInfoSQL(DateTime eddtfrom)
+        {
+            // 手配日の範囲指定月曜日+6日
+            DateTime eddtto = eddtfrom.AddDays(6);
+
+            string sql ="SELECT "
+                + "a.ODRNO "
+                + ",a.EDDT "
+                + ",a.ODRQTY "
+                + ",a.HMCD "
+                + ",b.HMNM "
+                + ",b.MATESIZE "
+                + ",b.LENGTH "
+                + ",b.BOXQTY "
+                + ",b.PARTNER "
+                + ",b.NOTE"
+                + ",b.KT1MCGCD "
+                + ",b.KT1MCCD "
+                + ",b.KT1CT "
+                + ",b.KT2MCGCD "
+                + ",b.KT2MCCD "
+                + ",b.KT2CT "
+                + ",b.KT3MCGCD "
+                + ",b.KT3MCCD "
+                + ",b.KT3CT "
+                + ",b.KT4MCGCD "
+                + ",b.KT4MCCD "
+                + ",b.KT4CT "
+                + ",b.KT5MCGCD "
+                + ",b.KT5MCCD "
+                + ",b.KT5CT "
+                + "FROM "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
+                + "WHERE "
+                + "a.HMCD = b.HMCD "
+                + "and a.ODRSTS <> '9' "
+                + "and a.ODCD like '6060%' "
+                + $"and a.EDDT between '{eddtfrom}' and '{eddtto}' "
+                + "and MPCARDDT is null " // 製造指示カード発行日
+            ;
+            return sql;
+        }
+
+
+
         /// <summary>
         /// 製造指示カード発行済みに更新
         /// </summary>
-        /// <param name="cardDay">検査対象月</param>
+        /// <param name="eddtfrom">手配日</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int UpdatePrintOrderCardDay(DateTime cardDay)
+        public int UpdatePrintOrderCardDay(DateTime eddtfrom)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -3129,18 +3188,21 @@ namespace MPPPS
                 // 切削生産計画システム データベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref cnn);
 
+                // 手配日の範囲指定月曜日+6日
+                DateTime eddtto = eddtfrom.AddDays(6);
+
                 // 計画出庫データ出力済みに更新 SQL
                 string sql =
-                "UPDATE "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
-                + "SET "
-                + "MPCARDDT = now(), "
-                + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
-                + "WHERE "
-                + "ODRSTS<>'9' and "
-                + "ODCD like '6060%' and "
-                + "EDDT = '" + cardDay.ToString() + "' and "
-                + "MPCARDDT is NULL " // 製造指示カード発行日
+                    "UPDATE "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                    + "SET "
+                    + "MPCARDDT = now(), "
+                    + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
+                    + "WHERE "
+                    + "ODRSTS<>'9' and "
+                    + "ODCD like '6060%' and "
+                    + "MPCARDDT is NULL and " // 製造指示カード発行日
+                    + $"EDDT between '{eddtfrom}' and '{eddtto}'"
                 ;
 
                 using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))

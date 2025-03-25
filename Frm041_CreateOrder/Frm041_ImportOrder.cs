@@ -668,7 +668,20 @@ namespace MPPPS
         // 製造指示カード印刷
         private async void Btn_PrintOrder_Click(object sender, EventArgs e)
         {
-            // モニターサイズの倍率チェック
+            // 選択セルの並び替えクエリーサンプル（自分じゃ絶対わからないので残しておく）
+            var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
+                        where c.Style.BackColor == Common.FRM40_BG_COLOR_IMPORTED
+                        orderby c.RowIndex, c.ColumnIndex
+                        select c;
+            // 選択セルが単行であるかチェック
+            var query2 = from DataGridViewCell c in Dgv_Calendar.SelectedCells select c.RowIndex;
+            if (query2.ToArray().Distinct().Count() != 1)
+            {
+                Debug.WriteLine(Common.MSG_NO_PATTERN_FILE);
+                cmn.ShowMessageBox(Common.MY_PGM_ID, Common.MSG_CD_106, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSG_NO_PATTERN_FILE, MessageBoxIcon.Error);
+                return;
+            }
+            // モニターの倍率をチェックし雛形ファイルのインデックス番号を取得
             int idx = (cmn.ScreenMagnification == 1d) ? 1 : (cmn.ScreenMagnification == 1.25d) ? 2 : 9;
             if (idx == 9)
             {
@@ -685,8 +698,15 @@ namespace MPPPS
                 return;
             }
 
+            // 選択行の月曜日を処理日付として設定
+            var cardDay = GetCurrentDateTime(Dgv_Calendar[1, Dgv_Calendar.SelectedCells[0].RowIndex]);
+
+            // 印刷前の最終確認
+            if (MessageBox.Show(cardDay.ToString("M") + "(月曜日) の週を印刷します。\nよろしいですか？", "確認"
+                , MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Cancel) return;
+
             // 印刷ボタン非活性化
-            Btn_PrintOrder.BackColor = SystemColors.Control;
+            Btn_PrintOrder.BackColor = System.Drawing.SystemColors.Control;
             Btn_PrintOrder.Enabled = false;
 
             // ステータス表示
@@ -695,52 +715,44 @@ namespace MPPPS
             // Excelアプリケーションを起動
             cmn.Fa.OpenExcel2(idx);
 
-            // 選択セルの並び替え
-            var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
-                        where c.Style.BackColor == Common.FRM40_BG_COLOR_IMPORTED
-                        orderby c.RowIndex, c.ColumnIndex
-                        select c;
+            // 製造指示カード雛形を開く（拡縮倍率にあった帳票を選択）
+            cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
+
+            // 一週間分の製造指示データをDataTableに読み込む
             int ret = 0;
-            foreach (DataGridViewCell c in query)
+            progressmsg = $"【{cardDay.ToString("M月d日")}】 製造指示カード ";
+            toolStripStatusLabel1.Text = progressmsg + "データ読み込み中...";
+            DataTable cardDt = new DataTable();
+            await Task.Run(() => ret = cmn.Dba.GetOrderCardPrintInfo(cardDay, ref cardDt));
+            if (ret < 0)
             {
-                // 対象日の製造指示カードを作成し印刷
-                var cardDay = GetCurrentDateTime(c);
-
-                progressmsg = $"【{cardDay.ToString("M月d日")}】製造指示カード";
-
-                // 製造指示カード雛形を開く（拡縮倍率にあった帳票を選択）
-                cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
-
-                // 製造指示データをDataTableに読み込む
-                toolStripStatusLabel1.Text = progressmsg + " データ読み込み中...";
-                DataTable cardDt = new DataTable();
-                await Task.Run(() => cmn.Dba.GetOrderCardPrintInfo(cardDay, ref cardDt));
-                if (ret < 0) break;
-
-                // 製造指示カード雛形に製造指示データをセット
-                // 設定ファイルの場所にPDFとして保存して起動
-                toolStripStatusLabel1.Text = progressmsg + $" - 1件 / {cardDt.Rows.Count}件中 作成中...";
-                await Task.Run(() => ret = PrintOrderCard(cardDay, ref cardDt)); 
-                if (ret != 0) break;
-
-                // ExcelブックからPDFを作成
-                var pdfName = cmn.FsCd[idx].FileName
-                    .Replace("雛形", "_" + cardDay.ToString("yyyyMMdd") 
-                                   + "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
-                    .Replace(".xlsx", ".pdf");
-                cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[0].RootPath}\{pdfName}"); // 0:生産計画システム出力先フォルダ
-
-                // 製造指示カード雛形を閉じる
-                cmn.Fa.CloseExcelFile2(false);
-
-                // 出力済ステータスに更新
-                cmn.Dba.UpdatePrintOrderCardDay(cardDay);
-
-                // 選択セルを解除
-                c.Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
-                c.Selected = false;
+                cmn.Fa.CloseExcel2(); // Excelアプリケーションを閉じる
+                return;
             }
-            
+
+            // 製造指示カード雛形に製造指示データをセット
+            // 設定ファイルの場所にPDFとして保存して起動
+            toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件中 作成中...";
+            await Task.Run(() => ret = PrintOrderCard(cardDay, ref cardDt)); 
+            if (ret != 0)
+            {
+                cmn.Fa.CloseExcel2(); // Excelアプリケーションを閉じる
+                return;
+            }
+
+            // ExcelブックからPDFを作成
+            var pdfName = cmn.FsCd[idx].FileName
+                .Replace("雛形", "_" + cardDay.ToString("yyyyMMdd") 
+                                + "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
+                .Replace(".xlsx", ".pdf");
+            cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[0].RootPath}\{pdfName}"); // 0:生産計画システム出力先フォルダ
+
+            // 製造指示カード雛形を閉じる
+            cmn.Fa.CloseExcelFile2(false);
+
+            // 出力済ステータスに更新
+            cmn.Dba.UpdatePrintOrderCardDay(cardDay);
+
             // Excelアプリケーションを閉じる
             cmn.Fa.CloseExcel2();
 
@@ -779,24 +791,30 @@ namespace MPPPS
                 {
                     DataRow r = cardDt.Rows[i];
 
-                    // 書き込む先頭セル番号を計算
-                    col = (cardCnt % 2 != 0) ? 1 : 10;
+                    // 書き込みを行う先頭行番号を計算
                     row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
+                    
+                    // 左右の列番号を切り替え
+                    col = (cardCnt % 2 != 0) ? 1 : 10;
+
+                    // 処理速度の計測開始
+                    // DateTime SW3 = DateTime.Now;
+                    // Debug.WriteLine("[StopWatch] Read開始 ");
 
                     // カードに値をセット
-                    //DateTime SW3 = DateTime.Now;
-                    //Debug.WriteLine("[StopWatch] Read開始 ");
                     cmn.Fa.SetOrderCard(ref cardDay, ref r, ref row, ref col);
-                    //Debug.WriteLine("[StopWatch] Read終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW3).TotalSeconds.ToString("F3") + "秒)");
 
-                    // Debug if (cardCnt == 50) break;
+                    // COMアクセスへの処理速度の計測終了
+                    // Debug.WriteLine("[StopWatch] Read終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW3).TotalSeconds.ToString("F3") + "秒)");
+
                     if (cardCnt % 5 == 0)
                     {
-                        toolStripStatusLabel1.Text = progressmsg + $" - {cardCnt}件 / {cardDt.Rows.Count}件中 作成中...";
+                        toolStripStatusLabel1.Text = progressmsg + $"- {cardCnt}件 / {cardDt.Rows.Count}件中 作成中...";
                     }
                     cardCnt++;
                 }
-                // 印刷枚数が４の倍数でなかった場合、コピペした物をクリア（COMアクセスを減らす為最後にクリア処理）
+                // ループ終了時に最後のページの印刷枚数が４の倍数でなかった場合、
+                // 残りの余分なデータをクリア（COMアクセスを減らす為にクリア処理は最後の一回だけ行う）
                 if ((cardCnt - 1) % 4 != 0)
                     cmn.Fa.ClearZanOrderCard(cardCnt - 1);
                 toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件のカードが作成されました.";
