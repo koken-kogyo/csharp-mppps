@@ -1,16 +1,10 @@
 ﻿using MySql.Data.MySqlClient;
-using Mysqlx.Crud;
-using Oracle.ManagedDataAccess.Client;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
 namespace MPPPS
 {
@@ -3954,6 +3948,78 @@ namespace MPPPS
             return ret;
         }
 
+        /// <summary>
+        /// 切削手配ファイル受注状態更新
+        /// </summary>
+        /// <param name="dtEM">EMの手配ファイル</param>
+        /// <returns>更新件数</returns>
+        public int UpdateODRSTS(ref DataTable dtEM)
+        {
+
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+            string from = DateTime.Now.AddDays(-14).ToString("yyyy/MM/dd");
+            string to = DateTime.Now.AddDays(14).ToString("yyyy/MM/dd");
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                var dtUpdate = new DataTable();
+                var countUpdate = 0;
+                using (var adapter = new MySqlDataAdapter())
+                {
+                    string sql = "SELECT ODRNO, ODRSTS "
+                        + "FROM "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " "
+                        + "WHERE "
+                        + "and ODCD like '6060%' "
+                        + "and ODRSTS in ('2','3','4') "
+                        + $"and EDDT between '{from}' and '{to}' "
+                    ;
+                    adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
+                    using (var buider = new MySqlCommandBuilder(adapter))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        adapter.Fill(dtUpdate);
+
+                        // 変更または削除があるかチェック
+                        foreach (DataRow r in dtUpdate.Rows)
+                        {
+                            DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");
+                            if (drEM.Length == 1)
+                            {
+                                if (r["ODRSTS"].ToString() != drEM[0]["ODRSTS"].ToString())
+                                {
+                                    r["ODRSTS"] = drEM[0]["ODRSTS"];
+                                    countUpdate++;
+                                }
+                            }
+                        }
+                        // 更新があればデータベースへの一括更新
+                        if (countUpdate > 0)
+                        {
+                            adapter.Update(dtUpdate);
+                            ret = countUpdate;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
 
 

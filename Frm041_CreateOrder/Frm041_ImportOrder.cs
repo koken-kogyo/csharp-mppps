@@ -842,6 +842,32 @@ namespace MPPPS
             return ret;
         }
 
-
+        // EMの手配状態を取り込む
+        private void toolStripStatusLabel2_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (MessageBox.Show("EM手配完了ステータスの取込処理を行いますか？", "裏メニュー",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Exclamation,
+                    MessageBoxDefaultButton.Button1
+                    ) == DialogResult.Yes)
+                {
+                    // EMの手配ファイルの取込
+                    DataTable dtEM = new DataTable();
+                    if (cmn.Dba.GetD0410ODRSTS(ref dtEM))
+                    {
+                        int ret = cmn.Dba.UpdateODRSTS(ref dtEM);
+                        if (ret == 0) toolStripStatusLabel2.Text = "更新はありませんでした．";
+                        if (ret > 0) toolStripStatusLabel2.Text = ret.ToString("#,0") + "件を更新しました．";
+                        if (ret < 0) toolStripStatusLabel2.Text = "ステータス更新で異常が発生しました．";
+                    }
+                    else
+                    {
+                        toolStripStatusLabel2.Text = "EMデータベース異常が発生しました．";
+                    }
+                }
+            }
+        }
     }
 }

@@ -57,9 +57,9 @@ namespace MPPPS
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip.Location = new System.Drawing.Point(0, 542);
+            this.statusStrip.Location = new System.Drawing.Point(0, 537);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(851, 24);
+            this.statusStrip.Size = new System.Drawing.Size(851, 29);
             this.statusStrip.TabIndex = 6;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -67,7 +67,7 @@ namespace MPPPS
             // 
             this.toolStripStatusLabel1.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(139, 19);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(171, 23);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -75,10 +75,11 @@ namespace MPPPS
             // 
             this.toolStripStatusLabel2.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(697, 19);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(626, 23);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolStripStatusLabel2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.toolStripStatusLabel2_MouseDown);
             // 
             // panel1
             // 
@@ -151,7 +152,7 @@ namespace MPPPS
             this.Dgv_Calendar.Name = "Dgv_Calendar";
             this.Dgv_Calendar.RowHeadersWidth = 51;
             this.Dgv_Calendar.RowTemplate.Height = 24;
-            this.Dgv_Calendar.Size = new System.Drawing.Size(851, 487);
+            this.Dgv_Calendar.Size = new System.Drawing.Size(851, 482);
             this.Dgv_Calendar.TabIndex = 9;
             this.Dgv_Calendar.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Dgv_Calendar_CellClick);
             this.Dgv_Calendar.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Dgv_Calendar_MouseUp);
@@ -161,7 +162,7 @@ namespace MPPPS
             this.panel2.Controls.Add(this.Btn_PrintOrder);
             this.panel2.Controls.Add(this.Btn_ImportOrder);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 500);
+            this.panel2.Location = new System.Drawing.Point(0, 495);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(851, 42);
             this.panel2.TabIndex = 10;

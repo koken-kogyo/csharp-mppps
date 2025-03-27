@@ -1,7 +1,5 @@
-﻿//using Oracle.DataAccess.Client;
-using Oracle.ManagedDataAccess.Client;
+﻿using Oracle.ManagedDataAccess.Client;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
@@ -1467,6 +1465,69 @@ namespace MPPPS
             cmn.Dbm.CloseOraSchema(emCnn);
             return ret;
         }
+
+        /// <summary>
+        /// 注文情報データ手配状態取得
+        /// </summary>
+        /// <param name="orderDt">注文情報データ</param>
+        /// <returns>注文情報データ</returns>
+        public bool GetD0410ODRSTS(ref DataTable orderDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            string yyMM = DateTime.Now.AddMonths(-3).ToString("yyMM");
+            string from = DateTime.Now.AddDays(-14).ToString("yyyy/MM/dd");
+            string to = DateTime.Now.AddDays(14).ToString("yyyy/MM/dd");
+            OracleConnection emCnn = null;
+
+            try
+            {
+                // EMデータベースへ接続
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
+
+                string sql;
+                sql = "SELECT ODRNO, ODRSTS "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + "WHERE "
+                    + $"ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
+                    + "and ODCD like '6060%' "
+                    + "and ODRSTS in ('2','3','4') "
+                    + $"and EDDT between '{from}' and '{to}' "
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        using (DataTable myDt = new DataTable())
+                        {
+                            // 結果取得
+                            myDa.Fill(orderDt);
+                            ret = true;
+                        }
+                    }
+                }
+                // 接続を閉じる
+                cmn.Dbm.CloseOraSchema(emCnn);
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(emCnn);
+            return ret;
+        }
+
+
 
     }
 }
