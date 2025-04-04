@@ -415,10 +415,10 @@ namespace MPPPS
                 Cbx_Schema.Text = config.AppSettings.Settings["schema"].Value; // 【要検討】スキーマ名は設定情報からセットしたほうがよいかも
                 //▼[デバッグ][MOD] 評価用初期表示
                 // リリース時には元に戻すこと
-                //Tbx_UserId.Text = config.AppSettings.Settings["userID"].Value;
-                //Tbx_Passwd.Text = "";
-                Tbx_UserId.Text = "11014";
-                Tbx_Passwd.Text = "0215";
+                Tbx_UserId.Text = config.AppSettings.Settings["userID"].Value;
+                Tbx_Passwd.Text = "";
+                //Tbx_UserId.Text = "11014";
+                //Tbx_Passwd.Text = "0215";
                 //▲[デバッグ][MOD] 評価用初期表示
                 Chk_MemUserId.Checked = true;
             }
@@ -428,10 +428,10 @@ namespace MPPPS
                 Cbx_Schema.Text = cmn.DbCd[Common.DB_CONFIG_EM].Schema;
                 //▼[デバッグ][MOD] 評価用初期表示
                 // リリース時には元に戻すこと
-                //Tbx_UserId.Text = "";
-                //Tbx_Passwd.Text = "";
-                Tbx_UserId.Text = "11014";
-                Tbx_Passwd.Text = "0215";
+                Tbx_UserId.Text = "";
+                Tbx_Passwd.Text = "";
+                //Tbx_UserId.Text = "11014";
+                //Tbx_Passwd.Text = "0215";
                 //▲[デバッグ][MOD] 評価用初期表示
                 Chk_MemUserId.Checked = false;
             }
@@ -496,7 +496,7 @@ namespace MPPPS
             }
             else
             {
-                Tbx_Passwd.Focus();
+                Tbx_UserId.Focus();
             }
         }
     }

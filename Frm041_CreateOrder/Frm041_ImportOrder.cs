@@ -861,6 +861,9 @@ namespace MPPPS
                         if (ret == 0) toolStripStatusLabel2.Text = "更新はありませんでした．";
                         if (ret > 0) toolStripStatusLabel2.Text = ret.ToString("#,0") + "件を更新しました．";
                         if (ret < 0) toolStripStatusLabel2.Text = "ステータス更新で異常が発生しました．";
+                        ret = cmn.Dba.UpdateODRSTS2(ref dtEM);
+                        if (ret < 0) toolStripStatusLabel2.Text += "(異常が発生しました．)";
+                        if (ret > 0) toolStripStatusLabel2.Text += "(" + ret.ToString("#,0") + "件)";
                     }
                     else
                     {

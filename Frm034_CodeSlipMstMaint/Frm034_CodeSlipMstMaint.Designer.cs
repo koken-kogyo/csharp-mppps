@@ -33,10 +33,12 @@ namespace MPPPS
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm034_CodeSlipMstMaint));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnUpdateDatabase2 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tglViewSimple = new System.Windows.Forms.RadioButton();
             this.tglViewNormal = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnHMCDPaste = new System.Windows.Forms.Button();
             this.btnHMCDClear = new System.Windows.Forms.Button();
             this.txtHMCD = new System.Windows.Forms.TextBox();
             this.cmbMaterial = new System.Windows.Forms.ComboBox();
@@ -58,6 +60,7 @@ namespace MPPPS
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btnUpdateDatabase2);
             this.panel1.Controls.Add(this.groupBox2);
             this.panel1.Controls.Add(this.groupBox1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -66,6 +69,17 @@ namespace MPPPS
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1262, 59);
             this.panel1.TabIndex = 3;
+            // 
+            // btnUpdateDatabase2
+            // 
+            this.btnUpdateDatabase2.BackColor = System.Drawing.Color.LightGreen;
+            this.btnUpdateDatabase2.Location = new System.Drawing.Point(824, 12);
+            this.btnUpdateDatabase2.Name = "btnUpdateDatabase2";
+            this.btnUpdateDatabase2.Size = new System.Drawing.Size(400, 41);
+            this.btnUpdateDatabase2.TabIndex = 14;
+            this.btnUpdateDatabase2.Text = "工程数と検索キーを自動作成してデータベースに反映";
+            this.btnUpdateDatabase2.UseVisualStyleBackColor = false;
+            this.btnUpdateDatabase2.Click += new System.EventHandler(this.btnUpdateDatabase2_Click);
             // 
             // groupBox2
             // 
@@ -91,7 +105,7 @@ namespace MPPPS
             this.tglViewSimple.Size = new System.Drawing.Size(100, 34);
             this.tglViewSimple.TabIndex = 9;
             this.tglViewSimple.TabStop = true;
-            this.tglViewSimple.Text = "シンプル";
+            this.tglViewSimple.Text = "新システム";
             this.tglViewSimple.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.tglViewSimple.UseVisualStyleBackColor = true;
             this.tglViewSimple.CheckedChanged += new System.EventHandler(this.tglViewSimple_CheckedChanged);
@@ -114,6 +128,7 @@ namespace MPPPS
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.btnHMCDPaste);
             this.groupBox1.Controls.Add(this.btnHMCDClear);
             this.groupBox1.Controls.Add(this.txtHMCD);
             this.groupBox1.Controls.Add(this.cmbMaterial);
@@ -127,11 +142,22 @@ namespace MPPPS
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "検索条件";
             // 
+            // btnHMCDPaste
+            // 
+            this.btnHMCDPaste.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnHMCDPaste.Location = new System.Drawing.Point(354, 21);
+            this.btnHMCDPaste.Name = "btnHMCDPaste";
+            this.btnHMCDPaste.Size = new System.Drawing.Size(88, 31);
+            this.btnHMCDPaste.TabIndex = 12;
+            this.btnHMCDPaste.Text = "貼り付け";
+            this.btnHMCDPaste.UseVisualStyleBackColor = true;
+            this.btnHMCDPaste.Click += new System.EventHandler(this.btnHMCDPaste_Click);
+            // 
             // btnHMCDClear
             // 
             this.btnHMCDClear.Location = new System.Drawing.Point(193, 21);
             this.btnHMCDClear.Name = "btnHMCDClear";
-            this.btnHMCDClear.Size = new System.Drawing.Size(102, 31);
+            this.btnHMCDClear.Size = new System.Drawing.Size(88, 31);
             this.btnHMCDClear.TabIndex = 11;
             this.btnHMCDClear.Text = "品番クリア";
             this.btnHMCDClear.UseVisualStyleBackColor = true;
@@ -142,7 +168,7 @@ namespace MPPPS
             this.txtHMCD.Font = new System.Drawing.Font("Yu Gothic UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.txtHMCD.Location = new System.Drawing.Point(27, 21);
             this.txtHMCD.Name = "txtHMCD";
-            this.txtHMCD.Size = new System.Drawing.Size(165, 38);
+            this.txtHMCD.Size = new System.Drawing.Size(165, 32);
             this.txtHMCD.TabIndex = 10;
             this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
             // 
@@ -162,7 +188,7 @@ namespace MPPPS
             "ﾚｰｻﾞｰ"});
             this.cmbMaterial.Location = new System.Drawing.Point(321, 18);
             this.cmbMaterial.Name = "cmbMaterial";
-            this.cmbMaterial.Size = new System.Drawing.Size(79, 39);
+            this.cmbMaterial.Size = new System.Drawing.Size(79, 33);
             this.cmbMaterial.TabIndex = 9;
             this.cmbMaterial.SelectedIndexChanged += new System.EventHandler(this.cmbMaterial_SelectedIndexChanged);
             // 
@@ -171,17 +197,17 @@ namespace MPPPS
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 321);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 325);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 18, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1262, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(1262, 22);
             this.statusStrip1.TabIndex = 5;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(143, 20);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(112, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
             // 
             // panel2
@@ -191,7 +217,7 @@ namespace MPPPS
             this.panel2.Controls.Add(this.btnReadExcelMaster);
             this.panel2.Controls.Add(this.btnConvertMP);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 273);
+            this.panel2.Location = new System.Drawing.Point(0, 277);
             this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1262, 48);
@@ -252,12 +278,13 @@ namespace MPPPS
             this.Dgv_CodeSlipMst.Name = "Dgv_CodeSlipMst";
             this.Dgv_CodeSlipMst.RowHeadersWidth = 51;
             this.Dgv_CodeSlipMst.RowTemplate.Height = 24;
-            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1262, 214);
+            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1262, 218);
             this.Dgv_CodeSlipMst.TabIndex = 7;
             this.Dgv_CodeSlipMst.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.Dgv_CodeSlipMst_CellMouseDown);
             this.Dgv_CodeSlipMst.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.Dgv_CodeSlipMst_ColumnWidthChanged);
             this.Dgv_CodeSlipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_CodeSlipMst_RowPostPaint);
             this.Dgv_CodeSlipMst.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.Dgv_CodeSlipMst_RowsRemoved);
+            this.Dgv_CodeSlipMst.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Dgv_CodeSlipMst_KeyDown);
             // 
             // Frm034_CodeSlipMstMaint
             // 
@@ -303,5 +330,7 @@ namespace MPPPS
         private RadioButton tglViewSimple;
         private RadioButton tglViewNormal;
         private Button btnNextDiffer;
+        private Button btnUpdateDatabase2;
+        private Button btnHMCDPaste;
     }
 }

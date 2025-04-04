@@ -1388,10 +1388,20 @@ namespace MPPPS
             {
                 obj[9, 1] = "";
             }
-            else 
+            else
             {
                 obj[9, 1] = "工程①";
-                obj[9, 2] = RemoveDuplicates(r["KT1MCGCD"].ToString(), r["KT1MCCD"].ToString(),1);
+                obj[9, 2] = RemoveDuplicates(r["KT1MCGCD"].ToString(), r["KT1MCCD"].ToString(), 1);
+                if (obj[9, 2].ToString().StartsWith("EX-MT")) 
+                {
+                    obj[9, 1] = "面取り";
+                    obj[9, 2] = r["KT1MCCD"].ToString();
+                }
+                if (obj[9, 2].ToString().StartsWith("EX-BT"))
+                {
+                    obj[9, 1] = "ﾊﾞﾘ取り";
+                    obj[9, 2] = r["KT1MCCD"].ToString();
+                }
             }
             if (r["KT2MCGCD"].ToString() == "")
             {
@@ -1401,6 +1411,16 @@ namespace MPPPS
             {
                 obj[11, 1] = "工程②";
                 obj[11, 2] = RemoveDuplicates(r["KT2MCGCD"].ToString(), r["KT2MCCD"].ToString(), 1);
+                if (obj[11, 2].ToString().StartsWith("EX-MT"))
+                {
+                    obj[11, 1] = "面取り";
+                    obj[11, 2] = r["KT2MCCD"].ToString();
+                }
+                if (obj[11, 2].ToString().StartsWith("EX-BT"))
+                {
+                    obj[11, 1] = "ﾊﾞﾘ取り";
+                    obj[11, 2] = r["KT2MCCD"].ToString();
+                }
             }
             if (r["KT3MCGCD"].ToString() == "")
             {
@@ -1410,6 +1430,16 @@ namespace MPPPS
             {
                 obj[13, 1] = "工程③";
                 obj[13, 2] = RemoveDuplicates(r["KT3MCGCD"].ToString(), r["KT3MCCD"].ToString(), 1);
+                if (obj[13, 2].ToString().StartsWith("EX-MT"))
+                {
+                    obj[13, 1] = "面取り";
+                    obj[13, 2] = r["KT3MCCD"].ToString();
+                }
+                if (obj[13, 2].ToString().StartsWith("EX-BT"))
+                {
+                    obj[13, 1] = "ﾊﾞﾘ取り";
+                    obj[13, 2] = r["KT3MCCD"].ToString();
+                }
             }
             if (r["KT4MCGCD"].ToString() == "")
             {
@@ -1419,10 +1449,48 @@ namespace MPPPS
             {
                 obj[15, 1] = "工程④";
                 obj[15, 2] = RemoveDuplicates(r["KT4MCGCD"].ToString(), r["KT4MCCD"].ToString(), 1);
+                if (obj[15, 2].ToString().StartsWith("EX-MT"))
+                {
+                    obj[15, 1] = "面取り";
+                    obj[15, 2] = r["KT4MCCD"].ToString();
+                }
+                if (obj[15, 2].ToString().StartsWith("EX-BT"))
+                {
+                    obj[15, 1] = "ﾊﾞﾘ取り";
+                    obj[15, 2] = r["KT4MCCD"].ToString();
+                }
             }
-            if (r["KT5MCGCD"].ToString() != "")
+            if (r["KT5MCGCD"].ToString() == "")
+            {
+                obj[17, 1] = "";
+            }
+            else
             {
                 obj[17, 2] = RemoveDuplicates(r["KT5MCGCD"].ToString(), r["KT5MCCD"].ToString(), 1);
+                if (obj[17, 2].ToString().StartsWith("EX-MT"))
+                {
+                    obj[17, 1] = "面取り";
+                    obj[17, 2] = r["KT5MCCD"].ToString();
+                }
+                if (obj[17, 2].ToString().StartsWith("EX-BT"))
+                {
+                    obj[17, 1] = "ﾊﾞﾘ取り";
+                    obj[17, 2] = r["KT5MCCD"].ToString();
+                }
+            }
+            if (r["KT6MCGCD"].ToString() != "")
+            {
+                var tmp = RemoveDuplicates(r["KT6MCGCD"].ToString(), r["KT6MCCD"].ToString(), 1);
+                if (tmp.StartsWith("EX-MT"))
+                {
+                    obj[17, 1] += "\n面取り";
+                    obj[17, 2] += "\n" + r["KT6MCCD"].ToString();
+                }
+                if (tmp.StartsWith("EX-BT"))
+                {
+                    obj[17, 1] += "\nﾊﾞﾘ取り";
+                    obj[17, 2] += "\n" + r["KT6MCCD"].ToString();
+                }
             }
             var note = r["NOTE"].ToString();
             if (r["PARTNER"].ToString() != "") note += "\n" + r["PARTNER"].ToString();

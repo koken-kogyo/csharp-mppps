@@ -2328,7 +2328,10 @@ namespace MPPPS
                 + "MCGCD,"
                 + "MCCD,"
                 + "HMCD,"
+                + "EDDT,"
                 + "ODRQTY,"
+                + "JIQTY,"
+                + "ODRSTS,"
                 + "MPINSTID,"
                 + "MPUPDTID"
                 + ") "
@@ -2337,8 +2340,11 @@ namespace MPPPS
                 +  "1 as MPSEQ,"
                 +  "b.KT1MCGCD as MCGCD,"
                 +  "b.KT1MCCD as MCCD,"
-                +  "a.HMCD,"
-                +  "a.ODRQTY,"
+                + "a.HMCD,"
+                + "a.EDDT,"
+                + "a.ODRQTY,"
+                + "a.JIQTY,"
+                + "a.ODRSTS,"
                 + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
                 + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
                 +  "from "
@@ -2354,7 +2360,10 @@ namespace MPPPS
                 + "b.KT2MCGCD as MCGCD,"
                 + "b.KT2MCCD as MCCD,"
                 + "a.HMCD,"
+                + "a.EDDT,"
                 + "a.ODRQTY,"
+                + "a.JIQTY,"
+                + "a.ODRSTS,"
                 + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
                 + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
                 + "from "
@@ -2370,7 +2379,10 @@ namespace MPPPS
                 + "b.KT3MCGCD as MCGCD,"
                 + "b.KT3MCCD as MCCD,"
                 + "a.HMCD,"
+                + "a.EDDT,"
                 + "a.ODRQTY,"
+                + "a.JIQTY,"
+                + "a.ODRSTS,"
                 + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
                 + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
                 + "from "
@@ -2386,7 +2398,10 @@ namespace MPPPS
                 + "b.KT4MCGCD as MCGCD,"
                 + "b.KT4MCCD as MCCD,"
                 + "a.HMCD,"
+                + "a.EDDT,"
                 + "a.ODRQTY,"
+                + "a.JIQTY,"
+                + "a.ODRSTS,"
                 + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
                 + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
                 + "from "
@@ -2402,7 +2417,10 @@ namespace MPPPS
                 + "b.KT5MCGCD as MCGCD,"
                 + "b.KT5MCCD as MCCD,"
                 + "a.HMCD,"
+                + "a.EDDT,"
                 + "a.ODRQTY,"
+                + "a.JIQTY,"
+                + "a.ODRSTS,"
                 + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
                 + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
                 + "from "
@@ -3149,6 +3167,9 @@ namespace MPPPS
                 + ",b.KT5MCGCD "
                 + ",b.KT5MCCD "
                 + ",b.KT5CT "
+                + ",b.KT6MCGCD "
+                + ",b.KT6MCCD "
+                + ",b.KT6CT "
                 + "FROM "
                 + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
                 + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
@@ -3949,7 +3970,8 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 切削手配ファイル受注状態更新
+        /// 切削手配ファイル受注状態ミラーリング
+        /// EMの手配状態をMPシステムにミラーリング（9:取消は手動でやってもらうためにミラーリング対象外）
         /// </summary>
         /// <param name="dtEM">EMの手配ファイル</param>
         /// <returns>更新件数</returns>
@@ -3968,16 +3990,57 @@ namespace MPPPS
                 // MPデータベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                var dtUpdate = new DataTable();
-                var countUpdate = 0;
+                // 切削手配ファイルミラーリング:KD8430
                 using (var adapter = new MySqlDataAdapter())
                 {
+                    var dtUpdate = new DataTable();
+                    var countUpdate = 0;
                     string sql = "SELECT ODRNO, ODRSTS "
                         + "FROM "
-                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                         + "WHERE "
-                        + "and ODCD like '6060%' "
-                        + "and ODRSTS in ('2','3','4') "
+                        + "ODCD like '6060%' "
+                        + "and ODRSTS in ('2','3') "
+                        + $"and EDDT between '{from}' and '{to}' "
+                    ;
+                    adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
+                    using (var buider = new MySqlCommandBuilder(adapter))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        adapter.Fill(dtUpdate);
+
+                        // EMが完了になっているかチェック
+                        foreach (DataRow r in dtUpdate.Rows)
+                        {
+                            DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");
+                            if (drEM.Length == 1)
+                            {
+                                if (r["ODRSTS"].ToString() != drEM[0]["ODRSTS"].ToString())
+                                {
+                                    r["ODRSTS"] = drEM[0]["ODRSTS"];
+                                    countUpdate++;
+                                }
+                            }
+                        }
+                        // 更新があればデータベースへの一括更新
+                        if (countUpdate > 0)
+                        {
+                            adapter.Update(dtUpdate);
+                            ret = countUpdate;
+                        }
+                    }
+                }
+
+                // 切削オーダーファイルミラーリング:KD8450
+                using (var adapter = new MySqlDataAdapter())
+                {
+                    var dtUpdate = new DataTable();
+                    var countUpdate = 0;
+                    string sql = "SELECT ODRNO, MPSEQ, LOTSEQ, ODRSTS "
+                        + "FROM "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                        + "WHERE "
+                        + "ODRSTS in ('2','3') "
                         + $"and EDDT between '{from}' and '{to}' "
                     ;
                     adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
@@ -4003,10 +4066,11 @@ namespace MPPPS
                         if (countUpdate > 0)
                         {
                             adapter.Update(dtUpdate);
-                            ret = countUpdate;
                         }
                     }
                 }
+
+
             }
             catch (Exception ex)
             {
@@ -4021,6 +4085,79 @@ namespace MPPPS
             return ret;
         }
 
+        /// <summary>
+        /// 切削手配ファイル受注状態ミラーリング
+        /// EMの手配状態をMPシステムにミラーリング（9:取消は手動でやってもらうためにミラーリング対象外）
+        /// </summary>
+        /// <param name="dtEM">EMの手配ファイル</param>
+        /// <returns>更新件数</returns>
+        public int UpdateODRSTS2(ref DataTable dtEM)
+        {
+
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+            string from = DateTime.Now.AddDays(-14).ToString("yyyy/MM/dd");
+            string to = DateTime.Now.AddDays(14).ToString("yyyy/MM/dd");
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                using (var adapter = new MySqlDataAdapter())
+                {
+                    // 切削オーダーファイルミラーリング:KD8450
+                    var dtUpdate = new DataTable();
+                    var countUpdate = 0;
+                    string sql = "SELECT ODRNO, MPSEQ, LOTSEQ, ODRSTS "
+                        + "FROM "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                        + "WHERE "
+                        + "ODRSTS in ('2','3') "
+                        + $"and EDDT between '{from}' and '{to}' "
+                    ;
+                    adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
+                    using (var buider = new MySqlCommandBuilder(adapter))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        adapter.Fill(dtUpdate);
+
+                        // 変更または削除があるかチェック
+                        foreach (DataRow r in dtUpdate.Rows)
+                        {
+                            DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");
+                            if (drEM.Length == 1)
+                            {
+                                if (r["ODRSTS"].ToString() != drEM[0]["ODRSTS"].ToString())
+                                {
+                                    r["ODRSTS"] = drEM[0]["ODRSTS"];
+                                    countUpdate++;
+                                }
+                            }
+                        }
+                        // 更新があればデータベースへの一括更新
+                        if (countUpdate > 0)
+                        {
+                            adapter.Update(dtUpdate);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
 
 

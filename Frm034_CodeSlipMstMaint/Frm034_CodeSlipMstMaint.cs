@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace MPPPS
 {
@@ -19,6 +18,17 @@ namespace MPPPS
         private DataTable codeSlipDt = new DataTable(); // コード票マスタを保持
         private bool loadedFlg = false;
         private int errorRow = 0;
+        private static System.Timers.Timer timer;
+
+        // 列番号定数
+        private static int cColKTSU = 24;
+
+        // 自動で閉じるメッセージボックスで使用
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern int SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        private const uint WM_CLOSE = 0x0010;
 
         public Frm034_CodeSlipMstMaint(Common cmn)
         {
@@ -226,19 +236,19 @@ namespace MPPPS
                 .GroupBy(grp => new { MCGCD = grp["MCGCD"].ToString() })
                 .Select(x => x.Key.MCGCD)
                 .ToArray();
-            if (s2.Length != 17)
+            if (s2.Length != 17 && s2.Length != 18) // 工程G[EX]を新規追加 2025.04.03
             {
                 MessageBox.Show("設備マスタに異常があります（列が17個ではない)");
                 return;
             }
-            for (int i = 0; i < s2.Length; i++)
+            for (int i = 0; i < 17; i++)
             {
                 Dgv_CodeSlipMst.Columns[i + offset].HeaderText = s2[i];
                 Dgv_CodeSlipMst.Columns[i + offset].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 Dgv_CodeSlipMst.Columns[i + offset].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 Dgv_CodeSlipMst.Columns[i + offset].Width = 40;
             }
-            offset += s2.Length;
+            offset += 17; // 廃止⇒s2.Length; 2025.04.03
 
             // サイクルタイムとその他情報
             string[] s3 = {
@@ -277,6 +287,10 @@ namespace MPPPS
                 {
                     Dgv_CodeSlipMst.Columns[i + offset].Width = 40;
                 }
+                if (i == 14) // 検索ｷｰ
+                {
+                    Dgv_CodeSlipMst.Columns[i + offset].Width = 180;
+                }
             }
             offset += s3.Length;
 
@@ -311,6 +325,9 @@ namespace MPPPS
         {
             if (Dgv_CodeSlipMst.Columns.Count == 0) return;
             bool v = (tglViewSimple.Checked) ? false : true;
+            Dgv_CodeSlipMst.Columns[4].Visible = v;        // 収容数
+            Dgv_CodeSlipMst.Columns[5].Visible = v;        // ﾁｪｯｸ
+            Dgv_CodeSlipMst.Columns[6].Visible = v;        // 協力
             // Excelで使用している列
             for (int i = 7; i < 31; i++)
                 Dgv_CodeSlipMst.Columns[i].Visible = v;
@@ -318,14 +335,17 @@ namespace MPPPS
             for (int i = 42; i < 68; i = i + 5)
             {
                 Dgv_CodeSlipMst.Columns[i + 0].Visible = v; // LOT
-                Dgv_CodeSlipMst.Columns[i + 1].Visible = v; // 帳票定義ID
+                //Dgv_CodeSlipMst.Columns[i + 1].Visible = v; // 帳票定義ID
             }
-            Dgv_CodeSlipMst.Columns[24].Visible = true;     // 工程数
+            Dgv_CodeSlipMst.Columns[cColKTSU].Visible = true;     // 工程数
+            Dgv_CodeSlipMst.Columns[31].Visible = v;        // ｽﾄｱ
+            Dgv_CodeSlipMst.Columns[32].Visible = v;        // 備考
             Dgv_CodeSlipMst.Columns[33].Visible = v;        // HT
             Dgv_CodeSlipMst.Columns[34].Visible = v;        // 母材品番
             Dgv_CodeSlipMst.Columns[35].Visible = v;        // 母材略称
             Dgv_CodeSlipMst.Columns[36].Visible = v;        // 母材長さ
-            Dgv_CodeSlipMst.Columns[38].Visible = v;        // 工程検索キー
+            Dgv_CodeSlipMst.Columns[37].Visible = v;        // 容器
+            //Dgv_CodeSlipMst.Columns[38].Visible = v;        // 工程検索キー
             Dgv_CodeSlipMst.Columns[69].Visible = false;    // INSTID
             Dgv_CodeSlipMst.Columns[70].Visible = false;    // INSTDT
             Dgv_CodeSlipMst.Columns[71].Visible = false;    // UPDTID
@@ -399,6 +419,54 @@ namespace MPPPS
             MessageBox.Show("更新が終了しました．");
         }
 
+        // 新たに工程設計した工程１～６までの工程数と検索キーを自動作成してデータベース反映
+        private void btnUpdateDatabase2_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < Dgv_CodeSlipMst.Rows.Count; i++)
+            {
+                var hmcd = Dgv_CodeSlipMst.Rows[i].Cells[0].Value;
+                DataRow[] dr = codeSlipDt.Select($"HMCD='{hmcd}'");
+                if (dr.Length == 1)
+                {
+                    string ktkey = "";
+                    int ktsu = 1;
+                    int col = 39; // [工程１設備グループ]の列番号 A5M2のカラムタブ№40-1
+                    while (ktsu <= 6) 
+                    {
+                        ktkey += Dgv_CodeSlipMst.Rows[i].Cells[col].Value.ToString();
+                        ktkey += "-";
+                        ktkey += Dgv_CodeSlipMst.Rows[i].Cells[col + 1].Value.ToString();
+                        ktkey += ":";
+                        if (Dgv_CodeSlipMst.Rows[i].Cells[col + 5].Value.ToString() == "") break;
+                        col += 5;
+                        ktsu++;
+                    }
+                    Dgv_CodeSlipMst.Rows[i].Cells[cColKTSU].Value = ktsu;
+                    Dgv_CodeSlipMst.Rows[i].Cells[38].Value = ktkey;
+
+                    for (int j = 1; j < Dgv_CodeSlipMst.Columns.Count; j++)
+                    {
+                        dr[0][j] = Dgv_CodeSlipMst.Rows[i].Cells[j].Value;
+                    }
+                }
+            }
+            // 一括更新
+            cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
+
+            // 新しいスレッドを作成
+            Thread thread = new Thread(ShowMessageBox);
+            thread.Start();
+            Thread.Sleep(1000);
+            IntPtr hWnd = FindWindow(null, "マスタ更新");
+            SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+        }
+
+        // 自動で閉じるメッセージボックス
+        private static void ShowMessageBox()
+        {
+            MessageBox.Show("更新が終了しました．", "マスタ更新");
+        }
+
         // 最新のコード票マスタを読み込み変更点をチェック
         private async void btnReadExcelMaster_Click(object sender, EventArgs e)
         {
@@ -470,6 +538,10 @@ namespace MPPPS
                                     Dgv_CodeSlipMst[col, row].Style.BackColor = Color.LightCoral;
                                     differCount++;
                                 }
+                            }
+                            else if (col == cColKTSU)
+                            {
+                                continue;
                             }
                             else if (Dgv_CodeSlipMst.Columns[col].DefaultCellStyle.Format == "#,0")
                             {
@@ -547,6 +619,38 @@ namespace MPPPS
         {
             if (e.Button == MouseButtons.Right && e.ColumnIndex == 0)
                 Clipboard.SetText(Dgv_CodeSlipMst[e.ColumnIndex, e.RowIndex].Value.ToString());
+        }
+
+        // 品番入力欄にペースト
+        private void btnHMCDPaste_Click(object sender, EventArgs e)
+        {
+            txtHMCD.Text = Clipboard.GetText().Replace("\r\n", "");
+        }
+
+        // データグリッドにペースト
+        private void Dgv_CodeSlipMst_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.V)   // 貼り付け Ctrl + V
+            {
+                Dgv_CodeSlipMst.CurrentCell.Value = Clipboard.GetText().Replace("\r\n", "");
+            }
+            if (e.KeyCode == Keys.Delete)           // Deleteキー
+            {
+                Debug.WriteLine(Dgv_CodeSlipMst.CurrentCell.ValueType);
+                var cellType = Dgv_CodeSlipMst.CurrentCell.ValueType.ToString();
+                if (cellType == "System.Int32")
+                {
+                    Dgv_CodeSlipMst.CurrentCell.Value = 0;
+                }
+                else if (cellType == "System.Decimal")
+                {
+                    Dgv_CodeSlipMst.CurrentCell.Value = 0.0d;
+                }
+                else
+                {
+                    Dgv_CodeSlipMst.CurrentCell.Value = "";
+                }
+            }
         }
     }
 }
