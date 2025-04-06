@@ -3995,7 +3995,7 @@ namespace MPPPS
                 {
                     var dtUpdate = new DataTable();
                     var countUpdate = 0;
-                    string sql = "SELECT ODRNO, ODRSTS "
+                    string sql = "SELECT ODRNO, ODRSTS, JIQTY "
                         + "FROM "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                         + "WHERE "
@@ -4018,6 +4018,7 @@ namespace MPPPS
                                 if (r["ODRSTS"].ToString() != drEM[0]["ODRSTS"].ToString())
                                 {
                                     r["ODRSTS"] = drEM[0]["ODRSTS"];
+                                    r["JIQTY"] = drEM[0]["JIQTY"];
                                     countUpdate++;
                                 }
                             }
@@ -4036,7 +4037,7 @@ namespace MPPPS
                 {
                     var dtUpdate = new DataTable();
                     var countUpdate = 0;
-                    string sql = "SELECT ODRNO, MPSEQ, LOTSEQ, ODRSTS "
+                    string sql = "SELECT ODRNO, MPSEQ, LOTSEQ, ODRSTS, JIQTY "
                         + "FROM "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
                         + "WHERE "
@@ -4058,6 +4059,7 @@ namespace MPPPS
                                 if (r["ODRSTS"].ToString() != drEM[0]["ODRSTS"].ToString())
                                 {
                                     r["ODRSTS"] = drEM[0]["ODRSTS"];
+                                    r["JIQTY"] = drEM[0]["JIQTY"];
                                     countUpdate++;
                                 }
                             }
@@ -4084,82 +4086,6 @@ namespace MPPPS
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
-
-        /// <summary>
-        /// 切削手配ファイル受注状態ミラーリング
-        /// EMの手配状態をMPシステムにミラーリング（9:取消は手動でやってもらうためにミラーリング対象外）
-        /// </summary>
-        /// <param name="dtEM">EMの手配ファイル</param>
-        /// <returns>更新件数</returns>
-        public int UpdateODRSTS2(ref DataTable dtEM)
-        {
-
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
-            int ret = 0;
-            string from = DateTime.Now.AddDays(-14).ToString("yyyy/MM/dd");
-            string to = DateTime.Now.AddDays(14).ToString("yyyy/MM/dd");
-            MySqlConnection mpCnn = null;
-
-            try
-            {
-                // MPデータベースへ接続
-                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
-
-                using (var adapter = new MySqlDataAdapter())
-                {
-                    // 切削オーダーファイルミラーリング:KD8450
-                    var dtUpdate = new DataTable();
-                    var countUpdate = 0;
-                    string sql = "SELECT ODRNO, MPSEQ, LOTSEQ, ODRSTS "
-                        + "FROM "
-                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
-                        + "WHERE "
-                        + "ODRSTS in ('2','3') "
-                        + $"and EDDT between '{from}' and '{to}' "
-                    ;
-                    adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
-                    using (var buider = new MySqlCommandBuilder(adapter))
-                    {
-                        Debug.WriteLine("Read from DataTable:");
-                        adapter.Fill(dtUpdate);
-
-                        // 変更または削除があるかチェック
-                        foreach (DataRow r in dtUpdate.Rows)
-                        {
-                            DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");
-                            if (drEM.Length == 1)
-                            {
-                                if (r["ODRSTS"].ToString() != drEM[0]["ODRSTS"].ToString())
-                                {
-                                    r["ODRSTS"] = drEM[0]["ODRSTS"];
-                                    countUpdate++;
-                                }
-                            }
-                        }
-                        // 更新があればデータベースへの一括更新
-                        if (countUpdate > 0)
-                        {
-                            adapter.Update(dtUpdate);
-                        }
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
-                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
-                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
-                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
-                ret = -1;
-            }
-            // 接続を閉じる
-            cmn.Dbm.CloseMySqlSchema(mpCnn);
-            return ret;
-        }
-
-
 
     }
 }

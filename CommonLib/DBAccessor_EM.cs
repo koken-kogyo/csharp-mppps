@@ -1487,7 +1487,7 @@ namespace MPPPS
                 cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
 
                 string sql;
-                sql = "SELECT ODRNO, ODRSTS "
+                sql = "SELECT ODRNO, ODRSTS, JIQTY "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " "
                     + "WHERE "
