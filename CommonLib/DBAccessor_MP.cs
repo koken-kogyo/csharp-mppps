@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Mysqlx.Crud;
 using System;
 using System.Data;
 using System.Diagnostics;
@@ -2252,54 +2253,41 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 注文情報取込
+        /// 仕掛り在庫データ取得
         /// </summary>
-        /// <param name="eddts">取込対象の日付をinで使えるカンマ区切り形式で指定</param>
-        /// <returns>注文情報取込</returns>
-        public bool ImportMpOrder(ref DataTable exceptDt)
+        /// <param name="mpZaikoDt">仕掛り在庫データ</param>
+        /// <returns>仕掛り在庫データ</returns>
+        public bool GetMpZaiko(ref DataTable mpZaikoDt, string mcgcds)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             bool ret = false;
             MySqlConnection mpCnn = null;
-            MySqlTransaction transaction = null;
 
             try
             {
-                // 切削生産計画システム データベースへ接続
+                // MPデータベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                // トランザクション開始
-                transaction = mpCnn.BeginTransaction();
-                MySqlCommand cmd = new MySqlCommand();
-                cmd.Connection = mpCnn;
-
-                var insCount = 0;
-                string sql = string.Empty;
-                foreach (DataRow r in exceptDt.Rows)
+                string sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460 + " "
+                    + "WHERE "
+                    + $"MCGCD in ({mcgcds})"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
                 {
-                    // KD8430:切削手配ファイルの登録
-                    sql = ImportMpOrderSql(r);
-                    cmd.CommandText = sql;
-                    cmd.ExecuteNonQuery();
-
-                    // KD8450:切削オーダーファイルの登録（各設備毎に分解）
-                    sql = DivideMpOrderSql(r["ODRNO"].ToString());
-                    cmd.CommandText = sql;
-                    cmd.ExecuteNonQuery();
-
-                    insCount++;
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpZaikoDt);
+                        ret = true;
+                    }
                 }
-
-                // トランザクション終了
-                transaction.Commit();
-                ret = true;
             }
             catch (Exception ex)
             {
-                // ロールバック
-                if (transaction != null) transaction.Rollback();
-
                 // エラー
                 string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
                 if (AssemblyState.IsDebug) Debug.WriteLine(msg);
@@ -2314,11 +2302,130 @@ namespace MPPPS
         }
 
         /// <summary>
+        /// 注文情報取込
+        /// </summary>
+        /// <param name="exceptDt">EMとの差分の登録すべきデータテーブル</param>
+        /// <param name="zaikoDt">仕掛り在庫（手配登録時に消込）</param>
+        /// <returns>挿入件数、失敗時-1</returns>
+        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt ,ref DataTable zaikoDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int insCount = 0;
+            MySqlConnection mpCnn = null;
+            MySqlTransaction transaction = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                // トランザクション開始
+                transaction = mpCnn.BeginTransaction();
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = mpCnn;
+
+                string sql = string.Empty;
+                foreach (DataRow r in exceptDt.Rows)
+                {
+                    string odrno = r["ODRNO"].ToString();
+                    string hmcd = r["HMCD"].ToString();
+
+                    // KM8430:コード票マスタの品番抽出
+                    DataRow[] cr = codeDt.Select($"HMCD='{hmcd}'");
+                    if (cr.Length == 0)
+                    {
+                        MessageBox.Show($"{hmcd}がコード票マスタに存在しません。\nマスタ登録後再度実行してください");
+                    }
+                    else
+                    {
+                        // KD8430:切削手配ファイルの登録
+                        sql = ImportMpOrderSql(r);
+                        cmd.CommandText = sql;
+                        cmd.ExecuteNonQuery();
+
+                        // KD8450:切削オーダーの登録（工程数分をループ）
+                        int ktsu = Convert.ToInt32(cr[0]["KTSU"].ToString());
+                        for (int kt = 1; kt <= ktsu; kt++)
+                        {
+                            string mcgcd = cr[0][$"KT{kt}MCGCD"].ToString();
+                            string mccd = cr[0][$"KT{kt}MCCD"].ToString();
+                            // KD8460:切削在庫ファイルの取得
+                            DataRow[] zr = zaikoDt.Select(
+                                $"HMCD='{hmcd}' and MCGCD='{mcgcd}' and MCCD='{mccd}' " +
+                                "and ZAIQTY>0");
+                            int odrqty = Convert.ToInt32(r["ODRQTY"].ToString());
+                            int odrjiq = Convert.ToInt32(r["JIQTY"].ToString());
+                            int zaiko = (zr.Length == 0) ? 0 :
+                                Convert.ToInt32(zr[0]["ZAIQTY"].ToString());
+                            // 実績数とステータス算出
+                            int jiqty = ((odrqty - odrjiq) <= zaiko) ? (odrqty - odrjiq) : zaiko;
+                            string odrsts = (jiqty == 0) ? "2" : (odrqty == jiqty) ? "4" : "3";
+                            // KD8450:切削オーダーファイルの登録（各設備毎に分解）
+                            sql = DivideMpOrderSql(odrno, jiqty, kt, mcgcd, mccd, odrsts);
+                            cmd.CommandText = sql;
+                            cmd.ExecuteNonQuery();
+                            // KD8460:在庫ファイル仕掛り在庫数を減算
+                            if (jiqty > 0)
+                            {
+                                sql = UpdateZaikoSql(hmcd, mcgcd, mccd, jiqty);
+                                cmd.CommandText = sql;
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        insCount++;
+                    }
+                }
+
+                // トランザクション終了
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                // ロールバック
+                if (transaction != null) transaction.Rollback();
+
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                insCount = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return insCount;
+        }
+
+        /// <summary>
+        /// 在庫ファイル仕掛り在庫から実績数を引き落とす処理
+        /// </summary>
+        /// <param name="odrno">手配番号</param>
+        /// <returns>SQL 構文</returns>
+        public string UpdateZaikoSql(string hmcd, string mcgcd, string mccd, int jiqty)
+        {
+            string sql = "update "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460 + " "
+                + "SET "
+                + $"ZAIQTY = ZAIQTY - {jiqty},"
+                + "OUTDT = now(),"
+                + $"MPUPDTID = '{cmn.IkM0010.TanCd}' "
+                + "WHERE "
+                + $"HMCD = '{hmcd}' and "
+                + $"MCGCD = '{mcgcd}' and "
+                + $"MCCD = '{mccd}'"
+            ;
+            return sql;
+        }
+
+
+        /// <summary>
         /// 切削オーダーファイルインサート用SQL文の作成
         /// </summary>
         /// <param name="odrno">手配番号</param>
         /// <returns>SQL 構文</returns>
-        public string DivideMpOrderSql(string odrno)
+        public string DivideMpOrderSql(string odrno, int jiqty, int kt, string mcgcd, string mccd, string odrsts)
         {
             string sql = "insert into "
                 + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
@@ -2337,9 +2444,52 @@ namespace MPPPS
                 + ") "
                 +  "select "
                 +  "a.ODRNO,"
-                +  "1 as MPSEQ,"
-                +  "b.KT1MCGCD as MCGCD,"
-                +  "b.KT1MCCD as MCCD,"
+                +  $"{kt} as MPSEQ,"
+                +  $"'{mcgcd}' as MCGCD,"
+                +  $"'{mccd}' as MCCD,"
+                + "a.HMCD,"
+                + "a.EDDT,"
+                + "a.ODRQTY,"
+                + $"a.JIQTY+{jiqty},"
+                + $"'{odrsts}',"
+                + $"'{cmn.IkM0010.TanCd}' as MPINSTDT,"
+                + $"'{cmn.IkM0010.TanCd}' as MPUPDTDT "
+                +  "from "
+                +   cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a "
+                +  "where "
+                + $"ODRNO='{odrno}' "
+                ;
+            return sql;
+        }
+
+
+        /// <summary>
+        /// 切削オーダーファイルインサート用SQL文の作成
+        /// </summary>
+        /// <param name="odrno">手配番号</param>
+        /// <returns>SQL 構文</returns>
+        public string DivideMpOrderSql_Backup(string odrno)
+        {
+            string sql = "insert into "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                + "("
+                + "ODRNO,"
+                + "MPSEQ,"
+                + "MCGCD,"
+                + "MCCD,"
+                + "HMCD,"
+                + "EDDT,"
+                + "ODRQTY,"
+                + "JIQTY,"
+                + "ODRSTS,"
+                + "MPINSTID,"
+                + "MPUPDTID"
+                + ") "
+                + "select "
+                + "a.ODRNO,"
+                + "1 as MPSEQ,"
+                + "b.KT1MCGCD as MCGCD,"
+                + "b.KT1MCCD as MCCD,"
                 + "a.HMCD,"
                 + "a.EDDT,"
                 + "a.ODRQTY,"
@@ -2347,12 +2497,12 @@ namespace MPPPS
                 + "a.ODRSTS,"
                 + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
                 + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
-                +  "from "
-                +   cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
-                +   cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
-                +  "where "
+                + "from "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
+                + "where "
                 + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
-                +  "b.KT1MCCD is not NULL "
+                + "b.KT1MCCD is not NULL "
                 + "union "
                 + "select "
                 + "a.ODRNO,"
@@ -2522,12 +2672,12 @@ namespace MPPPS
         /// 注文情報削除
         /// </summary>
         /// <param name="exceptDt">削除対象のデータテーブル</param>
-        /// <returns>合否</returns>
-        public bool DeleteMpOrder(ref DataTable exceptDt)
+        /// <returns>削除件数、失敗時-1</returns>
+        public int DeleteMpOrder(ref DataTable exceptDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            int delCount = 0;
             MySqlConnection mpCnn = null;
             MySqlTransaction transaction = null;
 
@@ -2541,7 +2691,6 @@ namespace MPPPS
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = mpCnn;
 
-                var delCount = 0;
                 foreach (DataRow r in exceptDt.Rows)
                 {
                     // KD8430:切削手配ファイルの削除
@@ -2554,7 +2703,7 @@ namespace MPPPS
                     cmd.CommandText = sql1;
                     cmd.ExecuteNonQuery();
 
-                    // KD8450:切削オーダーファイルの登録（各設備毎に分解）
+                    // KD8450:切削オーダーファイルの削除
                     string sql2 = "delete from "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
                         + "where "
@@ -2569,7 +2718,6 @@ namespace MPPPS
 
                 // トランザクション終了
                 transaction.Commit();
-                ret = true;
             }
             catch (Exception ex)
             {
@@ -2582,11 +2730,11 @@ namespace MPPPS
 
                 Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
                 cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
-                ret = false;
+                delCount = -1;
             }
             // 接続を閉じる
             cmn.Dbm.CloseMySqlSchema(mpCnn);
-            return ret;
+            return delCount;
         }
 
         /// <summary>
@@ -2868,7 +3016,7 @@ namespace MPPPS
                     + ", '' "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_M0500 + " b " // 仮　本来は Common.TABLE_ID_KM8430だけどメンテしてないのでM0500にしておく
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
                     + "WHERE "
                     + "a.HMCD = b.HMCD "
                     + "and ODRSTS <> '9' "

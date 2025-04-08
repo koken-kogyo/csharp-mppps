@@ -608,8 +608,14 @@ namespace MPPPS
         private async void Btn_ImportOrder_Click(object sender, EventArgs e)
         {
             toolStripStatusLabel1.Text = "注文データ取込中...";
-
-            foreach (DataGridViewCell c in Dgv_Calendar.SelectedCells)
+            int insCount = 0;
+            int delCount = 0;
+            // 選択セルの並び替え
+            var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
+                        where c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING
+                        orderby c.RowIndex, c.ColumnIndex
+                        select c;
+            foreach (DataGridViewCell c in query) // query ← Dgv_Calendar.SelectedCells)
             {
                 // 背景色が薄青、薄赤を対象に条件分を作成
                 if (c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING)
@@ -619,11 +625,15 @@ namespace MPPPS
                     // データベースから注文情報を非同期並列処理で取得（Oracle:D0410, MySQL:KD8430)
                     DataTable emOrderDt = new DataTable();
                     DataTable mpOrderDt = new DataTable();
+                    DataTable mpCodeMDt = new DataTable();
+                    DataTable mpZaikoDt = new DataTable();
                     var taskA = Task.Run(() => cmn.Dba.GetEmOrder(ref emOrderDt, eddt));
                     var taskB = Task.Run(() => cmn.Dba.GetMpOrder(ref mpOrderDt, eddt));
+                    var taskC = Task.Run(() => cmn.Dba.GetCodeSlipMst(ref mpCodeMDt));
+                    var taskD = Task.Run(() => cmn.Dba.GetMpZaiko(ref mpZaikoDt, "'SW'"));
 
-                    // 両者の読み込みが完了するまで待機する
-                    await Task.WhenAll(taskA, taskB);
+                    // 全ての読み込みが完了するまで待機する
+                    await Task.WhenAll(taskA, taskB, taskC, taskD);
 
                     // 削除対象が存在するかチェック（二つのODRNOの集合差を求める）
                     DataRow[] deleteDr = mpOrderDt.AsEnumerable()
@@ -636,7 +646,8 @@ namespace MPPPS
                         DataTable exceptDt = new DataTable();
                         exceptDt = deleteDr.CopyToDataTable();
                         // MPシステム MySQLに集合差分を削除
-                        if (!cmn.Dba.DeleteMpOrder(ref exceptDt)) return;
+                        delCount = cmn.Dba.DeleteMpOrder(ref exceptDt);
+                        if (delCount < 0) return;
                     }
 
                     // 追加対象が存在するかチェック（二つのODRNOの集合差を求める）
@@ -650,7 +661,8 @@ namespace MPPPS
                         DataTable exceptDt = new DataTable();
                         exceptDt = insertDr.CopyToDataTable();
                         // MPシステム MySQLに集合差分を挿入
-                        if (!cmn.Dba.ImportMpOrder(ref exceptDt)) return;
+                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpZaikoDt);
+                        if (insCount < 0) return;
                     }
                 }
             }
@@ -663,6 +675,11 @@ namespace MPPPS
             Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintOrder.Enabled = false;
             Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+
+            // ステータスを表示
+            toolStripStatusLabel2.Text = insCount.ToString("#,0") + "件の登録 ";
+            toolStripStatusLabel2.Text += (delCount > 0) ? delCount.ToString("#,0") + "件を削除 " : "";
+            toolStripStatusLabel2.Text += "しました．";
         }
 
         // 製造指示カード印刷
