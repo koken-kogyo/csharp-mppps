@@ -48,7 +48,7 @@ namespace MPPPS
             this.Btn_ReceiptProc.TabIndex = 0;
             this.Btn_ReceiptProc.Text = "切削ストア受入実績処理";
             this.Btn_ReceiptProc.UseVisualStyleBackColor = true;
-            this.Btn_ReceiptProc.Click += new System.EventHandler(this.Btn_ReceiptProc_Click_1);
+            this.Btn_ReceiptProc.Click += new System.EventHandler(this.Btn_ReceiptProc_Click);
             // 
             // Btn_ReceiptInfo
             // 
@@ -60,7 +60,7 @@ namespace MPPPS
             this.Btn_ReceiptInfo.TabIndex = 1;
             this.Btn_ReceiptInfo.Text = "切削ストア受入実績情報表示";
             this.Btn_ReceiptInfo.UseVisualStyleBackColor = true;
-            this.Btn_ReceiptInfo.Click += new System.EventHandler(this.Btn_ReceiptInfo_Click_1);
+            this.Btn_ReceiptInfo.Click += new System.EventHandler(this.Btn_ReceiptInfo_Click);
             // 
             // Btn_EntryShipResults
             // 
@@ -72,7 +72,7 @@ namespace MPPPS
             this.Btn_EntryShipResults.TabIndex = 2;
             this.Btn_EntryShipResults.Text = "EM への実績入力";
             this.Btn_EntryShipResults.UseVisualStyleBackColor = true;
-            this.Btn_EntryShipResults.Click += new System.EventHandler(this.Btn_EntryShipResults_Click_1);
+            this.Btn_EntryShipResults.Click += new System.EventHandler(this.Btn_EntryShipResults_Click);
             // 
             // Btn_Close
             // 

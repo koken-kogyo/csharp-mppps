@@ -56,6 +56,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Frm034_CodeSlipMstMaint.resx">
       <DependentUpon>Frm034_CodeSlipMstMaint.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

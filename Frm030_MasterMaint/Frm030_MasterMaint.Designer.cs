@@ -63,6 +63,7 @@ namespace MPPPS
             this.Btn_ChipMstMaint.TabIndex = 10;
             this.Btn_ChipMstMaint.Text = "刃具マスタ メンテ";
             this.Btn_ChipMstMaint.UseVisualStyleBackColor = true;
+            this.Btn_ChipMstMaint.Click += new System.EventHandler(this.Btn_CutProcUserMstMaint_Click);
             // 
             // Btn_EqMstMaint
             // 

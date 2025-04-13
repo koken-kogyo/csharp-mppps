@@ -32,34 +32,33 @@ namespace MPPPS
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm050_MfgCtrl));
-            this.Btn_OrderEqualize = new System.Windows.Forms.Button();
-            this.Btn_CreateOrder = new System.Windows.Forms.Button();
+            this.Btn_Printing = new System.Windows.Forms.Button();
+            this.Btn_MfgProgress = new System.Windows.Forms.Button();
             this.Btn_Close = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // Btn_OrderEqualize
+            // Btn_Printing
             // 
-            this.Btn_OrderEqualize.Enabled = false;
-            this.Btn_OrderEqualize.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.Btn_OrderEqualize.Location = new System.Drawing.Point(12, 57);
-            this.Btn_OrderEqualize.Name = "Btn_OrderEqualize";
-            this.Btn_OrderEqualize.Size = new System.Drawing.Size(300, 38);
-            this.Btn_OrderEqualize.TabIndex = 14;
-            this.Btn_OrderEqualize.Text = "帳票出力";
-            this.Btn_OrderEqualize.UseVisualStyleBackColor = true;
-            this.Btn_OrderEqualize.Click += new System.EventHandler(this.Btn_OrderEqualize_Click_1);
+            this.Btn_Printing.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.Btn_Printing.Location = new System.Drawing.Point(12, 57);
+            this.Btn_Printing.Name = "Btn_Printing";
+            this.Btn_Printing.Size = new System.Drawing.Size(300, 38);
+            this.Btn_Printing.TabIndex = 14;
+            this.Btn_Printing.Text = "帳票出力";
+            this.Btn_Printing.UseVisualStyleBackColor = true;
+            this.Btn_Printing.Click += new System.EventHandler(this.Btn_Printing_Click);
             // 
-            // Btn_CreateOrder
+            // Btn_MfgProgress
             // 
-            this.Btn_CreateOrder.Enabled = false;
-            this.Btn_CreateOrder.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.Btn_CreateOrder.Location = new System.Drawing.Point(12, 12);
-            this.Btn_CreateOrder.Name = "Btn_CreateOrder";
-            this.Btn_CreateOrder.Size = new System.Drawing.Size(300, 38);
-            this.Btn_CreateOrder.TabIndex = 13;
-            this.Btn_CreateOrder.Text = "切削オーダー指示書";
-            this.Btn_CreateOrder.UseVisualStyleBackColor = true;
-            this.Btn_CreateOrder.Click += new System.EventHandler(this.Btn_CreateOrder_Click_1);
+            this.Btn_MfgProgress.Enabled = false;
+            this.Btn_MfgProgress.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.Btn_MfgProgress.Location = new System.Drawing.Point(12, 12);
+            this.Btn_MfgProgress.Name = "Btn_MfgProgress";
+            this.Btn_MfgProgress.Size = new System.Drawing.Size(300, 38);
+            this.Btn_MfgProgress.TabIndex = 13;
+            this.Btn_MfgProgress.Text = "加工進捗状況";
+            this.Btn_MfgProgress.UseVisualStyleBackColor = true;
+            this.Btn_MfgProgress.Click += new System.EventHandler(this.Btn_MfgProgress_Click);
             // 
             // Btn_Close
             // 
@@ -78,8 +77,8 @@ namespace MPPPS
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(628, 101);
             this.Controls.Add(this.Btn_Close);
-            this.Controls.Add(this.Btn_OrderEqualize);
-            this.Controls.Add(this.Btn_CreateOrder);
+            this.Controls.Add(this.Btn_Printing);
+            this.Controls.Add(this.Btn_MfgProgress);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Frm050_MfgCtrl";
@@ -90,8 +89,8 @@ namespace MPPPS
 
         #endregion
 
-        private Button Btn_OrderEqualize;
-        private Button Btn_CreateOrder;
+        private Button Btn_Printing;
+        private Button Btn_MfgProgress;
         private Button Btn_Close;
     }
 }

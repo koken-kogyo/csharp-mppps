@@ -12,15 +12,8 @@ using Excel = Microsoft.Office.Interop.Excel;
 using Office = Microsoft.Office.Core;
 using System.Windows.Forms;
 using DecryptPassword;
-using System.Drawing.Drawing2D;
 using Microsoft.Office.Interop.Excel;
-using System.Windows.Forms.VisualStyles;
-using static System.Net.WebRequestMethods;
-using System.Diagnostics.Contracts;
 using Microsoft.Win32;
-using System.Runtime.InteropServices.ComTypes;
-using System.Threading.Tasks;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 using System.Drawing;
 using System.Threading;
 
@@ -482,13 +475,13 @@ namespace MPPPS
             string excelName = @path;
 
             oXls = new Excel.Application();
-            oXls.Visible = cmn.FsCd[0].VisibleExcel;  // Excelのウィンドウの表示/非表示を設定ファイルから取得
+            oXls.Visible = true;
 
             // Excelファイルをオープンする//
             oWBook = (Excel.Workbook)(oXls.Workbooks.Open(
               excelName,  // オープンするExcelファイル名
               Type.Missing, // （省略可能）UpdateLinks (0 / 1 / 2 / 3)
-              ReadOnly: true, // （省略可能）ReadOnly (True / False )
+              Type.Missing, // （省略可能）ReadOnly (True / False )
               Type.Missing, // （省略可能）Format
                             // 1:タブ / 2:カンマ (,) / 3:スペース / 4:セミコロン (;)
                             // 5:なし / 6:引数 Delimiterで指定された文字
@@ -656,6 +649,26 @@ namespace MPPPS
         }
 
         /// <summary>
+        /// Excel を立ち上げる（オプションでアプリの表示／非表示を切り替える）
+        /// </summary>
+        /// <param name="idx">ファイルシステム設定ファイルのインデックス番号</param>
+        public void ExcelApplication(bool flg)
+        {
+            oXls = new Excel.Application();
+            oXls.Visible = flg;
+        }
+
+        /// <summary>
+        /// Excel ブックにシートを追加する
+        /// </summary>
+        /// <param name="num">シート番号</param>
+        public void AddNewBook()
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+            oWBook = oXls.Workbooks.Add();
+        }
+
+        /// <summary>
         /// Excel ブックにシートを追加する
         /// </summary>
         /// <param name="num">シート番号</param>
@@ -682,10 +695,9 @@ namespace MPPPS
         /// <summary>
         /// Excel ファイル出力
         /// </summary>
-        /// <param name="dtbl">データ テーブル</param>
-        /// <param name="path">パス</param>
-        /// <param name="filenm">ファイル名称</param>
-        public void ExportExcel(System.Data.DataTable dtbl, string path, string filenm)
+        /// <param name="exportDt">データ テーブル</param>
+        /// <param name="filepath">ファイルパス</param>
+        public void ExportExcel(System.Data.DataTable exportDt, string filepath)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -696,19 +708,19 @@ namespace MPPPS
                 oWSheet = oWBook.Sheets[1];
                 oWSheet.Select(Type.Missing);
 
-                for (int col = 0; col < dtbl.Columns.Count; col++)
+                for (int col = 0; col < exportDt.Columns.Count; col++)
                 {
-                    object[,] obj = new object[dtbl.Rows.Count + 1, 1];
-                    obj[0, 0] = dtbl.Columns[col].ColumnName;
-                    for (int row = 0; row < dtbl.Rows.Count; row++)
+                    object[,] obj = new object[exportDt.Rows.Count + 1, 1];
+                    obj[0, 0] = exportDt.Columns[col].ColumnName;
+                    for (int row = 0; row < exportDt.Rows.Count; row++)
                     {
-                        obj[row + 1, 0] = dtbl.Rows[row][col].ToString();
+                        obj[row + 1, 0] = exportDt.Rows[row][col].ToString();
                     }
 
-                    var rgn = oWSheet.Range[oWSheet.Cells[1, col + 1], oWSheet.Cells[dtbl.Rows.Count + 1, col + 1]];
+                    var rgn = oWSheet.Range[oWSheet.Cells[1, col + 1], oWSheet.Cells[exportDt.Rows.Count + 1, col + 1]];
                     rgn.Font.Size = 10;
-                    rgn.Font.Name = "ＭＳ Ｐゴシック";
-                    DataColumn dtcol = dtbl.Columns[col];
+                    rgn.Font.Name = "ＭＳ ゴシック";
+                    DataColumn dtcol = exportDt.Columns[col];
                     if (dtcol.DataType.Equals(typeof(string)))
                     {
                         rgn.NumberFormatLocal = "@";
@@ -719,13 +731,20 @@ namespace MPPPS
                         rgn.Value2 = obj;
                     }
                 }
-                string fullPath = Path.Combine(path, filenm);
-                oWBook.SaveAs(fullPath);
+                // タイトル行を固定
+                var rng = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[1, exportDt.Columns.Count]];
+                rng.Interior.Color = Color.FromArgb(135, 231, 173); // A5SQLMk2.Color
+                oWSheet.Cells[2, 1].Select();
+                oXls.ActiveWindow.FreezePanes = true;
+                
+                // 列幅自動調整
+                oWSheet.Columns.AutoFit();
+                oWBook.SaveAs(filepath);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                oXls.Quit();
+                throw ex;
             }
         }
 
@@ -1326,7 +1345,7 @@ namespace MPPPS
             }
         }
         // 1カード作成（DataRow1件分を作成）
-        public void SetOrderCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col)
+        public void SetOrderCard(ref DataRow r, ref int row, ref int col)
         {
             // テンプレートオブジェクトをクローン
             object[,] obj = templateOrderCardObject.Clone() as object[,];

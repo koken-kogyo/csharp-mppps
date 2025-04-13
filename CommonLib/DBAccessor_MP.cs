@@ -1,11 +1,11 @@
 ﻿using MySql.Data.MySqlClient;
-using Mysqlx.Crud;
 using System;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace MPPPS
 {
@@ -2253,6 +2253,60 @@ namespace MPPPS
         }
 
         /// <summary>
+        /// 注文情報データ取得
+        /// </summary>
+        /// <param name="mpOrderDt">注文情報データ</param>
+        /// <param name="select">検索条件WHERE文から指定</param>
+        /// <param name="where">検索条件WHERE文から指定</param>
+        /// <returns>注文情報データ</returns>
+        public bool FindMpOrder(ref DataTable mpOrderDt, string select, string where)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT " + select + " "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + ", "
+                    + "(SELECT HMCD as HMKEY, MATERIALCD, KTKEY FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + ") " + Common.TABLE_ID_KM8430 + " "
+                    + "WHERE "
+                    + "HMCD=HMKEY and "
+                    + where
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpOrderDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
         /// 仕掛り在庫データ取得
         /// </summary>
         /// <param name="mpZaikoDt">仕掛り在庫データ</param>
@@ -3282,6 +3336,53 @@ namespace MPPPS
             return ret;
         }
 
+        /// <summary>
+        /// 製造指示カードに印刷するデータの取得（個別明細指定）
+        /// </summary>
+        /// <param name="targetDt">データグリッドビューで指定した印刷対象</param>
+        /// <param name="cardDt">製造指示カードデータ</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int GetOrderCardPrintInfo(DataTable targetDt, ref DataTable cardDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = GetOrderCardPrintInfoSQL(targetDt);
+
+                using (DataTable patternSW = new DataTable())
+                {
+                    using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                    {
+                        using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                        {
+                            Debug.WriteLine("Read from DataTable:");
+                            // 結果取得
+                            myDa.Fill(cardDt);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
 
         private string GetOrderCardPrintInfoSQL(DateTime eddtfrom)
@@ -3289,7 +3390,31 @@ namespace MPPPS
             // 手配日の範囲指定月曜日+6日
             DateTime eddtto = eddtfrom.AddDays(6);
 
-            string sql ="SELECT "
+            string sql = GetOrderCardPrintInfoBaseSQL()
+                + $"and a.EDDT between '{eddtfrom}' and '{eddtto}' "
+                + "and MPCARDDT is null " // 製造指示カード発行日
+            ;
+            return sql;
+        }
+
+        private string GetOrderCardPrintInfoSQL(DataTable targetDt)
+        {
+            // 手配Noを設定
+            string addWhere = "and a.ODRNO in (";
+            foreach (DataRow dr in targetDt.Rows)
+            {
+                addWhere += "'" + dr["手配No"].ToString() + "',"; // DataGridViewのタイトル名で来るので注意！
+            }
+            addWhere += "'x')";
+            string sql = GetOrderCardPrintInfoBaseSQL()
+                + addWhere
+            ;
+            return sql;
+        }
+
+        private string GetOrderCardPrintInfoBaseSQL()
+        {
+            string sql = "SELECT "
                 + "a.ODRNO "
                 + ",a.EDDT "
                 + ",a.ODRQTY "
@@ -3325,12 +3450,9 @@ namespace MPPPS
                 + "a.HMCD = b.HMCD "
                 + "and a.ODRSTS <> '9' "
                 + "and a.ODCD like '6060%' "
-                + $"and a.EDDT between '{eddtfrom}' and '{eddtto}' "
-                + "and MPCARDDT is null " // 製造指示カード発行日
             ;
             return sql;
         }
-
 
 
         /// <summary>
@@ -3354,7 +3476,7 @@ namespace MPPPS
                 // 手配日の範囲指定月曜日+6日
                 DateTime eddtto = eddtfrom.AddDays(6);
 
-                // 計画出庫データ出力済みに更新 SQL
+                // 製造指示カード発行済みに更新 SQL
                 string sql =
                     "UPDATE "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
@@ -3366,6 +3488,91 @@ namespace MPPPS
                     + "ODCD like '6060%' and "
                     + "MPCARDDT is NULL and " // 製造指示カード発行日
                     + $"EDDT between '{eddtfrom}' and '{eddtto}'"
+                ;
+
+                using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
+                {
+                    using (MySqlTransaction txn = cnn.BeginTransaction())
+                    {
+                        try
+                        {
+                            int res = myCmd.ExecuteNonQuery();
+                            if (res >= 1)
+                            {
+                                txn.Commit();
+                                Debug.WriteLine(Common.TABLE_ID_KD8430 + " table data update succeed and commited.");
+                            }
+                            ret = res;
+                        }
+                        catch (Exception e)
+                        {
+                            txn.Rollback();
+                            Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
+
+                            Debug.WriteLine("Exception Source = " + e.Source);
+                            Debug.WriteLine("Exception Message = " + e.Message);
+                            if (cnn != null)
+                            {
+                                // 接続を閉じる
+                                cnn.Close();
+                            }
+                            ret = -1;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 製造指示カード発行済みに更新（個別明細指定）
+        /// </summary>
+        /// <param name="targetDt">手配日</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int UpdatePrintOrderCardDay(ref DataTable targetDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+
+            MySqlConnection cnn = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+
+                // 手配Noを設定
+                string addWhere = "ODRNO in (";
+                foreach (DataRow dr in targetDt.Rows)
+                {
+                    addWhere += "'" + dr["ODRNO"].ToString() + "',"; // ここに来たときはDataGridViewのタイトル名では無いので注意！
+                }
+                addWhere += "'x')";
+
+                // 製造指示カード発行済みに更新 SQL
+                string sql =
+                    "UPDATE "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                    + "SET "
+                    + "MPCARDDT = now(), "
+                    + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
+                    + "WHERE "
+                    + "ODRSTS<>'9' and "
+                    + "ODCD like '6060%' and "
+                    + addWhere
                 ;
 
                 using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
@@ -4229,6 +4436,221 @@ namespace MPPPS
                 Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
                 cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
                 ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// リスト印刷用の切削手配取得
+        /// </summary>
+        /// <param name="tehaiDt">EMの手配ファイル</param>
+        /// <returns>取得件数</returns>
+        public bool GetTehaiZan(ref DataTable tehaiDt, int offsetdays)
+        {
+            bool ret = false;
+            DateTime today = DateTime.Today;
+            if (today.DayOfWeek <= DayOfWeek.Monday) today = today.AddDays(-7);         // 基準日（月曜日までは先週扱い）
+            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek) % 7;   // 基準日を月曜日にする為の差分値
+            DateTime thisMonday = today.AddDays(daysUntilMonday + offsetdays);          // 基準日からoffsetdays後を開始日
+            string from = thisMonday.ToString("yyyy/MM/dd");
+            string to = thisMonday.AddDays(5).ToString("yyyy/MM/dd");                   // 開始日から5日後を終了日
+
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+                string swSelect = "";
+                string swGroupby = "";
+                if (offsetdays == 0)
+                {
+                    swSelect = "CAST(CONCAT(YEAR(now()),'-1-1') as DATETIME) 完了予定日, ";
+                }
+                else
+                {
+                    swSelect = "aa.EDDT 完了予定日, ";
+                    swGroupby = "aa.EDDT, ";
+                }
+                string sql = "SELECT " +
+                    swSelect +
+                    "aa.HMCD 品番, " +
+                    "bb.KTKEY 工程, " +
+                    "SUM(aa.ODRQTY) - SUM(aa.JIQTY) 手配残数 " +
+                    "FROM " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " aa, " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " bb " +
+                    "WHERE " +
+                    "aa.HMCD=bb.HMCD and " +
+                    "aa.ODRSTS<>'9' and " +
+                    $"aa.EDDT between '{from}' and '{to}' " +
+                    "GROUP BY " +
+                    swGroupby + 
+                    "aa.HMCD, " +
+                    "bb.KTKEY " +
+                    "HAVING SUM(aa.ODRQTY) - SUM(aa.JIQTY) > 0"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(tehaiDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+        /// <summary>
+        /// リスト印刷用の切削内示情報取得
+        /// </summary>
+        /// <param name="naijiDt">EMの手配ファイル</param>
+        /// <returns>取得件数</returns>
+        public bool GetNaiji(ref DataTable naijiDt)
+        {
+            bool ret = false;
+            DateTime today = DateTime.Today;
+            if (today.DayOfWeek <= DayOfWeek.Monday) today = today.AddDays(-7);         // 基準日（月曜日までは先週扱い）
+            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek) % 7;   // 基準日を月曜日にする為の差分値
+            DateTime thisMonday = today.AddDays(daysUntilMonday + 14);                  // 基準日から２週間後を開始日
+            string from = thisMonday.ToString("yyyy/MM/dd");                            // ↓ゴールデンウィーク中は+19日(5+7+7)、通常時は+12日(5+7)
+            string to = thisMonday.AddDays(19).ToString("yyyy/MM/dd");                  // 開始日から19日後(5+7+7)を終了日
+
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT " +
+                    "aa.EDDT 完了予定日, " +
+                    "aa.HMCD 品番, " +
+                    "bb.KTKEY 工程, " +
+                    "SUM(aa.ODRQTY) - SUM(aa.JIQTY) 手配残数 " +
+                    "FROM " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " aa, " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " bb " +
+                    "WHERE " +
+                    "aa.HMCD=bb.HMCD and " +
+                    "aa.ODRSTS<>'9' and " +
+                    $"aa.EDDT between '{from}' and '{to}' " +
+                    "GROUP BY " +
+                    "aa.EDDT, " +
+                    "aa.HMCD, " +
+                    "bb.KTKEY " +
+                    "HAVING SUM(aa.ODRQTY) - SUM(aa.JIQTY) > 0"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(naijiDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+        /// <summary>
+        /// リスト印刷用の在庫情報取得
+        /// </summary>
+        /// <param name="zaikoDt">EMの手配ファイル</param>
+        /// <returns>取得件数</returns>
+        public bool GetZaiko(ref DataTable zaikoDt)
+        {
+            bool ret = false;
+            DateTime today = DateTime.Today;
+            if (today.DayOfWeek <= DayOfWeek.Monday) today = today.AddDays(-7);         // 基準日（月曜日までは先週扱い）
+            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek) % 7;   // 基準日を月曜日にする為の差分値
+            DateTime thisMonday = today.AddDays(daysUntilMonday);                       // 手配開始日
+            string from1 = thisMonday.ToString("yyyy/MM/dd");
+            string to1 = thisMonday.AddDays(12).ToString("yyyy/MM/dd");                 // 手配開始日から+12日間(5+7)を手配終了日
+            string from2 = thisMonday.AddDays(14).ToString("yyyy/MM/dd");               // 手配開始日から+14日を内示開始日
+            string to2 = thisMonday.AddDays(14+19).ToString("yyyy/MM/dd");              // 内示開始日から19日後(5+7+7)を終了日
+
+            MySqlConnection mpCnn = null;
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT " +
+                    "CAST(CONCAT(YEAR(now()) + 1,'-12-31') as DATETIME) 完了予定日, " +
+                    "aa.HMCD 品番, " +
+                    "bb.KTKEY 工程, " +
+                    "SUM(aa.ZAIQTY) 手配残数 " +
+                    "FROM " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460 + " aa, " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " bb " +
+                    "WHERE " +
+                    "aa.HMCD = bb.HMCD and " +
+                    "aa.MCGCD = 'STORE' and " +
+                    "(" +
+                        "aa.HMCD in (" + 
+                            $"SELECT yy.HMCD FROM kd8430 yy WHERE yy.EDDT between '{from1}' and '{to1}' and " +
+                            "yy.ODRSTS<>'9' and (yy.ODRQTY - yy.JIQTY) > 0) " + 
+                        "OR " + 
+                        "aa.HMCD in (" +
+                            $"SELECT zz.HMCD FROM kd8440 zz WHERE zz.EDDT between '{from2}' and '{to2}' and " +
+                            "zz.ODRSTS<>'9' and (zz.ODRQTY - zz.JIQTY) > 0) " +
+                    ") " +
+                    "GROUP BY aa.HMCD"
+                ;
+                // 主キーだけど GroupBy で対策
+                // 　<target>.手配残数 と <source>.手配残数 は DataType プロパティの不一致
+                // zaikoDt.Columns.List[3].DataType = {Name = "Int32" FullName = "System.Int32"}
+                // tehaiDt.Columns.List[3].DataType = {Name = "Decimal" FullName = "System.Decimal"}
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(zaikoDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
             }
             // 接続を閉じる
             cmn.Dbm.CloseMySqlSchema(mpCnn);

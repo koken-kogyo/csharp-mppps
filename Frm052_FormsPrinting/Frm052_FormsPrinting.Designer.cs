@@ -32,19 +32,78 @@ namespace MPPPS
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm052_FormsPrinting));
-            SuspendLayout();
+            this.btn_All_Print = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.SuspendLayout();
+            // 
+            // btn_All_Print
+            // 
+            this.btn_All_Print.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.btn_All_Print.Location = new System.Drawing.Point(12, 12);
+            this.btn_All_Print.Name = "btn_All_Print";
+            this.btn_All_Print.Size = new System.Drawing.Size(300, 38);
+            this.btn_All_Print.TabIndex = 14;
+            this.btn_All_Print.Text = "手配内示在庫一覧";
+            this.btn_All_Print.UseVisualStyleBackColor = true;
+            this.btn_All_Print.Click += new System.EventHandler(this.btn_All_Print_Click);
+            // 
+            // button1
+            // 
+            this.button1.Enabled = false;
+            this.button1.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.button1.Location = new System.Drawing.Point(12, 56);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(300, 38);
+            this.button1.TabIndex = 15;
+            this.button1.Text = "遅延リスト";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            this.button2.Enabled = false;
+            this.button2.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.button2.Location = new System.Drawing.Point(12, 100);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(300, 38);
+            this.button2.TabIndex = 16;
+            this.button2.Text = "工程別促進表";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // button3
+            // 
+            this.button3.Enabled = false;
+            this.button3.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.button3.Location = new System.Drawing.Point(12, 144);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(300, 38);
+            this.button3.TabIndex = 17;
+            this.button3.Text = "工程別内示票";
+            this.button3.UseVisualStyleBackColor = true;
             // 
             // Frm052_FormsPrinting
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Icon = (Icon)resources.GetObject("$this.Icon");
-            Name = "Frm052_FormsPrinting";
-            Text = "[KMD005SF] 製造管理 - 帳票出力 - Ver.203418.01a";
-            ResumeLayout(false);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(323, 191);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btn_All_Print);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Name = "Frm052_FormsPrinting";
+            this.Text = "[KMD005SF] 製造管理 - 帳票出力 - Ver.203418.01a";
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private Button btn_All_Print;
+        private Button button1;
+        private Button button2;
+        private Button button3;
     }
 }

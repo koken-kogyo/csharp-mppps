@@ -48,7 +48,7 @@ namespace MPPPS
             this.Btn_MatlInvList.TabIndex = 0;
             this.Btn_MatlInvList.Text = "材料在庫一覧";
             this.Btn_MatlInvList.UseVisualStyleBackColor = true;
-            this.Btn_MatlInvList.Click += new System.EventHandler(this.Btn_MatlInvList_Click_1);
+            this.Btn_MatlInvList.Click += new System.EventHandler(this.Btn_MatlInvList_Click);
             // 
             // Btn_MatlOrder
             // 
@@ -60,7 +60,7 @@ namespace MPPPS
             this.Btn_MatlOrder.TabIndex = 1;
             this.Btn_MatlOrder.Text = "材料発注処理";
             this.Btn_MatlOrder.UseVisualStyleBackColor = true;
-            this.Btn_MatlOrder.Click += new System.EventHandler(this.Btn_MatlOrder_Click_1);
+            this.Btn_MatlOrder.Click += new System.EventHandler(this.Btn_MatlOrder_Click);
             // 
             // Btn_MatlInsp
             // 
@@ -72,7 +72,7 @@ namespace MPPPS
             this.Btn_MatlInsp.TabIndex = 2;
             this.Btn_MatlInsp.Text = "材料検収";
             this.Btn_MatlInsp.UseVisualStyleBackColor = true;
-            this.Btn_MatlInsp.Click += new System.EventHandler(this.Btn_MatlInsp_Click_1);
+            this.Btn_MatlInsp.Click += new System.EventHandler(this.Btn_MatlInsp_Click);
             // 
             // Btn_Close
             // 

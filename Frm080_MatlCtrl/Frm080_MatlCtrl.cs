@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MPPPS
@@ -16,42 +9,32 @@ namespace MPPPS
         {
             InitializeComponent();
         }
-        private void Btn_Close_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
 
+        // 材料在庫一覧
         private void Btn_MatlInvList_Click(object sender, EventArgs e)
         {
             Frm081_MatlInvList frm081 = new Frm081_MatlInvList();
             frm081.ShowDialog();
         }
 
+        // 材料発注処理
         private void Btn_MatlOrder_Click(object sender, EventArgs e)
         {
             Frm082_MatlOrder frm082 = new Frm082_MatlOrder();
             frm082.ShowDialog();
         }
 
+        // 材料検収
         private void Btn_MatlInsp_Click(object sender, EventArgs e)
         {
             Frm083_MatlInsp frm083 = new Frm083_MatlInsp();
             frm083.ShowDialog();
         }
 
-        private void Btn_MatlInvList_Click_1(object sender, EventArgs e)
+        // 閉じる
+        private void Btn_Close_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void Btn_MatlOrder_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Btn_MatlInsp_Click_1(object sender, EventArgs e)
-        {
-
+            Close();
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace MPPPS
 {
-    partial class Frm045_MfgProgress
+    partial class Frm045_InformationPlan
     {
         /// <summary>
         /// Required designer variable.
@@ -31,18 +31,20 @@ namespace MPPPS
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm045_MfgProgress));
-            SuspendLayout();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm045_InformationPlan));
+            this.SuspendLayout();
             // 
-            // Frm045_MfgProgress
+            // Frm045_InformationPlan
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Icon = (Icon)resources.GetObject("$this.Icon");
-            Name = "Frm045_MfgProgress";
-            Text = "[KMD004SF] オーダー管理 - 加工進捗状況表示 - Ver.230613.01a";
-            ResumeLayout(false);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(600, 270);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Name = "Frm045_InformationPlan";
+            this.Text = "[KMD004SF] オーダー管理 - 内示情報 - Ver.230613.01a";
+            this.ResumeLayout(false);
+
         }
 
         #endregion

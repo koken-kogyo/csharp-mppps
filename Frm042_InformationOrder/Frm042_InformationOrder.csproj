@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{91088BC9-59B8-487C-AF5D-813B48661BB6}</ProjectGuid>
+    <ProjectGuid>{44978783-C0A5-4F51-B0F9-DB26B67D5D27}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Frm045_MfgProgress</RootNamespace>
-    <AssemblyName>Frm045_MfgProgress</AssemblyName>
+    <RootNamespace>Frm042_OrderEqualize</RootNamespace>
+    <AssemblyName>Frm042_OrderEqualize</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -45,24 +45,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Frm045_MfgProgress.cs">
+    <Compile Include="Frm042_InformationOrder.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Frm045_MfgProgress.Designer.cs">
-      <DependentUpon>Frm045_MfgProgress.cs</DependentUpon>
+    <Compile Include="Frm042_InformationOrder.Designer.cs">
+      <DependentUpon>Frm042_InformationOrder.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Frm045_MfgProgress.resx">
-      <DependentUpon>Frm045_MfgProgress.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommonLib\CommonLib.csproj">
       <Project>{ebb246ec-4547-402e-a4c1-43fc9b711c18}</Project>
       <Name>CommonLib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Frm042_InformationOrder.resx">
+      <DependentUpon>Frm042_InformationOrder.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

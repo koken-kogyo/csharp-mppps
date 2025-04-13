@@ -819,7 +819,7 @@ namespace MPPPS
                     // Debug.WriteLine("[StopWatch] Read開始 ");
 
                     // カードに値をセット
-                    cmn.Fa.SetOrderCard(ref cardDay, ref r, ref row, ref col);
+                    cmn.Fa.SetOrderCard(ref r, ref row, ref col);
 
                     // COMアクセスへの処理速度の計測終了
                     // Debug.WriteLine("[StopWatch] Read終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW3).TotalSeconds.ToString("F3") + "秒)");

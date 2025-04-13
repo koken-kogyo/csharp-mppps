@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MPPPS
@@ -17,42 +10,31 @@ namespace MPPPS
             InitializeComponent();
         }
 
-        private void Btn_Close_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
+        // 切削ストア受入実績処理
         private void Btn_ReceiptProc_Click(object sender, EventArgs e)
         {
             Frm071_ReceiptProc frm071 = new Frm071_ReceiptProc();
             frm071.ShowDialog();
         }
 
+        // 切削ストア受入実績情報表示
         private void Btn_ReceiptInfo_Click(object sender, EventArgs e)
         {
             Frm072_ReceiptInfo frm072 = new Frm072_ReceiptInfo();
             frm072.ShowDialog();
         }
 
+        // EM への実績入力
         private void Btn_EntryShipResults_Click(object sender, EventArgs e)
         {
             Frm073_EntryShipRes frm073 = new Frm073_EntryShipRes();
             frm073.ShowDialog();
         }
 
-        private void Btn_ReceiptProc_Click_1(object sender, EventArgs e)
+        // 閉じる
+        private void Btn_Close_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void Btn_ReceiptInfo_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Btn_EntryShipResults_Click_1(object sender, EventArgs e)
-        {
-
+            Close();
         }
     }
 }

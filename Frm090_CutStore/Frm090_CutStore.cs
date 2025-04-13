@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Media;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MPPPS
@@ -26,28 +18,30 @@ namespace MPPPS
             // フォームのタイトルを設定する
             // [切削設備登録] ボタンからの起動のとき
             Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
-                        + " <" + Common.FRM_ID_040 + ": " + Common.FRM_NAME_040 + ">";
+                        + " <" + Common.FRM_ID_090 + ": " + Common.FRM_NAME_090 + ">";
 
             // 共通クラス
             this.cmn = cmn;
-
         }
 
-        private void Btn_Close_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
+        // 計画出庫データ作成
         private void Btn_CutStoreDelv_Click(object sender, EventArgs e)
         {
             Frm091_CutStoreDelv frm091 = new Frm091_CutStoreDelv(cmn, sender);
             frm091.ShowDialog();
         }
 
+        // 切削ストア在庫情報
         private void Btn_CutStoreInvInfo_Click(object sender, EventArgs e)
         {
             Frm092_CutStoreInvInfo frm092 = new Frm092_CutStoreInvInfo(cmn);
             frm092.ShowDialog();
+        }
+
+        // 閉じる
+        private void Btn_Close_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

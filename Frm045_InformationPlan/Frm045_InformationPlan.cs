@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace MPPPS
 {
-    public partial class Frm045_MfgProgress : Form
+    public partial class Frm045_InformationPlan : Form
     {
-        public Frm045_MfgProgress()
+        public Frm045_InformationPlan()
         {
             InitializeComponent();
         }

@@ -20,7 +20,7 @@ namespace MPPPS
         public static readonly string KEN_PGM_ID = "KMD000ZZ";                  // 製造部プログラム ID
         public static readonly string MY_PGM_ID = "KMD001SF";                   // プログラム ID
         public static readonly string MY_PGM_NAME = "切削生産計画システム";     // プログラム名称
-        public static readonly string MY_PGM_VER = "230613.01a";                // プログラム バージョン
+        public static readonly string MY_PGM_VER = "250413.01";                 // プログラム バージョン
         public static readonly string PGM_STS_CD_ALPHA = "a";                   // プログラムの状態 (α版)
         public static readonly string PGM_STS_CD_BETA = "b";                    // プログラムの状態 (β版)
         public static readonly string PGM_STS_TXT_ALPHA = "アルファ版";         // プログラムの状態 (α版)
@@ -164,14 +164,15 @@ namespace MPPPS
         //public const int FRM23_DGV_IDX_UPDTDT    = 12; // 列インデックス: 更新日時
 
         // Color定数
-        // #041 手配情報一覧
-        // #044 内示情報一覧
+        // #041 手配取込
+        // #042 手配情報
+        // #044 内示取込
         public static readonly Color FRM40_BG_COLOR_CONTROL = SystemColors.Control;
         public static readonly Color FRM40_BG_COLOR_WORKING = Color.White;
         public static readonly Color FRM40_BG_COLOR_HOLIDAY = Color.LightPink;
         public static readonly Color FRM40_BG_COLOR_SATURDAY = Color.LightBlue;
-        public static readonly Color FRM40_BG_COLOR_ORDERED = Color.LightCyan;
-        public static readonly Color FRM40_BG_COLOR_IMPORTED = Color.MistyRose;
+        public static readonly Color FRM40_BG_COLOR_ORDERED = Color.MistyRose;
+        public static readonly Color FRM40_BG_COLOR_IMPORTED = Color.LightCyan;
         public static readonly Color FRM40_BG_COLOR_WARNING = Color.LightCoral;
         public static readonly Color FRM40_BG_COLOR_PRINTED = Color.LightGreen;
         public static readonly Color FRM40_BG_COLOR_PLANED = Color.LightGreen;

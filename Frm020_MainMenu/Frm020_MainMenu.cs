@@ -1,13 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Data.SqlTypes;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,11 +6,10 @@ namespace MPPPS
 {
     public partial class Frm020_MainMenu : Form
     {
-        private readonly Common cmn; // ‹¤’ÊƒNƒ‰ƒX
-        public Common Common { get; set; }
+        private readonly Common cmn; // å…±é€šã‚¯ãƒ©ã‚¹
 
         /// <summary>
-        /// ƒfƒtƒHƒ‹ƒg ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+        /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
         /// </summary>
         public Frm020_MainMenu()
         {
@@ -27,40 +17,35 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+        /// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
         /// </summary>
         public Frm020_MainMenu(Interface form)
         {
             InitializeComponent();
 
-            // ƒtƒH[ƒ€‚ÌƒAƒCƒRƒ“‚ğİ’è‚·‚é
+            // ãƒ•ã‚©ãƒ¼ãƒ ã®ã‚¢ã‚¤ã‚³ãƒ³ã‚’è¨­å®šã™ã‚‹
             this.Icon = new System.Drawing.Icon(Common.ICON_FILE);
 
-            // ƒtƒH[ƒ€‚Ìƒ^ƒCƒgƒ‹‚ğİ’è‚·‚é
+            // ãƒ•ã‚©ãƒ¼ãƒ ã®ã‚¿ã‚¤ãƒˆãƒ«ã‚’è¨­å®šã™ã‚‹
             this.Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
                       + " <" + Common.FRM_ID_020 + ": " + Common.FRM_NAME_020 + ">";
 
-            // ‹¤’ÊƒNƒ‰ƒX‚ğæ“¾
+            // å…±é€šã‚¯ãƒ©ã‚¹ã‚’å–å¾—
             form.GetCommonClass(ref cmn);
 
-            // —˜—pÒ•\¦
+            // åˆ©ç”¨è€…è¡¨ç¤º
             this.Lbl_UserName.Text = cmn.Ui.UserName + " (" + cmn.Ui.UserId + ")";
 
-            // ¶YŒv‰æŒ‹‰Ê•Û‘¶æƒT[ƒo[‚ÖÚ‘±
+            // ç”Ÿç”£è¨ˆç”»çµæœä¿å­˜å…ˆã‚µãƒ¼ãƒãƒ¼ã¸æ¥ç¶šç¢ºèª
             Task.Run(() => cmn.Fa.ConnectSaveServer());
-            //DateTime SW = DateTime.Now;
-            //Debug.WriteLine("[StopWatch] ŠJn " + DateTime.Now.ToString("HH:mm:ss"));
-            ////Debug.WriteLine("[StopWatch] InitializeI—¹ " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "•b)");
-            ////Debug.WriteLine("[StopWatch] GetCommonClassI—¹ " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "•b)");
-            //Debug.WriteLine("[StopWatch] I—¹ " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW).TotalSeconds.ToString("F3") + "•b)");
 
         }
 
         /// <summary>
-        /// [ƒ}ƒXƒ^ ƒƒ“ƒeƒiƒ“ƒX] ƒ{ƒ^ƒ“ ƒNƒŠƒbƒN
+        /// [ãƒã‚¹ã‚¿ ãƒ¡ãƒ³ãƒ†ãƒŠãƒ³ã‚¹] ãƒœã‚¿ãƒ³ ã‚¯ãƒªãƒƒã‚¯
         /// </summary>
-        /// <param name="sender">‘—MƒIƒuƒWƒFƒNƒg</param>
-        /// <param name="e">ƒCƒxƒ“ƒgˆø”</param>
+        /// <param name="sender">é€ä¿¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
+        /// <param name="e">ã‚¤ãƒ™ãƒ³ãƒˆå¼•æ•°</param>
         private void Btn_MasterMaint_Click(object sender, EventArgs e)
         {
             Frm030_MasterMaint frm030 = new Frm030_MasterMaint(cmn, sender);
@@ -69,30 +54,20 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// [ƒI[ƒ_[ŠÇ—] ƒ{ƒ^ƒ“ ƒNƒŠƒbƒN
+        /// [ã‚ªãƒ¼ãƒ€ãƒ¼ç®¡ç†] ãƒœã‚¿ãƒ³ ã‚¯ãƒªãƒƒã‚¯
         /// </summary>
-        /// <param name="sender">‘—MƒIƒuƒWƒFƒNƒg</param>
-        /// <param name="e">ƒCƒxƒ“ƒgˆø”</param>
+        /// <param name="sender">é€ä¿¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
+        /// <param name="e">ã‚¤ãƒ™ãƒ³ãƒˆå¼•æ•°</param>
         private void Btn_OrderCtrl_Click(object sender, EventArgs e)
         {
-            Frm040_OrderCtrl frm040 = new Frm040_OrderCtrl(cmn, sender);
+            Frm040_OrderCtrl frm040 = new Frm040_OrderCtrl(cmn);
             frm040.StartPosition = FormStartPosition.CenterParent;
             frm040.ShowDialog(this);
         }
 
-        /// <summary>
-        /// [»‘¢ŠÇ—] ƒ{ƒ^ƒ“ ƒNƒŠƒbƒN
-        /// </summary>
-        /// <param name="sender">‘—MƒIƒuƒWƒFƒNƒg</param>
-        /// <param name="e">ƒCƒxƒ“ƒgˆø”</param>
-        private void Btn_Close_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
         private void Btn_MfgCtrl_Click(object sender, EventArgs e)
         {
-            Frm050_MfgCtrl frm050 = new Frm050_MfgCtrl();
+            Frm050_MfgCtrl frm050 = new Frm050_MfgCtrl(cmn);
             frm050.StartPosition = FormStartPosition.CenterParent;
             frm050.ShowDialog(this);
         }
@@ -118,34 +93,14 @@ namespace MPPPS
             frm090.ShowDialog(this);
         }
 
-        private void KM8400Øí¶YŒv‰æƒVƒXƒeƒ€—˜—pÒƒ}ƒXƒ^ToolStripMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// [é–‰ã˜ã‚‹] ãƒœã‚¿ãƒ³ ã‚¯ãƒªãƒƒã‚¯
+        /// </summary>
+        /// <param name="sender">é€ä¿¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
+        /// <param name="e">ã‚¤ãƒ™ãƒ³ãƒˆå¼•æ•°</param>
+        private void Btn_Close_Click(object sender, EventArgs e)
         {
-            Frm031_CutProcUserMstMaint frm031 = new Frm031_CutProcUserMstMaint();
-            frm031.ShowDialog(this);
+            Close();
         }
-
-        private void KM8410Øín‹ïƒ}ƒXƒ^1ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Frm032_ChipMstMaint frm032 = new Frm032_ChipMstMaint();
-            frm032.ShowDialog();
-        }
-
-        private void KM8420Øíİ”õƒ}ƒXƒ^2ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Frm033_EqMstMaint frm033 = new Frm033_EqMstMaint(cmn);
-            frm033.ShowDialog(this);
-        }
-
-        private void KM8430ØíƒR[ƒh•[ƒ}ƒXƒ^3ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Frm034_CodeSlipMstMaint frm034 = new Frm034_CodeSlipMstMaint(cmn);
-            frm034.ShowDialog();
-        }
-
-        //private void ƒo[ƒWƒ‡ƒ“î•ñVToolStripMenuItem_Click(object sender, EventArgs e)
-        //{
-        //    Frm100_VerInfo frm100 = new Frm100_VerInfo();
-        //    frm100.ShowDialog();
-        //}
     }
 }
