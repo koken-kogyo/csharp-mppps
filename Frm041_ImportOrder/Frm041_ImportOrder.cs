@@ -715,11 +715,14 @@ namespace MPPPS
                 return;
             }
 
-            // 選択行の月曜日を処理日付として設定
-            var cardDay = GetCurrentDateTime(Dgv_Calendar[1, Dgv_Calendar.SelectedCells[0].RowIndex]);
+            // 選択セル範囲の開始日と終了日を設定
+            var query3 = from DataGridViewCell c in Dgv_Calendar.SelectedCells select c.ColumnIndex;
+            var dayFrom = GetCurrentDateTime(Dgv_Calendar[query3.Min(), Dgv_Calendar.SelectedCells[0].RowIndex]);
+            var dayTo = GetCurrentDateTime(Dgv_Calendar[query3.Max(), Dgv_Calendar.SelectedCells[0].RowIndex]);
 
             // 印刷前の最終確認
-            if (MessageBox.Show(cardDay.ToString("M") + "(月曜日) の週を印刷します。\nよろしいですか？", "確認"
+            var msg = (dayFrom == dayTo) ? dayFrom.ToString("M") : dayFrom.ToString("M") + "～" + dayTo.ToString("M");
+            if (MessageBox.Show(msg + "を印刷します。\nよろしいですか？", "確認"
                 , MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Cancel) return;
 
             // 印刷ボタン非活性化
@@ -727,7 +730,8 @@ namespace MPPPS
             Btn_PrintOrder.Enabled = false;
 
             // ステータス表示
-            toolStripStatusLabel1.Text = "製造指示カード印刷中...";
+            progressmsg = "【製造指示カード】 ";
+            toolStripStatusLabel1.Text = progressmsg + "準備中...";
 
             // Excelアプリケーションを起動
             cmn.Fa.OpenExcel2(idx);
@@ -737,10 +741,9 @@ namespace MPPPS
 
             // 一週間分の製造指示データをDataTableに読み込む
             int ret = 0;
-            progressmsg = $"【{cardDay.ToString("M月d日")}】 製造指示カード ";
             toolStripStatusLabel1.Text = progressmsg + "データ読み込み中...";
             DataTable cardDt = new DataTable();
-            await Task.Run(() => ret = cmn.Dba.GetOrderCardPrintInfo(cardDay, ref cardDt));
+            await Task.Run(() => ret = cmn.Dba.GetOrderCardPrintInfo(ref dayFrom, ref dayTo, ref cardDt));
             if (ret < 0)
             {
                 cmn.Fa.CloseExcel2(); // Excelアプリケーションを閉じる
@@ -749,8 +752,8 @@ namespace MPPPS
 
             // 製造指示カード雛形に製造指示データをセット
             // 設定ファイルの場所にPDFとして保存して起動
-            toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件中 作成中...";
-            await Task.Run(() => ret = PrintOrderCard(cardDay, ref cardDt)); 
+            toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件 作成中...";
+            await Task.Run(() => ret = PrintOrderCard(ref cardDt)); 
             if (ret != 0)
             {
                 cmn.Fa.CloseExcel2(); // Excelアプリケーションを閉じる
@@ -759,8 +762,7 @@ namespace MPPPS
 
             // ExcelブックからPDFを作成
             var pdfName = cmn.FsCd[idx].FileName
-                .Replace("雛形", "_" + cardDay.ToString("yyyyMMdd") 
-                                + "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
+                .Replace("雛形", "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
                 .Replace(".xlsx", ".pdf");
             cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[0].RootPath}\{pdfName}"); // 0:生産計画システム出力先フォルダ
 
@@ -768,7 +770,7 @@ namespace MPPPS
             cmn.Fa.CloseExcelFile2(false);
 
             // 出力済ステータスに更新
-            cmn.Dba.UpdatePrintOrderCardDay(cardDay);
+            cmn.Dba.UpdatePrintOrderCardDay(ref dayFrom, ref dayTo);
 
             // Excelアプリケーションを閉じる
             cmn.Fa.CloseExcel2();
@@ -786,10 +788,10 @@ namespace MPPPS
         /// <summary>
         /// 出荷指示カード作成
         /// </summary>
-        /// <param name="cardDay">完了予定日</param>
+        /// <param name="cardDt">印刷対象データ</param>
         /// 
         /// <returns>結果 (0: 保存成功 (保存件数), -1: 保存失敗, -2: 認証失敗)</returns>
-        public int PrintOrderCard(DateTime cardDay, ref System.Data.DataTable cardDt)
+        public int PrintOrderCard(ref System.Data.DataTable cardDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -799,7 +801,7 @@ namespace MPPPS
             {
                 // Excelシートの作成
                 int baseRow = 1;
-                int cardCnt = 1;    // ※手配件数とカード枚数は異なる（ロットで分割するため）
+                int cardCnt = 1;    // ※手配件数とカード枚数は異なる（収容数で分割するため）
                 int cardRows = 21;  // 1カードの行数（余白含む）
                 int row = 0;
                 int col = 0;
@@ -808,27 +810,40 @@ namespace MPPPS
                 {
                     DataRow r = cardDt.Rows[i];
 
-                    // 書き込みを行う先頭行番号を計算
-                    row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
-                    
-                    // 左右の列番号を切り替え
-                    col = (cardCnt % 2 != 0) ? 1 : 10;
-
-                    // 処理速度の計測開始
-                    // DateTime SW3 = DateTime.Now;
-                    // Debug.WriteLine("[StopWatch] Read開始 ");
-
-                    // カードに値をセット
-                    cmn.Fa.SetOrderCard(ref r, ref row, ref col);
-
-                    // COMアクセスへの処理速度の計測終了
-                    // Debug.WriteLine("[StopWatch] Read終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW3).TotalSeconds.ToString("F3") + "秒)");
-
-                    if (cardCnt % 5 == 0)
-                    {
-                        toolStripStatusLabel1.Text = progressmsg + $"- {cardCnt}件 / {cardDt.Rows.Count}件中 作成中...";
+                    // 収容数で分割
+                    decimal odrqty = Decimal.Parse(r["ODRQTY"].ToString());
+                    decimal boxqty = 0;
+                    int loopCnt = 1;
+                    if (Decimal.TryParse(r["BOXQTY"].ToString(), out boxqty)) {
+                        loopCnt = Decimal.ToInt32(Math.Ceiling((odrqty / boxqty)));
                     }
-                    cardCnt++;
+
+                    // 収容数でループ
+                    for (int j = 1; j <= loopCnt; j++)
+                    {
+                        // 書き込みを行う先頭行番号を計算
+                        row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
+
+                        // 左右の列番号を切り替え
+                        col = (cardCnt % 2 != 0) ? 1 : 10;
+
+                        // 処理速度の計測開始
+                        // DateTime SW3 = DateTime.Now;
+                        // Debug.WriteLine("[StopWatch] Read開始 ");
+
+                        // カードに値をセット
+                        cmn.Fa.SetOrderCard(ref r, ref row, ref col, j ,loopCnt);
+
+                        // COMアクセスへの処理速度の計測終了
+                        // Debug.WriteLine("[StopWatch] Read終了 " + DateTime.Now.ToString("HH:mm:ss") + " (" + DateTime.Now.Subtract(SW3).TotalSeconds.ToString("F3") + "秒)");
+
+                        if (cardCnt % 5 == 0)
+                        {
+                            toolStripStatusLabel1.Text = progressmsg + $" {cardCnt}件 / {cardDt.Rows.Count}件中 作成中...";
+                        }
+                        cardCnt++;
+                    }
+
                 }
                 // ループ終了時に最後のページの印刷枚数が４の倍数でなかった場合、
                 // 残りの余分なデータをクリア（COMアクセスを減らす為にクリア処理は最後の一回だけ行う）
@@ -885,6 +900,11 @@ namespace MPPPS
                     }
                 }
             }
+        }
+
+        private void Frm041_ImportOrder_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
         }
     }
 }

@@ -1345,7 +1345,7 @@ namespace MPPPS
             }
         }
         // 1カード作成（DataRow1件分を作成）
-        public void SetOrderCard(ref DataRow r, ref int row, ref int col)
+        public void SetOrderCard(ref DataRow r, ref int row, ref int col, int loopCnt, int loopMax)
         {
             // テンプレートオブジェクトをクローン
             object[,] obj = templateOrderCardObject.Clone() as object[,];
@@ -1395,6 +1395,7 @@ namespace MPPPS
             }
 
             // 値を設定
+            var boxinfo = (loopMax > 1) ? $" ( {loopCnt} / {loopMax} )" : "";
             obj[1, 2] = r["HMCD"].ToString();
             obj[4, 2] = r["HMNM"].ToString();
             obj[5, 2] = r["ODRNO"].ToString();
@@ -1402,7 +1403,7 @@ namespace MPPPS
             obj[7, 2] = r["ODRQTY"].ToString();
             obj[5, 7] = r["MATESIZE"].ToString();
             obj[6, 7] = r["LENGTH"].ToString();
-            obj[7, 7] = r["BOXQTY"].ToString();
+            obj[7, 7] = r["BOXQTY"].ToString() + boxinfo;
             if (r["KT1MCGCD"].ToString() == "")
             {
                 obj[9, 1] = "";

@@ -33,17 +33,17 @@ namespace MPPPS
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm092_CutStoreInvInfo));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnHMCDClear = new System.Windows.Forms.Button();
+            this.txtHMCD = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.Dgv_InvInfo = new System.Windows.Forms.DataGridView();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnHMCDClear = new System.Windows.Forms.Button();
-            this.txtHMCD = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_InvInfo)).BeginInit();
-            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -54,48 +54,6 @@ namespace MPPPS
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(900, 84);
             this.panel1.TabIndex = 0;
-            // 
-            // statusStrip1
-            // 
-            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 492);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(900, 26);
-            this.statusStrip1.TabIndex = 1;
-            this.statusStrip1.Text = "statusStrip1";
-            // 
-            // toolStripStatusLabel1
-            // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(151, 20);
-            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
-            // 
-            // panel2
-            // 
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 433);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(900, 59);
-            this.panel2.TabIndex = 2;
-            // 
-            // Dgv_InvInfo
-            // 
-            this.Dgv_InvInfo.AllowUserToAddRows = false;
-            this.Dgv_InvInfo.AllowUserToDeleteRows = false;
-            this.Dgv_InvInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.Dgv_InvInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Dgv_InvInfo.Location = new System.Drawing.Point(0, 84);
-            this.Dgv_InvInfo.Name = "Dgv_InvInfo";
-            this.Dgv_InvInfo.RowHeadersWidth = 51;
-            this.Dgv_InvInfo.RowTemplate.Height = 24;
-            this.Dgv_InvInfo.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.Dgv_InvInfo.Size = new System.Drawing.Size(900, 349);
-            this.Dgv_InvInfo.TabIndex = 3;
-            this.Dgv_InvInfo.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_InvInfo_RowPostPaint);
-            this.Dgv_InvInfo.Sorted += new System.EventHandler(this.Dgv_InvInfo_Sorted);
             // 
             // groupBox1
             // 
@@ -127,13 +85,55 @@ namespace MPPPS
             this.txtHMCD.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.txtHMCD.Location = new System.Drawing.Point(35, 21);
             this.txtHMCD.Name = "txtHMCD";
-            this.txtHMCD.Size = new System.Drawing.Size(231, 34);
+            this.txtHMCD.Size = new System.Drawing.Size(231, 29);
             this.txtHMCD.TabIndex = 10;
             this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 496);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(900, 22);
+            this.statusStrip1.TabIndex = 1;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
+            // panel2
+            // 
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel2.Location = new System.Drawing.Point(0, 437);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(900, 59);
+            this.panel2.TabIndex = 2;
+            // 
+            // Dgv_InvInfo
+            // 
+            this.Dgv_InvInfo.AllowUserToAddRows = false;
+            this.Dgv_InvInfo.AllowUserToDeleteRows = false;
+            this.Dgv_InvInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.Dgv_InvInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Dgv_InvInfo.Location = new System.Drawing.Point(0, 84);
+            this.Dgv_InvInfo.Name = "Dgv_InvInfo";
+            this.Dgv_InvInfo.RowHeadersWidth = 51;
+            this.Dgv_InvInfo.RowTemplate.Height = 24;
+            this.Dgv_InvInfo.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.Dgv_InvInfo.Size = new System.Drawing.Size(900, 353);
+            this.Dgv_InvInfo.TabIndex = 3;
+            this.Dgv_InvInfo.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_InvInfo_RowPostPaint);
+            this.Dgv_InvInfo.Sorted += new System.EventHandler(this.Dgv_InvInfo_Sorted);
+            // 
             // Frm092_CutStoreInvInfo
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 23F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(900, 518);
             this.Controls.Add(this.Dgv_InvInfo);
@@ -142,14 +142,16 @@ namespace MPPPS
             this.Controls.Add(this.panel1);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.Name = "Frm092_CutStoreInvInfo";
             this.Text = "[KMD009SF] 切削ストア - 切削ストア在庫情報 - Ver.230613.01a";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm092_CutStoreInvInfo_KeyDown);
             this.panel1.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_InvInfo)).EndInit();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -273,5 +273,10 @@ namespace MPPPS
                 Dgv_EquipMst.Columns[i].Width = w[i];
             }
         }
+
+        private void Frm033_EqMstMaint_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
+        }
     }
 }

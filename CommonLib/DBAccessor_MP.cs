@@ -3249,9 +3249,10 @@ namespace MPPPS
         /// 製造指示カードに印刷するデータの取得
         /// </summary>
         /// <param name="dt">製造指示カードデータ</param>
-        /// <param name="eddtfrom">開始完了予定日（月曜日）</param>
+        /// <param name="eddtFrom">開始完了予定日（月曜日）</param>
+        /// <param name="eddtTo">開始完了予定日（月曜日）</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int GetOrderCardPrintInfo(DateTime eddtfrom, ref DataTable mpDt)
+        public int GetOrderCardPrintInfo(ref DateTime eddtFrom, ref DateTime eddtTo, ref DataTable mpDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -3264,7 +3265,7 @@ namespace MPPPS
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
                 // 並び替え順のパターンごとにデータテーブルを取得
-                string sql = GetOrderCardPrintInfoSQL(eddtfrom);
+                string sql = GetOrderCardPrintInfoSQL(ref eddtFrom, ref eddtTo);
 
                 // 1.次工程の順番で印刷するパターン（SW）
                 string sqlSW = sql +
@@ -3387,13 +3388,10 @@ namespace MPPPS
         }
 
 
-        private string GetOrderCardPrintInfoSQL(DateTime eddtfrom)
+        private string GetOrderCardPrintInfoSQL(ref DateTime eddtFrom, ref DateTime eddtTo)
         {
-            // 手配日の範囲指定月曜日+6日
-            DateTime eddtto = eddtfrom.AddDays(6);
-
             string sql = GetOrderCardPrintInfoBaseSQL()
-                + $"and a.EDDT between '{eddtfrom}' and '{eddtto}' "
+                + $"and a.EDDT between '{eddtFrom}' and '{eddtTo}' "
                 + "and MPCARDDT is null " // 製造指示カード発行日
             ;
             return sql;
@@ -3460,9 +3458,10 @@ namespace MPPPS
         /// <summary>
         /// 製造指示カード発行済みに更新
         /// </summary>
-        /// <param name="eddtfrom">手配日</param>
+        /// <param name="eddtFrom">手配開始日</param>
+        /// <param name="eddtTo">手配終了日</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int UpdatePrintOrderCardDay(DateTime eddtfrom)
+        public int UpdatePrintOrderCardDay(ref DateTime eddtFrom, ref DateTime eddtTo)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -3475,9 +3474,6 @@ namespace MPPPS
                 // 切削生産計画システム データベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref cnn);
 
-                // 手配日の範囲指定月曜日+6日
-                DateTime eddtto = eddtfrom.AddDays(6);
-
                 // 製造指示カード発行済みに更新 SQL
                 string sql =
                     "UPDATE "
@@ -3489,7 +3485,7 @@ namespace MPPPS
                     + "ODRSTS<>'9' and "
                     + "ODCD like '6060%' and "
                     + "MPCARDDT is NULL and " // 製造指示カード発行日
-                    + $"EDDT between '{eddtfrom}' and '{eddtto}'"
+                    + $"EDDT between '{eddtFrom}' and '{eddtTo}'"
                 ;
 
                 using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))

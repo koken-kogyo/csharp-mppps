@@ -93,7 +93,7 @@ namespace MPPPS
             this.cmbMCGCD.FormattingEnabled = true;
             this.cmbMCGCD.Location = new System.Drawing.Point(93, 12);
             this.cmbMCGCD.Name = "cmbMCGCD";
-            this.cmbMCGCD.Size = new System.Drawing.Size(233, 39);
+            this.cmbMCGCD.Size = new System.Drawing.Size(233, 33);
             this.cmbMCGCD.TabIndex = 0;
             this.cmbMCGCD.SelectedIndexChanged += new System.EventHandler(this.cmbMCGCD_SelectedIndexChanged);
             // 
@@ -102,7 +102,7 @@ namespace MPPPS
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(10, 17);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(102, 25);
+            this.label1.Size = new System.Drawing.Size(84, 20);
             this.label1.TabIndex = 4;
             this.label1.Text = "設備選択：";
             // 
@@ -124,16 +124,16 @@ namespace MPPPS
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel1});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 309);
+            this.toolStrip1.Location = new System.Drawing.Point(0, 310);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1000, 26);
+            this.toolStrip1.Size = new System.Drawing.Size(1000, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
             // toolStripLabel1
             // 
             this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(124, 23);
+            this.toolStripLabel1.Size = new System.Drawing.Size(101, 22);
             this.toolStripLabel1.Text = "toolStripLabel1";
             // 
             // panel2
@@ -141,7 +141,7 @@ namespace MPPPS
             this.panel2.Controls.Add(this.btnReloadDatabase);
             this.panel2.Controls.Add(this.btnUpdateDatabase);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 251);
+            this.panel2.Location = new System.Drawing.Point(0, 252);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1000, 58);
             this.panel2.TabIndex = 2;
@@ -179,14 +179,14 @@ namespace MPPPS
             this.Dgv_EquipMst.Name = "Dgv_EquipMst";
             this.Dgv_EquipMst.RowHeadersWidth = 51;
             this.Dgv_EquipMst.RowTemplate.Height = 24;
-            this.Dgv_EquipMst.Size = new System.Drawing.Size(1000, 194);
+            this.Dgv_EquipMst.Size = new System.Drawing.Size(1000, 195);
             this.Dgv_EquipMst.TabIndex = 3;
             this.Dgv_EquipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_EquipMst_RowPostPaint);
             this.Dgv_EquipMst.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Dgv_EquipMst_KeyDown);
             // 
             // Frm033_EqMstMaint
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1000, 335);
             this.Controls.Add(this.Dgv_EquipMst);
@@ -195,9 +195,11 @@ namespace MPPPS
             this.Controls.Add(this.panel1);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "Frm033_EqMstMaint";
             this.Text = "[KMD003SF] マスタ メンテナンス - 設備マスタ メンテ - Ver.230613.01a";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm033_EqMstMaint_KeyDown);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);

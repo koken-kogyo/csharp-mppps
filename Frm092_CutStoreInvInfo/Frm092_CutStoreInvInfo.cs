@@ -200,5 +200,10 @@ namespace MPPPS
             invInfoMPDt.DefaultView.RowFilter = filter;
             addEMQTY(ref invInfoEMDt);
         }
+
+        private void Frm092_CutStoreInvInfo_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
+        }
     }
 }

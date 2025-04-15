@@ -801,7 +801,9 @@ namespace MPPPS
             }
         }
 
-
-
+        private void Frm044_ImportPlan_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
+        }
     }
 }

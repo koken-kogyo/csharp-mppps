@@ -144,10 +144,12 @@ namespace MPPPS
             this.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm091_CutStoreDelv";
             this.Text = "[KMD009SF] スマート棚コン - 計画出庫データ作成 - Ver.230613.01a";
             this.Activated += new System.EventHandler(this.Frm091_CutStoreDelv_Activated);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm091_CutStoreDelv_KeyDown);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_Calendar)).EndInit();

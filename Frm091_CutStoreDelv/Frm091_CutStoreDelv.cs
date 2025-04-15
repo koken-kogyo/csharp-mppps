@@ -379,5 +379,10 @@ namespace MPPPS
         {
             Dgv_Calendar.ClearSelection(); // Initialize中やLoad中には効かない
         }
+
+        private void Frm091_CutStoreDelv_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
+        }
     }
 }

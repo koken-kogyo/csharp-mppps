@@ -297,9 +297,11 @@ namespace MPPPS
             this.Controls.Add(this.panel1);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "Frm034_CodeSlipMstMaint";
             this.Text = "[KMD003SF] マスタ メンテナンス - コード票マスタ メンテ - Ver.230613.01a";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm034_CodeSlipMstMaint_KeyDown);
             this.panel1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);

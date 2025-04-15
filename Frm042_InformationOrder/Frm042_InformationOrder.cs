@@ -400,6 +400,7 @@ namespace MPPPS
             if (e.KeyCode == Keys.F5) btn_Search_Click(sender, e);
             if (e.KeyCode == Keys.F10) btn_ExportOrder_Click(sender, e);
             if (e.KeyCode == Keys.F12) btn_PrintOrder_Click(sender, e);
+            if (e.KeyCode == Keys.Escape) Close();
         }
 
         private void dtp_EDDT_From_KeyDown(object sender, KeyEventArgs e)
@@ -663,20 +664,33 @@ namespace MPPPS
                 {
                     DataRow r = cardDt.Rows[i];
 
-                    // 書き込みを行う先頭行番号を計算
-                    row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
+                    // 収容数で分割
+                    decimal odrqty = Decimal.Parse(r["ODRQTY"].ToString());
+                    decimal boxqty = 0;
+                    int loopCnt = 1;
+                    if (Decimal.TryParse(r["BOXQTY"].ToString(), out boxqty))
+                    {
+                        loopCnt = Decimal.ToInt32(Math.Ceiling((odrqty / boxqty)));
+                    }
 
-                    // 左右の列番号を切り替え
-                    col = (cardCnt % 2 != 0) ? 1 : 10;
+                    // 収容数でループ
+                    for (int j = 1; j <= loopCnt; j++)
+                    {
+                        // 書き込みを行う先頭行番号を計算
+                        row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
 
-                    // 処理速度の計測開始
-                    // DateTime SW3 = DateTime.Now;
-                    // Debug.WriteLine("[StopWatch] Read開始 ");
+                        // 左右の列番号を切り替え
+                        col = (cardCnt % 2 != 0) ? 1 : 10;
 
-                    // カードに値をセット
-                    cmn.Fa.SetOrderCard(ref r, ref row, ref col);
+                        // 処理速度の計測開始
+                        // DateTime SW3 = DateTime.Now;
+                        // Debug.WriteLine("[StopWatch] Read開始 ");
 
-                    cardCnt++;
+                        // カードに値をセット
+                        cmn.Fa.SetOrderCard(ref r, ref row, ref col, j, loopCnt);
+
+                        cardCnt++;
+                    }
                 }
                 // ループ終了時に最後のページの印刷枚数が４の倍数でなかった場合、
                 // 残りの余分なデータをクリア（COMアクセスを減らす為にクリア処理は最後の一回だけ行う）
