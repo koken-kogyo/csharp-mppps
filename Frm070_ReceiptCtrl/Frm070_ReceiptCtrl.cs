@@ -36,5 +36,10 @@ namespace MPPPS
         {
             Close();
         }
+
+        private void Frm070_ReceiptCtrl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
+        }
     }
 }

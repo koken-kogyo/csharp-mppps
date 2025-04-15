@@ -95,8 +95,10 @@ namespace MPPPS
             this.Controls.Add(this.Btn_MatlInvList);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.Name = "Frm080_MatlCtrl";
             this.Text = "[KMD008SF] 材料管理 - Ver.230613.01a";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm080_MatlCtrl_KeyDown);
             this.ResumeLayout(false);
 
         }

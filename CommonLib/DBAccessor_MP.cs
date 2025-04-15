@@ -4,6 +4,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
@@ -2389,7 +2390,8 @@ namespace MPPPS
                     DataRow[] cr = codeDt.Select($"HMCD='{hmcd}'");
                     if (cr.Length == 0)
                     {
-                        MessageBox.Show($"{hmcd}がコード票マスタに存在しません。\nマスタ登録後再度実行してください");
+                        System.Windows.Forms.MessageBox.Show($"{hmcd}がコード票マスタに存在しません。\nマスタ登録後再度実行してください");
+                        Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name + ":" + hmcd);
                     }
                     else
                     {
@@ -4477,8 +4479,8 @@ namespace MPPPS
                 string sql = "SELECT " +
                     swSelect +
                     "aa.HMCD 品番, " +
-                    "bb.KTKEY 工程, " +
-                    "SUM(aa.ODRQTY) - SUM(aa.JIQTY) 手配残数 " +
+                    "SUM(aa.ODRQTY) - SUM(aa.JIQTY) 手配残数, " +
+                    "bb.KTKEY 工程 " +
                     "FROM " +
                     cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " aa, " +
                     cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " bb " +
@@ -4542,8 +4544,8 @@ namespace MPPPS
                 string sql = "SELECT " +
                     "aa.EDDT 完了予定日, " +
                     "aa.HMCD 品番, " +
-                    "bb.KTKEY 工程, " +
-                    "SUM(aa.ODRQTY) - SUM(aa.JIQTY) 手配残数 " +
+                    "SUM(aa.ODRQTY) - SUM(aa.JIQTY) 手配残数, " +
+                    "bb.KTKEY 工程 " +
                     "FROM " +
                     cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " aa, " +
                     cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " bb " +
@@ -4608,8 +4610,8 @@ namespace MPPPS
                 string sql = "SELECT " +
                     "CAST(CONCAT(YEAR(now()) + 1,'-12-31') as DATETIME) 完了予定日, " +
                     "aa.HMCD 品番, " +
-                    "bb.KTKEY 工程, " +
-                    "SUM(aa.ZAIQTY) 手配残数 " +
+                    "SUM(aa.ZAIQTY) 手配残数, " +
+                    "bb.KTKEY 工程 " +
                     "FROM " +
                     cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460 + " aa, " +
                     cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " bb " +
@@ -4638,6 +4640,70 @@ namespace MPPPS
                         Debug.WriteLine("Read from DataTable:");
                         // 結果取得
                         myDa.Fill(zaikoDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        // 切削コード票の前工程を取得するSQL
+        // ①対象品番の(KTSEQ >= 10 )の抽出し品番でグループ化する 
+        // ②1つ前の(KTSEQ - 10 ) を抽出する
+        public bool GetMPMaeKT(ref DataTable maektDt)
+        {
+            bool ret = false;
+
+            MySqlConnection mpCnn = null;
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "select m51.HMCD " +
+                ", max(case when m51.KTSEQ = 10 and m51.KTCD in ('CMTM', 'WL04') then m41.KTNM when m51.KTSEQ = 10 then m30.ODRNM else null end) 前工程① " +
+                ", max(case when m51.KTSEQ = 20 and m51.KTCD in ('CMTM', 'WL04') then m41.KTNM when m51.KTSEQ = 20 then m30.ODRNM else null end) 前工程② " +
+                "from M0510 m51, M0410 m41, M0300 m30, " +
+                "( " +
+                    "select a.HMCD, min(a.KTSEQ) KTSEQ, max(a.VALDTF) VALDTF " +
+                    "from m0510 a, km8430 b " +
+                    "where a.HMCD = b.HMCD " +
+                    "and a.ODCD like '6060%' " +
+                    "and a.KTSEQ > 10 " +
+                    "and MOD(a.KTSEQ,10) = 0 " +
+                    "and a.VALDTF = " +
+                    "(select MAX(tmp.VALDTF) from M0510 tmp where tmp.HMCD = a.HMCD and tmp.VALDTF < now()) " +
+                    "group by a.HMCD" +
+                ") base " +
+                "where " +
+                "base.HMCD = m51.HMCD " +
+                "and base.VALDTF = m51.VALDTF " +
+                "and m51.KTSEQ < base.ktseq " +
+                "and MOD(m51.KTSEQ,10) = 0 " +
+                "and m51.ODCD not like '6060%' " +
+                "and m51.KTCD = m41.KTCD " +
+                "and m51.ODCD = m30.ODCD " +
+                "group by m51.HMCD"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(maektDt);
                         ret = true;
                     }
                 }

@@ -128,9 +128,11 @@ namespace MPPPS
             this.Controls.Add(this.Btn_ImportOrder);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm040_OrderCtrl";
             this.Text = "[KMD004SF] オーダー管理 - Ver.230613.01a";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm040_OrderCtrl_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();
 

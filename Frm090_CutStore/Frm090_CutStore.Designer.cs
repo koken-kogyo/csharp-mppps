@@ -83,9 +83,11 @@ namespace MPPPS
             this.Controls.Add(this.Btn_CutStoreDelv);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm090_CutStore";
             this.Text = "[KMD009SF] 切削ストア - Ver.230613.01a";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm090_CutStore_KeyDown);
             this.ResumeLayout(false);
 
         }

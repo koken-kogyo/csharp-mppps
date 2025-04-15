@@ -99,9 +99,11 @@ namespace MPPPS
             this.Controls.Add(this.Btn_Close);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm030_MasterMaint";
             this.Text = "[KMD003SF] マスタ メンテナンス - Ver.230613.01a";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm030_MasterMaint_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();
 

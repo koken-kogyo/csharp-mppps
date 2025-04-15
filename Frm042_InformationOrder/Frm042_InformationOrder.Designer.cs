@@ -47,9 +47,10 @@ namespace MPPPS
             this.cmb_MCGCD = new System.Windows.Forms.ComboBox();
             this.chk_MCCD = new System.Windows.Forms.CheckBox();
             this.pnl_HMCD = new System.Windows.Forms.Panel();
-            this.txt_HMCD = new System.Windows.Forms.TextBox();
             this.chk_HMCD = new System.Windows.Forms.CheckBox();
+            this.txt_HMCD = new System.Windows.Forms.TextBox();
             this.btn_HMCDPaste = new System.Windows.Forms.Button();
+            this.chk_ODRNO = new System.Windows.Forms.CheckBox();
             this.pnl_ODRSTS = new System.Windows.Forms.Panel();
             this.chk_9 = new System.Windows.Forms.CheckBox();
             this.chk_4 = new System.Windows.Forms.CheckBox();
@@ -79,9 +80,9 @@ namespace MPPPS
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip.Location = new System.Drawing.Point(0, 542);
+            this.statusStrip.Location = new System.Drawing.Point(0, 537);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1069, 24);
+            this.statusStrip.Size = new System.Drawing.Size(1069, 29);
             this.statusStrip.TabIndex = 6;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -89,7 +90,7 @@ namespace MPPPS
             // 
             this.toolStripStatusLabel1.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(139, 19);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(171, 23);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -97,7 +98,7 @@ namespace MPPPS
             // 
             this.toolStripStatusLabel2.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(915, 19);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(883, 23);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -134,7 +135,7 @@ namespace MPPPS
             this.pnl_EDDT.Controls.Add(this.dtp_EDDT_To);
             this.pnl_EDDT.Controls.Add(this.dtp_EDDT_From);
             this.pnl_EDDT.Controls.Add(this.label7);
-            this.pnl_EDDT.Location = new System.Drawing.Point(531, 8);
+            this.pnl_EDDT.Location = new System.Drawing.Point(559, 8);
             this.pnl_EDDT.Name = "pnl_EDDT";
             this.pnl_EDDT.Size = new System.Drawing.Size(300, 65);
             this.pnl_EDDT.TabIndex = 3;
@@ -148,7 +149,7 @@ namespace MPPPS
             "～"});
             this.cmb_Condition.Location = new System.Drawing.Point(132, 27);
             this.cmb_Condition.Name = "cmb_Condition";
-            this.cmb_Condition.Size = new System.Drawing.Size(38, 29);
+            this.cmb_Condition.Size = new System.Drawing.Size(38, 36);
             this.cmb_Condition.TabIndex = 4;
             this.cmb_Condition.SelectedIndexChanged += new System.EventHandler(this.cmb_Condition_SelectedIndexChanged);
             // 
@@ -159,7 +160,7 @@ namespace MPPPS
             this.dtp_EDDT_To.MaxDate = new System.DateTime(2050, 12, 31, 0, 0, 0, 0);
             this.dtp_EDDT_To.MinDate = new System.DateTime(2020, 1, 1, 0, 0, 0, 0);
             this.dtp_EDDT_To.Name = "dtp_EDDT_To";
-            this.dtp_EDDT_To.Size = new System.Drawing.Size(108, 29);
+            this.dtp_EDDT_To.Size = new System.Drawing.Size(108, 34);
             this.dtp_EDDT_To.TabIndex = 3;
             // 
             // dtp_EDDT_From
@@ -169,7 +170,7 @@ namespace MPPPS
             this.dtp_EDDT_From.MaxDate = new System.DateTime(2050, 12, 31, 0, 0, 0, 0);
             this.dtp_EDDT_From.MinDate = new System.DateTime(2020, 1, 1, 0, 0, 0, 0);
             this.dtp_EDDT_From.Name = "dtp_EDDT_From";
-            this.dtp_EDDT_From.Size = new System.Drawing.Size(108, 29);
+            this.dtp_EDDT_From.Size = new System.Drawing.Size(108, 34);
             this.dtp_EDDT_From.TabIndex = 2;
             this.dtp_EDDT_From.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dtp_EDDT_From_KeyDown);
             // 
@@ -178,7 +179,7 @@ namespace MPPPS
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(3, 2);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(90, 21);
+            this.label7.Size = new System.Drawing.Size(112, 28);
             this.label7.TabIndex = 1;
             this.label7.Text = "完了予定日";
             // 
@@ -188,7 +189,7 @@ namespace MPPPS
             this.pnl_MCCD.Controls.Add(this.cmb_MCCD);
             this.pnl_MCCD.Controls.Add(this.cmb_MCGCD);
             this.pnl_MCCD.Controls.Add(this.chk_MCCD);
-            this.pnl_MCCD.Location = new System.Drawing.Point(837, 8);
+            this.pnl_MCCD.Location = new System.Drawing.Point(865, 8);
             this.pnl_MCCD.Name = "pnl_MCCD";
             this.pnl_MCCD.Size = new System.Drawing.Size(199, 65);
             this.pnl_MCCD.TabIndex = 2;
@@ -200,7 +201,7 @@ namespace MPPPS
             this.cmb_MCCD.FormattingEnabled = true;
             this.cmb_MCCD.Location = new System.Drawing.Point(97, 27);
             this.cmb_MCCD.Name = "cmb_MCCD";
-            this.cmb_MCCD.Size = new System.Drawing.Size(81, 29);
+            this.cmb_MCCD.Size = new System.Drawing.Size(81, 36);
             this.cmb_MCCD.TabIndex = 3;
             this.cmb_MCCD.SelectedIndexChanged += new System.EventHandler(this.cmb_MCCD_SelectedIndexChanged);
             // 
@@ -211,7 +212,7 @@ namespace MPPPS
             this.cmb_MCGCD.FormattingEnabled = true;
             this.cmb_MCGCD.Location = new System.Drawing.Point(19, 27);
             this.cmb_MCGCD.Name = "cmb_MCGCD";
-            this.cmb_MCGCD.Size = new System.Drawing.Size(72, 29);
+            this.cmb_MCGCD.Size = new System.Drawing.Size(72, 36);
             this.cmb_MCGCD.TabIndex = 2;
             this.cmb_MCGCD.SelectedIndexChanged += new System.EventHandler(this.cmb_MCGCD_SelectedIndexChanged);
             // 
@@ -221,7 +222,7 @@ namespace MPPPS
             this.chk_MCCD.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chk_MCCD.Location = new System.Drawing.Point(6, 0);
             this.chk_MCCD.Name = "chk_MCCD";
-            this.chk_MCCD.Size = new System.Drawing.Size(58, 25);
+            this.chk_MCCD.Size = new System.Drawing.Size(70, 32);
             this.chk_MCCD.TabIndex = 7;
             this.chk_MCCD.Text = "設備";
             this.chk_MCCD.UseVisualStyleBackColor = true;
@@ -230,13 +231,26 @@ namespace MPPPS
             // pnl_HMCD
             // 
             this.pnl_HMCD.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pnl_HMCD.Controls.Add(this.txt_HMCD);
             this.pnl_HMCD.Controls.Add(this.chk_HMCD);
+            this.pnl_HMCD.Controls.Add(this.txt_HMCD);
             this.pnl_HMCD.Controls.Add(this.btn_HMCDPaste);
+            this.pnl_HMCD.Controls.Add(this.chk_ODRNO);
             this.pnl_HMCD.Location = new System.Drawing.Point(334, 8);
             this.pnl_HMCD.Name = "pnl_HMCD";
-            this.pnl_HMCD.Size = new System.Drawing.Size(191, 65);
+            this.pnl_HMCD.Size = new System.Drawing.Size(219, 65);
             this.pnl_HMCD.TabIndex = 1;
+            // 
+            // chk_HMCD
+            // 
+            this.chk_HMCD.AutoSize = true;
+            this.chk_HMCD.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chk_HMCD.Location = new System.Drawing.Point(88, 0);
+            this.chk_HMCD.Name = "chk_HMCD";
+            this.chk_HMCD.Size = new System.Drawing.Size(70, 32);
+            this.chk_HMCD.TabIndex = 6;
+            this.chk_HMCD.Text = "品番";
+            this.chk_HMCD.UseVisualStyleBackColor = true;
+            this.chk_HMCD.CheckedChanged += new System.EventHandler(this.chk_HMCD_CheckedChanged);
             // 
             // txt_HMCD
             // 
@@ -244,34 +258,34 @@ namespace MPPPS
             this.txt_HMCD.Enabled = false;
             this.txt_HMCD.Location = new System.Drawing.Point(19, 27);
             this.txt_HMCD.Name = "txt_HMCD";
-            this.txt_HMCD.Size = new System.Drawing.Size(156, 29);
+            this.txt_HMCD.Size = new System.Drawing.Size(167, 34);
             this.txt_HMCD.TabIndex = 2;
             this.txt_HMCD.TextChanged += new System.EventHandler(this.txt_HMCD_TextChanged);
-            // 
-            // chk_HMCD
-            // 
-            this.chk_HMCD.AutoSize = true;
-            this.chk_HMCD.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chk_HMCD.Location = new System.Drawing.Point(6, 0);
-            this.chk_HMCD.Name = "chk_HMCD";
-            this.chk_HMCD.Size = new System.Drawing.Size(58, 25);
-            this.chk_HMCD.TabIndex = 6;
-            this.chk_HMCD.Text = "品番";
-            this.chk_HMCD.UseVisualStyleBackColor = true;
-            this.chk_HMCD.CheckedChanged += new System.EventHandler(this.chk_HMCD_CheckedChanged);
             // 
             // btn_HMCDPaste
             // 
             this.btn_HMCDPaste.Enabled = false;
             this.btn_HMCDPaste.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.btn_HMCDPaste.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btn_HMCDPaste.Location = new System.Drawing.Point(87, 5);
+            this.btn_HMCDPaste.Location = new System.Drawing.Point(148, 4);
             this.btn_HMCDPaste.Name = "btn_HMCDPaste";
-            this.btn_HMCDPaste.Size = new System.Drawing.Size(88, 20);
+            this.btn_HMCDPaste.Size = new System.Drawing.Size(62, 20);
             this.btn_HMCDPaste.TabIndex = 13;
             this.btn_HMCDPaste.Text = "貼り付け";
             this.btn_HMCDPaste.UseVisualStyleBackColor = true;
             this.btn_HMCDPaste.Click += new System.EventHandler(this.btn_HMCDPaste_Click);
+            // 
+            // chk_ODRNO
+            // 
+            this.chk_ODRNO.AutoSize = true;
+            this.chk_ODRNO.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chk_ODRNO.Location = new System.Drawing.Point(7, 0);
+            this.chk_ODRNO.Name = "chk_ODRNO";
+            this.chk_ODRNO.Size = new System.Drawing.Size(97, 32);
+            this.chk_ODRNO.TabIndex = 14;
+            this.chk_ODRNO.Text = "手配No";
+            this.chk_ODRNO.UseVisualStyleBackColor = true;
+            this.chk_ODRNO.CheckedChanged += new System.EventHandler(this.chk_ODRNO_CheckedChanged);
             // 
             // pnl_ODRSTS
             // 
@@ -292,7 +306,7 @@ namespace MPPPS
             this.chk_9.Enabled = false;
             this.chk_9.Location = new System.Drawing.Point(150, 35);
             this.chk_9.Name = "chk_9";
-            this.chk_9.Size = new System.Drawing.Size(61, 25);
+            this.chk_9.Size = new System.Drawing.Size(74, 32);
             this.chk_9.TabIndex = 4;
             this.chk_9.Text = "中止";
             this.chk_9.UseVisualStyleBackColor = true;
@@ -304,7 +318,7 @@ namespace MPPPS
             this.chk_4.Enabled = false;
             this.chk_4.Location = new System.Drawing.Point(150, 10);
             this.chk_4.Name = "chk_4";
-            this.chk_4.Size = new System.Drawing.Size(61, 25);
+            this.chk_4.Size = new System.Drawing.Size(74, 32);
             this.chk_4.TabIndex = 3;
             this.chk_4.Text = "完了";
             this.chk_4.UseVisualStyleBackColor = true;
@@ -316,7 +330,7 @@ namespace MPPPS
             this.chk_3.Enabled = false;
             this.chk_3.Location = new System.Drawing.Point(83, 28);
             this.chk_3.Name = "chk_3";
-            this.chk_3.Size = new System.Drawing.Size(61, 25);
+            this.chk_3.Size = new System.Drawing.Size(74, 32);
             this.chk_3.TabIndex = 2;
             this.chk_3.Text = "着手";
             this.chk_3.UseVisualStyleBackColor = true;
@@ -328,7 +342,7 @@ namespace MPPPS
             this.chk_2.Enabled = false;
             this.chk_2.Location = new System.Drawing.Point(19, 28);
             this.chk_2.Name = "chk_2";
-            this.chk_2.Size = new System.Drawing.Size(61, 25);
+            this.chk_2.Size = new System.Drawing.Size(74, 32);
             this.chk_2.TabIndex = 1;
             this.chk_2.Text = "確定";
             this.chk_2.UseVisualStyleBackColor = true;
@@ -340,7 +354,7 @@ namespace MPPPS
             this.chk_ODRSTS.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chk_ODRSTS.Location = new System.Drawing.Point(6, 0);
             this.chk_ODRSTS.Name = "chk_ODRSTS";
-            this.chk_ODRSTS.Size = new System.Drawing.Size(90, 25);
+            this.chk_ODRSTS.Size = new System.Drawing.Size(110, 32);
             this.chk_ODRSTS.TabIndex = 5;
             this.chk_ODRSTS.Text = "手配状態";
             this.chk_ODRSTS.UseVisualStyleBackColor = true;
@@ -359,7 +373,7 @@ namespace MPPPS
             this.dgv_Order.RowHeadersWidth = 51;
             this.dgv_Order.RowTemplate.Height = 24;
             this.dgv_Order.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_Order.Size = new System.Drawing.Size(1069, 415);
+            this.dgv_Order.Size = new System.Drawing.Size(1069, 410);
             this.dgv_Order.TabIndex = 11;
             this.dgv_Order.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_Order_CellDoubleClick);
             this.dgv_Order.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgv_Order_CellMouseDown);
@@ -377,7 +391,7 @@ namespace MPPPS
             this.tableLayoutPanel1.Controls.Add(this.btn_Progress, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.btn_DetailOrder, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 498);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 493);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 2);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
@@ -502,5 +516,6 @@ namespace MPPPS
         private CheckBox chk_HMCD;
         private CheckBox chk_MCCD;
         private Button btn_HMCDPaste;
+        private CheckBox chk_ODRNO;
     }
 }

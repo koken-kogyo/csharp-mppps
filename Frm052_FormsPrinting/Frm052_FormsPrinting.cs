@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -40,22 +41,28 @@ namespace MPPPS
             DataTable tehaiDt = new DataTable();
             DataTable naijiDt = new DataTable();
             DataTable zaikoDt = new DataTable();
+            DataTable maektDt = new DataTable();
             bool retOkure = false;
             bool retTehai = false;
             bool retNaiji = false;
             bool retZaiko = false;
+            bool retMaekt = false;
             var taskOkure = Task.Run(() => retOkure = cmn.Dba.GetTehaiZan(ref okureDt, 0)); // W
             var taskTehai = Task.Run(() => retTehai = cmn.Dba.GetTehaiZan(ref tehaiDt, 7)); // 1W
             var taskNaiji = Task.Run(() => retNaiji = cmn.Dba.GetNaiji(ref naijiDt));       // 2W～3W
             var taskZaiko = Task.Run(() => retZaiko = cmn.Dba.GetZaiko(ref zaikoDt));
-            await Task.WhenAll(taskOkure, taskTehai, taskNaiji, taskZaiko);
-            if (retOkure == false || retTehai == false || retNaiji == false || retZaiko == false) return;
+            var taskMaekt = Task.Run(() => retMaekt = cmn.Dba.GetMPMaeKT(ref maektDt));
+            await Task.WhenAll(taskOkure, taskTehai, taskNaiji, taskZaiko, taskMaekt);
+            if (!retOkure || !retTehai || !retNaiji || !retZaiko || !retMaekt) return;
 
             // 各データテーブルをマージ
             exportDt.Merge(okureDt);
             exportDt.Merge(tehaiDt);
             exportDt.Merge(naijiDt);
             exportDt.Merge(zaikoDt);
+
+            // 前工程の情報を付与する
+            MargeOrderDataTable(ref exportDt, ref maektDt);
 
             // 保存ダイアログ
             using (SaveFileDialog sfd = new SaveFileDialog()
@@ -103,8 +110,40 @@ namespace MPPPS
                     cmn.Fa.CloseExcel2();
                 }
             }
+        }
 
+        // EMデータテーブルとMPデータテーブルをマージ
+        private void MargeOrderDataTable(ref DataTable exportDt, ref DataTable maektDt)
+        {
+            // EM注文データテーブルに列を追加
+            exportDt.Columns.Add("前工程①", typeof(string));
+            exportDt.Columns.Add("前工程②", typeof(string));
 
+            // MPデータの内容をEM注文データにマージ
+            foreach (DataRow r in exportDt.Rows)
+            {
+                string input = r["工程"].ToString();
+                string pattern = @"-.*?:";
+                string result = Regex.Replace(input, pattern, "-"); // MCCDをカット
+                result = result.Replace("EX-", "");                 // EX工程をカット
+                result = result.Substring(0, result.Length - 1);    // 最後のハイフンをカット
+                r["工程"] = result;
+                if (maektDt.Select($"HMCD='{r["品番"]}'").Length > 0)
+                {
+                    r["前工程①"] = maektDt.Select($"HMCD='{r["品番"]}'")[0]["前工程①"];
+                    r["前工程②"] = maektDt.Select($"HMCD='{r["品番"]}'")[0]["前工程②"];
+                }
+                else
+                {
+                    r["前工程①"] = "";
+                    r["前工程②"] = "";
+                }
+            }
+        }
+
+        private void Frm052_FormsPrinting_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
         }
     }
 }

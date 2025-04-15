@@ -43,5 +43,10 @@ namespace MPPPS
         {
             Close();
         }
+
+        private void Frm050_MfgCtrl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
+        }
     }
 }

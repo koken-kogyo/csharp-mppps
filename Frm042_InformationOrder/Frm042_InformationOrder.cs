@@ -111,7 +111,7 @@ namespace MPPPS
             dtp_EDDT_From.Focus();
 
             toolStripStatusLabel1.Text = string.Empty;
-            toolStripStatusLabel2.Text = "行選択後、右クリックで品番コピー";
+            toolStripStatusLabel2.Text = "セル選択後、右クリックでコピー";
         }
 
         // データグリッドビューに行番号をつける
@@ -258,10 +258,19 @@ namespace MPPPS
 
         private void chk_9_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
 
+        private void chk_ODRNO_CheckedChanged(object sender, EventArgs e)
+        {
+            checkedFillter();
+            // 入力ボックスの活性、非活性化
+            txt_HMCD.Enabled = chk_ODRNO.Checked;
+            btn_HMCDPaste.Enabled = chk_ODRNO.Checked;
+            if (chk_HMCD.Checked) txt_HMCD.Focus();
+        }
+
         private void chk_HMCD_CheckedChanged(object sender, EventArgs e)
         {
             checkedFillter();
-            // 品番コントロールの活性、非活性化
+            // 入力ボックスの活性、非活性化
             txt_HMCD.Enabled = chk_HMCD.Checked;
             btn_HMCDPaste.Enabled = chk_HMCD.Checked;
             if (chk_HMCD.Checked) txt_HMCD.Focus();
@@ -357,6 +366,11 @@ namespace MPPPS
                     f += "'x')";
                 }
             }
+            if (chk_ODRNO.Checked && txt_HMCD.Text != string.Empty)
+            {
+                if (f != string.Empty) f += " and ";
+                f += "ODRNO = '" + txt_HMCD.Text + "' ";
+            }
             if (chk_HMCD.Checked && txt_HMCD.Text != string.Empty)
             {
                 if (f != string.Empty) f += " and ";
@@ -443,17 +457,20 @@ namespace MPPPS
             kd8430.Rows.Clear();
             // ここから条件設定
             var where = "";
-            if (dtp_EDDT_To.Visible == false)
+            if (!chk_ODRNO.Checked)
             {
-                where += "EDDT='" + dtp_EDDT_From.Value.Date.ToString("yyyy-MM-dd") + "'";
-            }
-            else
-            {
-                where += "EDDT between '" + dtp_EDDT_From.Value.Date.ToString("yyyy-MM-dd") + 
-                    "' and '" + dtp_EDDT_To.Value.Date.ToString("yyyy-MM-dd") + "'";
+                if (dtp_EDDT_To.Visible == false)
+                {
+                    where += "EDDT='" + dtp_EDDT_From.Value.Date.ToString("yyyy-MM-dd") + "'";
+                }
+                else
+                {
+                    where += "EDDT between '" + dtp_EDDT_From.Value.Date.ToString("yyyy-MM-dd") +
+                        "' and '" + dtp_EDDT_To.Value.Date.ToString("yyyy-MM-dd") + "'";
+                }
             }
             var fillter = addFillter();
-            if (fillter != string.Empty) where += " and  " + fillter;
+            if (fillter != string.Empty) where += (where == string.Empty) ? fillter : " and " + fillter;
 
             // データベースアクセス
             var ret8420 = cmn.Dba.FindMpOrder(ref kd8430, selectSQL(), where);
@@ -699,6 +716,7 @@ namespace MPPPS
         {
             MessageBox.Show("未実装");
         }
+
         // ******************************** メイン処理ここまで *********************************
     }
 }

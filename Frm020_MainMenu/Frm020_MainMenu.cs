@@ -102,5 +102,10 @@ namespace MPPPS
         {
             Close();
         }
+
+        private void Frm020_MainMenu_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) Close();
+        }
     }
 }
