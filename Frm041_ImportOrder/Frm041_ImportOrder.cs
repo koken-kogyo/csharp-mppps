@@ -796,6 +796,7 @@ namespace MPPPS
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             int ret = 0;
+            int i = 0;
 
             try
             {
@@ -806,7 +807,7 @@ namespace MPPPS
                 int row = 0;
                 int col = 0;
                 cmn.Fa.CreateTemplateOrderCard(); // テンプレートオブジェクトの作成（製造指示カードの雛形を作成）
-                for (int i = 0; i < cardDt.Rows.Count; i++)
+                for (i = 0; i < cardDt.Rows.Count; i++)
                 {
                     DataRow r = cardDt.Rows[i];
 
@@ -856,7 +857,7 @@ namespace MPPPS
             {
                 Debug.WriteLine("Exception Source = " + e.Source);
                 Debug.WriteLine("Exception Message = " + e.Message);
-
+                toolStripStatusLabel2.Text = "手配No [" + cardDt.Rows[i]["ODRNO"].ToString() + "] で異常が発生しました．";
                 cmn.Fa.CloseExcel2();
 
                 // 戻り値でエラー種別を判定

@@ -1344,6 +1344,39 @@ namespace MPPPS
                 oRange.Value = templateOrderCardObject;
             }
         }
+
+        // 製造指示カードに記載するEX:検査工程の工程名を加工して返却
+        private string getEXKTName(ref  string mccd)
+        {
+            if (mccd.StartsWith("BT"))
+            {
+                return "ﾊﾞﾘ取り";
+            }
+            else if (mccd.StartsWith("MT"))
+            {
+                return "面取り";
+            }
+            else if (mccd.StartsWith("F"))
+            {
+                return "平行度";
+            }
+            return mccd;
+        }
+
+        // 製造指示カードに記載するEX:検査工程の設備名を加工して返却
+        private string getEXMCName(ref string mccd)
+        {
+            if (mccd.StartsWith("F1"))
+            {
+                return "手動測定器";
+            }
+            else if (mccd.StartsWith("F2"))
+            {
+                return "画像測定器";
+            }
+            return mccd;
+        }
+
         // 1カード作成（DataRow1件分を作成）
         public void SetOrderCard(ref DataRow r, ref int row, ref int col, int loopCnt, int loopMax)
         {
@@ -1410,17 +1443,16 @@ namespace MPPPS
             }
             else
             {
-                obj[9, 1] = "工程①";
-                obj[9, 2] = RemoveDuplicates(r["KT1MCGCD"].ToString(), r["KT1MCCD"].ToString(), 1);
-                if (obj[9, 2].ToString().StartsWith("EX-MT")) 
+                var mccd = r["KT1MCCD"].ToString();
+                if (r["KT1MCGCD"].ToString() == "EX")
                 {
-                    obj[9, 1] = "面取り";
-                    obj[9, 2] = r["KT1MCCD"].ToString();
+                    obj[9, 1] = getEXKTName(ref mccd);
+                    obj[9, 2] = getEXMCName(ref mccd);
                 }
-                if (obj[9, 2].ToString().StartsWith("EX-BT"))
+                else
                 {
-                    obj[9, 1] = "ﾊﾞﾘ取り";
-                    obj[9, 2] = r["KT1MCCD"].ToString();
+                    obj[9, 1] = "工程①";
+                    obj[9, 2] = RemoveDuplicates(r["KT1MCGCD"].ToString(), mccd, 1);
                 }
             }
             if (r["KT2MCGCD"].ToString() == "")
@@ -1429,17 +1461,16 @@ namespace MPPPS
             }
             else
             {
-                obj[11, 1] = "工程②";
-                obj[11, 2] = RemoveDuplicates(r["KT2MCGCD"].ToString(), r["KT2MCCD"].ToString(), 1);
-                if (obj[11, 2].ToString().StartsWith("EX-MT"))
+                var mccd = r["KT2MCCD"].ToString();
+                if (r["KT2MCGCD"].ToString() == "EX")
                 {
-                    obj[11, 1] = "面取り";
-                    obj[11, 2] = r["KT2MCCD"].ToString();
+                    obj[11, 1] = getEXKTName(ref mccd);
+                    obj[11, 2] = getEXMCName(ref mccd);
                 }
-                if (obj[11, 2].ToString().StartsWith("EX-BT"))
+                else
                 {
-                    obj[11, 1] = "ﾊﾞﾘ取り";
-                    obj[11, 2] = r["KT2MCCD"].ToString();
+                    obj[11, 1] = "工程②";
+                    obj[11, 2] = RemoveDuplicates(r["KT2MCGCD"].ToString(), mccd, 1);
                 }
             }
             if (r["KT3MCGCD"].ToString() == "")
@@ -1448,17 +1479,16 @@ namespace MPPPS
             }
             else
             {
-                obj[13, 1] = "工程③";
-                obj[13, 2] = RemoveDuplicates(r["KT3MCGCD"].ToString(), r["KT3MCCD"].ToString(), 1);
-                if (obj[13, 2].ToString().StartsWith("EX-MT"))
+                var mccd = r["KT3MCCD"].ToString();
+                if (r["KT3MCGCD"].ToString() == "EX")
                 {
-                    obj[13, 1] = "面取り";
-                    obj[13, 2] = r["KT3MCCD"].ToString();
+                    obj[13, 1] = getEXKTName(ref mccd);
+                    obj[13, 2] = getEXMCName(ref mccd);
                 }
-                if (obj[13, 2].ToString().StartsWith("EX-BT"))
+                else
                 {
-                    obj[13, 1] = "ﾊﾞﾘ取り";
-                    obj[13, 2] = r["KT3MCCD"].ToString();
+                    obj[13, 1] = "工程③";
+                    obj[13, 2] = RemoveDuplicates(r["KT3MCGCD"].ToString(), mccd, 1);
                 }
             }
             if (r["KT4MCGCD"].ToString() == "")
@@ -1467,17 +1497,16 @@ namespace MPPPS
             }
             else
             {
-                obj[15, 1] = "工程④";
-                obj[15, 2] = RemoveDuplicates(r["KT4MCGCD"].ToString(), r["KT4MCCD"].ToString(), 1);
-                if (obj[15, 2].ToString().StartsWith("EX-MT"))
+                var mccd = r["KT4MCCD"].ToString();
+                if (r["KT4MCGCD"].ToString() == "EX")
                 {
-                    obj[15, 1] = "面取り";
-                    obj[15, 2] = r["KT4MCCD"].ToString();
+                    obj[15, 1] = getEXKTName(ref mccd);
+                    obj[15, 2] = getEXMCName(ref mccd);
                 }
-                if (obj[15, 2].ToString().StartsWith("EX-BT"))
+                else
                 {
-                    obj[15, 1] = "ﾊﾞﾘ取り";
-                    obj[15, 2] = r["KT4MCCD"].ToString();
+                    obj[15, 1] = "工程④";
+                    obj[15, 2] = RemoveDuplicates(r["KT4MCGCD"].ToString(), mccd, 1);
                 }
             }
             if (r["KT5MCGCD"].ToString() == "")
@@ -1486,30 +1515,41 @@ namespace MPPPS
             }
             else
             {
-                obj[17, 2] = RemoveDuplicates(r["KT5MCGCD"].ToString(), r["KT5MCCD"].ToString(), 1);
-                if (obj[17, 2].ToString().StartsWith("EX-MT"))
+                var mccd = r["KT5MCCD"].ToString();
+                if (r["KT5MCGCD"].ToString() == "EX")
                 {
-                    obj[17, 1] = "面取り";
-                    obj[17, 2] = r["KT5MCCD"].ToString();
+                    obj[17, 1] = getEXKTName(ref mccd);
+                    obj[17, 2] = getEXMCName(ref mccd);
                 }
-                if (obj[17, 2].ToString().StartsWith("EX-BT"))
+                else
                 {
-                    obj[17, 1] = "ﾊﾞﾘ取り";
-                    obj[17, 2] = r["KT5MCCD"].ToString();
+                    obj[17, 1] = "工程⑤";
+                    obj[17, 2] = RemoveDuplicates(r["KT5MCGCD"].ToString(), r["KT5MCCD"].ToString(), 1);
                 }
             }
             if (r["KT6MCGCD"].ToString() != "")
             {
-                var tmp = RemoveDuplicates(r["KT6MCGCD"].ToString(), r["KT6MCCD"].ToString(), 1);
+                var mccd = r["KT6MCCD"].ToString();
+                var tmp = RemoveDuplicates(r["KT6MCGCD"].ToString(), mccd, 1);
                 if (tmp.StartsWith("EX-MT"))
                 {
                     obj[17, 1] += "\n面取り";
-                    obj[17, 2] += "\n" + r["KT6MCCD"].ToString();
+                    obj[17, 2] += "\n" + mccd;
                 }
-                if (tmp.StartsWith("EX-BT"))
+                else if (tmp.StartsWith("EX-BT"))
                 {
                     obj[17, 1] += "\nﾊﾞﾘ取り";
-                    obj[17, 2] += "\n" + r["KT6MCCD"].ToString();
+                    obj[17, 2] += "\n" + mccd;
+                }
+                else if (tmp.StartsWith("EX-F"))
+                {
+                    obj[17, 1] += "\n平行度";
+                    obj[17, 2] += "\n" + tmp;
+                }
+                else
+                {
+                    obj[17, 1] += "\n" + "工程⑥";
+                    obj[17, 2] += "\n" + tmp;
                 }
             }
             var note = r["NOTE"].ToString();
@@ -1623,6 +1663,7 @@ namespace MPPPS
             if (mcgcd != string.Empty)
             {
                 if (mcgcd == mccd) return prefix + mcgcd;
+                if (mcgcd == "SK" && mccd == "XW") return prefix + "XW"; // 設備名の個別対応
                 return prefix + $"{mcgcd}-{mccd}";
             }
             return string.Empty;
