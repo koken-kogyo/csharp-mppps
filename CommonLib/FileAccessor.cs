@@ -1432,6 +1432,7 @@ namespace MPPPS
             obj[1, 2] = r["HMCD"].ToString();
             obj[4, 2] = r["HMNM"].ToString();
             obj[5, 2] = r["ODRNO"].ToString();
+            // 手配完了日付はExcel雛形側でフォーマットを変えているのでFull日付でデータはセット
             obj[6, 2] = DateTime.Parse(r["EDDT"].ToString()).ToString("yyyy/MM/dd");
             obj[7, 2] = r["ODRQTY"].ToString();
             obj[5, 7] = r["MATESIZE"].ToString();

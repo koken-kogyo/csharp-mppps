@@ -739,7 +739,7 @@ namespace MPPPS
             // 製造指示カード雛形を開く（拡縮倍率にあった帳票を選択）
             cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
 
-            // 一週間分の製造指示データをDataTableに読み込む
+            // 選択セル範囲の製造指示データをDataTableに読み込む
             int ret = 0;
             toolStripStatusLabel1.Text = progressmsg + "データ読み込み中...";
             DataTable cardDt = new DataTable();
@@ -840,7 +840,7 @@ namespace MPPPS
 
                         if (cardCnt % 5 == 0)
                         {
-                            toolStripStatusLabel1.Text = progressmsg + $" {cardCnt}件 / {cardDt.Rows.Count}件中 作成中...";
+                            toolStripStatusLabel1.Text = progressmsg + $" {cardCnt}枚 / {cardDt.Rows.Count}件中 作成中...";
                         }
                         cardCnt++;
                     }
@@ -850,7 +850,7 @@ namespace MPPPS
                 // 残りの余分なデータをクリア（COMアクセスを減らす為にクリア処理は最後の一回だけ行う）
                 if ((cardCnt - 1) % 4 != 0)
                     cmn.Fa.ClearZanOrderCard(cardCnt - 1);
-                toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件のカードが作成されました.";
+                toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件-{cardCnt}枚のカードが作成されました.";
             }
             // ファイルの保存に失敗すると Exception が発生する
             catch (Exception e)

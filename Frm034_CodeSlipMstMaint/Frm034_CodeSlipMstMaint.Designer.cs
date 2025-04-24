@@ -44,6 +44,7 @@ namespace MPPPS
             this.cmbMaterial = new System.Windows.Forms.ComboBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.btnNextDiffer = new System.Windows.Forms.Button();
             this.btnUpdateDatabase = new System.Windows.Forms.Button();
@@ -168,7 +169,7 @@ namespace MPPPS
             this.txtHMCD.Font = new System.Drawing.Font("Yu Gothic UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.txtHMCD.Location = new System.Drawing.Point(27, 21);
             this.txtHMCD.Name = "txtHMCD";
-            this.txtHMCD.Size = new System.Drawing.Size(165, 32);
+            this.txtHMCD.Size = new System.Drawing.Size(165, 38);
             this.txtHMCD.TabIndex = 10;
             this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
             // 
@@ -188,7 +189,7 @@ namespace MPPPS
             "ﾚｰｻﾞｰ"});
             this.cmbMaterial.Location = new System.Drawing.Point(321, 18);
             this.cmbMaterial.Name = "cmbMaterial";
-            this.cmbMaterial.Size = new System.Drawing.Size(79, 33);
+            this.cmbMaterial.Size = new System.Drawing.Size(79, 39);
             this.cmbMaterial.TabIndex = 9;
             this.cmbMaterial.SelectedIndexChanged += new System.EventHandler(this.cmbMaterial_SelectedIndexChanged);
             // 
@@ -196,19 +197,28 @@ namespace MPPPS
             // 
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 325);
+            this.toolStripStatusLabel1,
+            this.toolStripStatusLabel2});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 321);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 18, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1262, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1262, 26);
             this.statusStrip1.TabIndex = 5;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(112, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(143, 20);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
+            // 
+            // toolStripStatusLabel2
+            // 
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(1061, 20);
+            this.toolStripStatusLabel2.Spring = true;
+            this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // panel2
             // 
@@ -217,7 +227,7 @@ namespace MPPPS
             this.panel2.Controls.Add(this.btnReadExcelMaster);
             this.panel2.Controls.Add(this.btnConvertMP);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 277);
+            this.panel2.Location = new System.Drawing.Point(0, 273);
             this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1262, 48);
@@ -278,7 +288,7 @@ namespace MPPPS
             this.Dgv_CodeSlipMst.Name = "Dgv_CodeSlipMst";
             this.Dgv_CodeSlipMst.RowHeadersWidth = 51;
             this.Dgv_CodeSlipMst.RowTemplate.Height = 24;
-            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1262, 218);
+            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1262, 214);
             this.Dgv_CodeSlipMst.TabIndex = 7;
             this.Dgv_CodeSlipMst.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.Dgv_CodeSlipMst_CellMouseDown);
             this.Dgv_CodeSlipMst.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.Dgv_CodeSlipMst_ColumnWidthChanged);
@@ -334,5 +344,6 @@ namespace MPPPS
         private Button btnNextDiffer;
         private Button btnUpdateDatabase2;
         private Button btnHMCDPaste;
+        private ToolStripStatusLabel toolStripStatusLabel2;
     }
 }

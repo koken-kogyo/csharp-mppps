@@ -57,6 +57,10 @@ namespace MPPPS
             // 可変部分を一旦非表示
             groupBox1.Visible = false;
             groupBox2.Visible = false;
+            btnUpdateDatabase2.Visible = false;
+
+            toolStripStatusLabel1.Text = "";
+            toolStripStatusLabel2.Text = "";
 
             // データベースからマスタを取得するタスクを登録
             bool ret8420 = false;
@@ -87,6 +91,7 @@ namespace MPPPS
             // 可変部分をDataGridView作成後に表示
             groupBox1.Visible = true;
             groupBox2.Visible = true;
+            btnUpdateDatabase2.Visible = true;
 
             // トグルボタンを標準表示側に設定
             tglViewNormal.Select();
@@ -617,8 +622,14 @@ namespace MPPPS
         // 品番右クリックでクリップボードにコピー
         private void Dgv_CodeSlipMst_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right && e.ColumnIndex == 0)
-                Clipboard.SetText(Dgv_CodeSlipMst[e.ColumnIndex, e.RowIndex].Value.ToString());
+            if (e.Button == MouseButtons.Right)
+            {
+                int col = Dgv_CodeSlipMst.CurrentCell.ColumnIndex;
+                string ht = Dgv_CodeSlipMst.Columns[col].HeaderText;
+                string val = Dgv_CodeSlipMst[col, e.RowIndex].Value.ToString();
+                toolStripStatusLabel2.Text = $"{ht}[{val}] をクリップしました．";
+                Clipboard.SetText(val);
+            }
         }
 
         // 品番入力欄にペースト
