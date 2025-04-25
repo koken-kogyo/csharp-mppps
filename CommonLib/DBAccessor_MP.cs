@@ -4234,8 +4234,6 @@ namespace MPPPS
                             if (dr.Length == 0)
                             {
                                 dtUpdate.ImportRow(r);
-                                dtUpdate.AcceptChanges();
-                                dtUpdate.Rows[dtUpdate.Rows.Count - 1].SetAdded();
                                 countInsert++;
                             }
                         }

@@ -7,6 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.IO;
+using System.Data.Common;
+using System.Collections.Generic;
 
 namespace MPPPS
 {
@@ -102,7 +105,7 @@ namespace MPPPS
             btnNextDiffer.Enabled = false;
 
             // 件数を表示
-            toolStripStatusLabel1.Text = Dgv_CodeSlipMst.Rows.Count + "件を読み込みました。";
+            toolStripStatusLabel1.Text = (Dgv_CodeSlipMst.Rows.Count - 1) + "件を読み込みました。";
 
             loadedFlg = true;
 
@@ -305,10 +308,10 @@ namespace MPPPS
             {
                 string[] s4 = {
                     $"工程{ktseq[j]}",
-                    "設備", 
-                    "CT", 
-                    "LOT", 
-                    "ID" 
+                    $"設備{ktseq[j]}", 
+                    $"CT{j}", 
+                    $"LOT{j}", 
+                    $"ID{j}" 
                 };
                 for (int i = 0; i < s4.Length; i++)
                 {
@@ -330,7 +333,6 @@ namespace MPPPS
         {
             if (Dgv_CodeSlipMst.Columns.Count == 0) return;
             bool v = (tglViewSimple.Checked) ? false : true;
-            Dgv_CodeSlipMst.Columns[4].Visible = v;        // 収容数
             Dgv_CodeSlipMst.Columns[5].Visible = v;        // ﾁｪｯｸ
             Dgv_CodeSlipMst.Columns[6].Visible = v;        // 協力
             // Excelで使用している列
@@ -407,27 +409,58 @@ namespace MPPPS
         // データベース反映
         private void btnUpdateDatabase_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < Dgv_CodeSlipMst.Rows.Count; i++)
+            int insertCount = 0;
+            int modifyCount = 0;
+            foreach (DataGridViewRow r in Dgv_CodeSlipMst.Rows)
             {
-                var hmcd = Dgv_CodeSlipMst.Rows[i].Cells[0].Value;
-                DataRow[] dr = codeSlipDt.Select($"HMCD='{hmcd}'");
-                if (dr.Length == 1)
-                {
-                    for (int j = 1; j < Dgv_CodeSlipMst.Columns.Count; j++)
-                    {
-                        dr[0][j] = Dgv_CodeSlipMst.Rows[i].Cells[j].Value;
-                    }
-                }
+                if (r.Index == codeSlipDt.Rows.Count) break; // 最終行がまだ入力されていない場合
+                if (codeSlipDt.Rows[r.Index].RowState == DataRowState.Added) insertCount++;
+                if (codeSlipDt.Rows[r.Index].RowState == DataRowState.Modified) modifyCount++;
             }
             // 一括更新
-            cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
-            MessageBox.Show("更新が終了しました．");
+            if (insertCount + modifyCount > 0)
+            {
+                cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
+                toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
+                toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
+                toolStripStatusLabel1.Text += "しました．";
+                MessageBox.Show("更新が終了しました．");
+            } 
+            else
+            {
+                MessageBox.Show("更新はありませんでした．");
+            }
+        }
+
+        // 削除
+        private void btn_HMCDDelete_Click(object sender, EventArgs e)
+        {
+            if (Dgv_CodeSlipMst.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("削除する行を選択してください．");
+                return;
+            }
+            int deleteCount = 0;
+            // 選択行の削除
+            foreach (DataGridViewRow r in Dgv_CodeSlipMst.SelectedRows)
+            {
+                string hmcd = r.Cells[0].Value.ToString();
+                codeSlipDt.Select($"HMCD='{hmcd}'")[0].Delete();
+                deleteCount++;
+            }
+            // 一括更新
+            if (deleteCount > 0)
+            {
+                codeSlipDt.AcceptChanges();
+                cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
+                toolStripStatusLabel1.Text = $"{deleteCount}件 を削除しました.";
+            }
         }
 
         // 新たに工程設計した工程１～６までの工程数と検索キーを自動作成してデータベース反映
         private void btnUpdateDatabase2_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < Dgv_CodeSlipMst.Rows.Count; i++)
+            for (int i = 0; i < Dgv_CodeSlipMst.Rows.Count - 1; i++)
             {
                 var hmcd = Dgv_CodeSlipMst.Rows[i].Cells[0].Value;
                 DataRow[] dr = codeSlipDt.Select($"HMCD='{hmcd}'");
@@ -519,8 +552,8 @@ namespace MPPPS
                 if (excelCodeSlipDt.Rows.Count <= 0) return;
 
                 // コード票マスタデータテーブルと読み込んだExcelとを比較
-                int differCount = 0;
-                for (int row = 0; row < Dgv_CodeSlipMst.Rows.Count; row++)
+                int differCellCount = 0;
+                for (int row = 0; row < Dgv_CodeSlipMst.Rows.Count - 1; row++) // 新規行は除く
                 {
                     string s = Dgv_CodeSlipMst[0, row].Value.ToString();
                     DataRow[] excelDr = excelCodeSlipDt.Select($"品番='{s}'");
@@ -541,10 +574,10 @@ namespace MPPPS
                                 if (xslsnum != dbnum)
                                 {
                                     Dgv_CodeSlipMst[col, row].Style.BackColor = Color.LightCoral;
-                                    differCount++;
+                                    differCellCount++;
                                 }
                             }
-                            else if (col == cColKTSU)
+                            else if (col == cColKTSU) // Excelコード票の工程数と新システムでの工程数で意味合いが違うためチェック対象外
                             {
                                 continue;
                             }
@@ -554,37 +587,57 @@ namespace MPPPS
                                     Dgv_CodeSlipMst[col, row].Value.ToString().Replace(",", ""))
                                 {
                                     Dgv_CodeSlipMst[col, row].Style.BackColor = Color.LightCoral;
-                                    differCount++;
+                                    differCellCount++;
                                 }
 
                             }
                             else if (excelDr[0][col].ToString() != Dgv_CodeSlipMst[col, row].Value.ToString())
                             {
                                 Dgv_CodeSlipMst[col, row].Style.BackColor = Color.LightCoral;
-                                differCount++;
+                                differCellCount++;
                             }
                         }
                     }
                 }
 
-                //
-                if (differCount > 0)
+                // 追加削除件数の調査
+                int differRowCount = Dgv_CodeSlipMst.RowCount - excelCodeSlipDt.Rows.Count;
+                if (differRowCount != 0)
+                {
+                    List<string> list1 = GetColumnData(0); // Dgv_CodeSlipMstの1番目の列を取得
+                    List<string> list2 = excelCodeSlipDt.AsEnumerable()
+                        .Select(c => c["品番"].ToString())
+                        .ToList();
+                    // 対象差集合を求める（「Aに属しBに属さないもの」と「Bに属しAに属さないもの」の両方を合わせた集合）
+                    // https://qiita.com/nkojima/items/575a1e5879d62441662d
+                    var set = list1.Except(list2).Union(list2.Except(list1));
+                    Debug.WriteLine("対象差：" + string.Join(",", set));
+                    Clipboard.SetText(string.Join("\n", set));
+                    toolStripStatusLabel2.Text = "対象品番をクリップしました(" +
+                        $"Excel {list2.Count.ToString("#,0")}件 - " + 
+                        $"新システム {list1.Count.ToString("#,0")}件)";
+                }
+
+                // 結果表示
+                if (differCellCount > 0)
                 {
                     // 次の相違点ボタンを非活性化
                     btnNextDiffer.BackColor = Color.LightCoral;
                     btnNextDiffer.Enabled = true;
-                    toolStripStatusLabel1.Text = $"{differCount.ToString("#,0")}件の相違を確認しました。";
+                    toolStripStatusLabel1.Text = $"{differCellCount.ToString("#,0")}件の相違を検出しました。";
+                }
+                else if (differRowCount > 0)
+                {
+                    toolStripStatusLabel1.Text = "追加または削除を検出しました。";
                 }
                 else
                 {
-                    toolStripStatusLabel1.Text = $"相違はありませんでした。";
+                    toolStripStatusLabel1.Text = "相違はありませんでした。";
                 }
                 ofd.Dispose();
                 MessageBox.Show("変更点のチェックが完了しました。");
             }
         }
-
-
         // 次の相違点ボタン
         private void btnNextDiffer_Click(object sender, EventArgs e)
         {
@@ -602,7 +655,7 @@ namespace MPPPS
         {
             var hit = false;
             var startRow = errorRow + 1;
-            for (int row = startRow; row < Dgv_CodeSlipMst.Rows.Count; row++)
+            for (int row = startRow; row < Dgv_CodeSlipMst.Rows.Count - 1; row++)
             {
                 for (int col = 0; col < Dgv_CodeSlipMst.Columns.Count; col++)
                 {
@@ -618,6 +671,21 @@ namespace MPPPS
             }
             return hit;
         }
+        // DataGridViewの特定の列をListに変換
+        private List<string> GetColumnData(int columnIndex)
+        {
+            List<string> columnData = new List<string>();
+
+            foreach (DataGridViewRow row in Dgv_CodeSlipMst.Rows)
+            {
+                if (row.Cells[columnIndex].Value != null)
+                {
+                    columnData.Add(row.Cells[columnIndex].Value.ToString());
+                }
+            }
+
+            return columnData;
+        }
 
         // 品番右クリックでクリップボードにコピー
         private void Dgv_CodeSlipMst_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -627,8 +695,11 @@ namespace MPPPS
                 int col = Dgv_CodeSlipMst.CurrentCell.ColumnIndex;
                 string ht = Dgv_CodeSlipMst.Columns[col].HeaderText;
                 string val = Dgv_CodeSlipMst[col, e.RowIndex].Value.ToString();
-                toolStripStatusLabel2.Text = $"{ht}[{val}] をクリップしました．";
-                Clipboard.SetText(val);
+                if (val != "")
+                {
+                    toolStripStatusLabel2.Text = $"{ht}[{val}] をクリップしました．";
+                    Clipboard.SetText(val);
+                }
             }
         }
 
@@ -643,7 +714,34 @@ namespace MPPPS
         {
             if (e.Control && e.KeyCode == Keys.V)   // 貼り付け Ctrl + V
             {
-                Dgv_CodeSlipMst.CurrentCell.Value = Clipboard.GetText().Replace("\r\n", "");
+                int row = Dgv_CodeSlipMst.CurrentCell.RowIndex;
+                int col = Dgv_CodeSlipMst.CurrentCell.ColumnIndex;
+                string[] cells = Clipboard.GetText().Replace("\r\n", "").Split('\t');
+                if (cells[0] == "") cells = cells.Skip(1).ToArray(); // 先頭の空白はカット
+                foreach (string s in cells)
+                {
+                    if (s != "")
+                    {
+                        if (col == 0 && codeSlipDt.Select($"HMCD='{s}'").Count() > 0)
+                        { 
+                            Dgv_CodeSlipMst[col, row].Value = s + " (2)";
+                        }
+                        else
+                        {
+                            Dgv_CodeSlipMst[col, row].Value = s;
+                        }
+                    }
+                    do
+                    {
+                        col++;
+                        if (col >= Dgv_CodeSlipMst.ColumnCount - 1) break;
+                    } while (Dgv_CodeSlipMst[col, row].Visible == false);
+                    if (col >= Dgv_CodeSlipMst.ColumnCount - 1) break;
+                }
+                //if (row == Dgv_CodeSlipMst.RowCount - 1)
+                //{
+                //    Dgv_CodeSlipMst[0, row].
+                //}
             }
             if (e.KeyCode == Keys.Delete)           // Deleteキー
             {
@@ -666,7 +764,102 @@ namespace MPPPS
 
         private void Frm034_CodeSlipMstMaint_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.F10) btn_ExportExcel_Click(sender, e);
             if (e.KeyCode == Keys.Escape) Close();
         }
+
+        // フィルターされた行を取得しデータテーブルとして返却
+        private void GetFilteredRows(DataGridView dataGridView, ref DataTable exportDt)
+        {
+            // カラムの追加
+            foreach (DataGridViewColumn column in dataGridView.Columns)
+            {
+                if (column.Visible) // フィルターされた行は Visible プロパティが true になります
+                    exportDt.Columns.Add(column.HeaderText, column.ValueType);
+            }
+            // 行の追加
+            foreach (DataGridViewRow row in dataGridView.Rows)
+            {
+                if (row.Visible && row.IsNewRow == false) // フィルターされた行は Visible プロパティが true になります
+                {
+                    // 選択行が0件または1件の場合：フィルターされた全件データを取得
+                    // 選択行が複数行選ばれていた場合：フィルターされた中の選択行を取得
+                    if (dataGridView.SelectedRows.Count == 0 ||
+                        dataGridView.SelectedRows.Count == 1 ||
+                        dataGridView.SelectedRows.Count > 1 && row.Selected)
+                    {
+                        DataRow dr = exportDt.NewRow();
+                        int col = 0;
+                        foreach (DataGridViewCell cell in row.Cells)
+                        {
+                            if (cell.Visible) // フィルターされた行は Visible プロパティが true になります
+                            {
+                                if (exportDt.Columns[col].DataType == typeof(decimal))
+                                {
+                                    decimal decimaldata;
+                                    if (Decimal.TryParse(cell.Value.ToString(), out decimaldata))
+                                        dr[col] = decimaldata;
+                                }
+                                else
+                                {
+                                    dr[col] = cell.Value;
+                                }
+                                col++;
+                            }
+                        }
+                        exportDt.Rows.Add(dr);
+                    }
+                }
+            }
+        }
+
+        // 外部出力（F10）
+        private void btn_ExportExcel_Click(object sender, EventArgs e)
+        {
+            DataTable exportDt = new DataTable();
+            GetFilteredRows(Dgv_CodeSlipMst, ref exportDt);
+
+            // 保存ダイアログ
+            using (SaveFileDialog sfd = new SaveFileDialog()
+            {
+                FileName = $"コード票_{DateTime.Now.ToString("M")}",
+                InitialDirectory = Common.SFD_INIT_DIR, // 既定のディレクトリ名
+                Filter = Common.SFD_FILE_TYPE_XLS,      // [ファイルの種類] の選択肢
+                FilterIndex = 1,                        // [ファイルの種類] の既定値
+                Title = Common.SFD_TITLE_SAVE,          // ダイアログのタイトル
+                RestoreDirectory = true,                // ダイアログを閉じる前に現在のディレクトリを復元
+                CheckFileExists = false,                // 存在しないファイル名前が指定されたとき警告を表示 (既定値: true)
+                CheckPathExists = true                  // 存在しないパスが指定されたとき警告を表示 (既定値: true)
+            })
+            {
+                if (sfd.ShowDialog() != DialogResult.OK) return;
+                string filePath = sfd.FileName; // ファイルパスの取得
+                try
+                {
+                    FileInfo fileInfo = new FileInfo(filePath);
+                    if (fileInfo.Exists && fileInfo.IsReadOnly)
+                    {
+                        MessageBox.Show("指定されたファイルは読み取り専用です。");
+                        return;
+                    }
+                    cmn.Fa.ExcelApplication(false);
+                    cmn.Fa.AddNewBook();
+                    cmn.Fa.ExportExcel(exportDt, filePath);
+                    cmn.Fa.CloseExcel2();
+                    // Interop.Excelではなく標準アプリケーションで開く
+                    Process.Start(@filePath);
+                }
+                catch (Exception ex) // 例外処理
+                {
+                    MessageBox.Show("ファイルの保存中にエラーが発生しました: " + ex.Message);
+                    toolStripStatusLabel2.Text = ex.Message;
+                    cmn.Fa.CloseExcel2();
+                }
+            }
+
+
+
+        }
+
     }
 }
