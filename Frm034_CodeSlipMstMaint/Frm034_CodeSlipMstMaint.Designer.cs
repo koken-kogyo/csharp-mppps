@@ -46,13 +46,14 @@ namespace MPPPS
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.btnRefreshDataGridView = new System.Windows.Forms.Button();
+            this.btn_HMCDDelete = new System.Windows.Forms.Button();
+            this.btn_ExportExcel = new System.Windows.Forms.Button();
             this.btnNextDiffer = new System.Windows.Forms.Button();
             this.btnUpdateDatabase = new System.Windows.Forms.Button();
             this.btnReadExcelMaster = new System.Windows.Forms.Button();
             this.btnConvertMP = new System.Windows.Forms.Button();
             this.Dgv_CodeSlipMst = new System.Windows.Forms.DataGridView();
-            this.btn_ExportExcel = new System.Windows.Forms.Button();
-            this.btn_HMCDDelete = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -227,6 +228,7 @@ namespace MPPPS
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.btnRefreshDataGridView);
             this.panel2.Controls.Add(this.btn_HMCDDelete);
             this.panel2.Controls.Add(this.btn_ExportExcel);
             this.panel2.Controls.Add(this.btnNextDiffer);
@@ -240,12 +242,45 @@ namespace MPPPS
             this.panel2.Size = new System.Drawing.Size(1262, 48);
             this.panel2.TabIndex = 6;
             // 
+            // btnRefreshDataGridView
+            // 
+            this.btnRefreshDataGridView.BackColor = System.Drawing.Color.LightGreen;
+            this.btnRefreshDataGridView.Location = new System.Drawing.Point(209, 4);
+            this.btnRefreshDataGridView.Name = "btnRefreshDataGridView";
+            this.btnRefreshDataGridView.Size = new System.Drawing.Size(170, 41);
+            this.btnRefreshDataGridView.TabIndex = 7;
+            this.btnRefreshDataGridView.Text = "再読み込み (F5)";
+            this.btnRefreshDataGridView.UseVisualStyleBackColor = false;
+            this.btnRefreshDataGridView.Click += new System.EventHandler(this.btnRefreshDataGridView_Click);
+            // 
+            // btn_HMCDDelete
+            // 
+            this.btn_HMCDDelete.BackColor = System.Drawing.Color.LightCoral;
+            this.btn_HMCDDelete.Location = new System.Drawing.Point(570, 4);
+            this.btn_HMCDDelete.Name = "btn_HMCDDelete";
+            this.btn_HMCDDelete.Size = new System.Drawing.Size(118, 41);
+            this.btn_HMCDDelete.TabIndex = 6;
+            this.btn_HMCDDelete.Text = "行削除";
+            this.btn_HMCDDelete.UseVisualStyleBackColor = false;
+            this.btn_HMCDDelete.Click += new System.EventHandler(this.btn_HMCDDelete_Click);
+            // 
+            // btn_ExportExcel
+            // 
+            this.btn_ExportExcel.BackColor = System.Drawing.Color.LightGreen;
+            this.btn_ExportExcel.Location = new System.Drawing.Point(385, 4);
+            this.btn_ExportExcel.Name = "btn_ExportExcel";
+            this.btn_ExportExcel.Size = new System.Drawing.Size(170, 41);
+            this.btn_ExportExcel.TabIndex = 4;
+            this.btn_ExportExcel.Text = "外部出力 (F10)";
+            this.btn_ExportExcel.UseVisualStyleBackColor = false;
+            this.btn_ExportExcel.Click += new System.EventHandler(this.btn_ExportExcel_Click);
+            // 
             // btnNextDiffer
             // 
             this.btnNextDiffer.BackColor = System.Drawing.Color.LightPink;
-            this.btnNextDiffer.Location = new System.Drawing.Point(931, 4);
+            this.btnNextDiffer.Location = new System.Drawing.Point(1080, 3);
             this.btnNextDiffer.Name = "btnNextDiffer";
-            this.btnNextDiffer.Size = new System.Drawing.Size(133, 41);
+            this.btnNextDiffer.Size = new System.Drawing.Size(170, 41);
             this.btnNextDiffer.TabIndex = 3;
             this.btnNextDiffer.Text = "次の相違点";
             this.btnNextDiffer.UseVisualStyleBackColor = false;
@@ -265,22 +300,22 @@ namespace MPPPS
             // btnReadExcelMaster
             // 
             this.btnReadExcelMaster.BackColor = System.Drawing.Color.LightPink;
-            this.btnReadExcelMaster.Location = new System.Drawing.Point(703, 4);
+            this.btnReadExcelMaster.Location = new System.Drawing.Point(874, 4);
             this.btnReadExcelMaster.Name = "btnReadExcelMaster";
-            this.btnReadExcelMaster.Size = new System.Drawing.Size(223, 41);
+            this.btnReadExcelMaster.Size = new System.Drawing.Size(200, 41);
             this.btnReadExcelMaster.TabIndex = 1;
-            this.btnReadExcelMaster.Text = "Excelコード票とマスタとの比較";
+            this.btnReadExcelMaster.Text = "Excelコード票と比較";
             this.btnReadExcelMaster.UseVisualStyleBackColor = false;
             this.btnReadExcelMaster.Click += new System.EventHandler(this.btnReadExcelMaster_Click);
             // 
             // btnConvertMP
             // 
-            this.btnConvertMP.BackColor = System.Drawing.Color.LightPink;
-            this.btnConvertMP.Location = new System.Drawing.Point(1070, 4);
+            this.btnConvertMP.BackColor = System.Drawing.Color.LightCoral;
+            this.btnConvertMP.Location = new System.Drawing.Point(694, 4);
             this.btnConvertMP.Name = "btnConvertMP";
-            this.btnConvertMP.Size = new System.Drawing.Size(154, 41);
+            this.btnConvertMP.Size = new System.Drawing.Size(170, 41);
             this.btnConvertMP.TabIndex = 0;
-            this.btnConvertMP.Text = "新システム用に変換";
+            this.btnConvertMP.Text = "Excelコード票を連結";
             this.btnConvertMP.UseVisualStyleBackColor = false;
             this.btnConvertMP.Click += new System.EventHandler(this.btnConvertMP_Click);
             // 
@@ -299,30 +334,7 @@ namespace MPPPS
             this.Dgv_CodeSlipMst.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.Dgv_CodeSlipMst_CellMouseDown);
             this.Dgv_CodeSlipMst.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.Dgv_CodeSlipMst_ColumnWidthChanged);
             this.Dgv_CodeSlipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_CodeSlipMst_RowPostPaint);
-            this.Dgv_CodeSlipMst.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.Dgv_CodeSlipMst_RowsRemoved);
             this.Dgv_CodeSlipMst.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Dgv_CodeSlipMst_KeyDown);
-            // 
-            // btn_ExportExcel
-            // 
-            this.btn_ExportExcel.BackColor = System.Drawing.Color.LightGreen;
-            this.btn_ExportExcel.Location = new System.Drawing.Point(204, 4);
-            this.btn_ExportExcel.Name = "btn_ExportExcel";
-            this.btn_ExportExcel.Size = new System.Drawing.Size(200, 41);
-            this.btn_ExportExcel.TabIndex = 4;
-            this.btn_ExportExcel.Text = "外部出力 (F10)";
-            this.btn_ExportExcel.UseVisualStyleBackColor = false;
-            this.btn_ExportExcel.Click += new System.EventHandler(this.btn_ExportExcel_Click);
-            // 
-            // btn_HMCDDelete
-            // 
-            this.btn_HMCDDelete.BackColor = System.Drawing.Color.LightCoral;
-            this.btn_HMCDDelete.Location = new System.Drawing.Point(570, 4);
-            this.btn_HMCDDelete.Name = "btn_HMCDDelete";
-            this.btn_HMCDDelete.Size = new System.Drawing.Size(118, 41);
-            this.btn_HMCDDelete.TabIndex = 6;
-            this.btn_HMCDDelete.Text = "削除";
-            this.btn_HMCDDelete.UseVisualStyleBackColor = false;
-            this.btn_HMCDDelete.Click += new System.EventHandler(this.btn_HMCDDelete_Click);
             // 
             // Frm034_CodeSlipMstMaint
             // 
@@ -375,5 +387,6 @@ namespace MPPPS
         private ToolStripStatusLabel toolStripStatusLabel2;
         private Button btn_ExportExcel;
         private Button btn_HMCDDelete;
+        private Button btnRefreshDataGridView;
     }
 }

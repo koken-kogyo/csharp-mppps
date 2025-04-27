@@ -490,7 +490,7 @@ namespace MPPPS
             }
         }
 
-        // フィルターされた行を取得しデータテーブルとして返却
+        // フィルターされた行を取得しデータテーブルとして返却（外部出力時使用）
         private void GetFilteredRows(DataGridView dataGridView, ref DataTable exportDt)
         {
             //List<DataGridViewRow> filteredRows = new List<DataGridViewRow>();
