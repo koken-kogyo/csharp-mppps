@@ -86,7 +86,9 @@ namespace MPPPS
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm090_CutStore";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "[KMD009SF] 切削ストア - Ver.230613.01a";
+            this.Load += new System.EventHandler(this.Frm090_CutStore_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm090_CutStore_KeyDown);
             this.ResumeLayout(false);
 

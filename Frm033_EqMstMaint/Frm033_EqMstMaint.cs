@@ -76,6 +76,13 @@ namespace MPPPS
             toolStripLabel1.Text = "設備名称、稼働時間、段取り名称、段取り時間に変更がある場合は直接入力して反映ボタンを押して下さい";
         }
 
+        // コンストラクタ後のロードで画面をアクティブ化し初期フォーカス
+        private void Frm033_EqMstMaint_Load(object sender, EventArgs e)
+        {
+            this.Activate();
+            this.Dgv_EquipMst.Focus();
+        }
+
         // データグリッドビューの個別設定
         private void DataGridDetailSetting()
         {
@@ -278,5 +285,6 @@ namespace MPPPS
         {
             if (e.KeyCode == Keys.Escape) Close();
         }
+
     }
 }

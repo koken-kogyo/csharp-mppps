@@ -83,7 +83,9 @@ namespace MPPPS
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "Frm050_MfgCtrl";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "[KMD005SF] 製造管理 - Ver.230613.01a";
+            this.Load += new System.EventHandler(this.Frm050_MfgCtrl_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm050_MfgCtrl_KeyDown);
             this.ResumeLayout(false);
 

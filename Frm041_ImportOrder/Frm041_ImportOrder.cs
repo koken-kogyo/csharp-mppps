@@ -53,6 +53,10 @@ namespace MPPPS
         // コントロールの初期化
         private void SetInitialValues()
         {
+            // 初期化
+            toolStripStatusLabel1.Text = "";
+            toolStripStatusLabel2.Text = "";
+
             // DataGridViewの初期設定
             // https://af-e.net/csharp-change-monthcalendar-color/
             Dgv_Calendar.RowTemplate.Height = 50;
@@ -848,8 +852,9 @@ namespace MPPPS
                 }
                 // ループ終了時に最後のページの印刷枚数が４の倍数でなかった場合、
                 // 残りの余分なデータをクリア（COMアクセスを減らす為にクリア処理は最後の一回だけ行う）
-                if ((cardCnt - 1) % 4 != 0)
-                    cmn.Fa.ClearZanOrderCard(cardCnt - 1);
+                cardCnt--;
+                if ((cardCnt) % 4 != 0)
+                    cmn.Fa.ClearZanOrderCard(cardCnt);
                 toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件-{cardCnt}枚のカードが作成されました.";
             }
             // ファイルの保存に失敗すると Exception が発生する
@@ -875,7 +880,7 @@ namespace MPPPS
             return ret;
         }
 
-        // EMの手配状態を取り込む
+        // EMの手配状態を取り込む（裏メニュー）
         private void toolStripStatusLabel2_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)

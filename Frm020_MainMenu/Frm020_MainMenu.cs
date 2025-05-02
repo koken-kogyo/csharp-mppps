@@ -36,6 +36,11 @@ namespace MPPPS
             // 利用者表示
             this.Lbl_UserName.Text = cmn.Ui.UserName + " (" + cmn.Ui.UserId + ")";
 
+            // データベース関連情報をステータスストリップに表示
+            toolStripStatusLabel1.Text = "OracleEM : " + cmn.DbCd[Common.DB_CONFIG_EM].Schema;
+            toolStripStatusLabel1.Text += " / 内製 : " + cmn.DbCd[Common.DB_CONFIG_KK].Schema;
+            toolStripStatusLabel2.Text = "MySQL切削 : " + cmn.DbCd[Common.DB_CONFIG_MP].Schema;
+
             // 生産計画結果保存先サーバーへ接続確認
             Task.Run(() => cmn.Fa.ConnectSaveServer());
 
@@ -48,9 +53,12 @@ namespace MPPPS
         /// <param name="e">イベント引数</param>
         private void Btn_MasterMaint_Click(object sender, EventArgs e)
         {
-            Frm030_MasterMaint frm030 = new Frm030_MasterMaint(cmn, sender);
-            frm030.StartPosition = FormStartPosition.CenterParent;
-            frm030.ShowDialog(this);
+            Frm030_MasterMaint frm030 = new Frm030_MasterMaint(cmn);
+            frm030.Top = this.Top;
+            frm030.Left = this.Left;
+            this.WindowState = FormWindowState.Minimized;
+            frm030.ShowDialog();
+            this.WindowState = FormWindowState.Normal;
         }
 
         /// <summary>
@@ -61,36 +69,71 @@ namespace MPPPS
         private void Btn_OrderCtrl_Click(object sender, EventArgs e)
         {
             Frm040_OrderCtrl frm040 = new Frm040_OrderCtrl(cmn);
-            frm040.StartPosition = FormStartPosition.CenterParent;
-            frm040.ShowDialog(this);
+            frm040.Top = this.Top;
+            frm040.Left = this.Left;
+            this.WindowState = FormWindowState.Minimized;
+            frm040.ShowDialog();
+            this.WindowState = FormWindowState.Normal;
         }
 
+        /// <summary>
+        /// [製造管理] ボタン クリック
+        /// </summary>
+        /// <param name="sender">送信オブジェクト</param>
+        /// <param name="e">イベント引数</param>
         private void Btn_MfgCtrl_Click(object sender, EventArgs e)
         {
             Frm050_MfgCtrl frm050 = new Frm050_MfgCtrl(cmn);
-            frm050.StartPosition = FormStartPosition.CenterParent;
-            frm050.ShowDialog(this);
+            frm050.Top = this.Top;
+            frm050.Left = this.Left;
+            this.WindowState = FormWindowState.Minimized;
+            frm050.ShowDialog();
+            this.WindowState = FormWindowState.Normal;
         }
 
+        /// <summary>
+        /// [実績管理] ボタン クリック
+        /// </summary>
+        /// <param name="sender">送信オブジェクト</param>
+        /// <param name="e">イベント引数</param>
         private void Btn_ReceiptCtrl_Click(object sender, EventArgs e)
         {
             Frm070_ReceiptCtrl frm070 = new Frm070_ReceiptCtrl();
-            frm070.StartPosition = FormStartPosition.CenterParent;
-            frm070.ShowDialog(this);
+            frm070.Top = this.Top;
+            frm070.Left = this.Left;
+            this.WindowState = FormWindowState.Minimized;
+            frm070.ShowDialog();
+            this.WindowState = FormWindowState.Normal;
         }
 
+        /// <summary>
+        /// [材料管理] ボタン クリック
+        /// </summary>
+        /// <param name="sender">送信オブジェクト</param>
+        /// <param name="e">イベント引数</param>
         private void Btn_MatlCtrl_Click(object sender, EventArgs e)
         {
             Frm080_MatlCtrl frm080 = new Frm080_MatlCtrl();
-            frm080.StartPosition = FormStartPosition.CenterParent;
-            frm080.ShowDialog(this);
+            frm080.Top = this.Top;
+            frm080.Left = this.Left;
+            this.WindowState = FormWindowState.Minimized;
+            frm080.ShowDialog();
+            this.WindowState = FormWindowState.Normal;
         }
 
+        /// <summary>
+        /// [切削ストア] ボタン クリック
+        /// </summary>
+        /// <param name="sender">送信オブジェクト</param>
+        /// <param name="e">イベント引数</param>
         private void Btn_CutStore_Click(object sender, EventArgs e)
         {
             Frm090_CutStore frm090 = new Frm090_CutStore(cmn, sender);
-            frm090.StartPosition = FormStartPosition.CenterParent;
-            frm090.ShowDialog(this);
+            frm090.Top = this.Top;
+            frm090.Left = this.Left;
+            this.WindowState = FormWindowState.Minimized;
+            frm090.ShowDialog();
+            this.WindowState = FormWindowState.Normal;
         }
 
         /// <summary>

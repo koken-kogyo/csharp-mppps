@@ -63,7 +63,7 @@ namespace MPPPS
             this.Btn_ChipMstMaint.TabIndex = 10;
             this.Btn_ChipMstMaint.Text = "刃具マスタ メンテ";
             this.Btn_ChipMstMaint.UseVisualStyleBackColor = true;
-            this.Btn_ChipMstMaint.Click += new System.EventHandler(this.Btn_CutProcUserMstMaint_Click);
+            this.Btn_ChipMstMaint.Click += new System.EventHandler(this.Btn_ChipMstMaint_Click);
             // 
             // Btn_EqMstMaint
             // 
@@ -92,7 +92,7 @@ namespace MPPPS
             // Frm030_MasterMaint
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(628, 101);
+            this.ClientSize = new System.Drawing.Size(628, 100);
             this.Controls.Add(this.Btn_CodeSlipMstMaint);
             this.Controls.Add(this.Btn_ChipMstMaint);
             this.Controls.Add(this.Btn_EqMstMaint);
@@ -102,7 +102,9 @@ namespace MPPPS
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm030_MasterMaint";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "[KMD003SF] マスタ メンテナンス - Ver.230613.01a";
+            this.Load += new System.EventHandler(this.Frm030_MasterMaint_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm030_MasterMaint_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();

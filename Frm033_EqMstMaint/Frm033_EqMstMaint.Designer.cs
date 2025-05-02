@@ -199,6 +199,7 @@ namespace MPPPS
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "Frm033_EqMstMaint";
             this.Text = "[KMD003SF] マスタ メンテナンス - 設備マスタ メンテ - Ver.230613.01a";
+            this.Load += new System.EventHandler(this.Frm033_EqMstMaint_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm033_EqMstMaint_KeyDown);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

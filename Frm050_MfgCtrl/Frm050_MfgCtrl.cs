@@ -24,6 +24,11 @@ namespace MPPPS
             this.cmn = cmn;
         }
 
+        private void Frm050_MfgCtrl_Load(object sender, EventArgs e)
+        {
+            this.Activate();
+        }
+
         // 加工進捗情報表示
         private void Btn_MfgProgress_Click(object sender, EventArgs e)
         {
@@ -48,5 +53,6 @@ namespace MPPPS
         {
             if (e.KeyCode == Keys.Escape) Close();
         }
+
     }
 }

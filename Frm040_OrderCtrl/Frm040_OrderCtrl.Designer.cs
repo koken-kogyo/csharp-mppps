@@ -131,7 +131,9 @@ namespace MPPPS
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm040_OrderCtrl";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "[KMD004SF] オーダー管理 - Ver.230613.01a";
+            this.Load += new System.EventHandler(this.Frm040_OrderCtrl_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm040_OrderCtrl_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();

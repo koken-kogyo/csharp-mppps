@@ -97,7 +97,9 @@ namespace MPPPS
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "Frm070_ReceiptCtrl";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "[KMD007SF] 実績管理 - Ver.230613.01a";
+            this.Load += new System.EventHandler(this.Frm070_ReceiptCtrl_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm070_ReceiptCtrl_KeyDown);
             this.ResumeLayout(false);
 

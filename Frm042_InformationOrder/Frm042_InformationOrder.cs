@@ -55,6 +55,9 @@ namespace MPPPS
         // ********************** コントロールの初期化関連ここから ************************
         private async void SetInitialValues()
         {
+            // 全画面表示
+            this.WindowState = FormWindowState.Maximized;
+
             // マスタ取得
             bool ret8420 = false;
             bool ret8430 = false;

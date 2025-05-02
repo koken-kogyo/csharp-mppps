@@ -27,6 +27,11 @@ namespace MPPPS
             this.cmn = cmn;
         }
 
+        private void Frm040_OrderCtrl_Load(object sender, EventArgs e)
+        {
+            this.Activate();
+        }
+
         // 手配情報作成
         private void Btn_ImportOrder_Click(object sender, EventArgs e)
         {
@@ -72,5 +77,6 @@ namespace MPPPS
         {
             if (e.KeyCode == Keys.Escape) Close();
         }
+
     }
 }

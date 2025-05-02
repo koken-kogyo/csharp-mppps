@@ -10,6 +10,11 @@ namespace MPPPS
             InitializeComponent();
         }
 
+        private void Frm070_ReceiptCtrl_Load(object sender, EventArgs e)
+        {
+            this.Activate();
+        }
+
         // 切削ストア受入実績処理
         private void Btn_ReceiptProc_Click(object sender, EventArgs e)
         {
@@ -41,5 +46,6 @@ namespace MPPPS
         {
             if (e.KeyCode == Keys.Escape) Close();
         }
+
     }
 }

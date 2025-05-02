@@ -10,6 +10,11 @@ namespace MPPPS
             InitializeComponent();
         }
 
+        private void Frm080_MatlCtrl_Load(object sender, EventArgs e)
+        {
+            this.Activate();
+        }
+
         // 材料在庫一覧
         private void Btn_MatlInvList_Click(object sender, EventArgs e)
         {
@@ -41,5 +46,6 @@ namespace MPPPS
         {
             if (e.KeyCode == Keys.Escape) Close();
         }
+
     }
 }

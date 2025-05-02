@@ -24,6 +24,11 @@ namespace MPPPS
             this.cmn = cmn;
         }
 
+        private void Frm090_CutStore_Load(object sender, EventArgs e)
+        {
+            this.Activate();
+        }
+
         // 計画出庫データ作成
         private void Btn_CutStoreDelv_Click(object sender, EventArgs e)
         {
@@ -48,5 +53,6 @@ namespace MPPPS
         {
             if (e.KeyCode == Keys.Escape) Close();
         }
+
     }
 }

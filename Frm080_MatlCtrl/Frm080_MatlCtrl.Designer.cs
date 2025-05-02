@@ -97,7 +97,9 @@ namespace MPPPS
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "Frm080_MatlCtrl";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "[KMD008SF] 材料管理 - Ver.230613.01a";
+            this.Load += new System.EventHandler(this.Frm080_MatlCtrl_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm080_MatlCtrl_KeyDown);
             this.ResumeLayout(false);
 
