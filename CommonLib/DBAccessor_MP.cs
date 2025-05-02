@@ -2390,47 +2390,54 @@ namespace MPPPS
                     DataRow[] cr = codeDt.Select($"HMCD='{hmcd}'");
                     if (cr.Length == 0)
                     {
-                        System.Windows.Forms.MessageBox.Show($"{hmcd}がコード票マスタに存在しません。\nマスタ登録後再度実行してください");
+                        System.Windows.Forms.MessageBox.Show($"EM手配中の{hmcd}がコード票マスタに存在しません。\nマスタ登録後再度実行してください");
                         Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name + ":" + hmcd);
+                        continue;
                     }
-                    else
+
+                    // ODRNOが他の手配日付に存在したら削除しておく（手配日付がコロコロ変えられる対応）
+                    // KD8450:切削オーダーの削除
+                    cmd.CommandText = DeleteDuplicateOrderDetailSql(odrno);
+                    cmd.ExecuteNonQuery();
+                    // KD8430:切削手配ファイルの削除
+                    cmd.CommandText = DeleteDuplicateOrderSql(odrno);
+                    cmd.ExecuteNonQuery();
+
+                    // KD8430:切削手配ファイルの登録
+                    sql = ImportMpOrderSql(r);
+                    cmd.CommandText = sql;
+                    cmd.ExecuteNonQuery();
+
+                    // KD8450:切削オーダーの登録（工程数分をループ）
+                    int ktsu = Convert.ToInt32(cr[0]["KTSU"].ToString());
+                    for (int kt = 1; kt <= ktsu; kt++)
                     {
-                        // KD8430:切削手配ファイルの登録
-                        sql = ImportMpOrderSql(r);
+                        string mcgcd = cr[0][$"KT{kt}MCGCD"].ToString();
+                        string mccd = cr[0][$"KT{kt}MCCD"].ToString();
+                        // KD8460:切削在庫ファイルの取得
+                        DataRow[] zr = zaikoDt.Select(
+                            $"HMCD='{hmcd}' and MCGCD='{mcgcd}' and MCCD='{mccd}' " +
+                            "and ZAIQTY>0");
+                        int odrqty = Convert.ToInt32(r["ODRQTY"].ToString());
+                        int odrjiq = Convert.ToInt32(r["JIQTY"].ToString());
+                        int zaiko = (zr.Length == 0) ? 0 :
+                            Convert.ToInt32(zr[0]["ZAIQTY"].ToString());
+                        // 実績数とステータス算出
+                        int jiqty = ((odrqty - odrjiq) <= zaiko) ? (odrqty - odrjiq) : zaiko;
+                        string odrsts = (jiqty == 0) ? "2" : (odrqty == jiqty) ? "4" : "3";
+                        // KD8450:切削オーダーファイルの登録（各設備毎に分解）
+                        sql = DivideMpOrderSql(odrno, jiqty, kt, mcgcd, mccd, odrsts);
                         cmd.CommandText = sql;
                         cmd.ExecuteNonQuery();
-
-                        // KD8450:切削オーダーの登録（工程数分をループ）
-                        int ktsu = Convert.ToInt32(cr[0]["KTSU"].ToString());
-                        for (int kt = 1; kt <= ktsu; kt++)
+                        // KD8460:在庫ファイル仕掛り在庫数を減算
+                        if (jiqty > 0)
                         {
-                            string mcgcd = cr[0][$"KT{kt}MCGCD"].ToString();
-                            string mccd = cr[0][$"KT{kt}MCCD"].ToString();
-                            // KD8460:切削在庫ファイルの取得
-                            DataRow[] zr = zaikoDt.Select(
-                                $"HMCD='{hmcd}' and MCGCD='{mcgcd}' and MCCD='{mccd}' " +
-                                "and ZAIQTY>0");
-                            int odrqty = Convert.ToInt32(r["ODRQTY"].ToString());
-                            int odrjiq = Convert.ToInt32(r["JIQTY"].ToString());
-                            int zaiko = (zr.Length == 0) ? 0 :
-                                Convert.ToInt32(zr[0]["ZAIQTY"].ToString());
-                            // 実績数とステータス算出
-                            int jiqty = ((odrqty - odrjiq) <= zaiko) ? (odrqty - odrjiq) : zaiko;
-                            string odrsts = (jiqty == 0) ? "2" : (odrqty == jiqty) ? "4" : "3";
-                            // KD8450:切削オーダーファイルの登録（各設備毎に分解）
-                            sql = DivideMpOrderSql(odrno, jiqty, kt, mcgcd, mccd, odrsts);
+                            sql = UpdateZaikoSql(hmcd, mcgcd, mccd, jiqty);
                             cmd.CommandText = sql;
                             cmd.ExecuteNonQuery();
-                            // KD8460:在庫ファイル仕掛り在庫数を減算
-                            if (jiqty > 0)
-                            {
-                                sql = UpdateZaikoSql(hmcd, mcgcd, mccd, jiqty);
-                                cmd.CommandText = sql;
-                                cmd.ExecuteNonQuery();
-                            }
                         }
-                        insCount++;
                     }
+                    insCount++;
                 }
 
                 // トランザクション終了
@@ -2452,6 +2459,22 @@ namespace MPPPS
             // 接続を閉じる
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return insCount;
+        }
+
+        private string DeleteDuplicateOrderSql(string odrno)
+        {
+            string sql = "DELETE FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                    + $"WHERE ODRNO = '{odrno}'";
+            return sql;
+        }
+
+        private string DeleteDuplicateOrderDetailSql(string odrno)
+        {
+            string sql = "DELETE FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                    + $"WHERE ODRNO = '{odrno}'";
+            return sql;
         }
 
         /// <summary>
@@ -4322,7 +4345,8 @@ namespace MPPPS
 
         /// <summary>
         /// 切削手配ファイル受注状態ミラーリング
-        /// EMの手配状態をMPシステムにミラーリング（9:取消は手動でやってもらうためにミラーリング対象外）
+        /// EMの手配状態をMPシステムにミラーリング（3,4,9になった状態をMPに反映)
+        /// （9:取消は手動でやってもらうためにミラーリング対象外）＝＞（やっぱり自動で更新してしまう）
         /// </summary>
         /// <param name="dtEM">EMの手配ファイル</param>
         /// <returns>更新件数</returns>
@@ -4360,7 +4384,7 @@ namespace MPPPS
                         Debug.WriteLine("Read from DataTable:");
                         adapter.Fill(dtUpdate);
 
-                        // EMが完了になっているかチェック
+                        // EMが3:着手、4:完了、9:取消になっているかチェック
                         foreach (DataRow r in dtUpdate.Rows)
                         {
                             DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");
@@ -4401,7 +4425,7 @@ namespace MPPPS
                         Debug.WriteLine("Read from DataTable:");
                         adapter.Fill(dtUpdate);
 
-                        // 変更または削除があるかチェック
+                        // EMが3:着手、4:完了、9:取消になっているかチェック
                         foreach (DataRow r in dtUpdate.Rows)
                         {
                             DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");

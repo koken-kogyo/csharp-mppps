@@ -20,7 +20,6 @@ namespace MPPPS
         private readonly Common cmn;
         private DataTable equipMstDt = new DataTable(); // 設備マスタを保持
         private DataTable codeSlipDt = new DataTable(); // コード票マスタを保持
-        private bool loadedFlg = false;
         private bool eventFlg = false;
         private int errorRow = 0;
         private static System.Timers.Timer timer;
@@ -60,32 +59,31 @@ namespace MPPPS
             // 全画面表示
             this.WindowState = FormWindowState.Maximized;
 
-            // 可変部分を一旦非表示
-            groupBox1.Visible = false;
-            groupBox2.Visible = false;
-            btnUpdateDatabase2.Visible = false;
-
+            // ステータスクリア
             toolStripStatusLabel1.Text = "";
             toolStripStatusLabel2.Text = "";
 
-            // マスタ類の読込
-            await ReadCodeSlipToDataGridView();
-
-            // 可変部分をDataGridView作成後に表示
-            groupBox1.Visible = true;
-            groupBox2.Visible = true;
-            btnUpdateDatabase2.Visible = true;
-
             // トグルボタンを標準表示側に設定
             tglViewNormal.Select();
+
+            // ラジオボタンを全てに設定
+            radioButton1.Checked = true;
 
             // 次の相違点ボタンを非活性化
             errorRow = 0;
             btnNextDiffer.BackColor = SystemColors.Control;
             btnNextDiffer.Enabled = false;
 
-            loadedFlg = true;
+            // マスタ類の読込
+            await ReadCodeSlipToDataGridView();
 
+        }
+
+        // コンストラクタ後のロードで画面をアクティブ化し初期フォーカス
+        private void Frm034_CodeSlipMstMaint_Load(object sender, EventArgs e)
+        {
+            this.Activate();
+            this.Dgv_CodeSlipMst.Focus();
         }
 
         // DataGridViewへのデータの読込（初期時と再読み込み時）
@@ -127,9 +125,13 @@ namespace MPPPS
             Dgv_CodeSlipMst.DataSource = null;
             equipMstDt.Rows.Clear();
             codeSlipDt.Rows.Clear();
+            txtHMCD.Text = string.Empty;
+            tglViewNormal.Select();
             // マスタ類の読込
             await ReadCodeSlipToDataGridView();
-            myFilter();
+            errorRow = 0;
+            btnNextDiffer.BackColor = SystemColors.Control;
+            btnNextDiffer.Enabled = false;
         }
 
         // 行番号をつける
@@ -157,13 +159,24 @@ namespace MPPPS
         // 検索キーの品番入力
         private void txtHMCD_TextChanged(object sender, EventArgs e)
         {
-            if (txtHMCD.TextLength > 24) 
+            if (txtHMCD.TextLength > 24)
                 txtHMCD.Text = txtHMCD.Text.TrimStart('\t').Split('\t')[0];
             var selpos = txtHMCD.SelectionStart;
             var sellen = txtHMCD.SelectionLength;
             txtHMCD.Text = txtHMCD.Text.ToUpper();
             txtHMCD.SelectionStart = selpos;
             txtHMCD.SelectionLength = sellen;
+            myFilter();
+        }
+
+        // 検索キーの設備コード入力
+        private void txtKTKEY_TextChanged(object sender, EventArgs e)
+        {
+            var selpos = txtKTKEY.SelectionStart;
+            var sellen = txtKTKEY.SelectionLength;
+            txtKTKEY.Text = txtKTKEY.Text.ToUpper();
+            txtKTKEY.SelectionStart = selpos;
+            txtKTKEY.SelectionLength = sellen;
             myFilter();
         }
 
@@ -177,41 +190,38 @@ namespace MPPPS
         // 検索条件を設定
         private void myFilter()
         {
-            var filter = "";
-            filter = (txtHMCD.Text.Length == 0) ? string.Empty :
+            string filter = (txtHMCD.TextLength == 0) ? string.Empty :
                 $"HMCD LIKE '{txtHMCD.Text}*'";
-            if (filter != string.Empty && cmbMaterial.SelectedIndex > 0) 
-                filter += " and ";
-            filter += (cmbMaterial.SelectedIndex <= 0) ? string.Empty :
-                $"MATESIZE LIKE '{cmbMaterial.Text}*'";
+            if (txtKTKEY.TextLength > 0)
+            {
+                if (filter != string.Empty) filter += " and ";
+                filter += $"KTKEY LIKE '*{txtKTKEY.Text}*'";
+            }
+            if (cmbMaterial.SelectedIndex > 0)
+            {
+                if (filter != string.Empty) filter += " and ";
+                filter += $"MATESIZE LIKE '{cmbMaterial.Text}*'";
+            }
+            // 工程を指定された場合、複数のLIKE条件を指定
+            if (radioButton2.Checked) // 手動機
+            {
+                if (filter != string.Empty) filter += " and ";
+                filter += "(KTKEY LIKE '%SW%' OR KTKEY LIKE '%NC%' OR KTKEY LIKE '%MC%' OR KTKEY LIKE '%LF%' " + 
+                    "OR KTKEY LIKE '%G-%' OR KTKEY LIKE '%MD%' OR KTKEY LIKE '%TP%')";
+            }
+            if (radioButton3.Checked) // 自動機
+            {
+                if (filter != string.Empty) filter += " and ";
+                filter += "(KTKEY LIKE '%SS%' OR KTKEY LIKE '%XT%' OR KTKEY LIKE '%CN%' OR KTKEY LIKE '%MS%' " +
+                    "OR KTKEY LIKE '%SK%' OR KTKEY LIKE '%TN%')";
+            }
             // 複数検索条件を設定
             codeSlipDt.DefaultView.RowFilter = filter;
-            Dgv_CodeSlipMst.AllowUserToAddRows = (filter == "") ? true : false;
-        }
-
-        // セル幅のに合わせてコントロールの位置とサイズを変更
-        private void Dgv_CodeSlipMst_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
-        {
-            if (0 <= e.Column.Index && e.Column.Index <= 2)
-            {
-                // 品番
-                txtHMCD.Left = Dgv_CodeSlipMst.RowHeadersWidth 
-                    - groupBox1.Left;
-                txtHMCD.Width = Dgv_CodeSlipMst.Columns[0].Width;
-                btnHMCDClear.Left = txtHMCD.Left
-                    + txtHMCD.Width
-                    + 10;
-                // 材料
-                cmbMaterial.Left = Dgv_CodeSlipMst.RowHeadersWidth 
-                    + Dgv_CodeSlipMst.Columns[0].Width 
-                    + Dgv_CodeSlipMst.Columns[1].Width 
-                    - groupBox1.Left;
-                cmbMaterial.Width = Dgv_CodeSlipMst.Columns[2].Width;
-                // パネル
-                groupBox1.Width = cmbMaterial.Left
-                    + cmbMaterial.Width
-                    + 30;
-            }
+            Dgv_CodeSlipMst.AllowUserToAddRows = (filter == "") ? true : false; // 新規追加が出来るのはフィルターなしの時だけ
+            // 抽出結果をステータスに表示
+            toolStripStatusLabel1.Text = (filter == string.Empty) 
+                ? $"{codeSlipDt.Rows.Count}件 全てを表示しています．"
+                : $"{Dgv_CodeSlipMst.RowCount}件 抽出しました．";
         }
 
         // 標準ビュートグルボタン
@@ -219,7 +229,7 @@ namespace MPPPS
         {
             if (tglViewNormal.Checked)
             {
-                tglViewNormal.BackColor = Color.LightGreen;
+                tglViewNormal.BackColor = Color.LightSkyBlue;
                 tglViewSimple.BackColor = SystemColors.Control;
                 viewChange();
             }
@@ -230,12 +240,13 @@ namespace MPPPS
         {
             if (tglViewSimple.Checked)
             {
-                tglViewSimple.BackColor = Color.LightGreen;
+                tglViewSimple.BackColor = Color.LightSkyBlue;
                 tglViewNormal.BackColor = SystemColors.Control;
                 // ビューの切り替え
                 viewChange();
             }
         }
+
 
         // 列ヘッダーの文字列変更
         private void columnHeaderText()
@@ -370,7 +381,7 @@ namespace MPPPS
             }
             Dgv_CodeSlipMst.Columns[cColKTSU].Visible = true;     // 工程数
             Dgv_CodeSlipMst.Columns[31].Visible = v;        // ｽﾄｱ
-            Dgv_CodeSlipMst.Columns[32].Visible = v;        // 備考
+            //Dgv_CodeSlipMst.Columns[32].Visible = v;        // 備考
             Dgv_CodeSlipMst.Columns[33].Visible = v;        // HT
             Dgv_CodeSlipMst.Columns[34].Visible = v;        // 母材品番
             Dgv_CodeSlipMst.Columns[35].Visible = v;        // 母材略称
@@ -383,9 +394,11 @@ namespace MPPPS
             Dgv_CodeSlipMst.Columns[72].Visible = false;    // UPDTDT
         }
 
-        // 品番クリア
-        private void btnHMCDClear_Click(object sender, EventArgs e)
+        // 検索条件クリア
+        private void btnFilterClear_Click(object sender, EventArgs e)
         {
+            cmbMaterial.SelectedIndex = -1;
+            txtKTKEY.Text = string.Empty;
             txtHMCD.Text = string.Empty;
         }
 
@@ -394,31 +407,30 @@ namespace MPPPS
         {
             int insertCount = 0;
             int modifyCount = 0;
-            foreach (DataGridViewRow r in Dgv_CodeSlipMst.Rows)
+            foreach (DataRow r in codeSlipDt.Rows)
             {
-                if (r.Index == codeSlipDt.Rows.Count) break; // 最終行がまだ入力されていない場合
-                if (codeSlipDt.Rows[r.Index].RowState == DataRowState.Added) insertCount++;
-                if (codeSlipDt.Rows[r.Index].RowState == DataRowState.Modified) modifyCount++;
+                if (r.RowState == DataRowState.Added) insertCount++;
+                if (r.RowState == DataRowState.Modified) modifyCount++;
             }
             // 一括更新
             if (insertCount + modifyCount > 0)
             {
                 cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
-                codeSlipDt.AcceptChanges();
+                codeSlipDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
                 await Task.Run(() =>
                 {
                     toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
                     toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
                     toolStripStatusLabel1.Text += "しました．";
                 });
-                
+
                 // 新しいスレッドを作成
                 Thread thread = new Thread(ShowMessageBox);
                 thread.Start();
-                Thread.Sleep(2000);
+                Thread.Sleep(1500);
                 IntPtr hWnd = FindWindow(null, "マスタ更新");
                 SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-            } 
+            }
             else
             {
                 MessageBox.Show("更新はありませんでした．");
@@ -433,6 +445,8 @@ namespace MPPPS
                 MessageBox.Show("削除する行を選択してください．");
                 return;
             }
+            if (MessageBox.Show("元に戻せません。本当に削除してよろしいですか？", "最終質問",
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Cancel) return;
             int deleteCount = 0;
             // 選択行の削除
             foreach (DataGridViewRow r in Dgv_CodeSlipMst.SelectedRows)
@@ -450,7 +464,7 @@ namespace MPPPS
             }
         }
 
-        // 新システム用に変換
+        // 新システム用に変換（個別明細選択）
         private void btnConvertMP_Click(object sender, EventArgs e)
         {
             if (Dgv_CodeSlipMst.SelectedRows.Count == 0)
@@ -475,23 +489,26 @@ namespace MPPPS
             int col = cColKTKEY + 1; // [工程１設備グループ]の列番号 A5M2の40行目
             for (int j = 7; j <= 23; j++) //7:SW ～ 23:TN
             {
-                if (string.IsNullOrEmpty(Dgv_CodeSlipMst[j, row].Value.ToString()) == false && 
+                if (Dgv_CodeSlipMst[j, row].Value != null && 
                     Dgv_CodeSlipMst[j, row].Value != DBNull.Value)
                 {
-                    var mcgcd = Dgv_CodeSlipMst.Columns[j].HeaderText;
-                    var val = Dgv_CodeSlipMst[j, row].Value;
-                    DataRow[] equip = equipMstDt.Select($"MCGCD='{mcgcd}' and MCCD='{val}'"); // DataGrid上の設備コードから設備名称取得
-                    if (equip.Length == 1)
+                    if (string.IsNullOrEmpty(Dgv_CodeSlipMst[j, row].Value.ToString()) == false)
                     {
-                        Dgv_CodeSlipMst[col + 0, row].Value = mcgcd;
-                        Dgv_CodeSlipMst[col + 1, row].Value = equip[0]["MCCD"];
-                        searchKeys += mcgcd + "-" + val + ":";
-                        ktsu++;
-                        col += 5;
-                    }
-                    else
-                    {
-                        Dgv_CodeSlipMst[j, row].Style.BackColor = Color.Red;
+                        var mcgcd = Dgv_CodeSlipMst.Columns[j].HeaderText;
+                        var val = Dgv_CodeSlipMst[j, row].Value;
+                        DataRow[] equip = equipMstDt.Select($"MCGCD='{mcgcd}' and MCCD='{val}'"); // DataGrid上の設備コードから設備名称取得
+                        if (equip.Length == 1)
+                        {
+                            Dgv_CodeSlipMst[col + 0, row].Value = mcgcd;
+                            Dgv_CodeSlipMst[col + 1, row].Value = equip[0]["MCCD"];
+                            searchKeys += mcgcd + "-" + val + ":";
+                            ktsu++;
+                            col += 5;
+                        }
+                        else
+                        {
+                            Dgv_CodeSlipMst[j, row].Style.BackColor = Color.Red;
+                        }
                     }
                 }
             }
@@ -507,45 +524,66 @@ namespace MPPPS
         }
 
         // 新たに工程設計した工程１～６までの工程数と検索キーを自動作成してデータベース反映
-        private void btnUpdateDatabase2_Click(object sender, EventArgs e)
+        private async void btnUpdateDatabase2_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < Dgv_CodeSlipMst.Rows.Count - 1; i++)
+            // 表示されている件数が100件を超える場合は必ず選択させる
+            if (Dgv_CodeSlipMst.SelectedRows.Count == 0 && Dgv_CodeSlipMst.RowCount > 100)
             {
-                var hmcd = Dgv_CodeSlipMst.Rows[i].Cells[0].Value;
-                DataRow[] dr = codeSlipDt.Select($"HMCD='{hmcd}'");
-                if (dr.Length == 1)
+                MessageBox.Show("変換する行を選択してください．");
+                return;
+            }
+            foreach (DataGridViewRow r in Dgv_CodeSlipMst.Rows)
+            {
+                if (r.Visible || r.Selected)
                 {
-                    string ktkey = "";
-                    int ktsu = 1;
-                    int col = 39; // [工程１設備グループ]の列番号 A5M2のカラムタブ№40-1
-                    while (ktsu <= 6) 
+                    var hmcd = r.Cells[0].Value;
+                    DataRow[] dr = codeSlipDt.Select($"HMCD='{hmcd}'");
+                    if (dr.Length == 1)
                     {
-                        ktkey += Dgv_CodeSlipMst.Rows[i].Cells[col].Value.ToString();
-                        ktkey += "-";
-                        ktkey += Dgv_CodeSlipMst.Rows[i].Cells[col + 1].Value.ToString();
-                        ktkey += ":";
-                        if (Dgv_CodeSlipMst.Rows[i].Cells[col + 5].Value.ToString() == "") break;
-                        col += 5;
-                        ktsu++;
-                    }
-                    Dgv_CodeSlipMst.Rows[i].Cells[cColKTSU].Value = ktsu;
-                    Dgv_CodeSlipMst.Rows[i].Cells[38].Value = ktkey;
-
-                    for (int j = 1; j < Dgv_CodeSlipMst.Columns.Count; j++)
-                    {
-                        dr[0][j] = Dgv_CodeSlipMst.Rows[i].Cells[j].Value;
+                        string ktkey = "";
+                        int ktsu = 1;
+                        int col = 39; // [工程１設備グループ]の列番号 A5M2のカラムタブ№40-1
+                        while (ktsu <= 6)
+                        {
+                            ktkey += r.Cells[col].Value.ToString();
+                            ktkey += "-";
+                            ktkey += r.Cells[col + 1].Value.ToString();
+                            ktkey += ":";
+                            if (r.Cells[col + 5].Value.ToString() == "") break;
+                            col += 5;
+                            ktsu++;
+                        }
+                        if (dr[0][cColKTSU].ToString() != ktsu.ToString()) dr[0][cColKTSU] = ktsu;
+                        if (dr[0][cColKTKEY].ToString() != ktkey) dr[0][cColKTKEY] = ktkey;
                     }
                 }
             }
+            int modifyCount = 0;
+            foreach (DataRow r in codeSlipDt.Rows)
+            {
+                if (r.RowState == DataRowState.Modified) modifyCount++;
+            }
             // 一括更新
-            cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
+            if (modifyCount > 0)
+            {
+                cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
+                codeSlipDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
+                await Task.Run(() =>
+                {
+                    toolStripStatusLabel1.Text = $"{modifyCount}件 を更新しました．";
+                });
 
-            // 新しいスレッドを作成
-            Thread thread = new Thread(ShowMessageBox);
-            thread.Start();
-            Thread.Sleep(1000);
-            IntPtr hWnd = FindWindow(null, "マスタ更新");
-            SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+                // 新しいスレッドを作成
+                Thread thread = new Thread(ShowMessageBox);
+                thread.Start();
+                Thread.Sleep(800);
+                IntPtr hWnd = FindWindow(null, "マスタ更新");
+                SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            }
+            else
+            {
+                MessageBox.Show("更新はありませんでした．");
+            }
         }
 
         // 自動で閉じるメッセージボックス
@@ -593,26 +631,27 @@ namespace MPPPS
 
                 //cmn.Fa.OpenExcelFile(ofd.FileName);
 
+                // Excelコード票を読み込みデータテーブルに変換
                 DataTable excelCodeSlipDt = new DataTable();
-
                 await Task.Run(() => excelCodeSlipDt = cmn.Fa.ReadExcelToDatatble2(ofd.FileName));
 
                 if (excelCodeSlipDt == null) return;
                 if (excelCodeSlipDt.Rows.Count <= 0) return;
 
-                // コード票マスタデータテーブルと読み込んだExcelとを比較
+                // コード票マスタとExcelコード票とを比較
                 int differCellCount = 0;
                 for (int row = 0; row < Dgv_CodeSlipMst.Rows.Count - 1; row++) // 新規行は除く
                 {
-                    string s = Dgv_CodeSlipMst[0, row].Value.ToString();
-                    DataRow[] excelDr = excelCodeSlipDt.Select($"品番='{s}'");
-                    if (excelDr.Length == 1)
+                    try
                     {
+                        string s = Dgv_CodeSlipMst[0, row].Value.ToString();
+                        DataRow[] excelDr = excelCodeSlipDt.Select($"品番='{s}'");
+                        if (excelDr.Length != 1) continue;
                         for (int col = 0; col < excelCodeSlipDt.Columns.Count; col++)
                         {
                             //if (codeSlipDt.Columns[col].DataType.ToString() == "System.Decimal") // decimal型に変換（変換に神経を使って嫌だDBNullとか分けわからん）
-                            if (col == 3)
-                            { 
+                            if (col == 3) // 長さ: Length: Decimal
+                            {
                                 decimal xslsnum;
                                 if (!decimal.TryParse(excelDr[0][col].ToString(), out xslsnum))
                                     xslsnum = 0;
@@ -632,7 +671,7 @@ namespace MPPPS
                             }
                             else if (Dgv_CodeSlipMst.Columns[col].DefaultCellStyle.Format == "#,0")
                             {
-                                if (excelDr[0][col].ToString().Replace(",", "") != 
+                                if (excelDr[0][col].ToString().Replace(",", "") !=
                                     Dgv_CodeSlipMst[col, row].Value.ToString().Replace(",", ""))
                                 {
                                     Dgv_CodeSlipMst[col, row].Style.BackColor = Color.LightCoral;
@@ -647,13 +686,18 @@ namespace MPPPS
                             }
                         }
                     }
+                    catch (Exception ex) {
+                        toolStripStatusLabel2.Text = row + "行 [" + Dgv_CodeSlipMst[0,row].Value.ToString() + "] で異常が発生しました．";
+                    }
+
                 }
 
                 // 追加削除件数の調査
-                int differRowCount = Dgv_CodeSlipMst.RowCount - excelCodeSlipDt.Rows.Count;
+                int offset = (Dgv_CodeSlipMst.AllowUserToAddRows) ? 1 : 0;
+                int differRowCount = (Dgv_CodeSlipMst.RowCount - offset) - excelCodeSlipDt.Rows.Count;
                 if (differRowCount != 0)
                 {
-                    List<string> list1 = GetColumnData(0); // Dgv_CodeSlipMstの1番目の列を取得
+                    List<string> list1 = GetColumnData(0); // Dgv_CodeSlipMstの1番目の列（品番）を取得
                     List<string> list2 = excelCodeSlipDt.AsEnumerable()
                         .Select(c => c["品番"].ToString())
                         .ToList();
@@ -670,7 +714,7 @@ namespace MPPPS
                 // 結果表示
                 if (differCellCount > 0)
                 {
-                    // 次の相違点ボタンを非活性化
+                    // 次の相違点ボタンを活性化
                     btnNextDiffer.BackColor = Color.LightCoral;
                     btnNextDiffer.Enabled = true;
                     toolStripStatusLabel1.Text = $"{differCellCount.ToString("#,0")}件の相違を検出しました。";
@@ -787,7 +831,13 @@ namespace MPPPS
                 eventFlg = true;
                 int row = Dgv_CodeSlipMst.CurrentCell.RowIndex;                             // 0 Start
                 int basecol = Dgv_CodeSlipMst.CurrentCell.ColumnIndex;                      // 0 Start
+                string hmcd = Dgv_CodeSlipMst[0, row].Value.ToString();                     // 品番を取得
                 string[] records = Clipboard.GetText().Replace("\r", "").TrimEnd('\n').Split('\n');       // 複数行の貼り付け対応
+                if (basecol == 0 && !Dgv_CodeSlipMst.AllowUserToAddRows)
+                {
+                    MessageBox.Show("品番への貼り付けは出来ません．");
+                    return;
+                }
                 if (row < Dgv_CodeSlipMst.RowCount - 1 && records.Length > 1)
                 {
                     MessageBox.Show("新規行以外で複数行の貼り付けは出来ません．");
@@ -803,7 +853,7 @@ namespace MPPPS
                     // ソースからどうやっても想定通り行追加がされないのでSendKeysに頼る！
                     // PCの処理能力によってwait時間を調整しないといけない問題あり！
                     // あと、ソースでのデバッグが出来なくなる（このエディタ上にSendKeysされる）！
-                    if (row == Dgv_CodeSlipMst.RowCount - 1)
+                    if (row == Dgv_CodeSlipMst.RowCount - 1 && Dgv_CodeSlipMst.AllowUserToAddRows)
                     {
                         Dgv_CodeSlipMst.CurrentCell = Dgv_CodeSlipMst[1, row];
                         await Task.Delay(200);
@@ -828,7 +878,8 @@ namespace MPPPS
                                 Dgv_CodeSlipMst[col, row].Value = s;
                             }
                         }
-                        col++;      // 次のセルへ
+                        // 次のセルへ
+                        col++;      
                         if (col >= Dgv_CodeSlipMst.ColumnCount - 1) break;
                     }
                     // 工程キーが入っていなかったら自動で変換
@@ -836,7 +887,12 @@ namespace MPPPS
                     {
                         setKTKEY(row);
                     }
-                    row++;          // 次の行へ
+                    // RowStateの変更
+                    DataRow[] dr = codeSlipDt.Select($"HMCD='{hmcd}'");
+                    if (dr.Length == 1) dr[0].EndEdit(); // ここでようやく RowState が Unchanged から Modified に変更される（コミットみたいなもの）
+
+                    // クリップボード内で改行されていたら次の行へ
+                    row++;
                 }
                 eventFlg = false;
             }
@@ -860,6 +916,7 @@ namespace MPPPS
         private void Frm034_CodeSlipMstMaint_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.F5) btnRefreshDataGridView_Click(sender, e);
+            if (e.KeyCode == Keys.F9) btnUpdateDatabase_Click(sender, e);
             if (e.KeyCode == Keys.F10) btn_ExportExcel_Click(sender, e);
             if (e.KeyCode == Keys.Escape) Close();
         }
@@ -952,9 +1009,35 @@ namespace MPPPS
                     cmn.Fa.CloseExcel2();
                 }
             }
+        }
 
+        // 小文字を大文字に変換
+        private void Dgv_CodeSlipMst_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            if (e.Control is TextBox textBox)
+            {
+                textBox.CharacterCasing = CharacterCasing.Upper;
+            }
+        }
 
+        // 工程ラジオボタンイベント
+        private void RadioButton_Paint(object sender, PaintEventArgs e)
+        {
+            RadioButton rb = sender as RadioButton;
+            if (rb != null && rb.Checked)
+            {
+                Font font = new Font(rb.Font, FontStyle.Underline);
+                TextRenderer.DrawText(e.Graphics, rb.Text, font, rb.ClientRectangle, Color.FromArgb(200, 60, 60, 60));
+            }
+            else
+            {
+                TextRenderer.DrawText(e.Graphics, rb.Text, rb.Font, rb.ClientRectangle, Color.FromArgb(80, 160, 160, 160));
+            }
+        }
 
+        private void radio_CheckedChanged(object sender, EventArgs e)
+        {
+            myFilter();
         }
 
     }
