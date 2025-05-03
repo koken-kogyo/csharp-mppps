@@ -56,9 +56,9 @@ namespace MPPPS
             Frm030_MasterMaint frm030 = new Frm030_MasterMaint(cmn);
             frm030.Top = this.Top;
             frm030.Left = this.Left;
-            this.WindowState = FormWindowState.Minimized;
+            this.Hide();
             frm030.ShowDialog();
-            this.WindowState = FormWindowState.Normal;
+            this.Show();
         }
 
         /// <summary>
@@ -71,9 +71,9 @@ namespace MPPPS
             Frm040_OrderCtrl frm040 = new Frm040_OrderCtrl(cmn);
             frm040.Top = this.Top;
             frm040.Left = this.Left;
-            this.WindowState = FormWindowState.Minimized;
+            this.Hide();
             frm040.ShowDialog();
-            this.WindowState = FormWindowState.Normal;
+            this.Show();
         }
 
         /// <summary>
@@ -86,9 +86,9 @@ namespace MPPPS
             Frm050_MfgCtrl frm050 = new Frm050_MfgCtrl(cmn);
             frm050.Top = this.Top;
             frm050.Left = this.Left;
-            this.WindowState = FormWindowState.Minimized;
+            this.Hide();
             frm050.ShowDialog();
-            this.WindowState = FormWindowState.Normal;
+            this.Show();
         }
 
         /// <summary>
@@ -101,9 +101,9 @@ namespace MPPPS
             Frm070_ReceiptCtrl frm070 = new Frm070_ReceiptCtrl();
             frm070.Top = this.Top;
             frm070.Left = this.Left;
-            this.WindowState = FormWindowState.Minimized;
+            this.Hide();
             frm070.ShowDialog();
-            this.WindowState = FormWindowState.Normal;
+            this.Show();
         }
 
         /// <summary>
@@ -116,9 +116,9 @@ namespace MPPPS
             Frm080_MatlCtrl frm080 = new Frm080_MatlCtrl();
             frm080.Top = this.Top;
             frm080.Left = this.Left;
-            this.WindowState = FormWindowState.Minimized;
+            this.Hide();
             frm080.ShowDialog();
-            this.WindowState = FormWindowState.Normal;
+            this.Show();
         }
 
         /// <summary>
@@ -131,9 +131,9 @@ namespace MPPPS
             Frm090_CutStore frm090 = new Frm090_CutStore(cmn, sender);
             frm090.Top = this.Top;
             frm090.Left = this.Left;
-            this.WindowState = FormWindowState.Minimized;
+            this.Hide();
             frm090.ShowDialog();
-            this.WindowState = FormWindowState.Normal;
+            this.Show();
         }
 
         /// <summary>

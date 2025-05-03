@@ -36,14 +36,18 @@ namespace MPPPS
         private void Btn_ImportOrder_Click(object sender, EventArgs e)
         {
             Frm041_ImportOrder frm041 = new Frm041_ImportOrder(cmn);
+            this.Hide();
             frm041.ShowDialog();
+            this.Show();
         }
 
         // 手配情報表示
         private void Btn_InformationOrder_Click(object sender, EventArgs e)
         {
             Frm042_InformationOrder frm042 = new Frm042_InformationOrder(cmn);
+            this.Hide();
             frm042.ShowDialog();
+            this.Show();
         }
 
         // 追加オーダーの作成
@@ -57,7 +61,9 @@ namespace MPPPS
         private void Btn_ImportPlan_Click(object sender, EventArgs e)
         {
             Frm044_ImportPlan frm044 = new Frm044_ImportPlan(cmn);
+            this.Hide();
             frm044.ShowDialog();
+            this.Show();
         }
 
         // 内示情報表示

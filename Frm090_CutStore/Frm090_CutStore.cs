@@ -33,14 +33,18 @@ namespace MPPPS
         private void Btn_CutStoreDelv_Click(object sender, EventArgs e)
         {
             Frm091_CutStoreDelv frm091 = new Frm091_CutStoreDelv(cmn, sender);
+            this.Hide();
             frm091.ShowDialog();
+            this.Show();
         }
 
         // 切削ストア在庫情報
         private void Btn_CutStoreInvInfo_Click(object sender, EventArgs e)
         {
             Frm092_CutStoreInvInfo frm092 = new Frm092_CutStoreInvInfo(cmn);
+            this.Hide();
             frm092.ShowDialog();
+            this.Show();
         }
 
         // 閉じる

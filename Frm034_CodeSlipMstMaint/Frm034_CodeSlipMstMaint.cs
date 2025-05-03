@@ -415,7 +415,7 @@ namespace MPPPS
             // 一括更新
             if (insertCount + modifyCount > 0)
             {
-                cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
+                if(!cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt)) return;
                 codeSlipDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
                 await Task.Run(() =>
                 {

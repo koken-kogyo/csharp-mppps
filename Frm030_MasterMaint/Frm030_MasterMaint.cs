@@ -56,19 +56,19 @@ namespace MPPPS
         // KM8420 : 設備マスタメンテ
         private void Btn_EqMstMaint_Click(object sender, EventArgs e)
         {
-            this.WindowState = FormWindowState.Minimized;
             Frm033_EqMstMaint frm033 = new Frm033_EqMstMaint(cmn);
+            this.Hide();
             frm033.ShowDialog();
-            this.WindowState = FormWindowState.Normal;
+            this.Show();
         }
 
         // KM8430 : コード票マスタメンテ
         private void Btn_CodeSlipMstMaint_Click(object sender, EventArgs e)
         {
-            this.WindowState = FormWindowState.Minimized;
             Frm034_CodeSlipMstMaint frm034 = new Frm034_CodeSlipMstMaint(cmn);
+            this.Hide();
             frm034.ShowDialog();
-            this.WindowState = FormWindowState.Normal;
+            this.Show();
         }
 
         // 閉じる

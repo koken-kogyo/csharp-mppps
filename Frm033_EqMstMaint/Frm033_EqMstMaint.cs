@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,6 +15,18 @@ namespace MPPPS
         // 共通クラス
         private readonly Common cmn;
         private DataTable equipMstDt = new DataTable(); // 設備マスタを保持
+
+        // null OK の列番号定数
+        private static int cColThick = 9;
+        private static int cColScrap = 10;
+
+        // 自動で閉じるメッセージボックスで使用
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern int SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        private const uint WM_CLOSE = 0x0010;
+
 
         public Frm033_EqMstMaint(Common cmn)
         {
@@ -73,7 +85,7 @@ namespace MPPPS
             FixedColumnAfterAutoAdjustment();
 
             // ステータス表示を初期化
-            toolStripLabel1.Text = "設備名称、稼働時間、段取り名称、段取り時間に変更がある場合は直接入力して反映ボタンを押して下さい";
+            toolStripStatusLabel1.Text = "設備名称、稼働時間、段取り名称、段取り時間に変更がある場合は直接入力して反映ボタンを押して下さい";
         }
 
         // コンストラクタ後のロードで画面をアクティブ化し初期フォーカス
@@ -81,6 +93,14 @@ namespace MPPPS
         {
             this.Activate();
             this.Dgv_EquipMst.Focus();
+        }
+
+        // キープレビュー
+        private void Frm033_EqMstMaint_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F5) btnReloadDatabase_Click(sender, e);
+            if (e.KeyCode == Keys.F9) btnUpdateDatabase_Click(sender, e);
+            if (e.KeyCode == Keys.Escape) Close();
         }
 
         // データグリッドビューの個別設定
@@ -117,14 +137,14 @@ namespace MPPPS
             for (int i = 0; i < s1.Length; i++)
             {
                 Dgv_EquipMst.Columns[i + offset].HeaderText = s1[i];
-                if (i==0 || i==3) // 各SEQ
+                if (i==0 || i==3) // 主キー（変更不可
                 {
                     Dgv_EquipMst.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
                     Dgv_EquipMst.Columns[i].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                    Dgv_EquipMst.Columns[i + 0].ReadOnly = true;
-                    Dgv_EquipMst.Columns[i + 1].ReadOnly = true;
+                    //Dgv_EquipMst[i + 0, 0].ReadOnly = true;
+                    //Dgv_EquipMst[i + 1, 0].ReadOnly = true;
                 }
-                if (i == 6 || i == 9 || i == 10 || i == 12 || i == 14 || i == 16)// 稼働時間、刃厚、端材長、各CT
+                else if (i == 6 || i == 9 || i == 10 || i == 12 || i == 14 || i == 16)// 稼働時間、刃厚、端材長、各CT
                 {
                     Dgv_EquipMst.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
                     Dgv_EquipMst.Columns[i].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
@@ -139,8 +159,8 @@ namespace MPPPS
             Dgv_EquipMst.Columns[20].DefaultCellStyle.Format = "yyyy/MM/dd HH:mm:ss"; // 更新日時
 
             // DataGridViewの非表示設定
-            Dgv_EquipMst.Columns[7].Visible = false;    // FLG1
-            Dgv_EquipMst.Columns[8].Visible = false;    // FLG2
+            //Dgv_EquipMst.Columns[7].Visible = false;    // FLG1
+            //Dgv_EquipMst.Columns[8].Visible = false;    // FLG2
         }
 
         // 行番号をつける
@@ -182,37 +202,126 @@ namespace MPPPS
         }
 
         // データベース反映ボタン
-        private void btnUpdateDatabase_Click(object sender, EventArgs e)
+        private async void btnUpdateDatabase_Click(object sender, EventArgs e)
         {
-            // 一括更新
-            cmn.Dba.UpdateEquipMst(ref equipMstDt);
-            MessageBox.Show("更新が終了しました．");
+            int insertCount = 0;
+            int modifyCount = 0;
+            foreach (DataRow r in equipMstDt.Rows)
+            {
+                if (r.RowState == DataRowState.Added) insertCount++;
+                if (r.RowState == DataRowState.Modified) modifyCount++;
+            }
+            if (insertCount + modifyCount > 0)
+            {
+                // 一括更新
+                if (!cmn.Dba.UpdateEquipMst(ref equipMstDt)) return;
+                equipMstDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
+                await Task.Run(() =>
+                {
+                    toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
+                    toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
+                    toolStripStatusLabel1.Text += "しました．";
+                });
+
+                // 新しいスレッドを作成
+                Thread thread = new Thread(ShowMessageBox);
+                thread.Start();
+                Thread.Sleep(1500);
+                IntPtr hWnd = FindWindow(null, "マスタ更新");
+                SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            }
+            else
+            {
+                MessageBox.Show("更新はありませんでした．");
+            }
+        }
+
+        // 自動で閉じるメッセージボックス
+        private static void ShowMessageBox()
+        {
+            MessageBox.Show("更新が終了しました．", "マスタ更新");
+        }
+
+        // データベースからマスタを取得
+        private void btnReloadDatabase_Click(object sender, EventArgs e)
+        {
+            equipMstDt.Clear();
+            cmn.Dba.GetEquipMstDt(ref equipMstDt);
+            Dgv_EquipMst.Refresh();
+            Dgv_EquipMst.Focus();
+            // 件数を表示
+            toolStripStatusLabel1.Text = (Dgv_EquipMst.Rows.Count - 1) + "件を読み込みました。";
         }
 
         // コピペ処理実装
-        private void Dgv_EquipMst_KeyDown(object sender, KeyEventArgs e)
+        private async void Dgv_EquipMst_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.V)
             {
                // クリップボードの文字列を取得
                 string[] s = Clipboard.GetText().Split('\t');
+                if (s[0] == "") s = s.Skip(1).ToArray();        // 先頭が空白だったらカット（データグリッド上のコピペ対応）
 
                 // セル番号を取得
                 var col = Dgv_EquipMst.CurrentCell.ColumnIndex;
                 var row = Dgv_EquipMst.CurrentCell.RowIndex;
 
+                if (row == Dgv_EquipMst.RowCount - 1)
+                {
+                    Dgv_EquipMst.CurrentCell = Dgv_EquipMst[1, row];
+                    await Task.Delay(200);
+                    SendKeys.Send("{Z}+{TAB}"); // +はShiftキー
+                    await Task.Delay(800);
+                }
+
                 // 選択セルに反映
                 for (int i = 0; i < s.Length; i++)
                 {
-                    if (col + i == 7) col += 2; // 非表示の列があるので、その場合は2つ右にずらす
-                    if (Dgv_EquipMst[col + i, row].ValueType.Name == "Int32")
+                    s[i] = s[i].Replace(",", "").Replace("\"", "").Replace("\r\n","");
+                    if (col + i == cColScrap) // null ok 列（int型だけど 0 にはしたくない）
                     {
-                        s[i] = s[i].Replace(",", "").Replace("\"","");
-                        Dgv_EquipMst[col + i, row].Value = Int32.Parse(s[i]);
+                        if (s[i] != "") Dgv_EquipMst[col + i, row].Value = Convert.ToInt32(s[i]);
+                    }
+                    else if (Dgv_EquipMst[col + i, row].ValueType.Name == "Decimal")
+                    {
+                        if (s[i] != "") Dgv_EquipMst[col + i, row].Value = Convert.ToDecimal(s[i]);
+                    }
+                    else if (Dgv_EquipMst[col + i, row].ValueType.Name == "Int32")
+                    {
+                        Dgv_EquipMst[col + i, row].Value = (s[i] == "") ? 0 : Convert.ToInt32(s[i]);
+                    }
+                    else if (Dgv_EquipMst[col + i, row].ValueType.Name == "DateTime")
+                    {
+                        if (s[i] != "") Dgv_EquipMst[col + i, row].Value = DateTime.Parse(s[i]);
                     }
                     else
                     {
                         Dgv_EquipMst[col + i, row].Value = s[i];
+                    }
+                    if (col + i >= Dgv_EquipMst.ColumnCount - 1) break;
+                }
+            }
+            // Deleteキー
+            if (e.KeyCode == Keys.Delete)
+            {
+                foreach (DataGridViewCell c in Dgv_EquipMst.SelectedCells)
+                {
+                    switch (c.ColumnIndex)
+                    {
+                        case 0:
+                        case 1:
+                        case 3:
+                        case 4:
+                            break;
+                        case 6:
+                        case 12:
+                        case 14:
+                        case 16:
+                            c.Value = 0;
+                            break;
+                        default:
+                            c.Value = DBNull.Value;
+                            break;
                     }
                 }
             }
@@ -251,13 +360,6 @@ namespace MPPPS
             Dgv_EquipMst.ColumnHeadersHeight = intHeaderHeight * 4; // 縦４文字分
         }
 
-        // データベースからマスタを取得
-        private void btnReloadDatabase_Click(object sender, EventArgs e)
-        {
-            equipMstDt.Clear();
-            cmn.Dba.GetEquipMstDt(ref equipMstDt);
-            Dgv_EquipMst.Refresh();
-        }
         // 列幅自動調整ボタン
         private void btnColumnsAutoFit_Click(object sender, EventArgs e)
         {
@@ -281,10 +383,13 @@ namespace MPPPS
             }
         }
 
-        private void Frm033_EqMstMaint_KeyDown(object sender, KeyEventArgs e)
+        // 小文字を大文字に変換
+        private void Dgv_EquipMst_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape) Close();
+            if (e.Control is TextBox textBox)
+            {
+                textBox.CharacterCasing = CharacterCasing.Upper;
+            }
         }
-
     }
 }
