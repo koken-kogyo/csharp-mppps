@@ -4348,6 +4348,199 @@ namespace MPPPS
         }
 
         /// <summary>
+        /// 在庫ファイル更新
+        /// </summary>
+        /// <param name="dgvDt">DataGridViewBindingSource</param>
+        /// <returns>成功可否</returns>
+        public bool UpdateInventory(ref DataTable dgvDt)
+        {
+
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                /*
+                 * CommandBuilder でのコマンドの自動生成についての調査結果
+                 * 「コマンドの自動生成規則」なるものがある
+                 * 「更新および削除のオプティミスティック コンカレンシー」が怪しい
+                 * つまり主キーが更新された場合はコマンドビルダーでの自動更新で例外異常となる↓
+                 * 「同時実行違反 : UpdateCommand によって、処理予定の 1 レコードのうち 0 件が処理されました。」
+                 * ※UpdateCommand に明示的に DataAdapter を設定し、コマンドの自動生成は行わないでください。
+                */
+
+                var dtUpdate = new DataTable();
+                var countInsert = 0;
+                var countUpdate = 0;
+                var countDelete = 0;
+                var countModify = 0;
+                using (MySqlTransaction txn = mpCnn.BeginTransaction())
+                {
+                    using (var adapter = new MySqlDataAdapter())
+                    {
+                        string sql = "SELECT * FROM " + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460;
+                        adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
+
+                        using (var buider = new MySqlCommandBuilder(adapter))
+                        {
+                            Debug.WriteLine("Read from DataTable:");
+                            adapter.Fill(dtUpdate);
+
+                            // DataGridView上に新規変更削除があるかチェック
+                            foreach (DataRow dgv in dgvDt.Rows)
+                            {
+                                if (dgv.RowState == DataRowState.Added)
+                                {
+                                    dgv["MCCD"] = (dgv["MCCD"] == DBNull.Value) ? "" : dgv["MCCD"];
+                                    dgv["MPINSTID"] = cmn.Ui.UserId;
+                                    dgv["MPINSTDT"] = DateTime.Now.ToString();
+                                    dgv["MPUPDTID"] = cmn.Ui.UserId;
+                                    dgv["MPUPDTDT"] = DateTime.Now.ToString();
+                                    dtUpdate.ImportRow(dgv);
+                                    countInsert++;
+                                }
+                                else if (dgv.RowState == DataRowState.Deleted)
+                                {
+                                    string hmcd = dgv["HMCD", DataRowVersion.Original].ToString();
+                                    string mcgcd = dgv["MCGCD", DataRowVersion.Original].ToString();
+                                    string mccd = dgv["MCCD", DataRowVersion.Original].ToString();
+                                    DataRow[] r = dtUpdate.Select($"HMCD='{hmcd}' and MCGCD='{mcgcd}' and MCCD='{mccd}'");
+                                    if (r.Length == 1)
+                                    {
+                                        r[0].Delete();
+                                        countDelete++;
+                                    }
+                                }
+                                else if (dgv.RowState == DataRowState.Modified)
+                                {
+                                    string hmcd1 = dgv["HMCD", DataRowVersion.Original].ToString();
+                                    string mcgcd1 = dgv["MCGCD", DataRowVersion.Original].ToString();
+                                    string mccd1 = dgv["MCCD", DataRowVersion.Original].ToString();
+                                    string hmcd2 = dgv["HMCD", DataRowVersion.Current].ToString();
+                                    string mcgcd2 = dgv["MCGCD", DataRowVersion.Current].ToString();
+                                    string mccd2 = dgv["MCCD", DataRowVersion.Current].ToString();
+                                    DataRow[] r = dtUpdate.Select($"HMCD='{hmcd2}' and MCGCD='{mcgcd2}' and MCCD='{mccd2}'");
+                                    // 主キーに変更が無い更新の場合
+                                    if (hmcd1==hmcd2 && mcgcd1==mcgcd2 && mccd1==mccd2 && r.Length==1)
+                                    {
+                                        int change = 0;
+                                        for (int col = 0; col < dtUpdate.Columns.Count; col++)
+                                        {
+                                            // 変更あり
+                                            if (r[0][col].ToString() != dgv[col].ToString())
+                                            {
+                                                r[0][col] = dgv[col];
+                                                change++;
+                                            }
+                                        }
+                                        if (change > 0)
+                                        {
+                                            r[0]["MCCD"] = (r[0]["MCCD"] == DBNull.Value) ? "" : r[0]["MCCD"];
+                                            r[0]["MPUPDTID"] = cmn.Ui.UserId;
+                                            r[0]["MPUPDTDT"] = DateTime.Now.ToString();
+                                            countUpdate++;
+                                        }
+                                    }
+                                }
+                            }
+                            // 追加更新削除があればコマンドビルダーにて一括更新
+                            if (countInsert + countUpdate + countDelete > 0)
+                            {
+                                try
+                                {
+                                    adapter.Update(dtUpdate);
+                                }
+                                catch (Exception ex)
+                                {
+                                    txn.Rollback();
+                                    throw ex;
+                                }
+                                // 結果をデバッグ上にだけ表示
+                                Debug.WriteLine("新規件数：" + String.Format("{0:#,0}", countInsert) + " 件");
+                                Debug.WriteLine("更新件数：" + String.Format("{0:#,0}", countUpdate) + " 件");
+                                Debug.WriteLine("削除件数：" + String.Format("{0:#,0}", countDelete) + " 件");
+                            }
+                            else
+                            {
+                                Debug.WriteLine("更新はありませんでした．".PadLeft(18));
+                            }
+                        }
+                    }
+
+                    // オプティミスティック コンカレンシー
+                    // 主キーの更新
+                    foreach (DataRow dgv in dgvDt.Rows)
+                    {
+                        if (dgv.RowState == DataRowState.Modified)
+                        {
+                            string orghmcd = dgv["HMCD", DataRowVersion.Original].ToString();
+                            string orgmcgcd = dgv["MCGCD", DataRowVersion.Original].ToString();
+                            string orgmccd = dgv["MCCD", DataRowVersion.Original].ToString();
+                            string hmcd = dgv["HMCD", DataRowVersion.Current].ToString();
+                            string mcgcd = dgv["MCGCD", DataRowVersion.Current].ToString();
+                            string mccd = dgv["MCCD", DataRowVersion.Current].ToString();
+                            // 主キーが変更された場合
+                            if (orghmcd != hmcd || orgmcgcd != mcgcd || orgmccd != mccd)
+                            {
+                                string indtparam = (dgv["INDT"].ToString() == "") ? ", INDT=null" : $", INDT='{dgv["INDT"].ToString()}'";
+                                string outdtparam = (dgv["OUTDT"].ToString() == "") ? ", OUTDT=null" : $", OUTDT='{dgv["OUTDT"].ToString()}'";
+                                string indtdtparam = (dgv["MPINSTDT"].ToString() == "") ? ", MPINSTDT=null" : $", MPINSTDT='{dgv["MPINSTDT"].ToString()}'";
+                                string sql = "UPDATE kd8460 set " + 
+                                    $"HMCD='{hmcd}'"+
+                                    $", MCGCD='{mcgcd}'"+
+                                    $", MCCD='{mccd}'" + 
+                                    $", ZAIQTY={Convert.ToInt32(dgv["ZAIQTY"].ToString())}" +
+                                    indtparam +
+                                    outdtparam +
+                                    $", MPINSTID='{dgv["MPINSTID"].ToString()}'" +
+                                    indtdtparam + 
+                                    $", MPUPDTID='{cmn.Ui.UserId}'" + 
+                                    $", MPUPDTDT=NOW()" + " " +
+                                    $"WHERE HMCD='{orghmcd}' and MCGCD='{orgmcgcd}' and MCCD='{orgmccd}'";
+                                MySqlCommand myCmd = new MySqlCommand(sql, mpCnn);
+                                try
+                                {
+                                    int res = myCmd.ExecuteNonQuery();
+                                    countModify++;
+                                }
+                                catch (Exception ex)
+                                {
+                                    txn.Rollback();
+                                    throw ex;
+                                }
+                                // 結果をデバッグ上にだけ表示
+                                Debug.WriteLine("主キー更新：" + String.Format("{0:#,0}", countModify) + " 件");
+                            }
+                        }
+                    }
+                    txn.Commit();
+                    dgvDt.AcceptChanges();
+                    ret = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+
+        }
+
+
+        /// <summary>
         /// 切削手配ファイル受注状態ミラーリング
         /// EMの手配状態をMPシステムにミラーリング（3,4,9になった状態をMPに反映)
         /// （9:取消は手動でやってもらうためにミラーリング対象外）＝＞（やっぱり自動で更新してしまう）
