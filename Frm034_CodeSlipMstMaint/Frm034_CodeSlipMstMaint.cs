@@ -8,9 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.IO;
-using System.Data.Common;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
 
 namespace MPPPS
 {

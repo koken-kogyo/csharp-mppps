@@ -30,21 +30,13 @@ namespace MPPPS
         public PkKM8410 PkKM8410 { get; set; }      // KM8410 切削刃具 マスター 主キー
         public PkKM8420 PkKM8420 { get; set; }      // KM8420 切削設備マスター 主キー
         public PkKM8430 PkKM8430 { get; set; }      // KM8430 切削コード票マスター 主キー
-        public PkKM8440 PkKM8440 { get; set; }      // KM8440 賃率マスター 主キー
-        public PkKM8450 PkKM8450 { get; set; }      // KM8450 製造原価マスター 主キー
-        public PkKM8460 PkKM8460 { get; set; }      // KM8460 原価管理雛形ファイル定義マスター主キー
-        public PkKD5000 PkKD5000 { get; set; }      // KD5000 原価計算明細ファイル 主キー
         // データレコード
         public DrKD8430 DrKD8430 { get; set; }      // KD8430  切削生産計画ファイル データ レコード
-        public DrKD8440 DrKD8440 { get; set; }        // KD8440  切削生産計画日程ファイル データ レコード
+        public DrKD8440 DrKD8440 { get; set; }      // KD8440  切削生産計画日程ファイル データ レコード
         public DrKM8400 DrKM8400 { get; set; }      // KM8400 切削生産計画システム利用者マスター データレコード
         public DrKM8410 DrKM8410 { get; set; }      // KM8410 作業グループマスタ データレコード
         public DrKM8420 DrKM8420 { get; set; }      // KM8420 切削設備マスター データレコード
         public DrKM8430 DrKM8430 { get; set; }      // KM8430 切削コード票マスター データレコード
-        public DrKM8440 DrKM8440 { get; set; }      // KM8440 賃率マスター データレコード
-        public DrKM8450 DrKM8450 { get; set; }      // KM8450 製造原価マスター データレコード
-        public DrKM8460 DrKM8460 { get; set; }      // KM8460 原価管理雛形ファイル定義マスター データレコード
-        public DrKD5000 DrKD5000 { get; set; }      // KD5000 原価計算明細ファイル データレコード
 
         // ユニーク キー
         public UqKD8440 UqKD8440 { get; set; }        // KD8440  切削生産計画日程ファイル ユニーク キー

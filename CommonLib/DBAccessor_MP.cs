@@ -2,11 +2,8 @@
 using System;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Windows;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace MPPPS
 {
@@ -3290,10 +3287,10 @@ namespace MPPPS
                 // 並び替え順のパターンごとにデータテーブルを取得
                 string sql = GetOrderCardPrintInfoSQL(ref eddtFrom, ref eddtTo);
 
-                // 1.次工程の順番で印刷するパターン（SW）
+                // 1.品番番で印刷するパターン（SW）
                 string sqlSW = sql +
                     "and b.KT1MCGCD = 'SW' " +
-                    "order by b.KT2MCGCD, b.KT2MCCD, a.HMCD, a.EDDT"
+                    "order by a.HMCD, a.EDDT"
                 ;
                 using (DataTable patternSW = new DataTable())
                 {
@@ -3331,7 +3328,7 @@ namespace MPPPS
                 // 3.設備番号順で印刷するパターン
                 string sqlOT = sql +
                     "and b.KT1MCGCD<>'SW' and b.KT1MCGCD <> 'CN' " +
-                    "order by b.KT1MCGCD, b.KT1MCCD, a.HMCD, a.EDDT"
+                    "order by b.KT1MCGCD, a.HMCD, a.EDDT"
                 ;
                 using (DataTable patternOT = new DataTable())
                 {
@@ -3999,8 +3996,9 @@ namespace MPPPS
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
+
         /// <summary>
-        /// マスタ更新
+        /// KM8420: 設備マスタ更新
         /// </summary>
         /// <param name="dgvDt">DataGridView</param>
         /// <returns>注文情報データ</returns>
@@ -4017,108 +4015,174 @@ namespace MPPPS
                 // MPデータベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
+                DataTable dtUpdate = new DataTable();
+                var countInsert = 0;
                 var countUpdate = 0;
                 var countDelete = 0;
-                using (var adapter = new MySqlDataAdapter())
-                {
-                    DataTable dtUpdate = new DataTable();
-                    string sql = "SELECT * FROM "
-                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420;
-                    adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
-                    using (var buider = new MySqlCommandBuilder(adapter))
-                    {
-                        // 全件読み込み
-                        adapter.Fill(dtUpdate);
+                var countModify = 0;
 
-                        // 変更または削除があるかチェック
-                        foreach (DataRow r in dtUpdate.Rows)
+                using (MySqlTransaction txn = mpCnn.BeginTransaction())
+                {
+                    using (var adapter = new MySqlDataAdapter())
+                    {
+                        string sql = "SELECT * FROM "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420;
+                        adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
+                        using (var buider = new MySqlCommandBuilder(adapter))
                         {
-                            int mcgseq = Convert.ToInt32(r["MCGSEQ"].ToString());
-                            string mcgcd = r["MCGCD"].ToString();
-                            int mcseq = Convert.ToInt32(r["MCSEQ"].ToString());
-                            string mccd = r["MCCD"].ToString();
-                            DataRow[] dgv = dgvDt.Select($"MCGSEQ={mcgseq} and MCGCD='{mcgcd}' and MCSEQ={mcseq} and MCCD='{mccd}'");
-                            // 削除
-                            if (dgv.Length == 0)
+                            // 全件読み込み
+                            adapter.Fill(dtUpdate);
+
+                            // DataGridView上に新規変更削除があるかチェック
+                            foreach (DataRow dgv in dgvDt.Rows)
                             {
-                                r.Delete();
-                                countDelete++;
-                            }
-                            else if (dgv.Length == 1)
-                            {
-                                // 変更
-                                if (dgv[0].RowState == DataRowState.Modified)
+                                if (dgv.RowState == DataRowState.Added)
                                 {
-                                    for (int col = 0; col < dtUpdate.Columns.Count; col++)
+                                    dgv["INSTID"] = cmn.Ui.UserId;
+                                    dgv["INSTDT"] = DateTime.Now.ToString();
+                                    dgv["UPDTID"] = cmn.Ui.UserId;
+                                    dgv["UPDTDT"] = DateTime.Now.ToString();
+                                    dtUpdate.ImportRow(dgv);
+                                    countInsert++;
+                                }
+                                else if (dgv.RowState == DataRowState.Deleted)
+                                {
+                                    int mcgseq = Convert.ToInt32(dgv["MCGSEQ", DataRowVersion.Original].ToString());
+                                    string mcgcd = dgv["MCGCD", DataRowVersion.Original].ToString();
+                                    int mcseq = Convert.ToInt32(dgv["MCSEQ", DataRowVersion.Original].ToString());
+                                    string mccd = dgv["MCCD", DataRowVersion.Original].ToString();
+                                    DataRow[] r = dtUpdate.Select($"MCGSEQ={mcgseq} and MCGCD='{mcgcd}' and MCSEQ={mcseq} and MCCD='{mccd}'");
+                                    if (r.Length == 1)
                                     {
-                                        // 変更あり
-                                        if (r[col].ToString() != dgv[0][col].ToString())
+                                        r[0].Delete();
+                                        countDelete++;
+                                    }
+                                }
+                                else if (dgv.RowState == DataRowState.Modified)
+                                {
+                                    int mcgseqOrg = Convert.ToInt32(dgv["MCGSEQ", DataRowVersion.Original].ToString());
+                                    string mcgcdOrg = dgv["MCGCD", DataRowVersion.Original].ToString();
+                                    int mcseqOrg = Convert.ToInt32(dgv["MCSEQ", DataRowVersion.Original].ToString());
+                                    string mccdOrg = dgv["MCCD", DataRowVersion.Original].ToString();
+                                    int mcgseq = Convert.ToInt32(dgv["MCGSEQ", DataRowVersion.Current].ToString());
+                                    string mcgcd = dgv["MCGCD", DataRowVersion.Current].ToString();
+                                    int mcseq = Convert.ToInt32(dgv["MCSEQ", DataRowVersion.Current].ToString());
+                                    string mccd = dgv["MCCD", DataRowVersion.Current].ToString();
+                                    DataRow[] r = dtUpdate.Select($"MCGSEQ={mcgseq} and MCGCD='{mcgcd}' and MCSEQ={mcseq} and MCCD='{mccd}'");
+                                    // 主キーに変更が無い更新の場合
+                                    if (mcgseqOrg == mcgseq && mcgcdOrg == mcgcd && 
+                                        mcseqOrg == mcseq && mccdOrg == mccd && r.Length == 1)
+                                    { 
+                                        int change = 0;
+                                        for (int col = 0; col < dtUpdate.Columns.Count; col++)
                                         {
-                                            r[col] = dgv[0][col];
+                                            // 変更あり
+                                            if (r[0][col].ToString() != dgv[col].ToString())
+                                            {
+                                                r[0][col] = dgv[col];
+                                                change++;
+                                            }
+                                        }
+                                        if (change > 0)
+                                        {
+                                            r[0]["UPDTID"] = cmn.Ui.UserId;
+                                            r[0]["UPDTDT"] = DateTime.Now.ToString();
+                                            countUpdate++;
                                         }
                                     }
-                                    r["UPDTID"] = cmn.Ui.UserId;
-                                    r["UPDTDT"] = DateTime.Now.ToString();
-                                    countUpdate++;
                                 }
+                            }
+                            // 追加更新削除があればコマンドビルダーにて一括更新
+                            if (countInsert + countUpdate + countDelete > 0)
+                            {
+                                try
+                                {
+                                    adapter.Update(dtUpdate);
+                                }
+                                catch (Exception ex)
+                                {
+                                    txn.Rollback();
+                                    throw ex;
+                                }
+                                // 結果をデバッグ上にだけ表示
+                                Debug.WriteLine("新規件数：" + String.Format("{0:#,0}", countInsert) + " 件");
+                                Debug.WriteLine("更新件数：" + String.Format("{0:#,0}", countUpdate) + " 件");
+                                Debug.WriteLine("削除件数：" + String.Format("{0:#,0}", countDelete) + " 件");
                             }
                             else
                             {
-                                throw new Exception("品番に制約違反が発生");
+                                Debug.WriteLine("更新はありませんでした．".PadLeft(18));
                             }
                         }
-                        if (countDelete + countUpdate > 0) adapter.Update(dtUpdate);
-                        ret = true;
                     }
-                }
-
-                var countInsert = 0;
-                using (var adapter = new MySqlDataAdapter())
-                {
-                    DataTable dtInsert = new DataTable();
-                    string sql = "SELECT * FROM "
-                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420;
-                    adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
-                    using (var buider = new MySqlCommandBuilder(adapter))
+                    // オプティミスティック コンカレンシー
+                    // 主キーの更新
+                    foreach (DataRow dgv in dgvDt.Rows)
                     {
-                        // 全件読み込み
-                        adapter.Fill(dtInsert);
-
-                        // 追加があるかチェック
-                        foreach (DataRow dgvDr in dgvDt.Rows)
+                        if (dgv.RowState == DataRowState.Modified)
                         {
-                            int mcgseq = Convert.ToInt32(dgvDr["MCGSEQ"].ToString());
-                            string mcgcd = dgvDr["MCGCD"].ToString();
-                            int mcseq = Convert.ToInt32(dgvDr["MCSEQ"].ToString());
-                            string mccd = dgvDr["MCCD"].ToString();
-                            DataRow[] r = dtInsert.Select($"MCGSEQ={mcgseq} and MCGCD='{mcgcd}' and MCSEQ={mcseq} and MCCD='{mccd}'");
-                            // 主キー更新 or 新規挿入
-                            if (r.Length == 0)
+                            int mcgseqOrg = Convert.ToInt32(dgv["MCGSEQ", DataRowVersion.Original].ToString());
+                            string mcgcdOrg = dgv["MCGCD", DataRowVersion.Original].ToString();
+                            int mcseqOrg = Convert.ToInt32(dgv["MCSEQ", DataRowVersion.Original].ToString());
+                            string mccdOrg = dgv["MCCD", DataRowVersion.Original].ToString();
+                            int mcgseq = Convert.ToInt32(dgv["MCGSEQ", DataRowVersion.Current].ToString());
+                            string mcgcd = dgv["MCGCD", DataRowVersion.Current].ToString();
+                            int mcseq = Convert.ToInt32(dgv["MCSEQ", DataRowVersion.Current].ToString());
+                            string mccd = dgv["MCCD", DataRowVersion.Current].ToString();
+                            // 主キーが変更された場合
+                            if (mcgseqOrg != mcgseq || mcgcdOrg != mcgcd ||
+                                mcseqOrg != mcseq || mccdOrg != mccd)
                             {
-                                dgvDr["INSTID"] = cmn.Ui.UserId;
-                                dgvDr["INSTDT"] = DateTime.Now.ToString(); // Triggerで処理されるが念のため
-                                dgvDr["UPDTID"] = cmn.Ui.UserId;
-                                dgvDr["UPDTDT"] = DateTime.Now.ToString(); // Triggerで処理されるが念のため
-                                dgvDr.AcceptChanges();      // ①DGV上の入力 + 変更日付の変更を無かったことにする Modified => Unchanged
-                                dgvDr.SetAdded();           // ②Unchanged にしてからでないと SetAdded() 出来ない Unchanged => Added
-                                dtInsert.ImportRow(dgvDr);  // ③Added でないと新規登録されない
-                                countInsert++;
+                                string tannm1 = (dgv["TANNM1"].ToString() == "") ? "null" : $"'{dgv["TANNM1"].ToString()}'";
+                                string tannm2 = (dgv["TANNM2"].ToString() == "") ? "null" : $"'{dgv["TANNM2"].ToString()}'";
+                                string thickness = (dgv["CUTTHICKNESS"].ToString() == "") ? "null" : dgv["CUTTHICKNESS"].ToString();
+                                string scrap = (dgv["SCRAPLEN"].ToString() == "") ? "null" : dgv["SCRAPLEN"].ToString();
+                                string setupnm1 = (dgv["SETUPNM1"].ToString() == "") ? "null" : $"'{dgv["SETUPNM1"].ToString()}'";
+                                string setupnm2 = (dgv["SETUPNM2"].ToString() == "") ? "null" : $"'{dgv["SETUPNM2"].ToString()}'";
+                                string setupnm3 = (dgv["SETUPNM3"].ToString() == "") ? "null" : $"'{dgv["SETUPNM3"].ToString()}'";
+                                string sql = "UPDATE km8420 set " +
+                                    $"MCGSEQ={mcgseq}" +
+                                    $",MCGCD='{mcgcd}'" +
+                                    $",MCGNM='{dgv["MCGNM"].ToString()}'" +
+                                    $",MCSEQ={mcseq}" +
+                                    $",MCCD='{mccd}'" +
+                                    $",MCNM='{dgv["MCNM"].ToString()}'" +
+                                    $",TANNM1={tannm1}" +
+                                    $",TANNM2={tannm2}" +
+                                    $",ONTIME={Convert.ToInt32(dgv["ONTIME"].ToString())}" +
+                                    $",FLG1='{dgv["FLG1"].ToString()}'" +
+                                    $",FLG2='{dgv["FLG2"].ToString()}'" +
+                                    $",CUTTHICKNESS={thickness}" + 
+                                    $",SCRAPLEN={scrap}" +
+                                    $",SETUPNM1={setupnm1}" +
+                                    $",SETUPTM1={Convert.ToInt32(dgv["SETUPTM1"].ToString())}" +
+                                    $",SETUPNM2={setupnm2}" +
+                                    $",SETUPTM2={Convert.ToInt32(dgv["SETUPTM2"].ToString())}" +
+                                    $",SETUPNM3={setupnm3}" +
+                                    $",SETUPTM3={Convert.ToInt32(dgv["SETUPTM3"].ToString())}" +
+                                    $",UPDTID='{cmn.Ui.UserId}'" +
+                                    $",UPDTDT=NOW()" + " " +
+                                    $"WHERE MCGSEQ={mcgseqOrg} and MCGCD='{mcgcdOrg}' and MCSEQ={mcseqOrg} and MCCD='{mccdOrg}'";
+                                ;
+                                MySqlCommand myCmd = new MySqlCommand(sql, mpCnn);
+                                try
+                                {
+                                    int res = myCmd.ExecuteNonQuery();
+                                    countModify++;
+                                }
+                                catch (Exception ex)
+                                {
+                                    txn.Rollback();
+                                    throw ex;
+                                }
+                                // 結果をデバッグ上にだけ表示
+                                Debug.WriteLine("主キー更新：" + String.Format("{0:#,0}", countModify) + " 件");
                             }
                         }
-                        if (countInsert > 0) adapter.Update(dtInsert);
-                        ret = true;
                     }
-                }
-                // 結果
-                if (countInsert + countUpdate + countDelete > 0)
-                {
-                    Console.WriteLine("新規件数：" + String.Format("{0:#,0}", countInsert) + " 件");
-                    Console.WriteLine("更新件数：" + String.Format("{0:#,0}", countUpdate) + " 件");
-                    Console.WriteLine("削除件数：" + String.Format("{0:#,0}", countDelete) + " 件");
-                }
-                else
-                {
-                    Console.WriteLine("更新はありませんでした．".PadLeft(18));
+                    txn.Commit();
+                    dgvDt.AcceptChanges();
+                    ret = true;
                 }
             }
             catch (Exception ex)
@@ -4139,7 +4203,7 @@ namespace MPPPS
 
 
         /// <summary>
-        /// コード票マスタ取得
+        /// KM8430: コード票マスタ取得
         /// </summary>
         /// <param name="codeSlipDt">コード票マスタ</param>
         /// <returns>注文情報データ</returns>

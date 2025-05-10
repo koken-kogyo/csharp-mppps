@@ -219,6 +219,17 @@ namespace MPPPS
     }
 
     /// <summary>
+    // データグリッドビューヘッダー クラス
+    /// </summary>
+    public class MultipleValues
+    {
+        public string JPNAME { get; set; }
+        public int Width { get; set; }
+        public DataGridViewContentAlignment StyleAlignment { get; set; }
+        public string Format { get; set; }      // 例："#,0"; "yyyy/MM/dd HH:mm:ss";
+    }
+
+    /// <summary>
     /// KS0010 ホストマスタ 主キー クラス
     /// </summary>
     public class PkKS0010
@@ -307,148 +318,6 @@ namespace MPPPS
     {
         public double CT { get; set; }           // サイクルタイム
         public string Note { get; set; }         // 備考
-    }
-
-    /// <summary>
-    /// KM8440 賃率マスター 主キー クラス
-    /// </summary>
-    public class PkKM8440
-    {
-        public string OdCd { get; set; }        // 手配先コード
-        public string KtCd { get; set; }        // 工程コード
-        public DateTime ValDtFF { get; set; }   // 適用年月日 (From)
-        public DateTime ValDtFT { get; set; }   // 適用年月日 (To)
-        public int KtSeq { get; set; }          // 工程順序
-    }
-
-    /// <summary>
-    /// KM8440 賃率マスター データレコード クラス
-    /// </summary>
-    public class DrKM8440
-    {
-        public string KtNm { get; set; }         // 工程名称
-        public string EqClass { get; set; }      // 設備分類
-        public string Model { get; set; }        // 機種
-        public string Manufacturer { get; set; } // 製造元
-        public double OpeCost { get; set; }      // 操業費
-        public double LaborCost { get; set; }    // 労務費
-        public double EqCost { get; set; }       // 設備費
-        public double LaborRate { get; set; }    // 賃率
-        public string Note { get; set; }         // 備考
-    }
-
-    /// <summary>
-    /// KM8450 製造原価マスター 主キー クラス
-    /// </summary>
-    public class PkKM8450
-    {
-        public string HmCd { get; set; }        // 品番
-        public DateTime ValDtFF { get; set; }   // 適用年月日 (From)
-        public DateTime ValDtFT { get; set; }   // 適用年月日 (To)
-        public string KtCd { get; set; }        // 工程コード
-    }
-
-    /// <summary>
-    /// KM8450 製造原価マスター データレコード クラス
-    /// </summary>
-    public class DrKM8450
-    {
-        public double PrepWt { get; set; }           // 仕込み重量
-        public double ScrapWt { get; set; }          // スクラップ重量
-        public double ScrapCost { get; set; }        // スクラップ単価
-        public double OSPtsCost { get; set; }        // 外注部品費
-        public double OSWages { get; set; }          // 外注工賃
-        public double BuySellPtsCost { get; set; }   // 支給部品費(有償)
-        public double PurPtsCost { get; set; }       // 購買部品費
-        public string Note { get; set; }             // 備考
-    }
-
-    /// <summary>
-    /// KM8460 原価管理雛形ファイル定義マスター 主キー クラス
-    /// </summary>
-    public class PkKM8460
-    {
-        public string FileID { get; set; }      // ファイル ID
-        public DateTime RevDtF { get; set; }    // 改定年月日 (From)
-        public DateTime RevDtT { get; set; }    // 改定年月日 (To)
-        public int BranchNo { get; set; }       // 枝番
-    }
-
-    /// <summary>
-    /// KM8460 原価管理雛形ファイル定義マスター データレコード クラス
-    /// </summary>
-    public class DrKM8460
-    {
-        public string ItemType { get; set; }      // 項目種別
-        public string PhysicNm { get; set; }      // 物理名
-        public string LogicNm { get; set; }       // 論理名
-        public string HlLeft { get; set; }        // 見出し左端
-        public string HlRight { get; set; }       // 見出し右端
-        public int HlTop { get; set; }            // 見出し上端
-        public int HlBottom { get; set; }         // 見出し下端
-        public string DtStrConvArg { get; set; }  // データ セル文字列変換引数
-        public string DtDispStyle { get; set; }   // データ セル表示形式
-        public int DtNumOfDec { get; set; }       // データ セル小数点以下桁数
-        public string DtExpDir { get; set; }      // データ セル展開方向
-        public string DtOccur { get; set; }       // データ セル反復数
-        public int DtExtConNum { get; set; }      // データ セル展開方向結合数
-        public string UprHlLeft { get; set; }     // 上位見出し左端
-        public int UprHlTop { get; set; }         // 上位見出し上端
-        public string Note { get; set; }          // 備考
-    }
-
-    /// <summary>
-    /// KD5000 原価計算明細ファイル 主キー クラス
-    /// </summary>
-    public class PkKD5000
-    {
-        public int DispSeq { get; set; }            // 表示順序
-    }
-
-    /// <summary>
-    /// KD5000 原価計算明細ファイル データレコード クラス
-    /// </summary>
-    public class DrKD5000
-    {
-        public int Num { get; set; }                // NO.
-        public string HmCd { get; set; }            // 品番
-        public string HmNm { get; set; }            // 品目名称
-        public int KoQty { get; set; }              // 標数
-        public string ZaiNm { get; set; }           // 材料・材質
-        public double Setulen { get; set; }         // 材料・材料寸法
-        public string MateSrc { get; set; }         // 材料・取引先
-        public string MateNote { get; set; }        // 材料・備考
-        public double PrepWt { get; set; }          // 材料・仕込み重量
-        public double Weight { get; set; }          // 材料・製品重量
-        public double ScrapWt { get; set; }         // 材料・スクラップ重量
-        public double HPrice { get; set; }          // 材料・材料単価
-        public double ScrapPrice { get; set; }      // 材料・スクラップ単価
-        public double MateCost { get; set; }        // 材料・材料費
-        public double ScrapCost { get; set; }       // 材料・スクラップ費
-        public int KtSeq { get; set; }              // 工程別原価・工順
-        public string KtNm { get; set; }            // 工程別原価・工程名
-        public string OdrNm { get; set; }           // 工程別原価・取引先/加工区
-        public DateTime RevDate { get; set; }       // 工程別原価・変更月
-        public double OSPtsCost { get; set; }       // 工程別原価・外注部品費
-        public double OSWages { get; set; }         // 工程別原価・外注工賃
-        public double BuySellPtsCost { get; set; }  // 工程別原価・支給部品費(有償)
-        public double PurPtsCost { get; set; }      // 工程別原価・購買部品費
-        public double OSPtsCostAccum { get; set; }  // 工程別原価・積算外注部品費
-        public double IhProcCost { get; set; }      // 工程別原価・社内加工・加工費
-        public double ManHour { get; set; }         // 工程別原価・社内加工・工数
-        public double LaborRate { get; set; }       // 工程別原価・社内加工・賃率
-        public double IhProcCostAccum { get; set; } // 工程別原価・積算社内加工費
-        public double EqCost { get; set; }          // 社内加工賃率算出明細・賃率・設備費
-        public double LaborCost { get; set; }       // 社内加工賃率算出明細・賃率・労務費
-        public double OpeCost { get; set; }         // 社内加工賃率算出明細・賃率・操業費
-        public double LaborCostTotal { get; set; }  // 社内加工賃率算出明細・賃率・計
-        public string Note { get; set; }            // 社内加工賃率算出明細・内容
-        public int Layer { get; set; }              // 階層 
-        public string KoHmType { get; set; }        // 子品目分類 
-        public string KtCd { get; set; }            // 工程コード 
-        public string OdCd { get; set; }            // 手配先コード 
-        public int RegSeq { get; set; }             // 登録順序 
-        public int AccumSeq { get; set; }           // 集計順序
     }
 
     /// <summary>

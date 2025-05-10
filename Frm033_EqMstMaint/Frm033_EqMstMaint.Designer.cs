@@ -33,6 +33,10 @@ namespace MPPPS
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm033_EqMstMaint));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.btnDisplayExpantion = new System.Windows.Forms.Button();
+            this.btnDisplayReduction = new System.Windows.Forms.Button();
+            this.btnColumnsAutoFit = new System.Windows.Forms.Button();
             this.cmbMCGCD = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -41,15 +45,11 @@ namespace MPPPS
             this.btnReloadDatabase = new System.Windows.Forms.Button();
             this.btnUpdateDatabase = new System.Windows.Forms.Button();
             this.Dgv_EquipMst = new System.Windows.Forms.DataGridView();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.btnColumnsAutoFit = new System.Windows.Forms.Button();
-            this.btnDisplayReduction = new System.Windows.Forms.Button();
-            this.btnDisplayExpantion = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_EquipMst)).BeginInit();
-            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -63,6 +63,49 @@ namespace MPPPS
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1000, 57);
             this.panel1.TabIndex = 0;
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.btnDisplayExpantion);
+            this.panel3.Controls.Add(this.btnDisplayReduction);
+            this.panel3.Controls.Add(this.btnColumnsAutoFit);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panel3.Location = new System.Drawing.Point(737, 0);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(263, 57);
+            this.panel3.TabIndex = 6;
+            // 
+            // btnDisplayExpantion
+            // 
+            this.btnDisplayExpantion.Location = new System.Drawing.Point(175, 9);
+            this.btnDisplayExpantion.Name = "btnDisplayExpantion";
+            this.btnDisplayExpantion.Size = new System.Drawing.Size(80, 40);
+            this.btnDisplayExpantion.TabIndex = 8;
+            this.btnDisplayExpantion.Text = "表示拡大";
+            this.btnDisplayExpantion.UseVisualStyleBackColor = true;
+            this.btnDisplayExpantion.Click += new System.EventHandler(this.btnDisplayExpantion_Click);
+            // 
+            // btnDisplayReduction
+            // 
+            this.btnDisplayReduction.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.btnDisplayReduction.Location = new System.Drawing.Point(89, 9);
+            this.btnDisplayReduction.Name = "btnDisplayReduction";
+            this.btnDisplayReduction.Size = new System.Drawing.Size(80, 40);
+            this.btnDisplayReduction.TabIndex = 7;
+            this.btnDisplayReduction.Text = "表示縮小";
+            this.btnDisplayReduction.UseVisualStyleBackColor = true;
+            this.btnDisplayReduction.Click += new System.EventHandler(this.btnDisplayReduction_Click);
+            // 
+            // btnColumnsAutoFit
+            // 
+            this.btnColumnsAutoFit.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.btnColumnsAutoFit.Location = new System.Drawing.Point(3, 9);
+            this.btnColumnsAutoFit.Name = "btnColumnsAutoFit";
+            this.btnColumnsAutoFit.Size = new System.Drawing.Size(80, 40);
+            this.btnColumnsAutoFit.TabIndex = 6;
+            this.btnColumnsAutoFit.Text = "列幅調整";
+            this.btnColumnsAutoFit.UseVisualStyleBackColor = true;
+            this.btnColumnsAutoFit.Click += new System.EventHandler(this.btnColumnsAutoFit_Click);
             // 
             // cmbMCGCD
             // 
@@ -137,7 +180,6 @@ namespace MPPPS
             // 
             // Dgv_EquipMst
             // 
-            this.Dgv_EquipMst.AllowUserToDeleteRows = false;
             this.Dgv_EquipMst.ColumnHeadersHeight = 24;
             this.Dgv_EquipMst.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.Dgv_EquipMst.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -150,49 +192,6 @@ namespace MPPPS
             this.Dgv_EquipMst.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.Dgv_EquipMst_EditingControlShowing);
             this.Dgv_EquipMst.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_EquipMst_RowPostPaint);
             this.Dgv_EquipMst.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Dgv_EquipMst_KeyDown);
-            // 
-            // panel3
-            // 
-            this.panel3.Controls.Add(this.btnDisplayExpantion);
-            this.panel3.Controls.Add(this.btnDisplayReduction);
-            this.panel3.Controls.Add(this.btnColumnsAutoFit);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel3.Location = new System.Drawing.Point(737, 0);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(263, 57);
-            this.panel3.TabIndex = 6;
-            // 
-            // btnColumnsAutoFit
-            // 
-            this.btnColumnsAutoFit.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.btnColumnsAutoFit.Location = new System.Drawing.Point(3, 9);
-            this.btnColumnsAutoFit.Name = "btnColumnsAutoFit";
-            this.btnColumnsAutoFit.Size = new System.Drawing.Size(80, 40);
-            this.btnColumnsAutoFit.TabIndex = 6;
-            this.btnColumnsAutoFit.Text = "列幅調整";
-            this.btnColumnsAutoFit.UseVisualStyleBackColor = true;
-            this.btnColumnsAutoFit.Click += new System.EventHandler(this.btnColumnsAutoFit_Click);
-            // 
-            // btnDisplayReduction
-            // 
-            this.btnDisplayReduction.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.btnDisplayReduction.Location = new System.Drawing.Point(89, 9);
-            this.btnDisplayReduction.Name = "btnDisplayReduction";
-            this.btnDisplayReduction.Size = new System.Drawing.Size(80, 40);
-            this.btnDisplayReduction.TabIndex = 7;
-            this.btnDisplayReduction.Text = "表示縮小";
-            this.btnDisplayReduction.UseVisualStyleBackColor = true;
-            this.btnDisplayReduction.Click += new System.EventHandler(this.btnDisplayReduction_Click);
-            // 
-            // btnDisplayExpantion
-            // 
-            this.btnDisplayExpantion.Location = new System.Drawing.Point(175, 9);
-            this.btnDisplayExpantion.Name = "btnDisplayExpantion";
-            this.btnDisplayExpantion.Size = new System.Drawing.Size(80, 40);
-            this.btnDisplayExpantion.TabIndex = 8;
-            this.btnDisplayExpantion.Text = "表示拡大";
-            this.btnDisplayExpantion.UseVisualStyleBackColor = true;
-            this.btnDisplayExpantion.Click += new System.EventHandler(this.btnDisplayExpantion_Click);
             // 
             // Frm033_EqMstMaint
             // 
@@ -213,11 +212,11 @@ namespace MPPPS
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm033_EqMstMaint_KeyDown);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.panel3.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_EquipMst)).EndInit();
-            this.panel3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

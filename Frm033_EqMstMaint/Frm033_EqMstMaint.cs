@@ -110,57 +110,47 @@ namespace MPPPS
             Dgv_EquipMst.ColumnHeadersHeight = 100;
 
             // 列ヘッダーの文字列を文字位置を設定
-            var offset = 0;
-            string[] s1 = {
-                "表示順",
-                "ｸﾞﾙｰﾌﾟｺｰﾄﾞ",
-                "ｸﾞﾙｰﾌﾟ名称",
-                "表示順",
-                "設備ｺｰﾄﾞ",
-                "設備名称",
-                "稼働時間",
-                "",
-                "",
-                "切断刃厚",
-                "端材長",
-                "段取り１",
-                "CT",
-                "段取り２",
-                "CT",
-                "段取り３",
-                "CT",
-                "登録ID",
-                "登録日時",
-                "更新ID",
-                "更新日時"
-            };
-            for (int i = 0; i < s1.Length; i++)
+            Dictionary<string, MultipleValues> dic = new Dictionary<string, MultipleValues>();
+            dic.Add("MCGSEQ", new MultipleValues { JPNAME = "表示順", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
+            dic.Add("MCGCD", new MultipleValues { JPNAME = "ｸﾞﾙｰﾌﾟｺｰﾄﾞ", Width = 60 });
+            dic.Add("MCGNM", new MultipleValues { JPNAME = "ｸﾞﾙｰﾌﾟ名称", Width = 100 });
+            dic.Add("MCSEQ", new MultipleValues { JPNAME = "表示順", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
+            dic.Add("MCCD", new MultipleValues { JPNAME = "設備ｺｰﾄﾞ", Width = 60});
+            dic.Add("MCNM", new MultipleValues { JPNAME = "設備名称", Width = 100 });
+            dic.Add("TANNM1", new MultipleValues { JPNAME = "主担当", Width = 100 });
+            dic.Add("TANNM2", new MultipleValues { JPNAME = "副担当", Width = 100 });
+            dic.Add("ONTIME", new MultipleValues { JPNAME = "稼働時間", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
+            dic.Add("FLG1", new MultipleValues { JPNAME = "", Width = 20 });
+            dic.Add("FLG2", new MultipleValues { JPNAME = "", Width = 20 });
+            dic.Add("CUTTHICKNESS", new MultipleValues { JPNAME = "切断刃厚", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
+            dic.Add("SCRAPLEN", new MultipleValues { JPNAME = "端材長", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
+            dic.Add("SETUPNM1", new MultipleValues { JPNAME = "段取り１", Width = 140 });
+            dic.Add("SETUPTM1", new MultipleValues { JPNAME = "CT1", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
+            dic.Add("SETUPNM2", new MultipleValues { JPNAME = "段取り２", Width = 140 });
+            dic.Add("SETUPTM2", new MultipleValues { JPNAME = "CT2", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
+            dic.Add("SETUPNM3", new MultipleValues { JPNAME = "段取り３", Width = 140 });
+            dic.Add("SETUPTM3", new MultipleValues { JPNAME = "CT3", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
+            dic.Add("INSTID", new MultipleValues { JPNAME = "登録者", Width = 60 });
+            dic.Add("INSTDT", new MultipleValues { JPNAME = "登録日時", Width = 100, Format = "yyyy/MM/dd HH:mm:ss" });
+            dic.Add("UPDTID", new MultipleValues { JPNAME = "更新者", Width = 60 });
+            dic.Add("UPDTDT", new MultipleValues { JPNAME = "更新日時", Width = 100, Format = "yyyy/MM/dd HH:mm:ss" });
+
+            for (int i = 0; i < Dgv_EquipMst.Columns.Count; i++)
             {
-                Dgv_EquipMst.Columns[i + offset].HeaderText = s1[i];
-                if (i==0 || i==3) // 主キー（変更不可
+                try
                 {
-                    Dgv_EquipMst.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
-                    Dgv_EquipMst.Columns[i].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                    //Dgv_EquipMst[i + 0, 0].ReadOnly = true;
-                    //Dgv_EquipMst[i + 1, 0].ReadOnly = true;
+                    var headerName = Dgv_EquipMst.Columns[i].HeaderText;
+                    Dgv_EquipMst.Columns[i].HeaderText = dic[headerName].JPNAME;
+                    Dgv_EquipMst.Columns[i].Width = dic[headerName].Width;
+                    Dgv_EquipMst.Columns[i].HeaderCell.Style.Alignment = dic[headerName].StyleAlignment;
+                    Dgv_EquipMst.Columns[i].DefaultCellStyle.Alignment = dic[headerName].StyleAlignment;
+                    Dgv_EquipMst.Columns[i].DefaultCellStyle.Format = dic[headerName].Format;
                 }
-                else if (i == 6 || i == 9 || i == 10 || i == 12 || i == 14 || i == 16)// 稼働時間、刃厚、端材長、各CT
+                catch
                 {
-                    Dgv_EquipMst.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
-                    Dgv_EquipMst.Columns[i].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                    if (i != 9)
-                        Dgv_EquipMst.Columns[i].DefaultCellStyle.Format = "#,0"; // 刃厚以外
+                    Dgv_EquipMst.Columns[i].HeaderText = Dgv_EquipMst.Columns[i].HeaderText;
                 }
             }
-            offset += s1.Length;
-
-            // デフォルトセルスタイル
-            Dgv_EquipMst.Columns[18].DefaultCellStyle.Format = "yyyy/MM/dd HH:mm:ss"; // 登録日時
-            Dgv_EquipMst.Columns[20].DefaultCellStyle.Format = "yyyy/MM/dd HH:mm:ss"; // 更新日時
-
-            // DataGridViewの非表示設定
-            //Dgv_EquipMst.Columns[7].Visible = false;    // FLG1
-            //Dgv_EquipMst.Columns[8].Visible = false;    // FLG2
         }
 
         // 行番号をつける
@@ -206,12 +196,14 @@ namespace MPPPS
         {
             int insertCount = 0;
             int modifyCount = 0;
+            int deleteCount = 0;
             foreach (DataRow r in equipMstDt.Rows)
             {
                 if (r.RowState == DataRowState.Added) insertCount++;
                 if (r.RowState == DataRowState.Modified) modifyCount++;
+                if (r.RowState == DataRowState.Deleted) deleteCount++;
             }
-            if (insertCount + modifyCount > 0)
+            if (insertCount + modifyCount + deleteCount > 0)
             {
                 // 一括更新
                 if (!cmn.Dba.UpdateEquipMst(ref equipMstDt)) return;
@@ -220,6 +212,7 @@ namespace MPPPS
                 {
                     toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
                     toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
+                    toolStripStatusLabel1.Text += (deleteCount > 0) ? $"{deleteCount}件 を削除 " : "";
                     toolStripStatusLabel1.Text += "しました．";
                 });
 
