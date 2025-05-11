@@ -1377,6 +1377,39 @@ namespace MPPPS
             return mccd;
         }
 
+        // 製造指示カードに記載する出荷先の工程名を加工して返却
+        private string getSTKTName(ref string store)
+        {
+            if (store == "")
+            {
+                return "";
+            }
+            else if (store.EndsWith("ﾀﾅｺﾝ") || store.EndsWith("タナコン"))
+            {
+                return "入庫";
+            }
+            else
+            {
+                return "出荷";
+            }
+        }
+        // 製造指示カードに記載する出荷先の設備名を加工して返却
+        private string getSTMCName(ref string store)
+        {
+            if (store == "")
+            {
+                return "";
+            }
+            else if (store.EndsWith("ﾀﾅｺﾝ") || store.EndsWith("タナコン"))
+            {
+                return "ﾀﾅｺﾝ";
+            }
+            else
+            {
+                return "事務所前";
+            }
+        }
+
         // 1カード作成（DataRow1件分を作成）
         public void SetOrderCard(ref DataRow r, ref int row, ref int col, int loopCnt, int loopMax)
         {
@@ -1428,7 +1461,6 @@ namespace MPPPS
             }
 
             // 値を設定
-            var boxinfo = (loopMax > 1) ? $" ( {loopCnt} / {loopMax} )" : "";
             obj[1, 2] = r["HMCD"].ToString();
             obj[4, 2] = r["HMNM"].ToString();
             obj[5, 2] = r["ODRNO"].ToString();
@@ -1437,10 +1469,19 @@ namespace MPPPS
             obj[7, 2] = r["ODRQTY"].ToString();
             obj[5, 7] = r["MATESIZE"].ToString();
             obj[6, 7] = r["LENGTH"].ToString();
-            obj[7, 7] = r["BOXQTY"].ToString() + boxinfo;
+            // 収容数関連
+            var boxcd1 = (r["BOXCD"].ToString() != "" && r["BOXQTY"].ToString() != "") ? r["BOXCD"].ToString() + "(" : "";
+            var boxcd2 = (r["BOXCD"].ToString() != "" && r["BOXQTY"].ToString() != "") ? ")" : "";
+            var boxinfo = (loopMax > 1) ? $"({loopCnt} / {loopMax})" : "";
+            obj[7, 7] = boxcd1 + r["BOXQTY"].ToString() + boxcd2 + boxinfo;
+            // タナコン関連
+            var store = (r["STORE"].ToString() == "") ? "調査開始" : r["STORE"].ToString();
+            // 各工程順を設定
             if (r["KT1MCGCD"].ToString() == "")
             {
-                obj[9, 1] = "";
+                obj[9, 1] = getSTKTName(ref store);
+                obj[9, 2] = getSTMCName(ref store);
+                store = "";
             }
             else
             {
@@ -1458,7 +1499,9 @@ namespace MPPPS
             }
             if (r["KT2MCGCD"].ToString() == "")
             {
-                obj[11, 1] = "";
+                obj[11, 1] = getSTKTName(ref store);
+                obj[11, 2] = getSTMCName(ref store);
+                store = "";
             }
             else
             {
@@ -1476,7 +1519,9 @@ namespace MPPPS
             }
             if (r["KT3MCGCD"].ToString() == "")
             {
-                obj[13, 1] = "";
+                obj[13, 1] = getSTKTName(ref store);
+                obj[13, 2] = getSTMCName(ref store);
+                store = "";
             }
             else
             {
@@ -1494,7 +1539,9 @@ namespace MPPPS
             }
             if (r["KT4MCGCD"].ToString() == "")
             {
-                obj[15, 1] = "";
+                obj[15, 1] = getSTKTName(ref store);
+                obj[15, 2] = getSTMCName(ref store);
+                store = "";
             }
             else
             {
@@ -1512,7 +1559,9 @@ namespace MPPPS
             }
             if (r["KT5MCGCD"].ToString() == "")
             {
-                obj[17, 1] = "";
+                obj[17, 1] = getSTKTName(ref store);
+                obj[17, 2] = getSTMCName(ref store);
+                store = "";
             }
             else
             {
@@ -1528,7 +1577,16 @@ namespace MPPPS
                     obj[17, 2] = RemoveDuplicates(r["KT5MCGCD"].ToString(), r["KT5MCCD"].ToString(), 1);
                 }
             }
-            if (r["KT6MCGCD"].ToString() != "")
+            var fontsize = "NORMAL";
+            if (r["KT6MCGCD"].ToString() == "")
+            {
+                if (store != "")
+                {
+                    obj[17, 1] += "\n" + getSTKTName(ref store);
+                    obj[17, 2] += "\n" + getSTMCName(ref store);
+                }
+            }
+            else
             {
                 var mccd = r["KT6MCCD"].ToString();
                 var tmp = RemoveDuplicates(r["KT6MCGCD"].ToString(), mccd, 1);
@@ -1552,6 +1610,12 @@ namespace MPPPS
                     obj[17, 1] += "\n" + "工程⑥";
                     obj[17, 2] += "\n" + tmp;
                 }
+                if (store != "")
+                {
+                    fontsize = "SMALLER";
+                    obj[17, 1] += "\n" + getSTKTName(ref store);
+                    obj[17, 2] += "\n" + getSTMCName(ref store);
+                }
             }
             var note = r["NOTE"].ToString();
             if (r["PARTNER"].ToString() != "") note += "\n" + r["PARTNER"].ToString();
@@ -1561,7 +1625,17 @@ namespace MPPPS
             oRange = oWSheet.Range[oWSheet.Cells[row, col], oWSheet.Cells[row + rowoff - 1, col + coloff - 1]];
             oRange.Value = obj;
 
-
+            // フォントサイズの変更
+            if (fontsize == "NORMAL")
+            {
+                oWSheet.Cells[row + 16, col + 0].Font.Size = 12;
+                oWSheet.Cells[row + 16, col + 1].Font.Size = 16;
+            }
+            else if (fontsize == "SMALLER")
+            {
+                oWSheet.Cells[row + 16, col + 0].Font.Size = 10;
+                oWSheet.Cells[row + 16, col + 1].Font.Size = 10;
+            }
 
             // スマート棚コン用QRコード画像ファイルの作成と保存
             string tempFile1 = @Path.GetTempPath() + Common.QR_HMCD_IMG;
