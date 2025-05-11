@@ -45,7 +45,7 @@ namespace MPPPS
             this.Btn_Close.AutoSize = true;
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_Close.Location = new System.Drawing.Point(318, 95);
+            this.Btn_Close.Location = new System.Drawing.Point(12, 221);
             this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
@@ -58,7 +58,7 @@ namespace MPPPS
             // 
             this.Btn_InformationPlan.Enabled = false;
             this.Btn_InformationPlan.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_InformationPlan.Location = new System.Drawing.Point(317, 53);
+            this.Btn_InformationPlan.Location = new System.Drawing.Point(12, 137);
             this.Btn_InformationPlan.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_InformationPlan.Name = "Btn_InformationPlan";
             this.Btn_InformationPlan.Size = new System.Drawing.Size(300, 38);
@@ -70,7 +70,7 @@ namespace MPPPS
             // Btn_ImportPlan
             // 
             this.Btn_ImportPlan.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_ImportPlan.Location = new System.Drawing.Point(317, 11);
+            this.Btn_ImportPlan.Location = new System.Drawing.Point(12, 53);
             this.Btn_ImportPlan.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_ImportPlan.Name = "Btn_ImportPlan";
             this.Btn_ImportPlan.Size = new System.Drawing.Size(300, 38);
@@ -83,19 +83,19 @@ namespace MPPPS
             // 
             this.Btn_CreateAddOrder.Enabled = false;
             this.Btn_CreateAddOrder.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_CreateAddOrder.Location = new System.Drawing.Point(12, 95);
+            this.Btn_CreateAddOrder.Location = new System.Drawing.Point(12, 179);
             this.Btn_CreateAddOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_CreateAddOrder.Name = "Btn_CreateAddOrder";
             this.Btn_CreateAddOrder.Size = new System.Drawing.Size(300, 38);
             this.Btn_CreateAddOrder.TabIndex = 10;
-            this.Btn_CreateAddOrder.Text = "追加オーダーの作成";
+            this.Btn_CreateAddOrder.Text = "追加オーダーの入力";
             this.Btn_CreateAddOrder.UseVisualStyleBackColor = true;
             this.Btn_CreateAddOrder.Click += new System.EventHandler(this.Btn_CreateAddOrder_Click);
             // 
             // Btn_InformationOrder
             // 
             this.Btn_InformationOrder.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_InformationOrder.Location = new System.Drawing.Point(12, 53);
+            this.Btn_InformationOrder.Location = new System.Drawing.Point(12, 95);
             this.Btn_InformationOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_InformationOrder.Name = "Btn_InformationOrder";
             this.Btn_InformationOrder.Size = new System.Drawing.Size(300, 38);
@@ -119,7 +119,7 @@ namespace MPPPS
             // Frm040_OrderCtrl
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(629, 145);
+            this.ClientSize = new System.Drawing.Size(322, 268);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_InformationPlan);
             this.Controls.Add(this.Btn_ImportPlan);

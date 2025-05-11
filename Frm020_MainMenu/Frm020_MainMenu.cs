@@ -8,6 +8,14 @@ namespace MPPPS
     {
         private readonly Common cmn; // 共通クラス
 
+        // サブフォーム
+        Frm030_MasterMaint frm030;
+        Frm040_OrderCtrl frm040;
+        Frm050_MfgCtrl frm050;
+        Frm070_ReceiptCtrl frm070;
+        Frm080_MatlCtrl frm080;
+        Frm090_CutStore frm090;
+
         /// <summary>
         /// デフォルト コンストラクタ
         /// </summary>
@@ -32,6 +40,14 @@ namespace MPPPS
 
             // 共通クラスを取得
             form.GetCommonClass(ref cmn);
+
+            // サブフォーム
+            frm030 = new Frm030_MasterMaint(cmn);
+            frm040 = new Frm040_OrderCtrl(cmn);
+            frm050 = new Frm050_MfgCtrl(cmn);
+            frm070 = new Frm070_ReceiptCtrl();
+            frm080 = new Frm080_MatlCtrl();
+            frm090 = new Frm090_CutStore(cmn);
 
             // 利用者表示
             this.Lbl_UserName.Text = cmn.Ui.UserName + " (" + cmn.Ui.UserId + ")";
@@ -128,7 +144,7 @@ namespace MPPPS
         /// <param name="e">イベント引数</param>
         private void Btn_CutStore_Click(object sender, EventArgs e)
         {
-            Frm090_CutStore frm090 = new Frm090_CutStore(cmn, sender);
+            Frm090_CutStore frm090 = new Frm090_CutStore(cmn);
             frm090.Top = this.Top;
             frm090.Left = this.Left;
             this.Hide();
@@ -149,6 +165,75 @@ namespace MPPPS
         private void Frm020_MainMenu_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape) Close();
+        }
+
+        private void subFormHide()
+        {
+            frm030.Hide();
+            frm040.Hide();
+            frm050.Hide();
+            frm070.Hide();
+            frm080.Hide();
+            frm090.Hide();
+        }
+
+        private void Frm020_MainMenu_MouseEnter(object sender, EventArgs e)
+        {
+            subFormHide();
+        }
+
+        private void Btn_MasterMaint_MouseEnter(object sender, EventArgs e)
+        {
+            subFormHide();
+            frm030.Top = this.Top + this.Btn_MasterMaint.Top;
+            frm030.Left = this.Left + this.Btn_MasterMaint.Width;
+            if (frm030.IsDisposed) return;
+            if (!frm030.Visible) frm030.Show();
+        }
+
+        private void Btn_OrderCtrl_MouseEnter(object sender, EventArgs e)
+        {
+            subFormHide();
+            frm040.Top = this.Top + this.Btn_OrderCtrl.Top;
+            frm040.Left = this.Left + this.Btn_OrderCtrl.Width;
+            if (frm040.IsDisposed) return;
+            if (!frm040.Visible) frm040.Show();
+        }
+
+        private void Btn_MfgCtrl_MouseEnter(object sender, EventArgs e)
+        {
+            subFormHide();
+            frm050.Top = this.Top + this.Btn_MfgCtrl.Top;
+            frm050.Left = this.Left + this.Btn_MfgCtrl.Width;
+            if (frm050.IsDisposed) return;
+            if (!frm050.Visible) frm050.Show();
+        }
+
+        private void Btn_ReceiptCtrl_MouseEnter(object sender, EventArgs e)
+        {
+            subFormHide();
+            frm070.Top = this.Top + this.Btn_ReceiptCtrl.Top;
+            frm070.Left = this.Left + this.Btn_ReceiptCtrl.Width;
+            if (frm070.IsDisposed) return;
+            if (!frm070.Visible) frm070.Show();
+        }
+
+        private void Btn_MatlCtrl_MouseEnter(object sender, EventArgs e)
+        {
+            subFormHide();
+            frm080.Top = this.Top + this.Btn_MatlCtrl.Top;
+            frm080.Left = this.Left + this.Btn_MatlCtrl.Left + this.Btn_MatlCtrl.Width * 2 / 3;
+            if (frm080.IsDisposed) return;
+            if (!frm080.Visible) frm080.Show();
+        }
+
+        private void Btn_CutStore_MouseEnter(object sender, EventArgs e)
+        {
+            subFormHide();
+            frm090.Top = this.Top + this.Btn_CutStore.Top;
+            frm090.Left = this.Left + this.Btn_CutStore.Left + this.Btn_CutStore.Width * 2 / 3;
+            if (frm090.IsDisposed) return;
+            if (!frm090.Visible) frm090.Show();
         }
     }
 }

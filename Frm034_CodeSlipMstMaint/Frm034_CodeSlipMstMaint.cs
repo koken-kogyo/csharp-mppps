@@ -702,11 +702,18 @@ namespace MPPPS
                     // 対象差集合を求める（「Aに属しBに属さないもの」と「Bに属しAに属さないもの」の両方を合わせた集合）
                     // https://qiita.com/nkojima/items/575a1e5879d62441662d
                     var set = list1.Except(list2).Union(list2.Except(list1));
-                    Debug.WriteLine("対象差：" + string.Join(",", set));
-                    Clipboard.SetText(string.Join("\n", set));
-                    toolStripStatusLabel2.Text = "対象品番をクリップしました(" +
-                        $"Excel {list2.Count.ToString("#,0")}件 - " + 
-                        $"新システム {list1.Count.ToString("#,0")}件)";
+                    if (set.Count() == 0)
+                    {
+                        toolStripStatusLabel2.Text = "Excel品番にダブりがある可能性があります確認してください．";
+                    }
+                    else
+                    {
+                        Debug.WriteLine("対象差：" + string.Join(",", set));
+                        Clipboard.SetText(string.Join("\n", set));
+                        toolStripStatusLabel2.Text = "対象品番をクリップしました(" +
+                            $"Excel {list2.Count.ToString("#,0")}件 - " +
+                            $"新システム {list1.Count.ToString("#,0")}件)";
+                    }
                 }
 
                 // 結果表示

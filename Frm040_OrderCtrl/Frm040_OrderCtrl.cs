@@ -20,8 +20,7 @@ namespace MPPPS
 
             // フォームのタイトルを設定する
             // [切削設備登録] ボタンからの起動のとき
-            Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
-                        + " <" + Common.FRM_ID_040 + ": " + Common.FRM_NAME_040 + ">";
+            Text = " <" + Common.FRM_ID_040 + ": " + Common.FRM_NAME_040 + ">";
 
             // 共通クラス
             this.cmn = cmn;
@@ -37,8 +36,7 @@ namespace MPPPS
         {
             Frm041_ImportOrder frm041 = new Frm041_ImportOrder(cmn);
             this.Hide();
-            frm041.ShowDialog();
-            this.Show();
+            frm041.Show();
         }
 
         // 手配情報表示
@@ -46,15 +44,15 @@ namespace MPPPS
         {
             Frm042_InformationOrder frm042 = new Frm042_InformationOrder(cmn);
             this.Hide();
-            frm042.ShowDialog();
-            this.Show();
+            frm042.Show();
         }
 
         // 追加オーダーの作成
         private void Btn_CreateAddOrder_Click(object sender, EventArgs e)
         {
             Frm043_CreateAddOrder frm043 = new Frm043_CreateAddOrder();
-            frm043.ShowDialog();
+            this.Hide();
+            frm043.Show();
         }
 
         // 内示情報作成
@@ -62,26 +60,25 @@ namespace MPPPS
         {
             Frm044_ImportPlan frm044 = new Frm044_ImportPlan(cmn);
             this.Hide();
-            frm044.ShowDialog();
-            this.Show();
+            frm044.Show();
         }
 
         // 内示情報表示
         private void Btn_InformationPlan_Click(object sender, EventArgs e)
         {
             Frm045_InformationPlan frm045 = new Frm045_InformationPlan();
-            frm045.ShowDialog();
+            frm045.Show();
         }
 
         // 閉じる
         private void Btn_Close_Click(object sender, EventArgs e)
         {
-            Close();
+            this.Hide();
         }
 
         private void Frm040_OrderCtrl_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape) Close();
+            if (e.KeyCode == Keys.Escape) this.Hide();
         }
 
     }

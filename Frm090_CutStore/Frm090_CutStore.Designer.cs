@@ -65,7 +65,7 @@ namespace MPPPS
             // 
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_Close.Location = new System.Drawing.Point(318, 53);
+            this.Btn_Close.Location = new System.Drawing.Point(12, 96);
             this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
@@ -77,7 +77,7 @@ namespace MPPPS
             // Frm090_CutStore
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(628, 101);
+            this.ClientSize = new System.Drawing.Size(320, 145);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_CutStoreInvInfo);
             this.Controls.Add(this.Btn_CutStoreDelv);

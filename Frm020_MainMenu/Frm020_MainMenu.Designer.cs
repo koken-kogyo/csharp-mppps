@@ -165,6 +165,7 @@ namespace MPPPS
             this.Btn_MasterMaint.Text = "マスタ メンテナンス";
             this.Btn_MasterMaint.UseVisualStyleBackColor = true;
             this.Btn_MasterMaint.Click += new System.EventHandler(this.Btn_MasterMaint_Click);
+            this.Btn_MasterMaint.MouseEnter += new System.EventHandler(this.Btn_MasterMaint_MouseEnter);
             // 
             // Btn_OrderCtrl
             // 
@@ -176,6 +177,7 @@ namespace MPPPS
             this.Btn_OrderCtrl.Text = "オーダー管理";
             this.Btn_OrderCtrl.UseVisualStyleBackColor = true;
             this.Btn_OrderCtrl.Click += new System.EventHandler(this.Btn_OrderCtrl_Click);
+            this.Btn_OrderCtrl.MouseEnter += new System.EventHandler(this.Btn_OrderCtrl_MouseEnter);
             // 
             // Btn_MfgCtrl
             // 
@@ -187,6 +189,7 @@ namespace MPPPS
             this.Btn_MfgCtrl.Text = "製造管理";
             this.Btn_MfgCtrl.UseVisualStyleBackColor = true;
             this.Btn_MfgCtrl.Click += new System.EventHandler(this.Btn_MfgCtrl_Click);
+            this.Btn_MfgCtrl.MouseEnter += new System.EventHandler(this.Btn_MfgCtrl_MouseEnter);
             // 
             // Btn_ReceiptCtrl
             // 
@@ -198,6 +201,7 @@ namespace MPPPS
             this.Btn_ReceiptCtrl.Text = "実績管理";
             this.Btn_ReceiptCtrl.UseVisualStyleBackColor = true;
             this.Btn_ReceiptCtrl.Click += new System.EventHandler(this.Btn_ReceiptCtrl_Click);
+            this.Btn_ReceiptCtrl.MouseEnter += new System.EventHandler(this.Btn_ReceiptCtrl_MouseEnter);
             // 
             // Btn_MatlCtrl
             // 
@@ -209,6 +213,7 @@ namespace MPPPS
             this.Btn_MatlCtrl.Text = "材料管理";
             this.Btn_MatlCtrl.UseVisualStyleBackColor = true;
             this.Btn_MatlCtrl.Click += new System.EventHandler(this.Btn_MatlCtrl_Click);
+            this.Btn_MatlCtrl.MouseEnter += new System.EventHandler(this.Btn_MatlCtrl_MouseEnter);
             // 
             // Btn_CutStore
             // 
@@ -220,6 +225,7 @@ namespace MPPPS
             this.Btn_CutStore.Text = "切削ストア";
             this.Btn_CutStore.UseVisualStyleBackColor = true;
             this.Btn_CutStore.Click += new System.EventHandler(this.Btn_CutStore_Click);
+            this.Btn_CutStore.MouseEnter += new System.EventHandler(this.Btn_CutStore_MouseEnter);
             // 
             // Btn_Close
             // 
@@ -259,6 +265,7 @@ namespace MPPPS
             // 
             // statusStrip1
             // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
@@ -277,14 +284,14 @@ namespace MPPPS
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(464, 17);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(495, 17);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // Frm020_MainMenu
             // 
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.ClientSize = new System.Drawing.Size(628, 246);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.Lbl_UserName);
@@ -304,6 +311,7 @@ namespace MPPPS
             this.Name = "Frm020_MainMenu";
             this.Text = "[KMD001SF] 切削生産計画システム - メイン メニュー - Ver.250502.01a";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm020_MainMenu_KeyDown);
+            this.MouseEnter += new System.EventHandler(this.Frm020_MainMenu_MouseEnter);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);

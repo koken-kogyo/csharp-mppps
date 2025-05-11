@@ -66,7 +66,7 @@ namespace MPPPS
             // 
             this.Btn_EntryShipResults.Enabled = false;
             this.Btn_EntryShipResults.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.Btn_EntryShipResults.Location = new System.Drawing.Point(316, 12);
+            this.Btn_EntryShipResults.Location = new System.Drawing.Point(12, 101);
             this.Btn_EntryShipResults.Name = "Btn_EntryShipResults";
             this.Btn_EntryShipResults.Size = new System.Drawing.Size(300, 38);
             this.Btn_EntryShipResults.TabIndex = 2;
@@ -77,7 +77,7 @@ namespace MPPPS
             // Btn_Close
             // 
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
-            this.Btn_Close.Location = new System.Drawing.Point(316, 57);
+            this.Btn_Close.Location = new System.Drawing.Point(12, 145);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
             this.Btn_Close.TabIndex = 3;
@@ -88,7 +88,7 @@ namespace MPPPS
             // Frm070_ReceiptCtrl
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(628, 101);
+            this.ClientSize = new System.Drawing.Size(319, 193);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_EntryShipResults);
             this.Controls.Add(this.Btn_ReceiptInfo);

@@ -43,7 +43,7 @@ namespace MPPPS
             this.Btn_Close.AutoSize = true;
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.Btn_Close.Location = new System.Drawing.Point(318, 53);
+            this.Btn_Close.Location = new System.Drawing.Point(12, 137);
             this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
@@ -56,7 +56,7 @@ namespace MPPPS
             // 
             this.Btn_ChipMstMaint.Enabled = false;
             this.Btn_ChipMstMaint.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.Btn_ChipMstMaint.Location = new System.Drawing.Point(12, 53);
+            this.Btn_ChipMstMaint.Location = new System.Drawing.Point(12, 95);
             this.Btn_ChipMstMaint.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_ChipMstMaint.Name = "Btn_ChipMstMaint";
             this.Btn_ChipMstMaint.Size = new System.Drawing.Size(300, 38);
@@ -80,7 +80,7 @@ namespace MPPPS
             // Btn_CodeSlipMstMaint
             // 
             this.Btn_CodeSlipMstMaint.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.Btn_CodeSlipMstMaint.Location = new System.Drawing.Point(318, 11);
+            this.Btn_CodeSlipMstMaint.Location = new System.Drawing.Point(12, 53);
             this.Btn_CodeSlipMstMaint.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_CodeSlipMstMaint.Name = "Btn_CodeSlipMstMaint";
             this.Btn_CodeSlipMstMaint.Size = new System.Drawing.Size(300, 38);
@@ -92,7 +92,7 @@ namespace MPPPS
             // Frm030_MasterMaint
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(628, 100);
+            this.ClientSize = new System.Drawing.Size(323, 187);
             this.Controls.Add(this.Btn_CodeSlipMstMaint);
             this.Controls.Add(this.Btn_ChipMstMaint);
             this.Controls.Add(this.Btn_EqMstMaint);

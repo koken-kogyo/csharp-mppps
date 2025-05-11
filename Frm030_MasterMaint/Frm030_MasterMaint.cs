@@ -21,8 +21,7 @@ namespace MPPPS
 
             // フォームのタイトルを設定する
             // [切削設備登録] ボタンからの起動のとき
-            Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
-                        + " <" + Common.FRM_ID_030 + ": " + Common.FRM_NAME_030 + ">";
+            Text = " <" + Common.FRM_ID_030 + ": " + Common.FRM_NAME_030 + ">";
 
             // 共通クラス
             this.cmn = cmn;
@@ -43,14 +42,16 @@ namespace MPPPS
         private void Btn_CutProcUserMstMaint_Click(object sender, EventArgs e)
         {
             Frm031_CutProcUserMstMaint frm031 = new Frm031_CutProcUserMstMaint();
-            frm031.ShowDialog();
+            this.Hide();
+            frm031.Show();
         }
 
         // KM8410 : 刃具マスタメンテ
         private void Btn_ChipMstMaint_Click(object sender, EventArgs e)
         {
             Frm032_ChipMstMaint frm032 = new Frm032_ChipMstMaint();
-            frm032.ShowDialog();
+            this.Hide();
+            frm032.Show();
         }
 
         // KM8420 : 設備マスタメンテ
@@ -58,8 +59,7 @@ namespace MPPPS
         {
             Frm033_EqMstMaint frm033 = new Frm033_EqMstMaint(cmn);
             this.Hide();
-            frm033.ShowDialog();
-            this.Show();
+            frm033.Show();
         }
 
         // KM8430 : コード票マスタメンテ
@@ -67,19 +67,18 @@ namespace MPPPS
         {
             Frm034_CodeSlipMstMaint frm034 = new Frm034_CodeSlipMstMaint(cmn);
             this.Hide();
-            frm034.ShowDialog();
-            this.Show();
+            frm034.Show();
         }
 
         // 閉じる
         private void Btn_Close_Click(object sender, EventArgs e)
         {
-            Close();
+            this.Hide();
         }
 
         private void Frm030_MasterMaint_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape) Close();
+            if (e.KeyCode == Keys.Escape) this.Hide();
         }
 
     }
