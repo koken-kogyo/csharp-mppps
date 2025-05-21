@@ -694,14 +694,6 @@ namespace MPPPS
                         where c.Style.BackColor == Common.FRM40_BG_COLOR_IMPORTED
                         orderby c.RowIndex, c.ColumnIndex
                         select c;
-            // 選択セルが単行であるかチェック
-            var query2 = from DataGridViewCell c in Dgv_Calendar.SelectedCells select c.RowIndex;
-            if (query2.ToArray().Distinct().Count() != 1)
-            {
-                Debug.WriteLine(Common.MSG_NO_PATTERN_FILE);
-                cmn.ShowMessageBox(Common.MY_PGM_ID, Common.MSG_CD_106, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSG_NO_PATTERN_FILE, MessageBoxIcon.Error);
-                return;
-            }
             // モニターの倍率をチェックし雛形ファイルのインデックス番号を取得
             int idx = (cmn.ScreenMagnification == 1d) ? 1 : (cmn.ScreenMagnification == 1.25d) ? 2 : 9;
             if (idx == 9)
@@ -720,9 +712,13 @@ namespace MPPPS
             }
 
             // 選択セル範囲の開始日と終了日を設定
-            var query3 = from DataGridViewCell c in Dgv_Calendar.SelectedCells select c.ColumnIndex;
-            var dayFrom = GetCurrentDateTime(Dgv_Calendar[query3.Min(), Dgv_Calendar.SelectedCells[0].RowIndex]);
-            var dayTo = GetCurrentDateTime(Dgv_Calendar[query3.Max(), Dgv_Calendar.SelectedCells[0].RowIndex]);
+            var sortedCells = from DataGridViewCell c in Dgv_Calendar.SelectedCells
+                              orderby c.RowIndex, c.ColumnIndex
+                              select c;
+            var firstCell = sortedCells.ToArray().First();
+            var lastCell = sortedCells.ToArray().Last();
+            var dayFrom = GetCurrentDateTime(firstCell);
+            var dayTo = GetCurrentDateTime(lastCell);
 
             // 印刷前の最終確認
             var msg = (dayFrom == dayTo) ? dayFrom.ToString("M") : dayFrom.ToString("M") + "～" + dayTo.ToString("M");

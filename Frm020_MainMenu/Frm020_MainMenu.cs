@@ -8,6 +8,16 @@ namespace MPPPS
     {
         private readonly Common cmn; // 共通クラス
 
+        // ポップアップ関連
+        int waitTime = 800;
+        bool popupFlg30;
+        bool popupFlg40;
+        bool popupFlg50;
+        bool popupFlg70;
+        bool popupFlg80;
+        bool popupFlg90;
+        bool popupCancel;
+
         // サブフォーム
         Frm030_MasterMaint frm030;
         Frm040_OrderCtrl frm040;
@@ -30,6 +40,9 @@ namespace MPPPS
         public Frm020_MainMenu(Interface form)
         {
             InitializeComponent();
+
+            // ログインメニューだけはTopMost、それ以外は通常に戻す
+            this.TopMost = false;
 
             // フォームのアイコンを設定する
             this.Icon = new System.Drawing.Icon(Common.ICON_FILE);
@@ -70,11 +83,11 @@ namespace MPPPS
         private void Btn_MasterMaint_Click(object sender, EventArgs e)
         {
             Frm030_MasterMaint frm030 = new Frm030_MasterMaint(cmn);
-            frm030.Top = this.Top;
-            frm030.Left = this.Left;
-            this.Hide();
-            frm030.ShowDialog();
-            this.Show();
+            frm030.Top = this.Top + this.Btn_MasterMaint.Top;
+            frm030.Left = this.Left + this.Btn_MasterMaint.Width;
+            subFormHide();
+            popupCancel = true;
+            frm030.Show();
         }
 
         /// <summary>
@@ -85,11 +98,11 @@ namespace MPPPS
         private void Btn_OrderCtrl_Click(object sender, EventArgs e)
         {
             Frm040_OrderCtrl frm040 = new Frm040_OrderCtrl(cmn);
-            frm040.Top = this.Top;
-            frm040.Left = this.Left;
-            this.Hide();
-            frm040.ShowDialog();
-            this.Show();
+            frm040.Top = this.Top + this.Btn_OrderCtrl.Top;
+            frm040.Left = this.Left + this.Btn_OrderCtrl.Width;
+            subFormHide();
+            popupCancel = true;
+            frm040.Show();
         }
 
         /// <summary>
@@ -100,11 +113,11 @@ namespace MPPPS
         private void Btn_MfgCtrl_Click(object sender, EventArgs e)
         {
             Frm050_MfgCtrl frm050 = new Frm050_MfgCtrl(cmn);
-            frm050.Top = this.Top;
-            frm050.Left = this.Left;
-            this.Hide();
-            frm050.ShowDialog();
-            this.Show();
+            frm050.Top = this.Top + this.Btn_MfgCtrl.Top;
+            frm050.Left = this.Left + this.Btn_MfgCtrl.Width;
+            subFormHide();
+            popupCancel = true;
+            frm050.Show();
         }
 
         /// <summary>
@@ -115,11 +128,11 @@ namespace MPPPS
         private void Btn_ReceiptCtrl_Click(object sender, EventArgs e)
         {
             Frm070_ReceiptCtrl frm070 = new Frm070_ReceiptCtrl();
-            frm070.Top = this.Top;
-            frm070.Left = this.Left;
-            this.Hide();
-            frm070.ShowDialog();
-            this.Show();
+            frm070.Top = this.Top + this.Btn_ReceiptCtrl.Top;
+            frm070.Left = this.Left + this.Btn_ReceiptCtrl.Width;
+            subFormHide();
+            popupCancel = true;
+            frm070.Show();
         }
 
         /// <summary>
@@ -130,11 +143,11 @@ namespace MPPPS
         private void Btn_MatlCtrl_Click(object sender, EventArgs e)
         {
             Frm080_MatlCtrl frm080 = new Frm080_MatlCtrl();
-            frm080.Top = this.Top;
-            frm080.Left = this.Left;
-            this.Hide();
-            frm080.ShowDialog();
-            this.Show();
+            frm080.Top = this.Top + this.Btn_MatlCtrl.Top;
+            frm080.Left = this.Left + this.Btn_MatlCtrl.Left + this.Btn_MatlCtrl.Width * 2 / 3;
+            subFormHide();
+            popupCancel = true;
+            frm080.Show();
         }
 
         /// <summary>
@@ -145,11 +158,11 @@ namespace MPPPS
         private void Btn_CutStore_Click(object sender, EventArgs e)
         {
             Frm090_CutStore frm090 = new Frm090_CutStore(cmn);
-            frm090.Top = this.Top;
-            frm090.Left = this.Left;
-            this.Hide();
-            frm090.ShowDialog();
-            this.Show();
+            frm090.Top = this.Top + this.Btn_CutStore.Top;
+            frm090.Left = this.Left + this.Btn_CutStore.Left + this.Btn_CutStore.Width * 2 / 3;
+            subFormHide();
+            popupCancel = true;
+            frm090.Show();
         }
 
         /// <summary>
@@ -175,6 +188,12 @@ namespace MPPPS
             frm070.Hide();
             frm080.Hide();
             frm090.Hide();
+            popupFlg30 = false;
+            popupFlg40 = false;
+            popupFlg50 = false;
+            popupFlg70 = false;
+            popupFlg80 = false;
+            popupFlg90 = false;
         }
 
         private void Frm020_MainMenu_MouseEnter(object sender, EventArgs e)
@@ -182,8 +201,12 @@ namespace MPPPS
             subFormHide();
         }
 
-        private void Btn_MasterMaint_MouseEnter(object sender, EventArgs e)
+        private async void Btn_MasterMaint_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
+            popupFlg30 = true;
+            await Task.Delay(waitTime);
+            if (!popupFlg30) return;
             subFormHide();
             frm030.Top = this.Top + this.Btn_MasterMaint.Top;
             frm030.Left = this.Left + this.Btn_MasterMaint.Width;
@@ -191,8 +214,12 @@ namespace MPPPS
             if (!frm030.Visible) frm030.Show();
         }
 
-        private void Btn_OrderCtrl_MouseEnter(object sender, EventArgs e)
+        private async void Btn_OrderCtrl_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
+            popupFlg40 = true;
+            await Task.Delay(waitTime);
+            if (!popupFlg40) return;
             subFormHide();
             frm040.Top = this.Top + this.Btn_OrderCtrl.Top;
             frm040.Left = this.Left + this.Btn_OrderCtrl.Width;
@@ -200,8 +227,12 @@ namespace MPPPS
             if (!frm040.Visible) frm040.Show();
         }
 
-        private void Btn_MfgCtrl_MouseEnter(object sender, EventArgs e)
+        private async void Btn_MfgCtrl_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
+            popupFlg50 = true;
+            await Task.Delay(waitTime);
+            if (!popupFlg50) return;
             subFormHide();
             frm050.Top = this.Top + this.Btn_MfgCtrl.Top;
             frm050.Left = this.Left + this.Btn_MfgCtrl.Width;
@@ -209,8 +240,12 @@ namespace MPPPS
             if (!frm050.Visible) frm050.Show();
         }
 
-        private void Btn_ReceiptCtrl_MouseEnter(object sender, EventArgs e)
+        private async void Btn_ReceiptCtrl_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
+            popupFlg70 = true;
+            await Task.Delay(waitTime);
+            if (!popupFlg70) return;
             subFormHide();
             frm070.Top = this.Top + this.Btn_ReceiptCtrl.Top;
             frm070.Left = this.Left + this.Btn_ReceiptCtrl.Width;
@@ -218,8 +253,12 @@ namespace MPPPS
             if (!frm070.Visible) frm070.Show();
         }
 
-        private void Btn_MatlCtrl_MouseEnter(object sender, EventArgs e)
+        private async void Btn_MatlCtrl_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
+            popupFlg80 = true;
+            await Task.Delay(waitTime);
+            if (!popupFlg80) return;
             subFormHide();
             frm080.Top = this.Top + this.Btn_MatlCtrl.Top;
             frm080.Left = this.Left + this.Btn_MatlCtrl.Left + this.Btn_MatlCtrl.Width * 2 / 3;
@@ -227,13 +266,22 @@ namespace MPPPS
             if (!frm080.Visible) frm080.Show();
         }
 
-        private void Btn_CutStore_MouseEnter(object sender, EventArgs e)
+        private async void Btn_CutStore_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
+            popupFlg90 = true;
+            await Task.Delay(waitTime);
+            if (!popupFlg90) return;
             subFormHide();
             frm090.Top = this.Top + this.Btn_CutStore.Top;
             frm090.Left = this.Left + this.Btn_CutStore.Left + this.Btn_CutStore.Width * 2 / 3;
             if (frm090.IsDisposed) return;
             if (!frm090.Visible) frm090.Show();
+        }
+
+        private void Frm020_MainMenu_Activated(object sender, EventArgs e)
+        {
+            popupCancel = false;
         }
     }
 }
