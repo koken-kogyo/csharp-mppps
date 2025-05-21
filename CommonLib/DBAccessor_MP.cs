@@ -2159,7 +2159,7 @@ namespace MPPPS
                     + ", concat('',sum(case when ODRSTS = '4' then ODRQTY else 0 end)) \"MP4完了本数\" "
                     + ", concat('',sum(case when ODRSTS = '9' then ODRQTY else 0 end)) \"MP9取消本数\" "
                     + ", concat('',sum(case when ODRSTS in ('2','3','4','9') then ODRQTY else 0 end)) \"MP取込本数\" "
-                    + ", concat('',sum(case when MPCARDDT is not NULL then 1 else 0 end)) \"MP印刷件数\" "
+                    + ", concat('',sum(case when MPCARDDT is not NULL and ODRSTS != '9' then 1 else 0 end)) \"MP印刷件数\" "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                     + "WHERE "
