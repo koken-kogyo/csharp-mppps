@@ -121,6 +121,17 @@ namespace MPPPS
 
             // 前回の認証情報を初期表示
             LoadAuthInfo();
+
+            // ログイン画面をアクティブ化
+            this.Activate();
+
+            // BeginInvokeで初期フォーカス当てを遅延実行
+            this.BeginInvoke(new Action(() =>
+            {
+                if (!Chk_MemUserId.Checked) Tbx_UserId.Focus();
+                if (Chk_MemUserId.Checked) Tbx_Passwd.Focus();
+            }));
+
         }
 
         /// <summary>
@@ -488,16 +499,5 @@ namespace MPPPS
             if (e.KeyCode == Keys.Enter) Btn_OK.Focus();
         }
 
-        private void Frm010_Login_Activated(object sender, EventArgs e)
-        {
-            if (Chk_MemUserId.Checked)
-            {
-                Tbx_Passwd.Focus();
-            }
-            else
-            {
-                Tbx_UserId.Focus();
-            }
-        }
     }
 }

@@ -205,7 +205,6 @@ namespace MPPPS
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Frm010_Login";
             this.Text = "[KMD001SF] 切削生産計画システム - Ver.yyMMdd.99 <#01: ログイン>";
-            this.Activated += new System.EventHandler(this.Frm010_Login_Activated);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Frm010_Login_FormClosing);
             this.Load += new System.EventHandler(this.Frm010_Login_Load);
             ((System.ComponentModel.ISupportInitialize)(this.Pbx_CostMgt)).EndInit();

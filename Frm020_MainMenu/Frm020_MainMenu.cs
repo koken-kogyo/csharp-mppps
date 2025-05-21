@@ -177,7 +177,10 @@ namespace MPPPS
 
         private void Frm020_MainMenu_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape) Close();
+            if (e.KeyCode == Keys.Escape)
+            {
+                if (MessageBox.Show("終了しますか？", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) Close();
+            }
         }
 
         private void subFormHide()
