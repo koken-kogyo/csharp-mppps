@@ -260,7 +260,7 @@ namespace MPPPS
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED ;
                     Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
-                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP印刷件数>0 and MP印刷件数<>(MP取込件数-MP9取消件数)").Count() != 0)
+                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP印刷件数>0 and MP印刷件数<(MP取込件数-MP9取消件数)").Count() != 0)
                 {
                     // 未印刷データあり
                     var mpCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP取込件数"].ToString());
@@ -288,7 +288,7 @@ namespace MPPPS
                     Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     Dgv_Calendar[column, row].Value = day + $"\nEM取消が\n{emCancel - mpCancel}件あります";
                 }
-                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP取込件数-MP9取消件数=MP印刷件数").Count() != 0)
+                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP取込件数-MP9取消件数<=MP印刷件数").Count() != 0)
                 {
                     // 製造指示カード印刷済み
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
@@ -360,7 +360,7 @@ namespace MPPPS
                     Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     Dgv_Calendar[column, row].Value = dayOfNextMonth + $"\nEM取消が\n{emCancel - mpCancel}件あります";
                 }
-                else if (orderDt.Select($"EDDT='{nextDate}' and MP取込件数>0 and MP取込件数-MP9取消件数=MP印刷件数").Count() != 0)
+                else if (orderDt.Select($"EDDT='{nextDate}' and MP取込件数>0 and MP取込件数-MP9取消件数<=MP印刷件数").Count() != 0)
                 {
                     // 製造指示カード印刷済み
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
@@ -571,7 +571,7 @@ namespace MPPPS
 
                 }
                 // 注文データ印刷ボタン活性化
-                if (mpOrder > 0 && (mpOrder - mpCancel) != printCnt)
+                if (mpOrder > 0 && (mpOrder - mpCancel) > printCnt)
                 {
                     Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                     Btn_PrintOrder.Enabled = true;
