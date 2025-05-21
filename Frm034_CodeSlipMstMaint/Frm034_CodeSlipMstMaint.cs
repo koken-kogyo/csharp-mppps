@@ -401,7 +401,7 @@ namespace MPPPS
         }
 
         // データベース反映
-        private async void btnUpdateDatabase_Click(object sender, EventArgs e)
+        private void btnUpdateDatabase_Click(object sender, EventArgs e)
         {
             int insertCount = 0;
             int modifyCount = 0;
@@ -415,12 +415,10 @@ namespace MPPPS
             {
                 if(!cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt)) return;
                 codeSlipDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
-                await Task.Run(() =>
-                {
-                    toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
-                    toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
-                    toolStripStatusLabel1.Text += "しました．";
-                });
+                toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
+                toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
+                toolStripStatusLabel1.Text += "しました．";
+                statusStrip1.Refresh();
 
                 // 新しいスレッドを作成
                 Thread thread = new Thread(ShowMessageBox);
@@ -522,7 +520,7 @@ namespace MPPPS
         }
 
         // 新たに工程設計した工程１～６までの工程数と検索キーを自動作成してデータベース反映
-        private async void btnUpdateDatabase2_Click(object sender, EventArgs e)
+        private void btnUpdateDatabase2_Click(object sender, EventArgs e)
         {
             // 表示されている件数が100件を超える場合は必ず選択させる
             if (Dgv_CodeSlipMst.SelectedRows.Count == 0 && Dgv_CodeSlipMst.RowCount > 100)
@@ -566,10 +564,8 @@ namespace MPPPS
             {
                 cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
                 codeSlipDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
-                await Task.Run(() =>
-                {
-                    toolStripStatusLabel1.Text = $"{modifyCount}件 を更新しました．";
-                });
+                toolStripStatusLabel1.Text = $"{modifyCount}件 を更新しました．";
+                statusStrip1.Refresh();
 
                 // 新しいスレッドを作成
                 Thread thread = new Thread(ShowMessageBox);

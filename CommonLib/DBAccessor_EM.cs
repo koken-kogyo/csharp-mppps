@@ -1184,7 +1184,7 @@ namespace MPPPS
                     + $"ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
                     + "and ODCD like '6060%' "
                     + $"and EDDT between trunc(to_date('{yyyyMMdd}','YYYY/MM/DD'), 'MONTH') - 7 "
-                    + $"and last_day(to_date('{yyyyMMdd}','YYYY/MM/DD')) + 7 "
+                    + $"and last_day(to_date('{yyyyMMdd}','YYYY/MM/DD')) + 14 "
                     + "GROUP BY EDDT "
                     + "ORDER BY EDDT "
                 ;

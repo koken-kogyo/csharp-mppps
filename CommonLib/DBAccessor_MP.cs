@@ -2166,7 +2166,7 @@ namespace MPPPS
                     + "ODCD like '6060%' "
                     + "and EDDT between "
                     + $"adddate(date_format(str_to_date('{yyyyMMdd}', '%Y/%m/%d'), '%Y-%m-01'), interval -7 day) "
-                    + $"and adddate(last_day(str_to_date('{yyyyMMdd}', '%Y/%m/%d')), interval 7 day) "
+                    + $"and adddate(last_day(str_to_date('{yyyyMMdd}', '%Y/%m/%d')), interval 14 day) "
                     + "GROUP BY EDDT "
                     + "ORDER BY EDDT "
                 ;

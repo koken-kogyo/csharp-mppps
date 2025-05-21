@@ -192,7 +192,7 @@ namespace MPPPS
         }
 
         // データベース反映ボタン
-        private async void btnUpdateDatabase_Click(object sender, EventArgs e)
+        private void btnUpdateDatabase_Click(object sender, EventArgs e)
         {
             int insertCount = 0;
             int modifyCount = 0;
@@ -208,13 +208,11 @@ namespace MPPPS
                 // 一括更新
                 if (!cmn.Dba.UpdateEquipMst(ref equipMstDt)) return;
                 equipMstDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
-                await Task.Run(() =>
-                {
-                    toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
-                    toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
-                    toolStripStatusLabel1.Text += (deleteCount > 0) ? $"{deleteCount}件 を削除 " : "";
-                    toolStripStatusLabel1.Text += "しました．";
-                });
+                toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
+                toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
+                toolStripStatusLabel1.Text += (deleteCount > 0) ? $"{deleteCount}件 を削除 " : "";
+                toolStripStatusLabel1.Text += "しました．";
+                toolStrip1.Refresh();
 
                 // 新しいスレッドを作成
                 Thread thread = new Thread(ShowMessageBox);
