@@ -148,6 +148,7 @@ namespace MPPPS
             this.Tbx_UserId.Name = "Tbx_UserId";
             this.Tbx_UserId.Size = new System.Drawing.Size(134, 29);
             this.Tbx_UserId.TabIndex = 0;
+            this.Tbx_UserId.Enter += new System.EventHandler(this.Tbx_UserId_Enter);
             this.Tbx_UserId.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tbx_UserId_KeyDown);
             // 
             // Tbx_Passwd
@@ -160,6 +161,7 @@ namespace MPPPS
             this.Tbx_Passwd.Size = new System.Drawing.Size(134, 29);
             this.Tbx_Passwd.TabIndex = 2;
             this.Tbx_Passwd.UseSystemPasswordChar = true;
+            this.Tbx_Passwd.Enter += new System.EventHandler(this.Tbx_Passwd_Enter);
             this.Tbx_Passwd.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tbx_Passwd_KeyDown);
             // 
             // Btn_OK

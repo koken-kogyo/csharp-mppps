@@ -10,15 +10,12 @@ using System.Windows.Forms;
 
 namespace MPPPS
 {
-    public partial class Frm052_FormsPrinting : Form
+    public partial class Frm052_PrintSettings : Form
     {
         // 共通クラス
         private readonly Common cmn;
-        private DataTable km8420 = new DataTable();     // 設備マスタ
-        private DataTable km8430 = new DataTable();     // コード票マスタ
-        private DataTable kd8430 = new DataTable();     // 手配ファイル
 
-        public Frm052_FormsPrinting(Common cmn)
+        public Frm052_PrintSettings(Common cmn)
         {
             InitializeComponent();
 
@@ -28,12 +25,14 @@ namespace MPPPS
             // フォームのタイトルを設定する
             Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
                       + " <" + Common.FRM_ID_042 + ": " + Common.FRM_NAME_041 + ">";
-
             // 共通クラス
             this.cmn = cmn;
+
+            // 初期設定
+            SetInitialValues();
         }
 
-        private async void btn_All_Print_Click(object sender, EventArgs e)
+        private async void SetInitialValues()
         {
             // 手配情報:kd8430、内示情報:kd8440、在庫情報:kd8460を読込
             DataTable exportDt = new DataTable();
@@ -123,27 +122,32 @@ namespace MPPPS
             foreach (DataRow r in exportDt.Rows)
             {
                 string input = r["工程"].ToString();
-                string pattern = @"-.*?:";
-                string result = Regex.Replace(input, pattern, "-"); // MCCDをカット
-                result = result.Replace("EX-", "");                 // EX工程をカット
-                result = result.Substring(0, result.Length - 1);    // 最後のハイフンをカット
-                r["工程"] = result;
-                if (maektDt.Select($"HMCD='{r["品番"]}'").Length > 0)
+                if (input != "")
                 {
-                    r["前工程①"] = maektDt.Select($"HMCD='{r["品番"]}'")[0]["前工程①"];
-                    r["前工程②"] = maektDt.Select($"HMCD='{r["品番"]}'")[0]["前工程②"];
-                }
-                else
-                {
-                    r["前工程①"] = "";
-                    r["前工程②"] = "";
+                    string pattern = @"-.*?:";
+                    string result = Regex.Replace(input, pattern, "-"); // MCCDをカット
+                    result = result.Replace("EX-", "");                 // EX工程をカット
+                    result = result.Substring(0, result.Length - 1);    // 最後のハイフンをカット
+                    r["工程"] = result;
+                    if (maektDt.Select($"HMCD='{r["品番"]}'").Length > 0)
+                    {
+                        r["前工程①"] = maektDt.Select($"HMCD='{r["品番"]}'")[0]["前工程①"];
+                        r["前工程②"] = maektDt.Select($"HMCD='{r["品番"]}'")[0]["前工程②"];
+                    }
+                    else
+                    {
+                        r["前工程①"] = "";
+                        r["前工程②"] = "";
+                    }
                 }
             }
         }
+
 
         private void Frm052_FormsPrinting_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape) Close();
         }
+
     }
 }

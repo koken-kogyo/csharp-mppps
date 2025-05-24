@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace MPPPS
@@ -38,7 +39,7 @@ namespace MPPPS
             this.Activate();
         }
 
-        // KM8400 : 利用者マスタメンテ
+        // KM8400 : 利用者マスタメンテ起動
         private void Btn_CutProcUserMstMaint_Click(object sender, EventArgs e)
         {
             Frm031_CutProcUserMstMaint frm031 = new Frm031_CutProcUserMstMaint();
@@ -46,7 +47,7 @@ namespace MPPPS
             frm031.Show();
         }
 
-        // KM8410 : 刃具マスタメンテ
+        // KM8410 : 刃具マスタメンテ起動
         private void Btn_ChipMstMaint_Click(object sender, EventArgs e)
         {
             Frm032_ChipMstMaint frm032 = new Frm032_ChipMstMaint();
@@ -54,7 +55,7 @@ namespace MPPPS
             frm032.Show();
         }
 
-        // KM8420 : 設備マスタメンテ
+        // KM8420 : 設備マスタメンテ起動
         private void Btn_EqMstMaint_Click(object sender, EventArgs e)
         {
             Frm033_EqMstMaint frm033 = new Frm033_EqMstMaint(cmn);
@@ -62,7 +63,7 @@ namespace MPPPS
             frm033.Show();
         }
 
-        // KM8430 : コード票マスタメンテ
+        // KM8430 : コード票マスタメンテ起動
         private void Btn_CodeSlipMstMaint_Click(object sender, EventArgs e)
         {
             Frm034_CodeSlipMstMaint frm034 = new Frm034_CodeSlipMstMaint(cmn);
@@ -75,10 +76,25 @@ namespace MPPPS
         {
             this.Hide();
         }
-
         private void Frm030_MasterMaint_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape) this.Hide();
+        }
+        private void Frm030_MasterMaint_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            this.Hide();
+        }
+
+        // フォームアクティブ時にマウスポインタの位置をトップボタンの中央にする
+        private void Frm030_MasterMaint_Activated(object sender, EventArgs e)
+        {
+            // フォーム上のクライアント座標を、画面座標に変換する
+            Point sp = this.PointToScreen(new Point(Btn_EqMstMaint.Left, Btn_EqMstMaint.Top));
+
+            // マウスポインタの位置をトップボタンに設定
+            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(sp.X + 10, 
+                sp.Y + (Btn_EqMstMaint.Height / 2));
         }
 
     }

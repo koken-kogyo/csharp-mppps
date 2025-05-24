@@ -235,7 +235,7 @@ namespace MPPPS
 
             // 認証処理
             // 未入力チェック
-            if ((Tbx_UserId.Text.Length == 0) || (Tbx_Passwd.Text.Length == 0))
+            if (Tbx_UserId.Text.Length == 0)
             {
                 // 復改文字を文字列 (\\n) から制御コード (\n) に変換
                 string msgBody = cmn.CorrectLineFeed(Common.MSG_BODY_EM_DB_CONN_ERR);
@@ -243,6 +243,18 @@ namespace MPPPS
                 // 未入力
                 Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
                 cmn.ShowMessageBox(Common.KCM_PGM_ID,Common.MSG_CD_100, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error); // 設定ファイルなし
+                Tbx_UserId.Focus();
+                return;
+            }
+            if (Tbx_Passwd.Text.Length == 0)
+            {
+                // 復改文字を文字列 (\\n) から制御コード (\n) に変換
+                string msgBody = cmn.CorrectLineFeed(Common.MSG_BODY_EM_DB_CONN_ERR);
+
+                // 未入力
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_100, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error); // 設定ファイルなし
+                Tbx_Passwd.Focus();
                 return;
             }
 
@@ -255,14 +267,20 @@ namespace MPPPS
             bool isPasswdFree = false;
             string userName = "";
             string atgCd = "";
-            if (!cmn.Dba.IsAuthrizedEMUser(isPasswdFree, ref userName, ref atgCd))
+            if (!cmn.Dba.IsAuthrizedEMUser(true, ref userName, ref atgCd))
             {
                 // 利用者登録なし
                 Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
                 cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_101, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
-
-                // [ログイン] フォームを閉じる
-                this.Close();
+                Tbx_UserId.Focus();
+                return;
+            }
+            else if (!cmn.Dba.IsAuthrizedEMUser(isPasswdFree, ref userName, ref atgCd))
+            {
+                // パスワード未認証
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_102, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                Tbx_Passwd.Focus();
                 return;
             }
             else
@@ -489,11 +507,23 @@ namespace MPPPS
             }
         }
 
+        // ユーザー ID:
+        private void Tbx_UserId_Enter(object sender, EventArgs e)
+        {
+            Tbx_UserId.SelectionStart = 0;
+            Tbx_UserId.SelectionLength = Tbx_UserId.TextLength;
+        }
         private void Tbx_UserId_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter) Tbx_Passwd.Focus();
         }
 
+        // パスワード:
+        private void Tbx_Passwd_Enter(object sender, EventArgs e)
+        {
+            Tbx_Passwd.SelectionStart = 0;
+            Tbx_Passwd.SelectionLength = Tbx_Passwd.TextLength;
+        }
         private void Tbx_Passwd_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter) Btn_OK.Focus();

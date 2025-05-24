@@ -101,9 +101,13 @@ namespace MPPPS
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Frm030_MasterMaint";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "[KMD003SF] マスタ メンテナンス - Ver.230613.01a";
+            this.Activated += new System.EventHandler(this.Frm030_MasterMaint_Activated);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Frm030_MasterMaint_FormClosing);
             this.Load += new System.EventHandler(this.Frm030_MasterMaint_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm030_MasterMaint_KeyDown);
             this.ResumeLayout(false);

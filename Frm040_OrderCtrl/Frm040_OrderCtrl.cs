@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace MPPPS
@@ -75,10 +76,26 @@ namespace MPPPS
         {
             this.Hide();
         }
-
         private void Frm040_OrderCtrl_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape) this.Hide();
+        }
+        private void Frm040_OrderCtrl_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            this.Hide();
+        }
+
+        // フォームアクティブ時にマウスポインタの位置をトップボタンの中央にする
+        private void Frm040_OrderCtrl_Activated(object sender, EventArgs e)
+        {
+            // フォーム上のクライアント座標を、画面座標に変換する
+            Point sp = this.PointToScreen(new Point(Btn_ImportOrder.Left, Btn_ImportOrder.Top));
+
+            // マウスポインタの位置をトップボタンに設定
+            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(sp.X + 10,
+                sp.Y + (Btn_ImportOrder.Height / 2));
+
         }
 
     }

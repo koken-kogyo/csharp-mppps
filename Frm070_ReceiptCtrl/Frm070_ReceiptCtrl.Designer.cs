@@ -96,9 +96,13 @@ namespace MPPPS
             this.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Frm070_ReceiptCtrl";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "[KMD007SF] 実績管理 - Ver.230613.01a";
+            this.Activated += new System.EventHandler(this.Frm070_ReceiptCtrl_Activated);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Frm070_ReceiptCtrl_FormClosing);
             this.Load += new System.EventHandler(this.Frm070_ReceiptCtrl_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm070_ReceiptCtrl_KeyDown);
             this.ResumeLayout(false);

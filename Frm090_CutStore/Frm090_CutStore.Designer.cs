@@ -85,9 +85,13 @@ namespace MPPPS
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Frm090_CutStore";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "[KMD009SF] 切削ストア - Ver.230613.01a";
+            this.Activated += new System.EventHandler(this.Frm090_CutStore_Activated);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Frm090_CutStore_FormClosing);
             this.Load += new System.EventHandler(this.Frm090_CutStore_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm090_CutStore_KeyDown);
             this.ResumeLayout(false);
