@@ -34,9 +34,12 @@ namespace MPPPS
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm050_MfgCtrl));
             this.Btn_MfgProgress = new System.Windows.Forms.Button();
             this.Btn_Close = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.btn_PickupTehai = new System.Windows.Forms.Button();
+            this.btn_PickupNaiji = new System.Windows.Forms.Button();
             this.btn_All_Print = new System.Windows.Forms.Button();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // Btn_MfgProgress
@@ -63,30 +66,31 @@ namespace MPPPS
             this.Btn_Close.UseVisualStyleBackColor = false;
             this.Btn_Close.Click += new System.EventHandler(this.Btn_Close_Click);
             // 
-            // button2
+            // btn_PickupTehai
             // 
-            this.button2.Enabled = false;
-            this.button2.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.button2.Location = new System.Drawing.Point(12, 100);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(300, 38);
-            this.button2.TabIndex = 17;
-            this.button2.Text = "工程別促進表データ作成";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btn_PickupTehai.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.btn_PickupTehai.Location = new System.Drawing.Point(12, 100);
+            this.btn_PickupTehai.Name = "btn_PickupTehai";
+            this.btn_PickupTehai.Size = new System.Drawing.Size(300, 38);
+            this.btn_PickupTehai.TabIndex = 17;
+            this.btn_PickupTehai.Text = "工程別促進表データ作成";
+            this.btn_PickupTehai.UseVisualStyleBackColor = true;
+            this.btn_PickupTehai.Click += new System.EventHandler(this.btn_PickupTehai_Click);
             // 
-            // button3
+            // btn_PickupNaiji
             // 
-            this.button3.Enabled = false;
-            this.button3.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.button3.Location = new System.Drawing.Point(12, 144);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(300, 38);
-            this.button3.TabIndex = 18;
-            this.button3.Text = "工程別内示表データ作成";
-            this.button3.UseVisualStyleBackColor = true;
+            this.btn_PickupNaiji.Enabled = false;
+            this.btn_PickupNaiji.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.btn_PickupNaiji.Location = new System.Drawing.Point(12, 144);
+            this.btn_PickupNaiji.Name = "btn_PickupNaiji";
+            this.btn_PickupNaiji.Size = new System.Drawing.Size(300, 38);
+            this.btn_PickupNaiji.TabIndex = 18;
+            this.btn_PickupNaiji.Text = "工程別内示表データ作成";
+            this.btn_PickupNaiji.UseVisualStyleBackColor = true;
             // 
             // btn_All_Print
             // 
+            this.btn_All_Print.Enabled = false;
             this.btn_All_Print.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.btn_All_Print.Location = new System.Drawing.Point(12, 56);
             this.btn_All_Print.Name = "btn_All_Print";
@@ -96,13 +100,30 @@ namespace MPPPS
             this.btn_All_Print.UseVisualStyleBackColor = true;
             this.btn_All_Print.Click += new System.EventHandler(this.btn_All_Print_Click);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 240);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(321, 22);
+            this.statusStrip1.TabIndex = 21;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
             // Frm050_MfgCtrl
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(321, 237);
+            this.ClientSize = new System.Drawing.Size(321, 262);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btn_All_Print);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.btn_PickupNaiji);
+            this.Controls.Add(this.btn_PickupTehai);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_MfgProgress);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
@@ -117,15 +138,20 @@ namespace MPPPS
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Frm050_MfgCtrl_FormClosing);
             this.Load += new System.EventHandler(this.Frm050_MfgCtrl_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm050_MfgCtrl_KeyDown);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
         private Button Btn_MfgProgress;
         private Button Btn_Close;
-        private Button button2;
-        private Button button3;
+        private Button btn_PickupTehai;
+        private Button btn_PickupNaiji;
         private Button btn_All_Print;
+        private StatusStrip statusStrip1;
+        private ToolStripStatusLabel toolStripStatusLabel1;
     }
 }

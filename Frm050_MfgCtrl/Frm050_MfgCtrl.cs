@@ -25,6 +25,9 @@ namespace MPPPS
             // [切削設備登録] ボタンからの起動のとき
             Text = " <" + Common.FRM_ID_050 + ": " + Common.FRM_NAME_050 + ">";
 
+            // 初期化
+            toolStripStatusLabel1.Text = "";
+
             // 共通クラス
             this.cmn = cmn;
         }
@@ -73,5 +76,104 @@ namespace MPPPS
                 sp.Y + (Btn_MfgProgress.Height / 2));
         }
 
+
+        // 工程別促進データ作成
+        private async void btn_PickupTehai_Click(object sender, EventArgs e)
+        {
+            // 出力ファイルを設定
+            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string filePath1 = Path.Combine(userProfile, "Desktop", "促進.xlsx");
+            string filePath2 = Path.Combine(userProfile, "Desktop", "①.xlsx");
+
+            // Excelブックが開いているかどうか確認
+            if (cmn.Fa.IsWorkbookOpen("①.xlsx"))
+            {
+                MessageBox.Show("Excelブックが開かれています。書き込み出来ません．", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            // 読み取り専用確認
+            FileInfo fileInfo1 = new FileInfo(filePath1);
+            FileInfo fileInfo2 = new FileInfo(filePath2);
+            if ((fileInfo1.Exists && fileInfo1.IsReadOnly) || (fileInfo2.Exists && fileInfo2.IsReadOnly))
+            {
+                MessageBox.Show("読み取り専用で書き込み出来ません．", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            // 上書き保存確認
+            if (fileInfo1.Exists || fileInfo2.Exists)
+            {
+                if (MessageBox.Show("上書き保存してもよろしいですか？", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+                    == DialogResult.No) return;
+            }
+
+            DataTable d0410 = new DataTable();
+            int ret = 0;
+
+            try
+            {
+                // 促進データ抽出
+                toolStripStatusLabel1.Text = "促進データ抽出中...";
+                await Task.Run(() => ret = cmn.Dba.促進データ抽出(ref d0410));
+                if (ret < 0) return;
+                if (ret == 0)
+                {
+                    MessageBox.Show("促進データが抽出出来ませんでした．", "データなし", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                // Interop.Excel起動
+                cmn.Fa.ExcelApplication(false);
+
+                // Excelにぶち込み一旦保存
+                toolStripStatusLabel1.Text = "[促進.xlsx] を作成中...";
+                cmn.Fa.AddNewBook();
+                cmn.Fa.ExportExcel(d0410, filePath1);
+
+                // ExcelでPivotテーブルを作成し集計シートを作成し保存
+                cmn.Fa.促進データPivot集計保存();
+
+                // 集計した工程シート用データを次の処理に使用するため保持
+                object[,] data = cmn.Fa.getWorkSheetUsedRange("集計");
+
+                // Bookを閉じる
+                cmn.Fa.CloseExcelFile2(false);
+
+                toolStripStatusLabel1.Text = "[促進.xlsx] の作成が終了しました.";
+
+                // Interop.Excelではなく標準アプリケーションで開く
+                //Process.Start(@filePath1);
+
+                await Task.Delay(1000); // COMオブジェクト開放完了まで少し待つ（念のため）
+
+
+                // ①_雛形.xlsxを開く
+                toolStripStatusLabel1.Text = "[①.xlsx] を作成中...";
+                cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[5].RootPath}\{cmn.FsCd[5].FileName}");
+
+                // 雛形に工程データを渡して編集して保存
+                cmn.Fa.印刷用促進データ編集保存(data, filePath2, ref toolStripStatusLabel1);
+
+                // Bookを閉じる
+                cmn.Fa.CloseExcelFile2(false);
+
+                // Interop.Excelではなく標準アプリケーションで開く
+                Process.Start(@filePath2);
+
+                toolStripStatusLabel1.Text = "促進データの作成が終了しました.";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("工程別促進データ作成中にエラーが発生しました: " + ex.Message, "異常発生", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally {
+                // Interop.Excel終了
+                cmn.Fa.CloseExcel2();
+            }
+
+
+
+        }
     }
 }

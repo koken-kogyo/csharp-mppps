@@ -1,9 +1,11 @@
-﻿using Oracle.ManagedDataAccess.Client;
+﻿using Mysqlx.Crud;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace MPPPS
 {
@@ -1526,6 +1528,168 @@ namespace MPPPS
             cmn.Dbm.CloseOraSchema(emCnn);
             return ret;
         }
+
+        /// <summary>
+        /// 促進データ抽出
+        /// </summary>
+        /// <param name="dataTable">データセット</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0≧: 失敗)</returns>
+        public int 促進データ抽出(ref DataTable dataTable)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            OracleConnection cnn = null;
+            string sql = string.Empty;
+            int ret = 0;
+
+            try
+            {
+                // EM データベースへ接続
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref cnn);
+
+                string from = string.Empty;
+                string to = string.Empty;
+
+                // 当日日付を取得（調整し易いようPCの日付を利用）
+                DateTime today = DateTime.Today; //.AddDays(-15); // Debug用 ⇒ .AddDays(-xx)で月曜日にしてテスト
+
+                // 今週の火曜日を計算
+                DateTime thisTuesday = today.AddDays((DayOfWeek.Tuesday - today.DayOfWeek) % 7);
+
+                // 0:日曜日、1:月曜日の場合は今週の火曜日を先週に巻き戻す
+                if (today.DayOfWeek < DayOfWeek.Tuesday)
+                {
+                    thisTuesday = thisTuesday.AddDays(-7);
+
+                    // 先週に稼働日があるか判定
+                    from = thisTuesday.AddDays(-1).ToString("yyyy/MM/dd");
+                    to = thisTuesday.AddDays(3).ToString("yyyy/MM/dd");
+                    sql =
+                        "select COUNT(*) as WKCNT "
+                        + "from "
+                        + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_S0820 + " "
+                        + "where CALTYP='00001' "
+                        + "and WKKBN='1' "
+                        + $"and YMD between '{from}' and '{to}'"
+                    ;
+                    using (OracleCommand myCmd = new OracleCommand(sql, cnn))
+                    {
+                        using (OracleDataReader reader = myCmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                // 先週が長期休み等で稼働日が無い場合は１週間前にずらす
+                                if (reader["WKCNT"].ToString() == "0") thisTuesday = thisTuesday.AddDays(-7);
+                            }
+                        }
+                    }
+                }
+
+                // 来週の日付を取得
+                DateTime oneWeeksLater = thisTuesday.AddDays(7);
+
+                // 来週の金曜日を取得
+                DateTime nextFriday = oneWeeksLater.AddDays((DayOfWeek.Friday - oneWeeksLater.DayOfWeek) % 7);
+
+                // 来週に稼働日があるか判定
+                from = nextFriday.AddDays(-4).ToString("yyyy/MM/dd");
+                to = nextFriday.ToString("yyyy/MM/dd");
+                sql =
+                    "select COUNT(*) as WKCNT "
+                    + "from "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_S0820 + " "
+                    + "where CALTYP='00001' "
+                    + "and WKKBN='1' "
+                    + $"and YMD between '{from}' and '{to}'"
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, cnn))
+                {
+                    using (OracleDataReader reader = myCmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // 来週が長期休み等で稼働日が無い場合は１週間先に延ばす
+                            if (reader["WKCNT"].ToString() == "0") nextFriday = nextFriday.AddDays(7);
+                        }
+                    }
+                }
+
+                // 主キー検索での高速化
+                string yyMM = today.AddMonths(-3).ToString("yyMM");
+
+                // 遅れ手配データを取得し、今週の月曜日に集約させる
+                sql = $"select a.HMCD \"品番\", b.HMRNM \"品目略称\", '{thisTuesday.AddDays(-1).ToString("yyyy/MM/dd")}' \"完了予定日\""
+                    + ", sum(a.ODRQTY) \"手配数\", sum(a.JIQTY) \"実績数\", count(*) \"件数\", sum(a.ODRQTY-a.JIQTY) \"S\" "
+                    + "from "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " a, "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_M0500 + " b "
+                    + "where "
+                    + $"a.ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
+                    + "and a.HMCD = b.HMCD "
+                    + "and a.ODRSTS in ('2', '3') "
+                    + "and a.KTCD like 'MP%' "
+                    + "and a.ODCD like '6060%' "
+                    + $"and a.EDDT < '{thisTuesday.ToString("yyyy/MM/dd")}' "
+                    + "group by a.HMCD, b.HMRNM "
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, cnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        using (DataTable dt = new DataTable())
+                        {
+                            myDa.Fill(dt);
+                            dataTable.Merge(dt);
+                        }
+                    }
+                }
+
+                // 今週来週の手配データ取得
+                from = thisTuesday.ToString("yyyy/MM/dd");
+                to = nextFriday.ToString("yyyy/MM/dd");
+                sql = "select a.HMCD \"品番\", b.HMRNM \"品目略称\", to_char(a.EDDT,'YYYY/MM/DD') \"完了予定日\""
+                    + ", sum(a.ODRQTY) \"手配数\", sum(a.JIQTY) \"実績数\", count(*) \"件数\", sum(a.ODRQTY-a.JIQTY) \"S\" "
+                    + "from "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " a, "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_M0500 + " b "
+                    + "where "
+                    + $"a.ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
+                    + "and a.HMCD = b.HMCD "
+                    + "and a.ODRSTS in ('2', '3') "
+                    + "and a.KTCD like 'MP%' "
+                    + "and a.ODCD like '6060%' "
+                    + $"and a.EDDT between '{from}' and '{to}' "
+                    + "group by a.HMCD, b.HMRNM, a.EDDT "
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, cnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        using (DataTable dt = new DataTable())
+                        {
+                            myDa.Fill(dt);
+                            dataTable.Merge(dt);
+                        }
+                    }
+                }
+                ret = dataTable.Rows.Count;
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(cnn);
+            return ret;
+
+        }
+
 
 
 

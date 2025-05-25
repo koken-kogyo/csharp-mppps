@@ -70,7 +70,7 @@ namespace MPPPS
                 // データベース設定データ クラス
                 DbCd = new DBConfigData[3],
                 // ファイル システム設定データ クラス配列
-                FsCd = new FSConfigData[2],
+                FsCd = new FSConfigData[6],
                 // 利用者情報クラス
                 Ui = new UserInfo(),
                 // Oracle 接続クラス
