@@ -12,7 +12,7 @@ namespace MPPPS
         private readonly Common cmn; // 共通クラス
 
         // ポップアップ関連
-        int waitTime = 800;
+        int waitTime = 1300;
         bool popupFlg30;
         bool popupFlg40;
         bool popupFlg50;
@@ -80,7 +80,7 @@ namespace MPPPS
             Task.Run(async () =>
             {
                 await Task.Delay(3000);
-                popupCancel = false;
+                // ポップアップ廃止 popupCancel = false; 
             });
 
         }
@@ -238,6 +238,7 @@ namespace MPPPS
 
         private async void Btn_MasterMaint_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
             if (popupCancel && isSubFormVisible()) return; else popupCancel = false;
             subFormCancel();
             popupFlg30 = true;
@@ -252,6 +253,7 @@ namespace MPPPS
 
         private async void Btn_OrderCtrl_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
             if (popupCancel && isSubFormVisible()) return; else popupCancel = false;
             subFormCancel();
             popupFlg40 = true;
@@ -266,6 +268,7 @@ namespace MPPPS
 
         private async void Btn_MfgCtrl_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
             if (popupCancel && isSubFormVisible()) return; else popupCancel = false;
             subFormCancel();
             popupFlg50 = true;
@@ -280,6 +283,7 @@ namespace MPPPS
 
         private async void Btn_ReceiptCtrl_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
             if (popupCancel && isSubFormVisible()) return; else popupCancel = false;
             subFormCancel();
             popupFlg70 = true;
@@ -294,6 +298,7 @@ namespace MPPPS
 
         private async void Btn_MatlCtrl_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
             if (popupCancel && isSubFormVisible()) return; else popupCancel = false;
             subFormCancel();
             popupFlg80 = true;
@@ -308,6 +313,7 @@ namespace MPPPS
 
         private async void Btn_CutStore_MouseEnter(object sender, EventArgs e)
         {
+            if (popupCancel) return;
             if (popupCancel && isSubFormVisible()) return; else popupCancel = false;
             subFormCancel();
             popupFlg90 = true;
@@ -337,5 +343,19 @@ namespace MPPPS
             Close();
         }
 
+        private void Lbl_UserName_Click(object sender, EventArgs e)
+        {
+            subFormHide();
+        }
+
+        private void Frm020_MainMenu_Click(object sender, EventArgs e)
+        {
+            subFormHide();
+        }
+
+        private void Lbl_User_Click(object sender, EventArgs e)
+        {
+            subFormHide();
+        }
     }
 }

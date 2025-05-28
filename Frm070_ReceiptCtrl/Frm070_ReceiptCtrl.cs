@@ -68,8 +68,8 @@ namespace MPPPS
             Point sp = this.PointToScreen(new Point(Btn_ReceiptProc.Left, Btn_ReceiptProc.Top));
 
             // マウスポインタの位置をトップボタンに設定
-            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(sp.X + 10,
-                sp.Y + (Btn_ReceiptProc.Height / 2));
+            //System.Windows.Forms.Cursor.Position = new System.Drawing.Point(sp.X + 10,
+            //    sp.Y + (Btn_ReceiptProc.Height / 2));
         }
 
     }

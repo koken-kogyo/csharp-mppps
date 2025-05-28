@@ -1367,6 +1367,10 @@ namespace MPPPS
             {
                 return "平行度";
             }
+            else if (mccd.StartsWith("MK"))
+            {
+                return "検査";
+            }
             return mccd;
         }
 
@@ -1380,6 +1384,10 @@ namespace MPPPS
             else if (mccd.StartsWith("F2"))
             {
                 return "画像測定器";
+            }
+            else if (mccd.StartsWith("MK"))
+            {
+                return "目視検査";
             }
             return mccd;
         }
@@ -1917,21 +1925,27 @@ namespace MPPPS
                 var pivotTableRange = oWSheet.UsedRange;
                 var pivotTableName = "PivotTable1";
                 var pivotTableDestination = pivotSheet.Cells[1, 1];
-
                 var pivotCache = oWBook.PivotCaches().Create(
                     Excel.XlPivotTableSourceType.xlDatabase,
                     pivotTableRange,
                     Excel.XlPivotTableVersionList.xlPivotTableVersion15
                 );
-
                 var pivotTable = pivotCache.CreatePivotTable(
                     pivotTableDestination,
                     pivotTableName
                 );
 
+                // 小計を非表示に設定
+                var subtotal = new object[] {false, false, false, false, false, false, false, false, false, false, false, false};                
+                
+                // レポートのレイアウトを表形式に設定
+                pivotTable.RowAxisLayout(Excel.XlLayoutRowType.xlTabularRow);
+
                 // ピボットテーブルのフィールド設定
                 pivotTable.PivotFields("品番").Orientation = Excel.XlPivotFieldOrientation.xlRowField;
+                pivotTable.PivotFields("品番").Subtotals = subtotal;
                 pivotTable.PivotFields("品目略称").Orientation = Excel.XlPivotFieldOrientation.xlRowField;
+                pivotTable.PivotFields("品目略称").Subtotals = subtotal;
                 pivotTable.PivotFields("完了予定日").Orientation = Excel.XlPivotFieldOrientation.xlColumnField;
                 pivotTable.PivotFields("S").Orientation = Excel.XlPivotFieldOrientation.xlDataField;
 
@@ -1996,110 +2010,174 @@ namespace MPPPS
             OutputRange.Value2 = data;
 
 
-            cmn.Fa.ExcelDebug();
+            // 工程シートのVLOOKUP列で#N/Aが存在するかチェック（17:協力工場列で検証）
+            string errHMCD = string.Empty;
+            Excel.Range range = ktSheet.Range["A1", ktSheet.Cells[endRow, 37]];
+            object[,] values = (object[,])range.Value2; // 2次元配列として取得
+            for (int row = 5; row < endRow; row++)
+            {
+                if (values[row, 2] != null)//参照型オブジェクトのnull判定（NullReferenceException発生の為）
+                {
+                    if (values[row, 17].ToString() == "-2146826246")// デバッグで#N/Aを調べたら"-2146826246"だった
+                    {
+                        errHMCD += (errHMCD == string.Empty) ?
+                            values[row, 2].ToString() : "\n" + values[row, 2].ToString();
+                    }
+                }
+            }
+            if (errHMCD != string.Empty)
+            {
+                if (MessageBox.Show($"以下の品番がコード票に存在しません．\n処理を続行しますか？\n\n" + errHMCD
+                    ,"確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                    == DialogResult.No) { return; }
+            }
+
+
+            //cmn.Fa.ExcelDebug();
 
 
             // ①TN工程
-            toolStripStatusLabel.Text = "[TN] 工程 (1/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "TN", 36
+            toolStripStatusLabel.Text = "[TN] 工程 (1/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "TN", 36
                 , 36, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
             // ②SW工程
-            toolStripStatusLabel.Text = "[SW] 工程 (2/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "SW", 20
+            toolStripStatusLabel.Text = "[SW] 工程 (2/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "SW", 20
                 , 20, XlSortOrder.xlAscending
                 , 15, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
             );
             // ③SS工程
-            toolStripStatusLabel.Text = "[SS] 工程 (3/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "SS", 21
+            toolStripStatusLabel.Text = "[SS] 工程 (3/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "SS", 21
                 , 21, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
             // ④CN工程
-            toolStripStatusLabel.Text = "[CN] 工程 (4/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "CN", 23
+            toolStripStatusLabel.Text = "[CN] 工程 (4/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "CN", 23
                 , 23, XlSortOrder.xlAscending
                 , 15, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
             );
             // ⑤MS工程
-            toolStripStatusLabel.Text = "[MS] 工程 (5/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "MS", 24
+            toolStripStatusLabel.Text = "[MS] 工程 (5/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "MS", 24
                 , 24, XlSortOrder.xlAscending
                 , 15, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
             );
             // ⑥XT工程
-            toolStripStatusLabel.Text = "[XT] 工程 (6/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "XT", 22
+            toolStripStatusLabel.Text = "[XT] 工程 (6/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "XT", 22
                 , 22, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
             // ⑦ON工程
-            toolStripStatusLabel.Text = "[ON] 工程 (7/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "ON", 27
+            toolStripStatusLabel.Text = "[ON] 工程 (7/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "ON", 27
                 , 27, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
-            // ⑧NC工程
-            toolStripStatusLabel.Text = "[NC] 工程 (8/14) を作成中...";
-            FilterCopyPasteSort2(OutputRange);
-            // ⑨MD工程
-            toolStripStatusLabel.Text = "[MD] 工程 (9/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "MD", 30
+            // ⑧MD工程
+            toolStripStatusLabel.Text = "[MD] 工程 (8/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "MD", 30
                 , 29, XlSortOrder.xlDescending
                 , 30, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
             );
-            // ⑩MC工程
-            toolStripStatusLabel.Text = "[MC] 工程 (10/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "MC", 31
+            // ⑨MC工程
+            toolStripStatusLabel.Text = "[MC] 工程 (9/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "MC", 31
                 , 31, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
-            // ⑪3BP工程
-            toolStripStatusLabel.Text = "[3BP] 工程 (11/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "3BP", 31
+            // ⑩3BP工程
+            toolStripStatusLabel.Text = "[3BP] 工程 (10/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "3BP", 31
                 , 31, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
-            // ⑫-1 G工程（G32列とTP33列）
-            toolStripStatusLabel.Text = "[G] 工程 (12/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "G", 32
-                , 32, XlSortOrder.xlAscending
-                , 33, XlSortOrder.xlAscending
+            // ⑪-1 G工程（G32列とTP33列）
+            toolStripStatusLabel.Text = "[G] 工程 (11/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "G", 32
+                , 32, XlSortOrder.xlDescending
+                , 33, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
             );
-            // ⑫-2 TP工程（G32列とTP33列）
-            toolStripStatusLabel.Text = "[TP] 工程 (12/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "TP", 33
-                , 32, XlSortOrder.xlAscending
-                , 33, XlSortOrder.xlAscending
+            // ⑪-2 TP工程（G32列とTP33列）
+            toolStripStatusLabel.Text = "[TP] 工程 (11/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "TP", 33
+                , 32, XlSortOrder.xlDescending
+                , 33, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
             );
-            // ⑬SK工程
-            toolStripStatusLabel.Text = "[SK] 工程 (13/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "SK", 34
+            // ⑫SK工程
+            toolStripStatusLabel.Text = "[SK] 工程 (12/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "SK", 34
                 , 34, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
-            // ⑭LF工程
-            toolStripStatusLabel.Text = "[LF] 工程 (14/14) を作成中...";
-            FilterCopyPasteSort(OutputRange, "LF", 35
+            // ⑬LF工程
+            toolStripStatusLabel.Text = "[LF] 工程 (13/21) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "LF", 35
                 , 35, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
+            // ⑭NC工程
+            toolStripStatusLabel.Text = "[NC] 工程 (14/21) を作成中...";
+            FilterCopyPasteSort2(ref OutputRange, ref toolStripStatusLabel);
+            // ⑮TN(2)シートの作成
+            toolStripStatusLabel.Text = "[TN(2)] 工程 (15/21) を作成中...";
+            FilterCopyPaste3("TN(2)", 36
+                , new string[] {"TN1", "TN3", "TN4", "TN" }
+                , new string[] { "1", "3", "4", "TN" }
+                , ref toolStripStatusLabel);
+            // ⑯SS(2)シートの作成
+            toolStripStatusLabel.Text = "[SS(2)] 工程 (16/21) を作成中...";
+            FilterCopyPaste3("SS(2)", 21
+                , new string[] { "SS" }
+                , new string[] { "SS" }
+                , ref toolStripStatusLabel);
+            // ⑰CN(2)シートの作成
+            toolStripStatusLabel.Text = "[CN(2)] 工程 (17/21) を作成中...";
+            FilterCopyPaste3("CN(2)", 23
+                , new string[] { "CN1", "CN2", "CN3", "CN4" }
+                , new string[] { "CN1", "CN2", "CN3", "CN4" }
+                , ref toolStripStatusLabel);
+            // ⑱MS(2)シートの作成
+            toolStripStatusLabel.Text = "[MS(2)] 工程 (18/21) を作成中...";
+            FilterCopyPaste3("MS(2)", 24
+                , new string[] { "MS1", "MS2", "MS3", "MS4", "MS5", "MS6" }
+                , new string[] { "1", "2", "3", "4", "5", "6" }
+                , ref toolStripStatusLabel);
+            // ⑲XT(2)シートの作成
+            toolStripStatusLabel.Text = "[XT(2)] 工程 (19/21) を作成中...";
+            FilterCopyPaste3("XT(2)", 22
+                , new string[] { "XT" }
+                , new string[] { "XT" }
+                , ref toolStripStatusLabel);
+            // ⑳NC(2)シートの作成
+            toolStripStatusLabel.Text = "[NC(2)] 工程 (20/21) を作成中...";
+            DirectCopyPaste4(ref toolStripStatusLabel);
+            //cmn.Fa.ExcelDebug();
+            // ㉑SK(2)シートの作成
+            toolStripStatusLabel.Text = "[SK(2)] 工程 (21/21) を作成中...";
+            FilterCopyPaste3("SK(2)", 34
+                , new string[] { "SK", "XW" }
+                , new string[] { "SK*", "XW" }
+                , ref toolStripStatusLabel);
+
 
 
             // 工程シートのフィルタを解除
@@ -2115,6 +2193,8 @@ namespace MPPPS
             // 保存
             oWBook.SaveAs(filePath);
 
+            // COMオブジェクトの解放
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(ktSheet);
         }
 
         /// <summary>
@@ -2126,7 +2206,7 @@ namespace MPPPS
         /// <param name="filCol">フィルターをかける列番号</param>
         /// <param name="keyCol1">並び替え列番号</param>
         /// <param name="order1">並び替え列番号</param>
-        private void FilterCopyPasteSort(Microsoft.Office.Interop.Excel.Range OutputRange, string sheetName, int filCol
+        private void FilterCopyPasteSort(ref Microsoft.Office.Interop.Excel.Range OutputRange, string sheetName, int filCol
             , int keyCol1, Excel.XlSortOrder order1
             , int keyCol2, Excel.XlSortOrder order2
             , int keyCol3, Excel.XlSortOrder order3)
@@ -2142,17 +2222,18 @@ namespace MPPPS
                 sheet = (Excel.Worksheet)oWBook.Worksheets[sheetName];
             }
             if (sheetName == "TP") headerRow = sheet.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row + 1; // TP工程はG工程の下に張り付ける
+            sheet.Activate();
 
-            // フィルタ            
+            // フィルタ
             if (sheetName == "MC")
             {
                 OutputRange.AutoFilter(Field: filCol
                     , Criteria1: "<>"
                     , Operator: XlAutoFilterOperator.xlAnd
-                    , Criteria2: new string[] { "<>3BI", "<>3BP", "<>4N" }
+                    , Criteria2: "<>3B?"
                 );
             }
-            else if (sheetName == "3BP") 
+            else if (sheetName == "3BP")
             {
                 OutputRange.AutoFilter(Field: filCol
                     , Criteria1: new string[] { "3B?", "4N" }
@@ -2163,125 +2244,328 @@ namespace MPPPS
             {
                 OutputRange.AutoFilter(filCol, Criteria1: "<>");                    // １．col列の空白以外をフィルタ
             }
-            // コピペ
-            OutputRange.SpecialCells(XlCellType.xlCellTypeVisible).Copy();          // ２．フィルタされた範囲をコピー
-            sheet.Cells[headerRow, 2].PasteSpecial(XlPasteType.xlPasteValues);      // ３．シートに値のみ貼り付け
-            int endNoRow = sheet.Cells[headerRow + 1, 1].End(Excel.XlDirection.xlDown).Row;
-            if (sheetName == "TP")
+            int filteredCount = getFilteredRowCount(ref OutputRange);
+            if (filteredCount > 0)
             {
-                sheet.Range[sheet.Cells[headerRow, 2], sheet.Cells[headerRow, 37 + 3]]
-                    .Delete(Excel.XlDeleteShiftDirection.xlShiftUp);    // ヘッダーは削除
-                sheet.Range[sheet.Cells[endNoRow - 1, 2], sheet.Cells[endNoRow - 1, 37 + 3]]
-                    .Insert(XlInsertShiftDirection.xlShiftDown);        // 削除した分空行を挿入
-            }
-            int endRow = sheet.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
-            if (endRow < 65535)
-            {
-                sheet.Activate();
-                // ソート
-                Excel.Range sortRange = sheet.Range[sheet.Cells[headerRow, 2], sheet.Cells[endRow, 37 + 3]]; // 並び替える対象列は少し多めに取っておく
-                var sort = sheet.Sort;                                              // ４．ソートの設定
-                sort.SortFields.Clear();
-                if (keyCol1 > 0) sort.SortFields.Add(Key: sheet.Cells[headerRow, keyCol1], Order: order1);
-                if (keyCol2 > 0) sort.SortFields.Add(Key: sheet.Cells[headerRow, keyCol2], Order: order2);
-                if (keyCol3 > 0) sort.SortFields.Add(Key: sheet.Cells[headerRow, keyCol3], Order: order3);
-                //sheet.Cells[4, keyCol1].Interior.Color = Color.FromArgb(135, 231, 173); // Debug用に色を付ける
-                //sheet.Cells[4, keyCol2].Interior.Color = Color.FromArgb(231, 135, 173); // Debug用に色を付ける
-                sort.SetRange(sortRange);
-                sort.Header = Excel.XlYesNoGuess.xlYes; // ヘッダー行あり
-                sort.MatchCase = false;
-                sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
-                sort.Apply();
-                // 並び替え条件（MCを一番上にする）
-                if (sheetName == "MC")
+                // コピペ
+                OutputRange.SpecialCells(XlCellType.xlCellTypeVisible).Copy();      // ２．フィルタされた範囲をコピー
+                sheet.Cells[headerRow, 2].PasteSpecial(XlPasteType.xlPasteValues);  // ３．シートに値のみ貼り付け
+                int endNoRow = sheet.Cells[headerRow + 1, 1].End(Excel.XlDirection.xlDown).Row;
+                if (sheetName == "TP")
                 {
-                    int currentRow = headerRow + 1; //挿入開始行番号
-                    for (int i = headerRow + 1; i <= endRow; i++)
+                    sheet.Range[sheet.Cells[headerRow, 2], sheet.Cells[headerRow, 37 + 3]]
+                        .Delete(Excel.XlDeleteShiftDirection.xlShiftUp);            // ヘッダーは削除
+                    sheet.Range[sheet.Cells[endNoRow - 1, 2], sheet.Cells[endNoRow - 1, 37 + 3]]
+                        .Insert(XlInsertShiftDirection.xlShiftDown);                // 削除した分空行を挿入
+                    headerRow = 4;                                                  // ヘッダー行番号を元に戻す
+                }
+                // ソート
+                int endRow = sheet.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
+                if (endRow < 65535)
+                {
+                    sheet.Activate();
+                    Excel.Range sortRange = sheet.Range[sheet.Cells[headerRow, 2], sheet.Cells[endRow, 37 + 3]]; // 並び替える対象列は少し多めに取っておく
+                    var sort = sheet.Sort;                                          // ４．ソートの設定
+                    sort.SortFields.Clear();
+                    if (keyCol1 > 0) sort.SortFields.Add(Key: sheet.Cells[headerRow, keyCol1], Order: order1);
+                    if (keyCol2 > 0) sort.SortFields.Add(Key: sheet.Cells[headerRow, keyCol2], Order: order2);
+                    if (keyCol3 > 0) sort.SortFields.Add(Key: sheet.Cells[headerRow, keyCol3], Order: order3);
+                    //sheet.Cells[4, keyCol1].Interior.Color = Color.FromArgb(135, 231, 173); // Debug用に色を付ける
+                    //sheet.Cells[4, keyCol2].Interior.Color = Color.FromArgb(231, 135, 173); // Debug用に色を付ける
+                    sort.SetRange(sortRange);
+                    sort.Header = Excel.XlYesNoGuess.xlYes; // ヘッダー行あり
+                    sort.MatchCase = false;
+                    sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
+                    sort.Apply();
+                    // 並び替え条件（MCを一番上にする）
+                    if (sheetName == "MC")
                     {
-                        Range cell = sheet.Cells[i, filCol];
-                        if (cell.Value != null && cell.Value.ToString().Contains("MC"))
+                        int currentRow = headerRow + 1; //挿入開始行番号
+                        for (int i = headerRow + 1; i <= endRow; i++)
                         {
-                            // 行を先頭に移動
-                            sheet.Range[sheet.Cells[i, 2], sheet.Cells[i, 37 + 3]].Cut();
-                            sheet.Range[sheet.Cells[currentRow, 2], sheet.Cells[currentRow, 37 + 3]]
-                                .Insert(XlInsertShiftDirection.xlShiftDown);
-                            currentRow++;
+                            Range cell = sheet.Cells[i, filCol];
+                            if (cell.Value != null && cell.Value.ToString().Contains("MC"))
+                            {
+                                // 行を先頭に移動
+                                sheet.Range[sheet.Cells[i, 2], sheet.Cells[i, 37 + 3]].Cut();
+                                sheet.Range[sheet.Cells[currentRow, 2], sheet.Cells[currentRow, 37 + 3]]
+                                    .Insert(XlInsertShiftDirection.xlShiftDown);
+                                currentRow++;
+                            }
                         }
                     }
-                }
-                // 罫線
-                for (int i = headerRow + 1; i < endRow; i++)                        // ５．中太罫線を入れる
-                {
-                    if (sheet.Cells[i, filCol].Value2 != sheet.Cells[i + 1, filCol].Value2)
+                    // 罫線
+                    for (int i = headerRow + 1; i < endRow; i++)                    // ５．中太罫線を入れる
                     {
-                        sheet.Range[sheet.Cells[i, 2], sheet.Cells[i, filCol]]
-                            .Borders[XlBordersIndex.xlEdgeBottom].Weight = XlBorderWeight.xlMedium; // 太罫線xlThick;
+                        var currentValue = sheet.Cells[i, filCol].Value2;
+                        var nextValue = sheet.Cells[i + 1, filCol].Value2;
+                        try // 文字列と数値型の比較で異常が発生してしまうので罫線は無視する
+                        {
+                            if (currentValue != nextValue) 
+                            {
+                                sheet.Range[sheet.Cells[i, 2], sheet.Cells[i, filCol]]
+                                    .Borders[XlBordersIndex.xlEdgeBottom].Weight = XlBorderWeight.xlMedium; // 太罫線xlThick;
+                            }
+                        }
+                        catch { continue; }
                     }
+                    // その他
+                    if (sheetName != "G")
+                    {
+                        sheet.Rows[$"{endRow + 1}:{endNoRow}"].Delete();            // ６．余分な行を削除する
+                    }
+                    sheet.Cells[1, 1].Select();
                 }
-                // その他
-                if (sheetName != "G")
-                {
-                    sheet.Rows[$"{endRow + 1}:{endNoRow}"].Hidden = true;           // ６．余分な行を非表示にする
-                }
-                sheet.Cells[1, 1].Select();
+            } else {
+                sheet.Cells[5, 2].Value2 = "対象データなし";
             }
             OutputRange.AutoFilter(filCol); // フィルターの解除ではなく抽出条件をクリア
+
+            // COMオブジェクトの解放
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet);
         }
 
         /// <summary>
         /// NC工程シートの作成（専用）
         /// </summary>
         /// <param name="OutputRange">入力データのRange</param>
-        private void FilterCopyPasteSort2(Microsoft.Office.Interop.Excel.Range OutputRange)
+        private void FilterCopyPasteSort2(ref Microsoft.Office.Interop.Excel.Range OutputRange
+            , ref ToolStripStatusLabel toolStripStatusLabel)
         {
             int headerRow = 4;
-            Excel.Worksheet sheetON;
+            int startRow = 0;
+            int endRow = 0;
+            int rowCount = 0;
             Excel.Worksheet sheet;
-            sheetON = (Excel.Worksheet)oWBook.Worksheets["ON"];
             sheet = (Excel.Worksheet)oWBook.Worksheets["NC"];
-            int endRow = sheetON.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
-            int rowCount = endRow - headerRow;
+            sheet.Activate();
+
+            // ON工程を処理
+            toolStripStatusLabel.Text = "[ON] 工程 (14/14) を作成中...";
+            Excel.Worksheet sheetON;
+            sheetON = (Excel.Worksheet)oWBook.Worksheets["ON"];
+            endRow = sheetON.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
+            rowCount = endRow - headerRow;
             if (endRow < 65535)
             {
-                Excel.Range foundCell = sheet.Columns[2].Find(
-                    What: "ON",
-                    LookIn: Excel.XlFindLookIn.xlValues,
-                    LookAt: Excel.XlLookAt.xlPart,
-                    SearchOrder: Excel.XlSearchOrder.xlByRows,
-                    MatchCase: true // 大文字小文字を区別
-                );
-                if (foundCell == null)
-                {
-                    MessageBox.Show("ON文字列が見つかりませんでした.");
-                    return;
-                }
-                int startRow = foundCell.Row;
+                // 設備名の行番号を取得
+                startRow = getRowNo(ref sheet,"ON", 2);
 
-                // 貼り付ける枠を確保するため行挿入
-                for (int i = 1; i <= rowCount - 2; i++)
+                // 貼り付ける枠を確保するための行挿入
+                // 上手く行っているので保存しておく
+                //for (int i = 1; i <= rowCount - 2; i++)
+                //{
+                //    sheet.Rows[startRow + 3].Insert(XlInsertShiftDirection.xlShiftDown);
+                //}
+                // 貼り付ける枠を確保するための行挿入
+                if (rowCount > 2)
                 {
-                    sheet.Rows[startRow + 3].Insert(XlInsertShiftDirection.xlShiftDown);
+                    sheet.Rows[$"{startRow + 3}:{startRow + rowCount}"].Insert(XlInsertShiftDirection.xlShiftDown);
+                    // 空き行に式をコピー
+                    sheet.Range[sheet.Cells[startRow + 2, 14], sheet.Cells[startRow + 2, 37]].Copy();
+                    sheet.Range[sheet.Cells[startRow + 3, 14], sheet.Cells[startRow + rowCount + 1, 37]]
+                        .PasteSpecial(XlPasteType.xlPasteFormulas);
                 }
-                // 式のコピー
-                sheet.Range[sheet.Cells[startRow + 2, 14], sheet.Cells[startRow + 2, 37]].Copy();
-                sheet.Range[sheet.Cells[startRow + 3, 14], sheet.Cells[startRow + rowCount + 1, 37]]
-                    .PasteSpecial(XlPasteType.xlPasteFormulas);
-
                 // ONシートから値のみコピー
                 sheetON.Range[sheetON.Cells[headerRow, 2], sheetON.Cells[headerRow + rowCount, 13]].Copy();
                 sheet.Cells[headerRow, 2].PasteSpecial(XlPasteType.xlPasteValues);
-
+                if (rowCount == 1) sheet.Rows[startRow + 3].Delete();
                 // 行番号の振り直し
-                for (int i = 1; i <= rowCount; i++)
-                {
-                    sheet.Cells[startRow + 1 + i, 1].Value2 = i;
-                }
+                for (int i = 1; i <= rowCount; i++) sheet.Cells[startRow + 1 + i, 1].Value2 = i;
             }
+
+            // NC1～NC8工程まで処理をループ
+            for (int idx = 1; idx <= 9; idx++)
+            {
+                string target = (idx == 9) ? "" : idx.ToString();
+                toolStripStatusLabel.Text = $"[NC{target}] 工程 (14/21) を作成中...";
+                startRow = getRowNo(ref sheet, $"NC{target}", 2);
+                OutputRange.AutoFilter(26, Criteria1: (idx == 9) ? "NC" : idx.ToString());
+                rowCount = getFilteredRowCount(ref OutputRange);
+                endRow = startRow + rowCount;
+                if (rowCount > 2)
+                {
+                    //for (int i = 1; i <= rowCount - 2; i++) sheet.Rows[startRow + 3].Insert(XlInsertShiftDirection.xlShiftDown);
+                    sheet.Rows[$"{startRow + 3}:{startRow + rowCount}"].Insert(XlInsertShiftDirection.xlShiftDown);
+                    sheet.Range[sheet.Cells[startRow + 2, 14], sheet.Cells[startRow + 2, 37]].Copy();
+                    sheet.Range[sheet.Cells[startRow + 3, 14], sheet.Cells[startRow + rowCount + 1, 37]].PasteSpecial(XlPasteType.xlPasteFormulas);
+                }
+                OutputRange.SpecialCells(XlCellType.xlCellTypeVisible).Copy();
+                sheet.Cells[startRow + 1, 2].PasteSpecial(XlPasteType.xlPasteValues);
+                if (rowCount == 1) sheet.Rows[startRow + 3].Delete();
+                for (int i = 1; i <= rowCount; i++) sheet.Cells[startRow + 1 + i, 1].Value2 = i;
+                OutputRange.AutoFilter(26);     // フィルターの解除ではなく抽出条件をクリア
+            }
+            // その他
+            sheet.AutoFilterMode = false;       // フィルター自体を解除
+            sheet.Activate();
+            sheet.Cells[1, 1].Select();
+
+            // COMオブジェクトの解放
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(sheetON);
         }
 
-        private int getFilteredRowCount(Microsoft.Office.Interop.Excel.Range OutputRange)
+        /// <summary>
+        /// 各工程(2)シートの作成（汎用）
+        /// </summary>
+        /// <param name="OutputRange">入力データのRange</param>
+        private void FilterCopyPaste3(string sheetName, int filCol
+            , string[] ktNames
+            , string[] filNames
+            , ref ToolStripStatusLabel toolStripStatusLabel)
         {
-            return 0;
+            int headerRow = 4;
+            int refEndRow = 0;      // 参照先フィルタ前の終了行（データ存在チェックとレンジ設定で使用）
+            int refStartRow = 0;    // 参照先フィルタ後の開始行
+            int startRow = 0;       // 貼り付け先の開始行
+            int rowCount = 0;       // フィルター後の対象件数
+            Excel.Worksheet refSheet;
+            refSheet = (Excel.Worksheet)oWBook.Worksheets[sheetName.Replace("(2)","")];
+            refEndRow = refSheet.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
+            int refEndNoRow = refSheet.Cells[headerRow + 1, 1].End(Excel.XlDirection.xlDown).Row;
+            if (refEndRow > 65535) return;
+            Excel.Range refRange = refSheet.Range[refSheet.Cells[headerRow, 1], refSheet.Cells[refEndRow, 37 + 3]];
+            Excel.Worksheet destSheet;
+            destSheet = (Excel.Worksheet)oWBook.Worksheets[sheetName];
+
+            // 設備対象で処理をループ
+            for (int idx = 0; idx < ktNames.Length; idx++)
+            {
+                if (filNames[idx] == "CN1")
+                {
+                    refRange.AutoFilter(Field: filCol
+                        , Criteria1: new string[] { "CN", "CN1" }
+                        , Operator: Excel.XlAutoFilterOperator.xlFilterValues
+                    );
+                }
+                //else if (filNames[idx] == "SK*")
+                //{
+                //    refRange.AutoFilter(Field: filCol
+                //        , Criteria1: new string[] { "SK", "SK2" }
+                //        , Operator: Excel.XlAutoFilterOperator.xlFilterValues
+                //    );
+                //}
+                else
+                {
+                    refRange.AutoFilter(filCol, Criteria1: filNames[idx]);
+                }
+                refStartRow = getFilteredFirstRow(ref refRange);
+                rowCount = getFilteredRowCount(ref refRange);
+                startRow = getRowNo(ref destSheet, $"{ktNames[idx]}", 2);
+                if (rowCount > 2)
+                {
+                    // for (int i = 1; i <= rowCount - 2; i++) destSheet.Rows[startRow + 3].Insert(XlInsertShiftDirection.xlShiftDown);
+                    destSheet.Rows[$"{startRow + 3}:{startRow + rowCount}"].Insert(XlInsertShiftDirection.xlShiftDown);
+                    destSheet.Range[destSheet.Cells[startRow + 2, 9], destSheet.Cells[startRow + 2, 10]].Copy();
+                    destSheet.Range[destSheet.Cells[startRow + 3, 9], destSheet.Cells[startRow + rowCount + 1, 10]].PasteSpecial(XlPasteType.xlPasteFormulas);
+                    destSheet.Range[destSheet.Cells[startRow + 2, 16], destSheet.Cells[startRow + 2, 23]].Copy();
+                    destSheet.Range[destSheet.Cells[startRow + 3, 16], destSheet.Cells[startRow + rowCount + 1, 23]].PasteSpecial(XlPasteType.xlPasteFormulas);
+                }
+                // 前半週のヘッダーのコピペ
+                refSheet.Range[refSheet.Cells[headerRow, 2], refSheet.Cells[headerRow, 8]]
+                    .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
+                destSheet.Cells[startRow + 1, 2].PasteSpecial(XlPasteType.xlPasteValues);
+                // 前半週のフィルタデータのコピペ
+                refSheet.Range[refSheet.Cells[refStartRow, 2],refSheet.Cells[refStartRow + rowCount, 8]]
+                    .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
+                destSheet.Cells[startRow + 2, 2].PasteSpecial(XlPasteType.xlPasteValues);
+                // 後半週のヘッダーのコピペ
+                refSheet.Range[refSheet.Cells[headerRow, 9], refSheet.Cells[headerRow, 13]]
+                    .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
+                destSheet.Cells[startRow + 1, 11].PasteSpecial(XlPasteType.xlPasteValues);
+                // 後半週のフィルタデータのコピペ
+                refSheet.Range[refSheet.Cells[refStartRow, 9], refSheet.Cells[refStartRow + rowCount, 13]]
+                    .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
+                destSheet.Cells[startRow + 2, 11].PasteSpecial(XlPasteType.xlPasteValues);
+                // 1件の場合は空白行を削除
+                if (rowCount == 1) destSheet.Rows[startRow + 3].Delete();
+                // No振り直し
+                for (int i = 1; i <= rowCount; i++) destSheet.Cells[startRow + 1 + i, 1].Value2 = i;
+                // フィルターの解除ではなく抽出条件をクリア
+                refRange.AutoFilter(filCol);
+            }
+            // その他
+            refSheet.AutoFilterMode = false;    // フィルター自体を解除
+            destSheet.Activate();
+            destSheet.Cells[1, 1].Select();
+
+            // COMオブジェクトの解放
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(refRange);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(refSheet);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(destSheet);
+        }
+
+        /// <summary>
+        /// NCシートのNC4からのデータをNC(2)シートに複写（専用）
+        /// </summary>
+        /// <param name="OutputRange">入力データのRange</param>
+        private void DirectCopyPaste4(ref ToolStripStatusLabel toolStripStatusLabel)
+        {
+            Excel.Worksheet refSheet;
+            refSheet = (Excel.Worksheet)oWBook.Worksheets["NC"];
+            Excel.Worksheet destSheet;
+            destSheet = (Excel.Worksheet)oWBook.Worksheets["NC(2)"];
+            // 一旦全部コピペ
+            refSheet.Range[refSheet.Cells[1, 1], refSheet.Cells[150, 18]].Copy(); // 150行くらいコピペしとけば大丈夫じゃね
+            destSheet.Cells[1, 1].PasteSpecial(Excel.XlPasteType.xlPasteAll);
+            // ON～NC3までを削除
+            int refStartRow = getRowNo(ref refSheet, "NC4", 2);
+            destSheet.Rows[$"3:{refStartRow - 1}"].Delete();
+            destSheet.Activate();
+            destSheet.Cells[1, 1].Select();
+            // COMオブジェクトの解放
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(refSheet);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(destSheet);
+        }
+
+        // フィルタ後のデータの先頭行番号を取得
+        private int getFilteredFirstRow(ref Microsoft.Office.Interop.Excel.Range OutputRange)
+        {
+            // フィルター後の可視セルを取得
+            var visibleCells = OutputRange.SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+            // 可視セルを調査
+            foreach (Excel.Range cell in visibleCells.Rows)
+            {
+                // ヘッダー以外のデータの開始行を取得
+                if (((object[,])cell.Value2)[1, 2].ToString() != "品番") return cell.Row;
+            }
+            return 5; // 不明の場合は初期値を返却
+        }
+
+        // フィルタ後の件数を取得
+        private int getFilteredRowCount(ref Microsoft.Office.Interop.Excel.Range OutputRange)
+        {
+            // フィルター後の可視セルを取得
+            var visibleCells = OutputRange.SpecialCells(Excel.XlCellType.xlCellTypeVisible);
+
+            // 可視セルの行数をカウント
+            int visibleRowCount = 0;
+            foreach (Excel.Range cell in visibleCells.Rows)
+            {
+                // Debug用 Console.WriteLine(((object[,])cell.Value2)[1, 1].ToString());
+                visibleRowCount++;
+            }
+            // 行ヘッダー分を引いて返却
+            return visibleRowCount - 1;
+        }
+
+        // 文字列を検索し行番号を返却
+        private int getRowNo(ref Excel.Worksheet sheet, string findstring, int column)
+        {
+            Excel.Range foundCell = sheet.Columns[column].Find(
+                What: findstring.Replace("'",""),
+                LookIn: Excel.XlFindLookIn.xlValues,
+                LookAt: Excel.XlLookAt.xlWhole,     // 完全一致
+                SearchOrder: Excel.XlSearchOrder.xlByRows,
+                MatchCase: true                     // 大文字小文字を区別
+            );
+            if (foundCell == null)
+            {
+                throw new Exception($"文字列[{findstring}]が列{column}で見つかりませんでした.");
+            }
+            return foundCell.Row;
         }
 
         // Excelブックが開いているかどうか判定

@@ -81,9 +81,9 @@ namespace MPPPS
         private async void btn_PickupTehai_Click(object sender, EventArgs e)
         {
             // 出力ファイルを設定
-            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            string filePath1 = Path.Combine(userProfile, "Desktop", "促進.xlsx");
-            string filePath2 = Path.Combine(userProfile, "Desktop", "①.xlsx");
+            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string filePath1 = Path.Combine(userProfile, "促進.xlsx");
+            string filePath2 = Path.Combine(userProfile, "①.xlsx");
 
             // Excelブックが開いているかどうか確認
             if (cmn.Fa.IsWorkbookOpen("①.xlsx"))
@@ -107,6 +107,13 @@ namespace MPPPS
                 if (MessageBox.Show("上書き保存してもよろしいですか？", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
                     == DialogResult.No) return;
             }
+            else if (MessageBox.Show("促進表データの作成を行います．\n\nよろしいですか？", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+                    == DialogResult.No)
+            {
+                return;
+            }
+
+
 
             DataTable d0410 = new DataTable();
             int ret = 0;
@@ -158,13 +165,21 @@ namespace MPPPS
                 // Bookを閉じる
                 cmn.Fa.CloseExcelFile2(false);
 
-                // Interop.Excelではなく標準アプリケーションで開く
-                Process.Start(@filePath2);
+                if (File.Exists(filePath2))
+                {
+                    // Interop.Excelではなく標準アプリケーションで開く
+                    Process.Start(@filePath2);
 
-                toolStripStatusLabel1.Text = "促進データの作成が終了しました.";
+                    toolStripStatusLabel1.Text = "促進データの作成が終了しました.";
+                }
+                else
+                {
+                    toolStripStatusLabel1.Text = "促進データの作成終了.";
+                }
             }
             catch (Exception ex)
             {
+                toolStripStatusLabel1.Text = "異常発生.";
                 MessageBox.Show("工程別促進データ作成中にエラーが発生しました: " + ex.Message, "異常発生", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally {

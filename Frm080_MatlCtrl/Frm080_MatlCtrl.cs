@@ -67,8 +67,8 @@ namespace MPPPS
             Point sp = this.PointToScreen(new Point(Btn_MatlInvList.Left, Btn_MatlInvList.Top));
 
             // マウスポインタの位置をトップボタンに設定
-            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(sp.X + 10,
-                sp.Y + (Btn_MatlInvList.Height / 2));
+            //System.Windows.Forms.Cursor.Position = new System.Drawing.Point(sp.X + 10,
+            //    sp.Y + (Btn_MatlInvList.Height / 2));
         }
 
     }
