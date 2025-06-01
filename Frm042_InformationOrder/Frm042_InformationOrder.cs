@@ -110,8 +110,10 @@ namespace MPPPS
             // ボタンを非活性化
             setCommandButtons(false);
 
+            chk_EDDT.Checked = true;
+
             // 初期フォーカス
-            dtp_EDDT_From.Focus();
+            btn_Search.Focus();
 
             toolStripStatusLabel1.Text = string.Empty;
             toolStripStatusLabel2.Text = "セル選択後、右クリックでコピー";
@@ -145,17 +147,19 @@ namespace MPPPS
             return 
                 "ODRNO," +
                 "HMCD," +
+                "HMNM," + 
                 "KTKEY," +
-                "MATERIALCD," +
+                //"MATERIALCD," +
                 "ODRQTY," +
                 "JIQTY," +
                 "EDDT," +
                 "EDTIM," +
-                "ODRSTS," +
-                "DENPYOKBN," +
-                "DENPYODT," +
+                "ODRSTS," + 
+                "CASE ODRSTS WHEN '1' THEN '追加' WHEN '2' THEN '確定' WHEN '3' THEN '着手' WHEN '4' THEN '完了' WHEN '9' THEN '取消' END as ODRSTSNM," +
+                //"DENPYOKBN," +
+                //"DENPYODT," +
                 "MPCARDDT," +
-                "MPTANADT," +
+                //"MPTANADT," +
                 "NOTE," +
                 "WKNOTE," +
                 "WKCOMMENT," +
@@ -172,6 +176,7 @@ namespace MPPPS
             dic.Add("ODRNO", new MultipleValues { JPNAME = "手配No", Width = 110 });
             dic.Add("KTSEQ", new MultipleValues { JPNAME = "工程順序", Width = 40 });
             dic.Add("HMCD", new MultipleValues { JPNAME = "品番", Width = 170 });
+            dic.Add("HMNM", new MultipleValues { JPNAME = "品名", Width = 170 });
             dic.Add("KTCD", new MultipleValues { JPNAME = "工程ｺｰﾄﾞ", Width = 60 });
             dic.Add("ODRQTY", new MultipleValues { JPNAME = "手配数", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
             dic.Add("ODCD", new MultipleValues { JPNAME = "手配先ｺｰﾄﾞ", Width = 60 });
@@ -182,6 +187,7 @@ namespace MPPPS
             dic.Add("EDDT", new MultipleValues { JPNAME = "完了予定日", Width = 100 });
             dic.Add("EDTIM", new MultipleValues { JPNAME = "完了予定時刻", Width = 60 });
             dic.Add("ODRSTS", new MultipleValues { JPNAME = "手配状況", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
+            dic.Add("ODRSTSNM", new MultipleValues { JPNAME = "手配", Width = 80, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
             dic.Add("QRCD", new MultipleValues { JPNAME = "QRコード", Width = 100 });
             dic.Add("JIQTY", new MultipleValues { JPNAME = "実績数", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
             dic.Add("DENPYOKBN", new MultipleValues { JPNAME = "帳票発行区分", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
@@ -243,42 +249,57 @@ namespace MPPPS
 
 
         // ******************************** 条件関連ここから *********************************
+        // 手配No条件ボックスの活性、非活性化
+        private void chk_ODRNO_CheckedChanged(object sender, EventArgs e)
+        {
+            checkedFillter();
+            txt_ODRNO.Enabled = chk_ODRNO.Checked;
+            btn_ODRNOPaste.Enabled = chk_ODRNO.Checked;
+            if (chk_HMCD.Checked) txt_ODRNO.Focus();
+        }
+
+        // 品番条件ボックスの活性、非活性化
+        private void chk_HMCD_CheckedChanged(object sender, EventArgs e)
+        {
+            checkedFillter();
+            chk_Like.Enabled = chk_HMCD.Checked;
+            txt_HMCD.Enabled = chk_HMCD.Checked;
+            btn_HMCDPaste.Enabled = chk_HMCD.Checked;
+            if (chk_HMCD.Checked) txt_HMCD.Focus();
+        }
+
+        // 完了予定日条件ボックスの活性、非活性化
+        private void chk_EDDT_CheckedChanged(object sender, EventArgs e)
+        {
+            dtp_EDDT_From.Enabled = chk_EDDT.Checked;
+            cmb_Condition.Enabled = chk_EDDT.Checked;
+            if (dtp_EDDT_To.Visible) dtp_EDDT_To.Enabled = chk_EDDT.Checked;
+        }
+
+        // 受注状態条件ボックスの活性、非活性化
         private void chk_ODRSTS_CheckedChanged(object sender, EventArgs e)
         {
             checkedFillter();
-            // コントロールの活性、非活性化
+            chk_1.Enabled = chk_ODRSTS.Checked;
             chk_2.Enabled = chk_ODRSTS.Checked;
             chk_3.Enabled = chk_ODRSTS.Checked;
             chk_4.Enabled = chk_ODRSTS.Checked;
             chk_9.Enabled = chk_ODRSTS.Checked;
         }
 
+        private void chk_1_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
         private void chk_2_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
-
         private void chk_3_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
-
         private void chk_4_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
-
         private void chk_9_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
 
-        private void chk_ODRNO_CheckedChanged(object sender, EventArgs e)
+        // 手配No Enterイベント
+        private void txt_ODRNO_KeyDown(object sender, KeyEventArgs e)
         {
-            checkedFillter();
-            // 入力ボックスの活性、非活性化
-            txt_HMCD.Enabled = chk_ODRNO.Checked;
-            btn_HMCDPaste.Enabled = chk_ODRNO.Checked;
-            if (chk_HMCD.Checked) txt_HMCD.Focus();
+            if (e.KeyCode == Keys.Enter) checkedFillter();
         }
 
-        private void chk_HMCD_CheckedChanged(object sender, EventArgs e)
-        {
-            checkedFillter();
-            // 入力ボックスの活性、非活性化
-            txt_HMCD.Enabled = chk_HMCD.Checked;
-            btn_HMCDPaste.Enabled = chk_HMCD.Checked;
-            if (chk_HMCD.Checked) txt_HMCD.Focus();
-        }
-
+        // 品番変更イベント
         private void txt_HMCD_TextChanged(object sender, EventArgs e)
         {
             var selpos = txt_HMCD.SelectionStart;
@@ -286,13 +307,14 @@ namespace MPPPS
             txt_HMCD.Text = txt_HMCD.Text.ToUpper();
             txt_HMCD.SelectionStart = selpos;
             txt_HMCD.SelectionLength = sellen;
-            if (txt_HMCD.TextLength > 2) checkedFillter();
+            checkedFillter();
         }
 
         // 手配完了予定日のFromToを表示するかの判定
         private void cmb_Condition_SelectedIndexChanged(object sender, EventArgs e)
         {
             dtp_EDDT_To.Visible = (cmb_Condition.SelectedIndex == 0) ? false : true;
+            if (dtp_EDDT_To.Visible) dtp_EDDT_To.Value = dtp_EDDT_From.Value.AddDays(7);
         }
 
         private void chk_MCCD_CheckedChanged(object sender, EventArgs e)
@@ -320,6 +342,7 @@ namespace MPPPS
         {
             checkedFillter();
         }
+
         // 現在表示されている各条件を元にフィルター
         private void checkedFillter()
         {
@@ -338,21 +361,52 @@ namespace MPPPS
             }
         }
 
-
         // 現在表示されている検索条件フィルター文の作成
         private string addFillter()
         {
-            var f = "";
+            string f = "";
+            if (chk_ODRNO.Checked && txt_ODRNO.Text != string.Empty)
+            {
+                if (f != string.Empty) f += " and ";
+                f += "ODRNO = '" + txt_ODRNO.Text + "' ";
+            }
+            if (chk_HMCD.Checked && txt_HMCD.Text != string.Empty && chk_Like.Checked == false)
+            {
+                if (f != string.Empty) f += " and ";
+                f += "HMCD = '" + txt_HMCD.Text + "' ";
+            }
+            if (chk_HMCD.Checked && txt_HMCD.Text != string.Empty && chk_Like.Checked == true)
+            {
+                if (f != string.Empty) f += " and ";
+                f += "HMCD like '%" + txt_HMCD.Text + "%' ";
+            }
+            if (chk_EDDT.Checked)
+            {
+                if (f != string.Empty) f += " and ";
+                if (dtp_EDDT_To.Visible == false)
+                {
+                    f += "EDDT='" + dtp_EDDT_From.Value.Date.ToString("yyyy-MM-dd") + "'";
+                }
+                else
+                {
+                    // Betweenを使うとFilter出来なくなるので注意（SQL文とDataGridViewでの兼用）
+                    f += "EDDT >= '" + dtp_EDDT_From.Value.Date.ToString("yyyy-MM-dd") + "' " + 
+                        "and " + 
+                        "EDDT <= '" + dtp_EDDT_To.Value.Date.ToString("yyyy-MM-dd") + "'";
+                }
+            }
             if (chk_ODRSTS.Checked)
             {
-                var c = 0;
+                int c = 0;
+                c += (chk_1.Checked) ? 1 : 0;
                 c += (chk_2.Checked) ? 1 : 0;
                 c += (chk_3.Checked) ? 1 : 0;
                 c += (chk_4.Checked) ? 1 : 0;
                 c += (chk_9.Checked) ? 1 : 0;
                 if (c == 1) // 単数検索条件を設定
                 {
-
+                    if (f != string.Empty) f += " and ";
+                    if (chk_1.Checked) f += "ODRSTS='1'";
                     if (chk_2.Checked) f += "ODRSTS='2'";
                     if (chk_3.Checked) f += "ODRSTS='3'";
                     if (chk_4.Checked) f += "ODRSTS='4'";
@@ -361,23 +415,15 @@ namespace MPPPS
                 if (c > 1)
                 {
                     // 複数検索条件を設定
+                    if (f != string.Empty) f += " and ";
                     f += "ODRSTS IN(";
+                    if (chk_1.Checked) f += "'1',";
                     if (chk_2.Checked) f += "'2',";
                     if (chk_3.Checked) f += "'3',";
                     if (chk_4.Checked) f += "'4',";
                     if (chk_9.Checked) f += "'9',";
                     f += "'x')";
                 }
-            }
-            if (chk_ODRNO.Checked && txt_HMCD.Text != string.Empty)
-            {
-                if (f != string.Empty) f += " and ";
-                f += "ODRNO = '" + txt_HMCD.Text + "' ";
-            }
-            if (chk_HMCD.Checked && txt_HMCD.Text != string.Empty)
-            {
-                if (f != string.Empty) f += " and ";
-                f += "HMCD like '%" + txt_HMCD.Text + "%' ";
             }
             if (chk_MCCD.Checked)
             {
@@ -432,6 +478,11 @@ namespace MPPPS
         }
 
         // クリップボードからペースト
+        private void btn_ODRNOPaste_Click(object sender, EventArgs e)
+        {
+            txt_ODRNO.Text = Clipboard.GetText().Replace("\r\n", "");
+        }
+
         private void btn_HMCDPaste_Click(object sender, EventArgs e)
         {
             txt_HMCD.Text = Clipboard.GetText().Replace("\r\n", "");
@@ -457,26 +508,18 @@ namespace MPPPS
         // 検索処理
         private void btn_Search_Click(object sender, EventArgs e)
         {
+            // 検索条件チェック
+            if (!chk_ODRSTS.Checked && !chk_ODRNO.Checked && !chk_HMCD.Checked && !chk_EDDT.Checked && !chk_MCCD.Checked)
+            {
+                MessageBox.Show("検索条件を指定してください．","エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             // 検索済データクリア
             kd8430.Rows.Clear();
-            // ここから条件設定
-            var where = "";
-            if (!chk_ODRNO.Checked)
-            {
-                if (dtp_EDDT_To.Visible == false)
-                {
-                    where += "EDDT='" + dtp_EDDT_From.Value.Date.ToString("yyyy-MM-dd") + "'";
-                }
-                else
-                {
-                    where += "EDDT between '" + dtp_EDDT_From.Value.Date.ToString("yyyy-MM-dd") +
-                        "' and '" + dtp_EDDT_To.Value.Date.ToString("yyyy-MM-dd") + "'";
-                }
-            }
-            var fillter = addFillter();
-            if (fillter != string.Empty) where += (where == string.Empty) ? fillter : " and " + fillter;
 
-            // データベースアクセス
+            // 手配検索
+            var where = addFillter();
             var ret8420 = cmn.Dba.FindMpOrder(ref kd8430, selectSQL(), where);
             dgv_Order.DataSource = kd8430;
 

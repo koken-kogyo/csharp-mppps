@@ -36,22 +36,27 @@ namespace MPPPS
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.chk_Like = new System.Windows.Forms.CheckBox();
+            this.chk_HMCD = new System.Windows.Forms.CheckBox();
+            this.txt_HMCD = new System.Windows.Forms.TextBox();
+            this.btn_HMCDPaste = new System.Windows.Forms.Button();
             this.btn_Search = new System.Windows.Forms.Button();
             this.pnl_EDDT = new System.Windows.Forms.Panel();
+            this.chk_EDDT = new System.Windows.Forms.CheckBox();
             this.cmb_Condition = new System.Windows.Forms.ComboBox();
             this.dtp_EDDT_To = new System.Windows.Forms.DateTimePicker();
             this.dtp_EDDT_From = new System.Windows.Forms.DateTimePicker();
-            this.label7 = new System.Windows.Forms.Label();
             this.pnl_MCCD = new System.Windows.Forms.Panel();
             this.cmb_MCCD = new System.Windows.Forms.ComboBox();
             this.cmb_MCGCD = new System.Windows.Forms.ComboBox();
             this.chk_MCCD = new System.Windows.Forms.CheckBox();
             this.pnl_HMCD = new System.Windows.Forms.Panel();
-            this.chk_HMCD = new System.Windows.Forms.CheckBox();
-            this.txt_HMCD = new System.Windows.Forms.TextBox();
-            this.btn_HMCDPaste = new System.Windows.Forms.Button();
+            this.txt_ODRNO = new System.Windows.Forms.TextBox();
+            this.btn_ODRNOPaste = new System.Windows.Forms.Button();
             this.chk_ODRNO = new System.Windows.Forms.CheckBox();
             this.pnl_ODRSTS = new System.Windows.Forms.Panel();
+            this.chk_1 = new System.Windows.Forms.CheckBox();
             this.chk_9 = new System.Windows.Forms.CheckBox();
             this.chk_4 = new System.Windows.Forms.CheckBox();
             this.chk_3 = new System.Windows.Forms.CheckBox();
@@ -65,6 +70,7 @@ namespace MPPPS
             this.btn_DetailOrder = new System.Windows.Forms.Button();
             this.statusStrip.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.pnl_EDDT.SuspendLayout();
             this.pnl_MCCD.SuspendLayout();
             this.pnl_HMCD.SuspendLayout();
@@ -80,9 +86,9 @@ namespace MPPPS
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip.Location = new System.Drawing.Point(0, 537);
+            this.statusStrip.Location = new System.Drawing.Point(0, 542);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1069, 29);
+            this.statusStrip.Size = new System.Drawing.Size(1306, 24);
             this.statusStrip.TabIndex = 6;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -90,7 +96,7 @@ namespace MPPPS
             // 
             this.toolStripStatusLabel1.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(171, 23);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(139, 19);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -98,13 +104,14 @@ namespace MPPPS
             // 
             this.toolStripStatusLabel2.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(844, 23);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(1152, 19);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.panel2);
             this.panel1.Controls.Add(this.btn_Search);
             this.panel1.Controls.Add(this.pnl_EDDT);
             this.panel1.Controls.Add(this.pnl_MCCD);
@@ -114,16 +121,77 @@ namespace MPPPS
             this.panel1.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1069, 83);
+            this.panel1.Size = new System.Drawing.Size(1306, 83);
             this.panel1.TabIndex = 8;
+            // 
+            // panel2
+            // 
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.chk_Like);
+            this.panel2.Controls.Add(this.chk_HMCD);
+            this.panel2.Controls.Add(this.txt_HMCD);
+            this.panel2.Controls.Add(this.btn_HMCDPaste);
+            this.panel2.Location = new System.Drawing.Point(612, 8);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(219, 65);
+            this.panel2.TabIndex = 3;
+            // 
+            // chk_Like
+            // 
+            this.chk_Like.AutoSize = true;
+            this.chk_Like.Checked = true;
+            this.chk_Like.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chk_Like.Enabled = false;
+            this.chk_Like.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.chk_Like.Location = new System.Drawing.Point(70, 3);
+            this.chk_Like.Name = "chk_Like";
+            this.chk_Like.Size = new System.Drawing.Size(51, 21);
+            this.chk_Like.TabIndex = 2;
+            this.chk_Like.Text = "LIKE";
+            this.chk_Like.UseVisualStyleBackColor = true;
+            // 
+            // chk_HMCD
+            // 
+            this.chk_HMCD.AutoSize = true;
+            this.chk_HMCD.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chk_HMCD.Location = new System.Drawing.Point(7, 0);
+            this.chk_HMCD.Name = "chk_HMCD";
+            this.chk_HMCD.Size = new System.Drawing.Size(58, 25);
+            this.chk_HMCD.TabIndex = 0;
+            this.chk_HMCD.Text = "品番";
+            this.chk_HMCD.UseVisualStyleBackColor = true;
+            this.chk_HMCD.CheckedChanged += new System.EventHandler(this.chk_HMCD_CheckedChanged);
+            // 
+            // txt_HMCD
+            // 
+            this.txt_HMCD.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txt_HMCD.Enabled = false;
+            this.txt_HMCD.Location = new System.Drawing.Point(7, 27);
+            this.txt_HMCD.Name = "txt_HMCD";
+            this.txt_HMCD.Size = new System.Drawing.Size(137, 29);
+            this.txt_HMCD.TabIndex = 1;
+            this.txt_HMCD.TextChanged += new System.EventHandler(this.txt_HMCD_TextChanged);
+            // 
+            // btn_HMCDPaste
+            // 
+            this.btn_HMCDPaste.Enabled = false;
+            this.btn_HMCDPaste.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.btn_HMCDPaste.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btn_HMCDPaste.Location = new System.Drawing.Point(150, 26);
+            this.btn_HMCDPaste.Name = "btn_HMCDPaste";
+            this.btn_HMCDPaste.Size = new System.Drawing.Size(62, 31);
+            this.btn_HMCDPaste.TabIndex = 3;
+            this.btn_HMCDPaste.Text = "貼り付け";
+            this.btn_HMCDPaste.UseVisualStyleBackColor = true;
+            this.btn_HMCDPaste.Click += new System.EventHandler(this.btn_HMCDPaste_Click);
             // 
             // btn_Search
             // 
             this.btn_Search.BackColor = System.Drawing.Color.PaleTurquoise;
-            this.btn_Search.Location = new System.Drawing.Point(10, 7);
+            this.btn_Search.Location = new System.Drawing.Point(8, 7);
             this.btn_Search.Name = "btn_Search";
             this.btn_Search.Size = new System.Drawing.Size(76, 66);
-            this.btn_Search.TabIndex = 4;
+            this.btn_Search.TabIndex = 0;
             this.btn_Search.Text = "検索(F5)";
             this.btn_Search.UseVisualStyleBackColor = false;
             this.btn_Search.Click += new System.EventHandler(this.btn_Search_Click);
@@ -131,14 +199,26 @@ namespace MPPPS
             // pnl_EDDT
             // 
             this.pnl_EDDT.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnl_EDDT.Controls.Add(this.chk_EDDT);
             this.pnl_EDDT.Controls.Add(this.cmb_Condition);
             this.pnl_EDDT.Controls.Add(this.dtp_EDDT_To);
             this.pnl_EDDT.Controls.Add(this.dtp_EDDT_From);
-            this.pnl_EDDT.Controls.Add(this.label7);
-            this.pnl_EDDT.Location = new System.Drawing.Point(559, 8);
+            this.pnl_EDDT.Location = new System.Drawing.Point(90, 8);
             this.pnl_EDDT.Name = "pnl_EDDT";
             this.pnl_EDDT.Size = new System.Drawing.Size(300, 65);
-            this.pnl_EDDT.TabIndex = 3;
+            this.pnl_EDDT.TabIndex = 1;
+            // 
+            // chk_EDDT
+            // 
+            this.chk_EDDT.AutoSize = true;
+            this.chk_EDDT.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chk_EDDT.Location = new System.Drawing.Point(7, 0);
+            this.chk_EDDT.Name = "chk_EDDT";
+            this.chk_EDDT.Size = new System.Drawing.Size(106, 25);
+            this.chk_EDDT.TabIndex = 0;
+            this.chk_EDDT.Text = "完了予定日";
+            this.chk_EDDT.UseVisualStyleBackColor = true;
+            this.chk_EDDT.CheckedChanged += new System.EventHandler(this.chk_EDDT_CheckedChanged);
             // 
             // cmb_Condition
             // 
@@ -149,8 +229,8 @@ namespace MPPPS
             "～"});
             this.cmb_Condition.Location = new System.Drawing.Point(132, 27);
             this.cmb_Condition.Name = "cmb_Condition";
-            this.cmb_Condition.Size = new System.Drawing.Size(38, 36);
-            this.cmb_Condition.TabIndex = 4;
+            this.cmb_Condition.Size = new System.Drawing.Size(38, 29);
+            this.cmb_Condition.TabIndex = 2;
             this.cmb_Condition.SelectedIndexChanged += new System.EventHandler(this.cmb_Condition_SelectedIndexChanged);
             // 
             // dtp_EDDT_To
@@ -160,7 +240,7 @@ namespace MPPPS
             this.dtp_EDDT_To.MaxDate = new System.DateTime(2050, 12, 31, 0, 0, 0, 0);
             this.dtp_EDDT_To.MinDate = new System.DateTime(2020, 1, 1, 0, 0, 0, 0);
             this.dtp_EDDT_To.Name = "dtp_EDDT_To";
-            this.dtp_EDDT_To.Size = new System.Drawing.Size(108, 34);
+            this.dtp_EDDT_To.Size = new System.Drawing.Size(108, 29);
             this.dtp_EDDT_To.TabIndex = 3;
             // 
             // dtp_EDDT_From
@@ -170,18 +250,9 @@ namespace MPPPS
             this.dtp_EDDT_From.MaxDate = new System.DateTime(2050, 12, 31, 0, 0, 0, 0);
             this.dtp_EDDT_From.MinDate = new System.DateTime(2020, 1, 1, 0, 0, 0, 0);
             this.dtp_EDDT_From.Name = "dtp_EDDT_From";
-            this.dtp_EDDT_From.Size = new System.Drawing.Size(108, 34);
-            this.dtp_EDDT_From.TabIndex = 2;
+            this.dtp_EDDT_From.Size = new System.Drawing.Size(108, 29);
+            this.dtp_EDDT_From.TabIndex = 1;
             this.dtp_EDDT_From.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dtp_EDDT_From_KeyDown);
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 2);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(112, 28);
-            this.label7.TabIndex = 1;
-            this.label7.Text = "完了予定日";
             // 
             // pnl_MCCD
             // 
@@ -189,10 +260,10 @@ namespace MPPPS
             this.pnl_MCCD.Controls.Add(this.cmb_MCCD);
             this.pnl_MCCD.Controls.Add(this.cmb_MCGCD);
             this.pnl_MCCD.Controls.Add(this.chk_MCCD);
-            this.pnl_MCCD.Location = new System.Drawing.Point(865, 8);
+            this.pnl_MCCD.Location = new System.Drawing.Point(1120, 8);
             this.pnl_MCCD.Name = "pnl_MCCD";
             this.pnl_MCCD.Size = new System.Drawing.Size(199, 65);
-            this.pnl_MCCD.TabIndex = 2;
+            this.pnl_MCCD.TabIndex = 5;
             // 
             // cmb_MCCD
             // 
@@ -201,8 +272,8 @@ namespace MPPPS
             this.cmb_MCCD.FormattingEnabled = true;
             this.cmb_MCCD.Location = new System.Drawing.Point(97, 27);
             this.cmb_MCCD.Name = "cmb_MCCD";
-            this.cmb_MCCD.Size = new System.Drawing.Size(81, 36);
-            this.cmb_MCCD.TabIndex = 3;
+            this.cmb_MCCD.Size = new System.Drawing.Size(81, 29);
+            this.cmb_MCCD.TabIndex = 2;
             this.cmb_MCCD.SelectedIndexChanged += new System.EventHandler(this.cmb_MCCD_SelectedIndexChanged);
             // 
             // cmb_MCGCD
@@ -212,8 +283,8 @@ namespace MPPPS
             this.cmb_MCGCD.FormattingEnabled = true;
             this.cmb_MCGCD.Location = new System.Drawing.Point(19, 27);
             this.cmb_MCGCD.Name = "cmb_MCGCD";
-            this.cmb_MCGCD.Size = new System.Drawing.Size(72, 36);
-            this.cmb_MCGCD.TabIndex = 2;
+            this.cmb_MCGCD.Size = new System.Drawing.Size(72, 29);
+            this.cmb_MCGCD.TabIndex = 1;
             this.cmb_MCGCD.SelectedIndexChanged += new System.EventHandler(this.cmb_MCGCD_SelectedIndexChanged);
             // 
             // chk_MCCD
@@ -222,8 +293,8 @@ namespace MPPPS
             this.chk_MCCD.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chk_MCCD.Location = new System.Drawing.Point(6, 0);
             this.chk_MCCD.Name = "chk_MCCD";
-            this.chk_MCCD.Size = new System.Drawing.Size(70, 32);
-            this.chk_MCCD.TabIndex = 7;
+            this.chk_MCCD.Size = new System.Drawing.Size(58, 25);
+            this.chk_MCCD.TabIndex = 0;
             this.chk_MCCD.Text = "設備";
             this.chk_MCCD.UseVisualStyleBackColor = true;
             this.chk_MCCD.CheckedChanged += new System.EventHandler(this.chk_MCCD_CheckedChanged);
@@ -231,49 +302,36 @@ namespace MPPPS
             // pnl_HMCD
             // 
             this.pnl_HMCD.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pnl_HMCD.Controls.Add(this.chk_HMCD);
-            this.pnl_HMCD.Controls.Add(this.txt_HMCD);
-            this.pnl_HMCD.Controls.Add(this.btn_HMCDPaste);
+            this.pnl_HMCD.Controls.Add(this.txt_ODRNO);
+            this.pnl_HMCD.Controls.Add(this.btn_ODRNOPaste);
             this.pnl_HMCD.Controls.Add(this.chk_ODRNO);
-            this.pnl_HMCD.Location = new System.Drawing.Point(334, 8);
+            this.pnl_HMCD.Location = new System.Drawing.Point(398, 8);
             this.pnl_HMCD.Name = "pnl_HMCD";
-            this.pnl_HMCD.Size = new System.Drawing.Size(219, 65);
-            this.pnl_HMCD.TabIndex = 1;
+            this.pnl_HMCD.Size = new System.Drawing.Size(206, 65);
+            this.pnl_HMCD.TabIndex = 2;
             // 
-            // chk_HMCD
+            // txt_ODRNO
             // 
-            this.chk_HMCD.AutoSize = true;
-            this.chk_HMCD.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chk_HMCD.Location = new System.Drawing.Point(88, 0);
-            this.chk_HMCD.Name = "chk_HMCD";
-            this.chk_HMCD.Size = new System.Drawing.Size(70, 32);
-            this.chk_HMCD.TabIndex = 6;
-            this.chk_HMCD.Text = "品番";
-            this.chk_HMCD.UseVisualStyleBackColor = true;
-            this.chk_HMCD.CheckedChanged += new System.EventHandler(this.chk_HMCD_CheckedChanged);
+            this.txt_ODRNO.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txt_ODRNO.Enabled = false;
+            this.txt_ODRNO.Location = new System.Drawing.Point(7, 27);
+            this.txt_ODRNO.Name = "txt_ODRNO";
+            this.txt_ODRNO.Size = new System.Drawing.Size(121, 29);
+            this.txt_ODRNO.TabIndex = 1;
+            this.txt_ODRNO.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_ODRNO_KeyDown);
             // 
-            // txt_HMCD
+            // btn_ODRNOPaste
             // 
-            this.txt_HMCD.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txt_HMCD.Enabled = false;
-            this.txt_HMCD.Location = new System.Drawing.Point(19, 27);
-            this.txt_HMCD.Name = "txt_HMCD";
-            this.txt_HMCD.Size = new System.Drawing.Size(167, 34);
-            this.txt_HMCD.TabIndex = 2;
-            this.txt_HMCD.TextChanged += new System.EventHandler(this.txt_HMCD_TextChanged);
-            // 
-            // btn_HMCDPaste
-            // 
-            this.btn_HMCDPaste.Enabled = false;
-            this.btn_HMCDPaste.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.btn_HMCDPaste.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btn_HMCDPaste.Location = new System.Drawing.Point(148, 4);
-            this.btn_HMCDPaste.Name = "btn_HMCDPaste";
-            this.btn_HMCDPaste.Size = new System.Drawing.Size(62, 20);
-            this.btn_HMCDPaste.TabIndex = 13;
-            this.btn_HMCDPaste.Text = "貼り付け";
-            this.btn_HMCDPaste.UseVisualStyleBackColor = true;
-            this.btn_HMCDPaste.Click += new System.EventHandler(this.btn_HMCDPaste_Click);
+            this.btn_ODRNOPaste.Enabled = false;
+            this.btn_ODRNOPaste.Font = new System.Drawing.Font("Yu Gothic UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.btn_ODRNOPaste.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btn_ODRNOPaste.Location = new System.Drawing.Point(134, 25);
+            this.btn_ODRNOPaste.Name = "btn_ODRNOPaste";
+            this.btn_ODRNOPaste.Size = new System.Drawing.Size(61, 31);
+            this.btn_ODRNOPaste.TabIndex = 2;
+            this.btn_ODRNOPaste.Text = "貼り付け";
+            this.btn_ODRNOPaste.UseVisualStyleBackColor = true;
+            this.btn_ODRNOPaste.Click += new System.EventHandler(this.btn_ODRNOPaste_Click);
             // 
             // chk_ODRNO
             // 
@@ -281,8 +339,8 @@ namespace MPPPS
             this.chk_ODRNO.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chk_ODRNO.Location = new System.Drawing.Point(7, 0);
             this.chk_ODRNO.Name = "chk_ODRNO";
-            this.chk_ODRNO.Size = new System.Drawing.Size(97, 32);
-            this.chk_ODRNO.TabIndex = 14;
+            this.chk_ODRNO.Size = new System.Drawing.Size(79, 25);
+            this.chk_ODRNO.TabIndex = 0;
             this.chk_ODRNO.Text = "手配No";
             this.chk_ODRNO.UseVisualStyleBackColor = true;
             this.chk_ODRNO.CheckedChanged += new System.EventHandler(this.chk_ODRNO_CheckedChanged);
@@ -290,24 +348,37 @@ namespace MPPPS
             // pnl_ODRSTS
             // 
             this.pnl_ODRSTS.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnl_ODRSTS.Controls.Add(this.chk_1);
             this.pnl_ODRSTS.Controls.Add(this.chk_9);
             this.pnl_ODRSTS.Controls.Add(this.chk_4);
             this.pnl_ODRSTS.Controls.Add(this.chk_3);
             this.pnl_ODRSTS.Controls.Add(this.chk_2);
             this.pnl_ODRSTS.Controls.Add(this.chk_ODRSTS);
-            this.pnl_ODRSTS.Location = new System.Drawing.Point(92, 8);
+            this.pnl_ODRSTS.Location = new System.Drawing.Point(838, 8);
             this.pnl_ODRSTS.Name = "pnl_ODRSTS";
-            this.pnl_ODRSTS.Size = new System.Drawing.Size(236, 65);
-            this.pnl_ODRSTS.TabIndex = 0;
+            this.pnl_ODRSTS.Size = new System.Drawing.Size(275, 65);
+            this.pnl_ODRSTS.TabIndex = 4;
+            // 
+            // chk_1
+            // 
+            this.chk_1.AutoSize = true;
+            this.chk_1.Enabled = false;
+            this.chk_1.Location = new System.Drawing.Point(7, 28);
+            this.chk_1.Name = "chk_1";
+            this.chk_1.Size = new System.Drawing.Size(61, 25);
+            this.chk_1.TabIndex = 1;
+            this.chk_1.Text = "追加";
+            this.chk_1.UseVisualStyleBackColor = true;
+            this.chk_1.CheckedChanged += new System.EventHandler(this.chk_1_CheckedChanged);
             // 
             // chk_9
             // 
             this.chk_9.AutoSize = true;
             this.chk_9.Enabled = false;
-            this.chk_9.Location = new System.Drawing.Point(150, 35);
+            this.chk_9.Location = new System.Drawing.Point(207, 35);
             this.chk_9.Name = "chk_9";
-            this.chk_9.Size = new System.Drawing.Size(74, 32);
-            this.chk_9.TabIndex = 4;
+            this.chk_9.Size = new System.Drawing.Size(61, 25);
+            this.chk_9.TabIndex = 5;
             this.chk_9.Text = "中止";
             this.chk_9.UseVisualStyleBackColor = true;
             this.chk_9.CheckedChanged += new System.EventHandler(this.chk_9_CheckedChanged);
@@ -316,10 +387,10 @@ namespace MPPPS
             // 
             this.chk_4.AutoSize = true;
             this.chk_4.Enabled = false;
-            this.chk_4.Location = new System.Drawing.Point(150, 10);
+            this.chk_4.Location = new System.Drawing.Point(207, 10);
             this.chk_4.Name = "chk_4";
-            this.chk_4.Size = new System.Drawing.Size(74, 32);
-            this.chk_4.TabIndex = 3;
+            this.chk_4.Size = new System.Drawing.Size(61, 25);
+            this.chk_4.TabIndex = 4;
             this.chk_4.Text = "完了";
             this.chk_4.UseVisualStyleBackColor = true;
             this.chk_4.CheckedChanged += new System.EventHandler(this.chk_4_CheckedChanged);
@@ -328,10 +399,10 @@ namespace MPPPS
             // 
             this.chk_3.AutoSize = true;
             this.chk_3.Enabled = false;
-            this.chk_3.Location = new System.Drawing.Point(83, 28);
+            this.chk_3.Location = new System.Drawing.Point(140, 28);
             this.chk_3.Name = "chk_3";
-            this.chk_3.Size = new System.Drawing.Size(74, 32);
-            this.chk_3.TabIndex = 2;
+            this.chk_3.Size = new System.Drawing.Size(61, 25);
+            this.chk_3.TabIndex = 3;
             this.chk_3.Text = "着手";
             this.chk_3.UseVisualStyleBackColor = true;
             this.chk_3.CheckedChanged += new System.EventHandler(this.chk_3_CheckedChanged);
@@ -340,10 +411,10 @@ namespace MPPPS
             // 
             this.chk_2.AutoSize = true;
             this.chk_2.Enabled = false;
-            this.chk_2.Location = new System.Drawing.Point(19, 28);
+            this.chk_2.Location = new System.Drawing.Point(76, 28);
             this.chk_2.Name = "chk_2";
-            this.chk_2.Size = new System.Drawing.Size(74, 32);
-            this.chk_2.TabIndex = 1;
+            this.chk_2.Size = new System.Drawing.Size(61, 25);
+            this.chk_2.TabIndex = 2;
             this.chk_2.Text = "確定";
             this.chk_2.UseVisualStyleBackColor = true;
             this.chk_2.CheckedChanged += new System.EventHandler(this.chk_2_CheckedChanged);
@@ -352,10 +423,10 @@ namespace MPPPS
             // 
             this.chk_ODRSTS.AutoSize = true;
             this.chk_ODRSTS.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chk_ODRSTS.Location = new System.Drawing.Point(6, 0);
+            this.chk_ODRSTS.Location = new System.Drawing.Point(7, 0);
             this.chk_ODRSTS.Name = "chk_ODRSTS";
-            this.chk_ODRSTS.Size = new System.Drawing.Size(110, 32);
-            this.chk_ODRSTS.TabIndex = 5;
+            this.chk_ODRSTS.Size = new System.Drawing.Size(90, 25);
+            this.chk_ODRSTS.TabIndex = 0;
             this.chk_ODRSTS.Text = "手配状態";
             this.chk_ODRSTS.UseVisualStyleBackColor = true;
             this.chk_ODRSTS.CheckedChanged += new System.EventHandler(this.chk_ODRSTS_CheckedChanged);
@@ -373,8 +444,8 @@ namespace MPPPS
             this.dgv_Order.RowHeadersWidth = 51;
             this.dgv_Order.RowTemplate.Height = 24;
             this.dgv_Order.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_Order.Size = new System.Drawing.Size(1069, 410);
-            this.dgv_Order.TabIndex = 11;
+            this.dgv_Order.Size = new System.Drawing.Size(1306, 415);
+            this.dgv_Order.TabIndex = 6;
             this.dgv_Order.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_Order_CellDoubleClick);
             this.dgv_Order.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgv_Order_CellMouseDown);
             this.dgv_Order.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.Dgv_CodeSlipMst_RowPostPaint);
@@ -391,13 +462,13 @@ namespace MPPPS
             this.tableLayoutPanel1.Controls.Add(this.btn_Progress, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.btn_DetailOrder, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 493);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 498);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 2);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1069, 44);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1306, 44);
             this.tableLayoutPanel1.TabIndex = 12;
             // 
             // btn_ExportOrder
@@ -405,10 +476,10 @@ namespace MPPPS
             this.btn_ExportOrder.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.btn_ExportOrder.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_ExportOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.btn_ExportOrder.Location = new System.Drawing.Point(800, 3);
+            this.btn_ExportOrder.Location = new System.Drawing.Point(980, 3);
             this.btn_ExportOrder.Name = "btn_ExportOrder";
-            this.btn_ExportOrder.Size = new System.Drawing.Size(261, 38);
-            this.btn_ExportOrder.TabIndex = 16;
+            this.btn_ExportOrder.Size = new System.Drawing.Size(318, 38);
+            this.btn_ExportOrder.TabIndex = 10;
             this.btn_ExportOrder.Text = "外部出力(F10)";
             this.btn_ExportOrder.UseVisualStyleBackColor = false;
             this.btn_ExportOrder.Click += new System.EventHandler(this.btn_ExportOrder_Click);
@@ -418,10 +489,10 @@ namespace MPPPS
             this.btn_PrintOrder.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.btn_PrintOrder.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_PrintOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.btn_PrintOrder.Location = new System.Drawing.Point(536, 3);
+            this.btn_PrintOrder.Location = new System.Drawing.Point(656, 3);
             this.btn_PrintOrder.Name = "btn_PrintOrder";
-            this.btn_PrintOrder.Size = new System.Drawing.Size(258, 38);
-            this.btn_PrintOrder.TabIndex = 15;
+            this.btn_PrintOrder.Size = new System.Drawing.Size(318, 38);
+            this.btn_PrintOrder.TabIndex = 9;
             this.btn_PrintOrder.Text = "製造指示カード発行(F12)";
             this.btn_PrintOrder.UseVisualStyleBackColor = false;
             this.btn_PrintOrder.Click += new System.EventHandler(this.btn_PrintOrder_Click);
@@ -431,10 +502,10 @@ namespace MPPPS
             this.btn_Progress.BackColor = System.Drawing.Color.MistyRose;
             this.btn_Progress.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn_Progress.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.btn_Progress.Location = new System.Drawing.Point(272, 3);
+            this.btn_Progress.Location = new System.Drawing.Point(332, 3);
             this.btn_Progress.Name = "btn_Progress";
-            this.btn_Progress.Size = new System.Drawing.Size(258, 38);
-            this.btn_Progress.TabIndex = 14;
+            this.btn_Progress.Size = new System.Drawing.Size(318, 38);
+            this.btn_Progress.TabIndex = 8;
             this.btn_Progress.Text = "進度盤";
             this.btn_Progress.UseVisualStyleBackColor = false;
             this.btn_Progress.Click += new System.EventHandler(this.btn_Progress_Click);
@@ -446,8 +517,8 @@ namespace MPPPS
             this.btn_DetailOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.btn_DetailOrder.Location = new System.Drawing.Point(8, 3);
             this.btn_DetailOrder.Name = "btn_DetailOrder";
-            this.btn_DetailOrder.Size = new System.Drawing.Size(258, 38);
-            this.btn_DetailOrder.TabIndex = 12;
+            this.btn_DetailOrder.Size = new System.Drawing.Size(318, 38);
+            this.btn_DetailOrder.TabIndex = 7;
             this.btn_DetailOrder.Text = "詳細";
             this.btn_DetailOrder.UseVisualStyleBackColor = false;
             this.btn_DetailOrder.Click += new System.EventHandler(this.btn_DetailOrder_Click);
@@ -455,7 +526,7 @@ namespace MPPPS
             // Frm042_InformationOrder
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(1069, 566);
+            this.ClientSize = new System.Drawing.Size(1306, 566);
             this.Controls.Add(this.dgv_Order);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.panel1);
@@ -470,6 +541,8 @@ namespace MPPPS
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.panel1.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.pnl_EDDT.ResumeLayout(false);
             this.pnl_EDDT.PerformLayout();
             this.pnl_MCCD.ResumeLayout(false);
@@ -494,13 +567,12 @@ namespace MPPPS
         private CheckBox chk_2;
         private Panel pnl_MCCD;
         private Panel pnl_HMCD;
-        private TextBox txt_HMCD;
+        private TextBox txt_ODRNO;
         private CheckBox chk_4;
         private CheckBox chk_3;
         private Panel pnl_EDDT;
         private DateTimePicker dtp_EDDT_To;
         private DateTimePicker dtp_EDDT_From;
-        private Label label7;
         private ComboBox cmb_MCCD;
         private ComboBox cmb_MCGCD;
         private ComboBox cmb_Condition;
@@ -513,9 +585,15 @@ namespace MPPPS
         private Button btn_Progress;
         private Button btn_DetailOrder;
         private CheckBox chk_ODRSTS;
-        private CheckBox chk_HMCD;
         private CheckBox chk_MCCD;
-        private Button btn_HMCDPaste;
+        private Button btn_ODRNOPaste;
         private CheckBox chk_ODRNO;
+        private Panel panel2;
+        private CheckBox chk_HMCD;
+        private TextBox txt_HMCD;
+        private Button btn_HMCDPaste;
+        private CheckBox chk_EDDT;
+        private CheckBox chk_Like;
+        private CheckBox chk_1;
     }
 }

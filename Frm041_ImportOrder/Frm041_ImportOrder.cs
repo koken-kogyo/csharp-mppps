@@ -614,6 +614,9 @@ namespace MPPPS
             toolStripStatusLabel1.Text = "注文データ取込中...";
             int insCount = 0;
             int delCount = 0;
+            // 削除したODRNOを控えておく
+            DataTable deleteODRNODt = new DataTable();
+            deleteODRNODt.Columns.Add("ODRNO", typeof(string));
             // 選択セルの並び替え
             var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
                         where c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING
@@ -652,6 +655,8 @@ namespace MPPPS
                         // MPシステム MySQLに集合差分を削除
                         delCount = cmn.Dba.DeleteMpOrder(ref exceptDt);
                         if (delCount < 0) return;
+                        // 削除したODRNOを控えておく
+                        deleteODRNODt.Merge(exceptDt);
                     }
 
                     // 追加対象が存在するかチェック（二つのODRNOの集合差を求める）
@@ -665,7 +670,7 @@ namespace MPPPS
                         DataTable exceptDt = new DataTable();
                         exceptDt = insertDr.CopyToDataTable();
                         // MPシステム MySQLに集合差分を挿入
-                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpZaikoDt);
+                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpZaikoDt, ref deleteODRNODt, c.Style.BackColor);
                         if (insCount < 0) return;
                     }
                 }

@@ -2,6 +2,8 @@
 using System;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -2149,16 +2151,16 @@ namespace MPPPS
                 string yyyyMMdd = firstDayOfMonth.ToString("yyyy/MM/dd");
                 string sql = "SELECT "
                     + "EDDT "
-                    + ", concat('',sum(case when ODRSTS = '2' then 1 else 0 end)) \"MP2確定件数\" "
+                    + ", concat('',sum(case when ODRSTS in ('1','2') then 1 else 0 end)) \"MP2確定件数\" "
                     + ", concat('',sum(case when ODRSTS = '3' then 1 else 0 end)) \"MP3着手件数\" "
                     + ", concat('',sum(case when ODRSTS = '4' then 1 else 0 end)) \"MP4完了件数\" "
                     + ", concat('',sum(case when ODRSTS = '9' then 1 else 0 end)) \"MP9取消件数\" "
-                    + ", concat('',sum(case when ODRSTS in ('2','3','4','9') then 1 else 0 end)) \"MP取込件数\" "
-                    + ", concat('',sum(case when ODRSTS = '2' then ODRQTY else 0 end)) \"MP2確定本数\" "
+                    + ", concat('',sum(case when ODRSTS in ('1','2','3','4','9') then 1 else 0 end)) \"MP取込件数\" "
+                    + ", concat('',sum(case when ODRSTS in ('1','2') then ODRQTY else 0 end)) \"MP2確定本数\" "
                     + ", concat('',sum(case when ODRSTS = '3' then ODRQTY-JIQTY else 0 end)) \"MP3着手本数\" "
                     + ", concat('',sum(case when ODRSTS = '4' then ODRQTY else 0 end)) \"MP4完了本数\" "
                     + ", concat('',sum(case when ODRSTS = '9' then ODRQTY else 0 end)) \"MP9取消本数\" "
-                    + ", concat('',sum(case when ODRSTS in ('2','3','4','9') then ODRQTY else 0 end)) \"MP取込本数\" "
+                    + ", concat('',sum(case when ODRSTS in ('1','2','3','4','9') then ODRQTY else 0 end)) \"MP取込本数\" "
                     + ", concat('',sum(case when MPCARDDT is not NULL and ODRSTS != '9' then 1 else 0 end)) \"MP印刷件数\" "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
@@ -2272,7 +2274,7 @@ namespace MPPPS
                 string sql = "SELECT " + select + " "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + ", "
-                    + "(SELECT HMCD as HMKEY, MATERIALCD, KTKEY FROM "
+                    + "(SELECT HMCD as HMKEY, HMNM, MATERIALCD, KTKEY FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + ") " + Common.TABLE_ID_KM8430 + " "
                     + "WHERE "
                     + "HMCD=HMKEY and "
@@ -2359,7 +2361,7 @@ namespace MPPPS
         /// <param name="exceptDt">EMとの差分の登録すべきデータテーブル</param>
         /// <param name="zaikoDt">仕掛り在庫（手配登録時に消込）</param>
         /// <returns>挿入件数、失敗時-1</returns>
-        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt ,ref DataTable zaikoDt)
+        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt , ref DataTable zaikoDt, ref DataTable deleteODRNODt, Color styleBackColor)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2398,7 +2400,18 @@ namespace MPPPS
                     cmd.ExecuteNonQuery();
                     // KD8430:切削手配ファイルの削除
                     cmd.CommandText = DeleteDuplicateOrderSql(odrno);
-                    cmd.ExecuteNonQuery();
+                    int delCountToday = cmd.ExecuteNonQuery();
+
+                    // 受注状態「１：追加」を新設
+                    if (styleBackColor == Common.FRM40_BG_COLOR_WARNING && r["ODRSTS"].ToString() == "2")
+                    {
+                        // 納期前倒し(delCountToday>0)または
+                        // 納期後倒し(deleteODRNODt>0)の場合はステータスは更新しない
+                        if (delCountToday == 0 && deleteODRNODt.Select($"ODRNO='{odrno}'").Count() == 0)
+                        {
+                            r["ODRSTS"] = "1";
+                        }
+                    }
 
                     // KD8430:切削手配ファイルの登録
                     sql = ImportMpOrderSql(r);
@@ -2419,9 +2432,19 @@ namespace MPPPS
                         int odrjiq = Convert.ToInt32(r["JIQTY"].ToString());
                         int zaiko = (zr.Length == 0) ? 0 :
                             Convert.ToInt32(zr[0]["ZAIQTY"].ToString());
-                        // 実績数とステータス算出
-                        int jiqty = ((odrqty - odrjiq) <= zaiko) ? (odrqty - odrjiq) : zaiko;
-                        string odrsts = (jiqty == 0) ? "2" : (odrqty == jiqty) ? "4" : "3";
+                        int jiqty = 0;
+                        string odrsts = string.Empty;
+                        // 追加処理の場合は実績数とステータスをいじらない
+                        if (styleBackColor == Common.FRM40_BG_COLOR_WARNING)
+                        {
+                            odrsts = r["ODRSTS"].ToString();
+                        }
+                        else
+                        {
+                            // 実績数とステータス算出
+                            jiqty = ((odrqty - odrjiq) <= zaiko) ? (odrqty - odrjiq) : zaiko;
+                            odrsts = (jiqty == 0) ? "2" : (odrqty == jiqty) ? "4" : "3";
+                        }
                         // KD8450:切削オーダーファイルの登録（各設備毎に分解）
                         sql = DivideMpOrderSql(odrno, jiqty, kt, mcgcd, mccd, odrsts);
                         cmd.CommandText = sql;
@@ -4679,7 +4702,7 @@ namespace MPPPS
                         + "FROM "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
                         + "WHERE "
-                        + "ODRSTS in ('2','3') "
+                        + "ODRSTS in ('1','2','3') "
                         + $"and EDDT between '{from}' and '{to}' "
                     ;
                     adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
