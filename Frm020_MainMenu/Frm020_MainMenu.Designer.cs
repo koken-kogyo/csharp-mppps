@@ -75,7 +75,7 @@ namespace MPPPS
             this.ヘルプHToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(628, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(628, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -86,20 +86,20 @@ namespace MPPPS
             this.終了XToolStripMenuItem});
             this.ファイルFToolStripMenuItem.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
             this.ファイルFToolStripMenuItem.Name = "ファイルFToolStripMenuItem";
-            this.ファイルFToolStripMenuItem.Size = new System.Drawing.Size(82, 24);
+            this.ファイルFToolStripMenuItem.Size = new System.Drawing.Size(67, 20);
             this.ファイルFToolStripMenuItem.Text = "ファイル(&F)";
             // 
             // 印刷PToolStripMenuItem
             // 
             this.印刷PToolStripMenuItem.Enabled = false;
             this.印刷PToolStripMenuItem.Name = "印刷PToolStripMenuItem";
-            this.印刷PToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
+            this.印刷PToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.印刷PToolStripMenuItem.Text = "印刷(&P)";
             // 
             // 終了XToolStripMenuItem
             // 
             this.終了XToolStripMenuItem.Name = "終了XToolStripMenuItem";
-            this.終了XToolStripMenuItem.Size = new System.Drawing.Size(141, 26);
+            this.終了XToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.終了XToolStripMenuItem.Text = "終了(&X)";
             this.終了XToolStripMenuItem.Click += new System.EventHandler(this.終了XToolStripMenuItem_Click);
             // 
@@ -112,33 +112,33 @@ namespace MPPPS
             this.KM8430切削コード票マスタ3ToolStripMenuItem});
             this.マスタメンテナンスMToolStripMenuItem.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
             this.マスタメンテナンスMToolStripMenuItem.Name = "マスタメンテナンスMToolStripMenuItem";
-            this.マスタメンテナンスMToolStripMenuItem.Size = new System.Drawing.Size(149, 24);
+            this.マスタメンテナンスMToolStripMenuItem.Size = new System.Drawing.Size(121, 20);
             this.マスタメンテナンスMToolStripMenuItem.Text = "マスタ メンテナンス(&M)";
             // 
             // KM8400切削生産計画システム利用者マスタToolStripMenuItem
             // 
             this.KM8400切削生産計画システム利用者マスタToolStripMenuItem.Enabled = false;
             this.KM8400切削生産計画システム利用者マスタToolStripMenuItem.Name = "KM8400切削生産計画システム利用者マスタToolStripMenuItem";
-            this.KM8400切削生産計画システム利用者マスタToolStripMenuItem.Size = new System.Drawing.Size(382, 26);
+            this.KM8400切削生産計画システム利用者マスタToolStripMenuItem.Size = new System.Drawing.Size(305, 22);
             this.KM8400切削生産計画システム利用者マスタToolStripMenuItem.Text = "KM8400 切削生産計画システム利用者マスタ(&0)";
             // 
             // KM8410切削刃具マスタ1ToolStripMenuItem
             // 
             this.KM8410切削刃具マスタ1ToolStripMenuItem.Enabled = false;
             this.KM8410切削刃具マスタ1ToolStripMenuItem.Name = "KM8410切削刃具マスタ1ToolStripMenuItem";
-            this.KM8410切削刃具マスタ1ToolStripMenuItem.Size = new System.Drawing.Size(382, 26);
+            this.KM8410切削刃具マスタ1ToolStripMenuItem.Size = new System.Drawing.Size(305, 22);
             this.KM8410切削刃具マスタ1ToolStripMenuItem.Text = "KM8410 切削刃具マスタ(&1)";
             // 
             // KM8420切削設備マスタ2ToolStripMenuItem
             // 
             this.KM8420切削設備マスタ2ToolStripMenuItem.Name = "KM8420切削設備マスタ2ToolStripMenuItem";
-            this.KM8420切削設備マスタ2ToolStripMenuItem.Size = new System.Drawing.Size(382, 26);
+            this.KM8420切削設備マスタ2ToolStripMenuItem.Size = new System.Drawing.Size(305, 22);
             this.KM8420切削設備マスタ2ToolStripMenuItem.Text = "KM8420 切削設備マスタ(&2)";
             // 
             // KM8430切削コード票マスタ3ToolStripMenuItem
             // 
             this.KM8430切削コード票マスタ3ToolStripMenuItem.Name = "KM8430切削コード票マスタ3ToolStripMenuItem";
-            this.KM8430切削コード票マスタ3ToolStripMenuItem.Size = new System.Drawing.Size(382, 26);
+            this.KM8430切削コード票マスタ3ToolStripMenuItem.Size = new System.Drawing.Size(305, 22);
             this.KM8430切削コード票マスタ3ToolStripMenuItem.Text = "KM8430 切削コード票マスタ(&3)";
             // 
             // 編集EToolStripMenuItem
@@ -147,14 +147,14 @@ namespace MPPPS
             this.加工進捗状況進度盤ToolStripMenuItem});
             this.編集EToolStripMenuItem.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
             this.編集EToolStripMenuItem.Name = "編集EToolStripMenuItem";
-            this.編集EToolStripMenuItem.Size = new System.Drawing.Size(101, 24);
+            this.編集EToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
             this.編集EToolStripMenuItem.Text = "製造管理(&E)";
             // 
             // 加工進捗状況進度盤ToolStripMenuItem
             // 
             this.加工進捗状況進度盤ToolStripMenuItem.Enabled = false;
             this.加工進捗状況進度盤ToolStripMenuItem.Name = "加工進捗状況進度盤ToolStripMenuItem";
-            this.加工進捗状況進度盤ToolStripMenuItem.Size = new System.Drawing.Size(241, 26);
+            this.加工進捗状況進度盤ToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
             this.加工進捗状況進度盤ToolStripMenuItem.Text = "加工進捗状況 (進度盤)";
             // 
             // 設定SToolStripMenuItem
@@ -163,13 +163,13 @@ namespace MPPPS
             this.保存先設定SToolStripMenuItem});
             this.設定SToolStripMenuItem.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
             this.設定SToolStripMenuItem.Name = "設定SToolStripMenuItem";
-            this.設定SToolStripMenuItem.Size = new System.Drawing.Size(71, 24);
+            this.設定SToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.設定SToolStripMenuItem.Text = "設定(&S)";
             // 
             // 保存先設定SToolStripMenuItem
             // 
             this.保存先設定SToolStripMenuItem.Name = "保存先設定SToolStripMenuItem";
-            this.保存先設定SToolStripMenuItem.Size = new System.Drawing.Size(185, 26);
+            this.保存先設定SToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.保存先設定SToolStripMenuItem.Text = "保存先設定(&S)";
             this.保存先設定SToolStripMenuItem.Click += new System.EventHandler(this.保存先設定SToolStripMenuItem_Click);
             // 
@@ -179,13 +179,13 @@ namespace MPPPS
             this.バージョン情報VToolStripMenuItem});
             this.ヘルプHToolStripMenuItem.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
             this.ヘルプHToolStripMenuItem.Name = "ヘルプHToolStripMenuItem";
-            this.ヘルプHToolStripMenuItem.Size = new System.Drawing.Size(79, 24);
+            this.ヘルプHToolStripMenuItem.Size = new System.Drawing.Size(65, 20);
             this.ヘルプHToolStripMenuItem.Text = "ヘルプ(&H)";
             // 
             // バージョン情報VToolStripMenuItem
             // 
             this.バージョン情報VToolStripMenuItem.Name = "バージョン情報VToolStripMenuItem";
-            this.バージョン情報VToolStripMenuItem.Size = new System.Drawing.Size(195, 26);
+            this.バージョン情報VToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.バージョン情報VToolStripMenuItem.Text = "バージョン情報(&V)";
             this.バージョン情報VToolStripMenuItem.Click += new System.EventHandler(this.バージョン情報VToolStripMenuItem_Click);
             // 
@@ -195,7 +195,7 @@ namespace MPPPS
             this.Btn_MasterMaint.Location = new System.Drawing.Point(12, 42);
             this.Btn_MasterMaint.Name = "Btn_MasterMaint";
             this.Btn_MasterMaint.Size = new System.Drawing.Size(300, 38);
-            this.Btn_MasterMaint.TabIndex = 1;
+            this.Btn_MasterMaint.TabIndex = 0;
             this.Btn_MasterMaint.Text = "マスタ メンテナンス";
             this.Btn_MasterMaint.UseVisualStyleBackColor = true;
             this.Btn_MasterMaint.Click += new System.EventHandler(this.Btn_MasterMaint_Click);
@@ -207,7 +207,7 @@ namespace MPPPS
             this.Btn_OrderCtrl.Location = new System.Drawing.Point(12, 86);
             this.Btn_OrderCtrl.Name = "Btn_OrderCtrl";
             this.Btn_OrderCtrl.Size = new System.Drawing.Size(300, 38);
-            this.Btn_OrderCtrl.TabIndex = 2;
+            this.Btn_OrderCtrl.TabIndex = 1;
             this.Btn_OrderCtrl.Text = "オーダー管理";
             this.Btn_OrderCtrl.UseVisualStyleBackColor = true;
             this.Btn_OrderCtrl.Click += new System.EventHandler(this.Btn_OrderCtrl_Click);
@@ -219,7 +219,7 @@ namespace MPPPS
             this.Btn_MfgCtrl.Location = new System.Drawing.Point(12, 130);
             this.Btn_MfgCtrl.Name = "Btn_MfgCtrl";
             this.Btn_MfgCtrl.Size = new System.Drawing.Size(300, 38);
-            this.Btn_MfgCtrl.TabIndex = 3;
+            this.Btn_MfgCtrl.TabIndex = 2;
             this.Btn_MfgCtrl.Text = "製造管理";
             this.Btn_MfgCtrl.UseVisualStyleBackColor = true;
             this.Btn_MfgCtrl.Click += new System.EventHandler(this.Btn_MfgCtrl_Click);
@@ -231,7 +231,7 @@ namespace MPPPS
             this.Btn_ReceiptCtrl.Location = new System.Drawing.Point(12, 174);
             this.Btn_ReceiptCtrl.Name = "Btn_ReceiptCtrl";
             this.Btn_ReceiptCtrl.Size = new System.Drawing.Size(300, 38);
-            this.Btn_ReceiptCtrl.TabIndex = 4;
+            this.Btn_ReceiptCtrl.TabIndex = 3;
             this.Btn_ReceiptCtrl.Text = "実績管理";
             this.Btn_ReceiptCtrl.UseVisualStyleBackColor = true;
             this.Btn_ReceiptCtrl.Click += new System.EventHandler(this.Btn_ReceiptCtrl_Click);
@@ -243,7 +243,7 @@ namespace MPPPS
             this.Btn_MatlCtrl.Location = new System.Drawing.Point(318, 86);
             this.Btn_MatlCtrl.Name = "Btn_MatlCtrl";
             this.Btn_MatlCtrl.Size = new System.Drawing.Size(300, 38);
-            this.Btn_MatlCtrl.TabIndex = 5;
+            this.Btn_MatlCtrl.TabIndex = 4;
             this.Btn_MatlCtrl.Text = "材料管理";
             this.Btn_MatlCtrl.UseVisualStyleBackColor = true;
             this.Btn_MatlCtrl.Click += new System.EventHandler(this.Btn_MatlCtrl_Click);
@@ -255,7 +255,7 @@ namespace MPPPS
             this.Btn_CutStore.Location = new System.Drawing.Point(318, 130);
             this.Btn_CutStore.Name = "Btn_CutStore";
             this.Btn_CutStore.Size = new System.Drawing.Size(300, 38);
-            this.Btn_CutStore.TabIndex = 6;
+            this.Btn_CutStore.TabIndex = 5;
             this.Btn_CutStore.Text = "切削ストア";
             this.Btn_CutStore.UseVisualStyleBackColor = true;
             this.Btn_CutStore.Click += new System.EventHandler(this.Btn_CutStore_Click);
@@ -268,7 +268,7 @@ namespace MPPPS
             this.Btn_Close.Location = new System.Drawing.Point(318, 174);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
-            this.Btn_Close.TabIndex = 7;
+            this.Btn_Close.TabIndex = 6;
             this.Btn_Close.Text = "終了";
             this.Btn_Close.UseVisualStyleBackColor = false;
             this.Btn_Close.Click += new System.EventHandler(this.Btn_Close_Click);
@@ -281,7 +281,7 @@ namespace MPPPS
             this.Lbl_User.Location = new System.Drawing.Point(365, 47);
             this.Lbl_User.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_User.Name = "Lbl_User";
-            this.Lbl_User.Size = new System.Drawing.Size(73, 25);
+            this.Lbl_User.Size = new System.Drawing.Size(57, 20);
             this.Lbl_User.TabIndex = 8;
             this.Lbl_User.Text = "利用者:";
             this.Lbl_User.Click += new System.EventHandler(this.Lbl_User_Click);
@@ -294,7 +294,7 @@ namespace MPPPS
             this.Lbl_UserName.Location = new System.Drawing.Point(446, 47);
             this.Lbl_UserName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_UserName.Name = "Lbl_UserName";
-            this.Lbl_UserName.Size = new System.Drawing.Size(117, 25);
+            this.Lbl_UserName.Size = new System.Drawing.Size(93, 20);
             this.Lbl_UserName.TabIndex = 9;
             this.Lbl_UserName.Text = "氏名 (99999)";
             this.Lbl_UserName.Click += new System.EventHandler(this.Lbl_UserName_Click);
@@ -305,22 +305,22 @@ namespace MPPPS
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 220);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 224);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(628, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(628, 22);
             this.statusStrip1.TabIndex = 10;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(151, 20);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(462, 20);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(495, 17);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;

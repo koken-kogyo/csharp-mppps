@@ -49,7 +49,7 @@ namespace MPPPS
             this.Btn_MfgProgress.Location = new System.Drawing.Point(12, 12);
             this.Btn_MfgProgress.Name = "Btn_MfgProgress";
             this.Btn_MfgProgress.Size = new System.Drawing.Size(300, 38);
-            this.Btn_MfgProgress.TabIndex = 13;
+            this.Btn_MfgProgress.TabIndex = 0;
             this.Btn_MfgProgress.Text = "加工進捗状況 (進度盤)";
             this.Btn_MfgProgress.UseVisualStyleBackColor = true;
             this.Btn_MfgProgress.Click += new System.EventHandler(this.Btn_MfgProgress_Click);
@@ -61,7 +61,7 @@ namespace MPPPS
             this.Btn_Close.Location = new System.Drawing.Point(12, 188);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
-            this.Btn_Close.TabIndex = 15;
+            this.Btn_Close.TabIndex = 4;
             this.Btn_Close.Text = "終了";
             this.Btn_Close.UseVisualStyleBackColor = false;
             this.Btn_Close.Click += new System.EventHandler(this.Btn_Close_Click);
@@ -72,7 +72,7 @@ namespace MPPPS
             this.btn_PickupTehai.Location = new System.Drawing.Point(12, 100);
             this.btn_PickupTehai.Name = "btn_PickupTehai";
             this.btn_PickupTehai.Size = new System.Drawing.Size(300, 38);
-            this.btn_PickupTehai.TabIndex = 17;
+            this.btn_PickupTehai.TabIndex = 2;
             this.btn_PickupTehai.Text = "工程別促進表データ作成";
             this.btn_PickupTehai.UseVisualStyleBackColor = true;
             this.btn_PickupTehai.Click += new System.EventHandler(this.btn_PickupTehai_Click);
@@ -84,7 +84,7 @@ namespace MPPPS
             this.btn_PickupNaiji.Location = new System.Drawing.Point(12, 144);
             this.btn_PickupNaiji.Name = "btn_PickupNaiji";
             this.btn_PickupNaiji.Size = new System.Drawing.Size(300, 38);
-            this.btn_PickupNaiji.TabIndex = 18;
+            this.btn_PickupNaiji.TabIndex = 3;
             this.btn_PickupNaiji.Text = "工程別内示表データ作成";
             this.btn_PickupNaiji.UseVisualStyleBackColor = true;
             // 
@@ -95,7 +95,7 @@ namespace MPPPS
             this.btn_All_Print.Location = new System.Drawing.Point(12, 56);
             this.btn_All_Print.Name = "btn_All_Print";
             this.btn_All_Print.Size = new System.Drawing.Size(300, 38);
-            this.btn_All_Print.TabIndex = 20;
+            this.btn_All_Print.TabIndex = 1;
             this.btn_All_Print.Text = "手配＋内示＋タナコン状況一覧";
             this.btn_All_Print.UseVisualStyleBackColor = true;
             this.btn_All_Print.Click += new System.EventHandler(this.btn_All_Print_Click);

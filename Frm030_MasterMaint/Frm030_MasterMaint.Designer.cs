@@ -47,7 +47,7 @@ namespace MPPPS
             this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
-            this.Btn_Close.TabIndex = 8;
+            this.Btn_Close.TabIndex = 3;
             this.Btn_Close.Text = "閉じる";
             this.Btn_Close.UseVisualStyleBackColor = false;
             this.Btn_Close.Click += new System.EventHandler(this.Btn_Close_Click);
@@ -60,7 +60,7 @@ namespace MPPPS
             this.Btn_ChipMstMaint.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_ChipMstMaint.Name = "Btn_ChipMstMaint";
             this.Btn_ChipMstMaint.Size = new System.Drawing.Size(300, 38);
-            this.Btn_ChipMstMaint.TabIndex = 10;
+            this.Btn_ChipMstMaint.TabIndex = 2;
             this.Btn_ChipMstMaint.Text = "刃具マスタ メンテ";
             this.Btn_ChipMstMaint.UseVisualStyleBackColor = true;
             this.Btn_ChipMstMaint.Click += new System.EventHandler(this.Btn_ChipMstMaint_Click);
@@ -72,7 +72,7 @@ namespace MPPPS
             this.Btn_EqMstMaint.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_EqMstMaint.Name = "Btn_EqMstMaint";
             this.Btn_EqMstMaint.Size = new System.Drawing.Size(300, 38);
-            this.Btn_EqMstMaint.TabIndex = 9;
+            this.Btn_EqMstMaint.TabIndex = 0;
             this.Btn_EqMstMaint.Text = "設備マスタ メンテ";
             this.Btn_EqMstMaint.UseVisualStyleBackColor = true;
             this.Btn_EqMstMaint.Click += new System.EventHandler(this.Btn_EqMstMaint_Click);
@@ -84,7 +84,7 @@ namespace MPPPS
             this.Btn_CodeSlipMstMaint.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_CodeSlipMstMaint.Name = "Btn_CodeSlipMstMaint";
             this.Btn_CodeSlipMstMaint.Size = new System.Drawing.Size(300, 38);
-            this.Btn_CodeSlipMstMaint.TabIndex = 11;
+            this.Btn_CodeSlipMstMaint.TabIndex = 1;
             this.Btn_CodeSlipMstMaint.Text = "コード票マスタ メンテ";
             this.Btn_CodeSlipMstMaint.UseVisualStyleBackColor = true;
             this.Btn_CodeSlipMstMaint.Click += new System.EventHandler(this.Btn_CodeSlipMstMaint_Click);
