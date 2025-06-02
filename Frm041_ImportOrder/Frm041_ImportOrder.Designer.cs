@@ -41,13 +41,14 @@ namespace MPPPS
             this.PrevMonthButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.Dgv_Calendar = new System.Windows.Forms.DataGridView();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.Btn_PrintOrder = new System.Windows.Forms.Button();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.Btn_ImportOrder = new System.Windows.Forms.Button();
+            this.Btn_PrintOrder = new System.Windows.Forms.Button();
+            this.Btn_PrintCancel = new System.Windows.Forms.Button();
             this.statusStrip.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_Calendar)).BeginInit();
-            this.panel2.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip
@@ -57,9 +58,9 @@ namespace MPPPS
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip.Location = new System.Drawing.Point(0, 542);
+            this.statusStrip.Location = new System.Drawing.Point(0, 537);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(851, 24);
+            this.statusStrip.Size = new System.Drawing.Size(851, 29);
             this.statusStrip.TabIndex = 6;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -67,7 +68,7 @@ namespace MPPPS
             // 
             this.toolStripStatusLabel1.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(139, 19);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(171, 23);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -75,7 +76,7 @@ namespace MPPPS
             // 
             this.toolStripStatusLabel2.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(697, 19);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(665, 23);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -152,50 +153,72 @@ namespace MPPPS
             this.Dgv_Calendar.Name = "Dgv_Calendar";
             this.Dgv_Calendar.RowHeadersWidth = 51;
             this.Dgv_Calendar.RowTemplate.Height = 24;
-            this.Dgv_Calendar.Size = new System.Drawing.Size(851, 487);
+            this.Dgv_Calendar.Size = new System.Drawing.Size(851, 482);
             this.Dgv_Calendar.TabIndex = 9;
             this.Dgv_Calendar.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Dgv_Calendar_CellClick);
             this.Dgv_Calendar.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Dgv_Calendar_MouseUp);
             // 
-            // panel2
+            // tableLayoutPanel1
             // 
-            this.panel2.Controls.Add(this.Btn_PrintOrder);
-            this.panel2.Controls.Add(this.Btn_ImportOrder);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 500);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(851, 42);
-            this.panel2.TabIndex = 10;
-            // 
-            // Btn_PrintOrder
-            // 
-            this.Btn_PrintOrder.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.Btn_PrintOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_PrintOrder.Location = new System.Drawing.Point(428, 3);
-            this.Btn_PrintOrder.Name = "Btn_PrintOrder";
-            this.Btn_PrintOrder.Size = new System.Drawing.Size(420, 35);
-            this.Btn_PrintOrder.TabIndex = 12;
-            this.Btn_PrintOrder.Text = "製造指示カード印刷";
-            this.Btn_PrintOrder.UseVisualStyleBackColor = false;
-            this.Btn_PrintOrder.Click += new System.EventHandler(this.Btn_PrintOrder_Click);
+            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.Controls.Add(this.Btn_PrintCancel, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.Btn_PrintOrder, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.Btn_ImportOrder, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 495);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 1;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(851, 42);
+            this.tableLayoutPanel1.TabIndex = 11;
             // 
             // Btn_ImportOrder
             // 
             this.Btn_ImportOrder.BackColor = System.Drawing.Color.MistyRose;
+            this.Btn_ImportOrder.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Btn_ImportOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_ImportOrder.Location = new System.Drawing.Point(3, 3);
             this.Btn_ImportOrder.Name = "Btn_ImportOrder";
-            this.Btn_ImportOrder.Size = new System.Drawing.Size(419, 35);
-            this.Btn_ImportOrder.TabIndex = 11;
+            this.Btn_ImportOrder.Size = new System.Drawing.Size(334, 36);
+            this.Btn_ImportOrder.TabIndex = 12;
             this.Btn_ImportOrder.Text = "手配データ取込";
             this.Btn_ImportOrder.UseVisualStyleBackColor = false;
             this.Btn_ImportOrder.Click += new System.EventHandler(this.Btn_ImportOrder_Click);
+            // 
+            // Btn_PrintOrder
+            // 
+            this.Btn_PrintOrder.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.Btn_PrintOrder.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_PrintOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_PrintOrder.Location = new System.Drawing.Point(343, 3);
+            this.Btn_PrintOrder.Name = "Btn_PrintOrder";
+            this.Btn_PrintOrder.Size = new System.Drawing.Size(334, 36);
+            this.Btn_PrintOrder.TabIndex = 13;
+            this.Btn_PrintOrder.Text = "製造指示カード印刷";
+            this.Btn_PrintOrder.UseVisualStyleBackColor = false;
+            this.Btn_PrintOrder.Click += new System.EventHandler(this.Btn_PrintOrder_Click);
+            // 
+            // Btn_PrintCancel
+            // 
+            this.Btn_PrintCancel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.Btn_PrintCancel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_PrintCancel.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_PrintCancel.Location = new System.Drawing.Point(683, 3);
+            this.Btn_PrintCancel.Name = "Btn_PrintCancel";
+            this.Btn_PrintCancel.Size = new System.Drawing.Size(165, 36);
+            this.Btn_PrintCancel.TabIndex = 14;
+            this.Btn_PrintCancel.Text = "印刷不要";
+            this.Btn_PrintCancel.UseVisualStyleBackColor = false;
+            this.Btn_PrintCancel.Click += new System.EventHandler(this.Btn_PrintCancel_Click);
             // 
             // Frm041_ImportOrder
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(851, 566);
-            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.Dgv_Calendar);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label2);
@@ -212,7 +235,7 @@ namespace MPPPS
             this.statusStrip.PerformLayout();
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_Calendar)).EndInit();
-            this.panel2.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -224,12 +247,13 @@ namespace MPPPS
         private Panel panel1;
         private Label label2;
         private DataGridView Dgv_Calendar;
-        private Panel panel2;
-        private Button Btn_ImportOrder;
         private Label CalendarLabel;
         private Button NextMonthButton;
         private Button PrevMonthButton;
-        private Button Btn_PrintOrder;
         private ToolStripStatusLabel toolStripStatusLabel2;
+        private TableLayoutPanel tableLayoutPanel1;
+        private Button Btn_PrintCancel;
+        private Button Btn_PrintOrder;
+        private Button Btn_ImportOrder;
     }
 }

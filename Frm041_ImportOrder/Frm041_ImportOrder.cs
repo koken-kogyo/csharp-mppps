@@ -115,6 +115,10 @@ namespace MPPPS
             // 製造指示カード印刷ボタン
             Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintOrder.Enabled = false;
+
+            // 製造指示カード印刷不要ボタン
+            Btn_PrintCancel.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintCancel.Enabled = false;
         }
 
         // EMデータテーブルとMPデータテーブルをマージ
@@ -494,9 +498,6 @@ namespace MPPPS
                 Dgv_Calendar.Rows[i].Height = (Dgv_Calendar.Height - Dgv_Calendar.ColumnHeadersHeight) / 6 - 6;
             for (var i = 0; i < 7; i++)
                 Dgv_Calendar.Columns[i].Width = (Dgv_Calendar.Width / 7);
-            Btn_ImportOrder.Width = (Dgv_Calendar.Width / 2) - 5;
-            Btn_PrintOrder.Left = Btn_ImportOrder.Width + 5;
-            Btn_PrintOrder.Width = (Dgv_Calendar.Width / 2) - 5;
         }
 
         // カレンダークリックイベント
@@ -516,6 +517,8 @@ namespace MPPPS
             Btn_ImportOrder.Enabled = false;
             Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintOrder.Enabled = false;
+            Btn_PrintCancel.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintCancel.Enabled = false;
             toolStripStatusLabel1.Text = "";
             toolStripStatusLabel2.Text = "";
             int emOrder = 0;
@@ -575,6 +578,8 @@ namespace MPPPS
                 {
                     Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                     Btn_PrintOrder.Enabled = true;
+                    Btn_PrintCancel.BackColor = Common.FRM40_BG_COLOR_PRINTED;
+                    Btn_PrintCancel.Enabled = true;
                     toolStripStatusLabel1.Text += $" 未印刷: {mpOrder - mpCancel - printCnt}件";
                 }
                 if (mpOrder > 0 && (mpOrder - mpCancel) == printCnt)
@@ -684,6 +689,8 @@ namespace MPPPS
             Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintOrder.Enabled = false;
             Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintCancel.Enabled = false;
+            Btn_PrintCancel.BackColor = Common.FRM40_BG_COLOR_CONTROL;
 
             // ステータスを表示
             toolStripStatusLabel2.Text = insCount.ToString("#,0") + "件の登録 ";
@@ -733,6 +740,8 @@ namespace MPPPS
             // 印刷ボタン非活性化
             Btn_PrintOrder.BackColor = System.Drawing.SystemColors.Control;
             Btn_PrintOrder.Enabled = false;
+            Btn_PrintCancel.BackColor = System.Drawing.SystemColors.Control;
+            Btn_PrintCancel.Enabled = false;
 
             // ステータス表示
             progressmsg = "【製造指示カード】 ";
@@ -788,6 +797,8 @@ namespace MPPPS
             Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintOrder.Enabled = false;
             Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintCancel.Enabled = false;
+            Btn_PrintCancel.BackColor = Common.FRM40_BG_COLOR_CONTROL;
         }
 
         /// <summary>
@@ -912,6 +923,34 @@ namespace MPPPS
         private void Frm041_ImportOrder_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape) Close();
+        }
+
+        // 印刷不要（印刷済みにしてしまう）
+        private void Btn_PrintCancel_Click(object sender, EventArgs e)
+        {
+            // 選択セル範囲の開始日と終了日を設定
+            var sortedCells = from DataGridViewCell c in Dgv_Calendar.SelectedCells
+                              orderby c.RowIndex, c.ColumnIndex
+                              select c;
+            var firstCell = sortedCells.ToArray().First();
+            var lastCell = sortedCells.ToArray().Last();
+            var dayFrom = GetCurrentDateTime(firstCell);
+            var dayTo = GetCurrentDateTime(lastCell);
+
+            // 出力済ステータスに更新
+            toolStripStatusLabel1.Text = progressmsg + "データ更新中...";
+            cmn.Dba.UpdatePrintOrderCardDay(ref dayFrom, ref dayTo);
+
+            // 取込後、再読み込みして表示
+            PopulateCalendar();
+
+            // 処理ボタンを無効化
+            Btn_ImportOrder.Enabled = false;
+            Btn_ImportOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintOrder.Enabled = false;
+            Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintCancel.Enabled = false;
+            Btn_PrintCancel.BackColor = Common.FRM40_BG_COLOR_CONTROL;
         }
     }
 }
