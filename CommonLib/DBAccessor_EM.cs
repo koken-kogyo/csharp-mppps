@@ -1672,6 +1672,33 @@ namespace MPPPS
                         }
                     }
                 }
+
+                // ダミーデータの作成
+                if (dataTable.Rows.Count > 0)
+                {
+                    from = thisTuesday.AddDays(-1).ToString("yyyy/MM/dd");
+                    to = nextFriday.ToString("yyyy/MM/dd");
+                    sql = "select '!DUMMY' \"品番\", '!DUMMY' \"品目略称\", to_char(YMD,'YYYY/MM/DD') \"完了予定日\""
+                        + ", 0 \"手配数\", 0 \"実績数\", 1 \"件数\", 0 \"S\" "
+                        + "from "
+                        + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_S0820 + " "
+                        + "where "
+                        + "CALTYP = '00001' "
+                        + "and WKKBN = '1' "
+                        + $"and YMD between '{from}' and '{to}' "
+                    ;
+                    using (OracleCommand myCmd = new OracleCommand(sql, cnn))
+                    {
+                        using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                        {
+                            using (DataTable dt = new DataTable())
+                            {
+                                myDa.Fill(dt);
+                                dataTable.Merge(dt);
+                            }
+                        }
+                    }
+                }
                 ret = dataTable.Rows.Count;
             }
             catch (Exception ex)

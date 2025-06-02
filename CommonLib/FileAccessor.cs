@@ -1934,7 +1934,7 @@ namespace MPPPS
                     pivotTableDestination,
                     pivotTableName
                 );
-
+                
                 // 小計を非表示に設定
                 var subtotal = new object[] {false, false, false, false, false, false, false, false, false, false, false, false};                
                 
@@ -1973,6 +1973,10 @@ namespace MPPPS
                 valueSheet.Rows[1].Delete();
                 valueSheet.Cells[1, 3].Value2 = "遅れ";
                 valueSheet.Range[valueSheet.Cells[1, 4], valueSheet.Cells[1, 12]].NumberFormat = "m/d";
+
+                // !DUMMY行を削除
+                int dummyRow = getRowNo(ref valueSheet, "!DUMMY", 1);
+                valueSheet.Rows[dummyRow].Delete();
 
                 // 列幅自動調整
                 valueSheet.Columns.AutoFit();
@@ -2018,7 +2022,7 @@ namespace MPPPS
             {
                 if (values[row, 2] != null)//参照型オブジェクトのnull判定（NullReferenceException発生の為）
                 {
-                    if (values[row, 17].ToString() == "-2146826246")// デバッグで#N/Aを調べたら"-2146826246"だった
+                    if (values[row, 17].ToString() == "-2146826246" && values[row, 17].ToString()!="!DUMMY") // デバッグで#N/Aを調べたら"-2146826246"だった
                     {
                         errHMCD += (errHMCD == string.Empty) ?
                             values[row, 2].ToString() : "\n" + values[row, 2].ToString();
@@ -2316,7 +2320,17 @@ namespace MPPPS
                     }
                     sheet.Cells[1, 1].Select();
                 }
-            } else {
+            }
+            else if (sheetName == "TP") 
+            {
+                // TPフィルター後件数が0件の時
+                headerRow = 4;                                                      // ヘッダー行番号を元に戻す
+                int endNoRow = sheet.Cells[headerRow + 1, 1].End(Excel.XlDirection.xlDown).Row;
+                int endRow = sheet.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
+                sheet.Rows[$"{endRow + 1}:{endNoRow}"].Delete();                    // 余分な行を削除する
+            }
+            else
+            {
                 sheet.Cells[5, 2].Value2 = "対象データなし";
             }
             OutputRange.AutoFilter(filCol); // フィルターの解除ではなく抽出条件をクリア
