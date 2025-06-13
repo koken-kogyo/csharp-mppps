@@ -17,6 +17,7 @@ using Microsoft.Win32;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Documents;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace MPPPS
 {
@@ -2041,142 +2042,142 @@ namespace MPPPS
 
 
             // ①TN工程
-            toolStripStatusLabel.Text = "[TN] 工程 (1/21) を作成中...";
+            toolStripStatusLabel.Text = "[TN] 工程 (1/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "TN", 36
                 , 36, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
             // ②SW工程
-            toolStripStatusLabel.Text = "[SW] 工程 (2/21) を作成中...";
+            toolStripStatusLabel.Text = "[SW] 工程 (2/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "SW", 20
                 , 20, XlSortOrder.xlAscending
                 , 15, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
             );
             // ③SS工程
-            toolStripStatusLabel.Text = "[SS] 工程 (3/21) を作成中...";
+            toolStripStatusLabel.Text = "[SS] 工程 (3/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "SS", 21
                 , 21, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
             // ④CN工程
-            toolStripStatusLabel.Text = "[CN] 工程 (4/21) を作成中...";
+            toolStripStatusLabel.Text = "[CN] 工程 (4/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "CN", 23
                 , 23, XlSortOrder.xlAscending
                 , 15, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
             );
             // ⑤MS工程
-            toolStripStatusLabel.Text = "[MS] 工程 (5/21) を作成中...";
+            toolStripStatusLabel.Text = "[MS] 工程 (5/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "MS", 24
                 , 24, XlSortOrder.xlAscending
                 , 15, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
             );
             // ⑥XT工程
-            toolStripStatusLabel.Text = "[XT] 工程 (6/21) を作成中...";
+            toolStripStatusLabel.Text = "[XT] 工程 (6/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "XT", 22
                 , 22, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
             // ⑦ON工程
-            toolStripStatusLabel.Text = "[ON] 工程 (7/21) を作成中...";
+            toolStripStatusLabel.Text = "[ON] 工程 (7/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "ON", 27
                 , 27, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
             // ⑧MD工程
-            toolStripStatusLabel.Text = "[MD] 工程 (8/21) を作成中...";
+            toolStripStatusLabel.Text = "[MD] 工程 (8/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "MD", 30
                 , 29, XlSortOrder.xlDescending
                 , 30, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
             );
             // ⑨MC工程
-            toolStripStatusLabel.Text = "[MC] 工程 (9/21) を作成中...";
+            toolStripStatusLabel.Text = "[MC] 工程 (9/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "MC", 31
                 , 31, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
             // ⑩3BP工程
-            toolStripStatusLabel.Text = "[3BP] 工程 (10/21) を作成中...";
-            FilterCopyPasteSort(ref OutputRange, "3BP", 31
-                , 31, XlSortOrder.xlAscending
+            toolStripStatusLabel.Text = "[3BP] 工程 (10/22) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "3BP", 28
+                , 28, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
-            // ⑪-1 G工程（G32列とTP33列）
-            toolStripStatusLabel.Text = "[G] 工程 (11/21) を作成中...";
+            // ⑪ G工程（G32列とTP33列）
+            toolStripStatusLabel.Text = "[G] 工程 (11/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "G", 32
                 , 32, XlSortOrder.xlDescending
                 , 33, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
             );
-            // ⑪-2 TP工程（G32列とTP33列）
-            toolStripStatusLabel.Text = "[TP] 工程 (11/21) を作成中...";
-            FilterCopyPasteSort(ref OutputRange, "TP", 33
-                , 32, XlSortOrder.xlDescending
-                , 33, XlSortOrder.xlDescending
-                , 2, XlSortOrder.xlAscending
-            );
             // ⑫SK工程
-            toolStripStatusLabel.Text = "[SK] 工程 (12/21) を作成中...";
+            toolStripStatusLabel.Text = "[SK] 工程 (12/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "SK", 34
                 , 34, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
             // ⑬LF工程
-            toolStripStatusLabel.Text = "[LF] 工程 (13/21) を作成中...";
+            toolStripStatusLabel.Text = "[LF] 工程 (13/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "LF", 35
                 , 35, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
-            // ⑭NC工程
-            toolStripStatusLabel.Text = "[NC] 工程 (14/21) を作成中...";
+            // ⑭ TP工程（G32列とTP33列）（LFの後にTPをくっつけるので実行する場所に注意！）
+            toolStripStatusLabel.Text = "[TP] 工程 (14/22) を作成中...";
+            FilterCopyPasteSort(ref OutputRange, "TP", 33
+                , 32, XlSortOrder.xlDescending
+                , 33, XlSortOrder.xlDescending
+                , 2, XlSortOrder.xlAscending
+            );
+            // ⑮NC工程
+            toolStripStatusLabel.Text = "[NC] 工程 (15/22) を作成中...";
             FilterCopyPasteSort2(ref OutputRange, ref toolStripStatusLabel);
-            // ⑮TN(2)シートの作成
-            toolStripStatusLabel.Text = "[TN(2)] 工程 (15/21) を作成中...";
+            // ⑯TN(2)シートの作成
+            toolStripStatusLabel.Text = "[TN(2)] 工程 (16/22) を作成中...";
             FilterCopyPaste3("TN(2)", 36
                 , new string[] {"TN1", "TN3", "TN4", "TN" }
                 , new string[] { "1", "3", "4", "TN" }
                 , ref toolStripStatusLabel);
-            // ⑯SS(2)シートの作成
-            toolStripStatusLabel.Text = "[SS(2)] 工程 (16/21) を作成中...";
+            // ⑰SS(2)シートの作成
+            toolStripStatusLabel.Text = "[SS(2)] 工程 (17/22) を作成中...";
             FilterCopyPaste3("SS(2)", 21
                 , new string[] { "SS" }
                 , new string[] { "SS" }
                 , ref toolStripStatusLabel);
-            // ⑰CN(2)シートの作成
-            toolStripStatusLabel.Text = "[CN(2)] 工程 (17/21) を作成中...";
+            // ⑱CN(2)シートの作成
+            toolStripStatusLabel.Text = "[CN(2)] 工程 (18/22) を作成中...";
             FilterCopyPaste3("CN(2)", 23
                 , new string[] { "CN1", "CN2", "CN3", "CN4" }
                 , new string[] { "CN1", "CN2", "CN3", "CN4" }
                 , ref toolStripStatusLabel);
-            // ⑱MS(2)シートの作成
-            toolStripStatusLabel.Text = "[MS(2)] 工程 (18/21) を作成中...";
+            // ⑲MS(2)シートの作成
+            toolStripStatusLabel.Text = "[MS(2)] 工程 (19/22) を作成中...";
             FilterCopyPaste3("MS(2)", 24
                 , new string[] { "MS1", "MS2", "MS3", "MS4", "MS5", "MS6" }
                 , new string[] { "1", "2", "3", "4", "5", "6" }
                 , ref toolStripStatusLabel);
-            // ⑲XT(2)シートの作成
-            toolStripStatusLabel.Text = "[XT(2)] 工程 (19/21) を作成中...";
+            // ⑳XT(2)シートの作成
+            toolStripStatusLabel.Text = "[XT(2)] 工程 (20/22) を作成中...";
             FilterCopyPaste3("XT(2)", 22
                 , new string[] { "XT" }
                 , new string[] { "XT" }
                 , ref toolStripStatusLabel);
-            // ⑳NC(2)シートの作成
-            toolStripStatusLabel.Text = "[NC(2)] 工程 (20/21) を作成中...";
+            // ㉑NC(2)シートの作成
+            toolStripStatusLabel.Text = "[NC(2)] 工程 (21/22) を作成中...";
             DirectCopyPaste4(ref toolStripStatusLabel);
             //cmn.Fa.ExcelDebug();
-            // ㉑SK(2)シートの作成
-            toolStripStatusLabel.Text = "[SK(2)] 工程 (21/21) を作成中...";
+            // ㉒SK(2)シートの作成
+            toolStripStatusLabel.Text = "[SK(2)] 工程 (22/22) を作成中...";
             FilterCopyPaste3("SK(2)", 34
                 , new string[] { "SK", "XW" }
                 , new string[] { "SK*", "XW" }
@@ -2195,6 +2196,7 @@ namespace MPPPS
             ktSheet.Cells[1, 1].Select();
 
             // 保存
+            //oXls.DisplayAlerts = false; // アラートメッセージ非表示設定
             oWBook.SaveAs(filePath);
 
             // COMオブジェクトの解放
@@ -2219,7 +2221,7 @@ namespace MPPPS
             Excel.Worksheet sheet;
             if (sheetName == "TP")
             {
-                sheet = (Excel.Worksheet)oWBook.Worksheets["G"]; // TP工程はG工程の下に張り付ける
+                sheet = (Excel.Worksheet)oWBook.Worksheets["LF"]; // TP工程はLF工程の下に張り付ける
             }
             else
             {
@@ -2229,25 +2231,25 @@ namespace MPPPS
             sheet.Activate();
 
             // フィルタ
-            if (sheetName == "MC")
-            {
-                OutputRange.AutoFilter(Field: filCol
-                    , Criteria1: "<>"
-                    , Operator: XlAutoFilterOperator.xlAnd
-                    , Criteria2: "<>3B?"
-                );
-            }
-            else if (sheetName == "3BP")
-            {
-                OutputRange.AutoFilter(Field: filCol
-                    , Criteria1: new string[] { "3B?", "4N" }
-                    , Operator: Excel.XlAutoFilterOperator.xlFilterValues
-                );
-            }
-            else
-            {
+            //if (sheetName == "MC") 2025.06.17 ON3列を廃止し3BP列に用途変更した為処理廃止
+            //{
+            //    OutputRange.AutoFilter(Field: filCol
+            //        , Criteria1: "<>"
+            //        , Operator: XlAutoFilterOperator.xlAnd
+            //        , Criteria2: "<>3B?"
+            //    );
+            //}
+            //else if (sheetName == "3BP")
+            //{
+            //    OutputRange.AutoFilter(Field: filCol
+            //        , Criteria1: new string[] { "3B?", "4N" }
+            //        , Operator: Excel.XlAutoFilterOperator.xlFilterValues
+            //    );
+            //}
+            //else
+            //{
                 OutputRange.AutoFilter(filCol, Criteria1: "<>");                    // １．col列の空白以外をフィルタ
-            }
+            //}
             int filteredCount = getFilteredRowCount(ref OutputRange);
             if (filteredCount > 0)
             {
@@ -2255,6 +2257,7 @@ namespace MPPPS
                 OutputRange.SpecialCells(XlCellType.xlCellTypeVisible).Copy();      // ２．フィルタされた範囲をコピー
                 sheet.Cells[headerRow, 2].PasteSpecial(XlPasteType.xlPasteValues);  // ３．シートに値のみ貼り付け
                 int endNoRow = sheet.Cells[headerRow + 1, 1].End(Excel.XlDirection.xlDown).Row;
+                // LF工程の下に張り付けたTP工程ヘッダーを削除し行を調整
                 if (sheetName == "TP")
                 {
                     sheet.Range[sheet.Cells[headerRow, 2], sheet.Cells[headerRow, 37 + 3]]
@@ -2313,8 +2316,8 @@ namespace MPPPS
                         }
                         catch { continue; }
                     }
-                    // その他
-                    if (sheetName != "G")
+                    // LF工程の下にTP工程が来るので行削除しない
+                    if (sheetName != "LF")
                     {
                         sheet.Rows[$"{endRow + 1}:{endNoRow}"].Delete();            // ６．余分な行を削除する
                     }
@@ -2528,6 +2531,29 @@ namespace MPPPS
             destSheet.Rows[$"3:{refStartRow - 1}"].Delete();
             destSheet.Activate();
             destSheet.Cells[1, 1].Select();
+            // コピペ後の行高さ調整
+            int row = 0;
+            int nextrow = 0;
+            string[] mccds = {"NC4", "NC5", "NC6", "NC7", "NC8", "NC" };
+            for (int idx = 0; idx < mccds.Length; idx++)
+            {
+                row = getRowNo(ref destSheet, mccds[idx], 2); // タイトル12.0、見出し9.6、データ15.6
+                destSheet.Rows[row + 0].RowHeight = 12.0d;
+                destSheet.Rows[row + 1].RowHeight = 9.6d;
+                if (idx == mccds.Length - 1)
+                {
+                    nextrow = destSheet.Cells[row, 2].End(Excel.XlDirection.xlDown).Row + 1;
+                }
+                else
+                {
+                    nextrow = getRowNo(ref destSheet, mccds[idx + 1], 2);
+                }
+                destSheet.Rows[$"{row + 2}:{nextrow - 1}"].RowHeight = 15.6d;
+            }
+            destSheet.Rows[$"{nextrow}:{nextrow + 2}"].RowHeight = 12.0d;   // 本数サマリー
+            destSheet.Rows[$"{nextrow + 3}"].RowHeight = 15.6d;             // 工数サマリー
+            destSheet.Rows[$"{nextrow + 4}"].RowHeight = 12.0d;             // おまけ解説
+
             // COMオブジェクトの解放
             System.Runtime.InteropServices.Marshal.ReleaseComObject(refSheet);
             System.Runtime.InteropServices.Marshal.ReleaseComObject(destSheet);
@@ -2610,6 +2636,39 @@ namespace MPPPS
             }
             return false;
         }
+
+        /// <summary>
+        /// コード票シートのA6アドレスに最新データを貼り付ける
+        /// </summary>
+        /// <param name="dataTable">コード票マスタデータテーブル</param>
+        /// <param name="copyColumns">コピーする最終列</param>
+        /// <returns></returns>
+        public void WriteDataTableToExcel(System.Data.DataTable codeSlipDt, int copyColumns)
+        {
+            // コード票マスタオブジェクト
+            object[,] codeSlipObj = new object[codeSlipDt.Rows.Count, copyColumns];
+            try
+            {
+                int rowCount = 0;
+                foreach (DataRow r in codeSlipDt.Rows)
+                {
+                    for (int colCount = 0; colCount < copyColumns; colCount++)
+                    {
+                        codeSlipObj[rowCount, colCount] = Convert.ToString(r[colCount]);
+                    }
+                    rowCount++;
+                }
+                // 設定したオブジェクトをレンジに貼り付け
+                oRange = oWSheet.Range[oWSheet.Cells[6, 1], oWSheet.Cells[6 + rowCount - 1, 1 + copyColumns - 1]];
+                oRange.Value = codeSlipObj;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                throw ex;
+            }
+        }
+
 
 
     }

@@ -116,13 +116,18 @@ namespace MPPPS
 
 
             DataTable d0410 = new DataTable();
+            DataTable km8430 = new DataTable();
             int ret = 0;
 
             try
             {
-                // 促進データ抽出
                 toolStripStatusLabel1.Text = "促進データ抽出中...";
-                await Task.Run(() => ret = cmn.Dba.促進データ抽出(ref d0410));
+                // 最新のコード票マスタ抽出
+                var taskA = Task.Run(() => cmn.Dba.GetCodeSlipMst(ref km8430));
+                // 促進データ抽出
+                var taskB = Task.Run(() => ret = cmn.Dba.促進データ抽出(ref d0410));
+                // 両者が完了するまで待機する
+                await Task.WhenAll(taskA, taskB);
                 if (ret < 0) return;
                 if (ret == 0)
                 {
@@ -159,7 +164,10 @@ namespace MPPPS
                 toolStripStatusLabel1.Text = "[①.xlsx] を作成中...";
                 cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[5].RootPath}\{cmn.FsCd[5].FileName}");
 
-                // 雛形に工程データを渡して編集して保存
+                // ①_雛形シート[1]に最新のコード票マスタを書き込む
+                cmn.Fa.WriteDataTableToExcel(km8430, 38);
+
+                // ①_雛形に工程データを渡して編集して保存
                 cmn.Fa.印刷用促進データ編集保存(data, filePath2, ref toolStripStatusLabel1);
 
                 // Bookを閉じる
@@ -189,6 +197,10 @@ namespace MPPPS
 
 
 
+        }
+
+        private async void btn_PickupNaiji_Click(object sender, EventArgs e)
+        {
         }
     }
 }

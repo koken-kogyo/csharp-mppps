@@ -2387,12 +2387,6 @@ namespace MPPPS
 
                     // KM8430:コード票マスタの品番抽出
                     DataRow[] cr = codeDt.Select($"HMCD='{hmcd}'");
-                    if (cr.Length == 0)
-                    {
-                        System.Windows.Forms.MessageBox.Show($"EM手配中の{hmcd}がコード票マスタに存在しません。\nマスタ登録後再度実行してください");
-                        Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name + ":" + hmcd);
-                        continue;
-                    }
 
                     // ODRNOが他の手配日付に存在したら削除しておく（手配日付がコロコロ変えられる対応）
                     // KD8450:切削オーダーの削除

@@ -674,6 +674,25 @@ namespace MPPPS
                     {
                         DataTable exceptDt = new DataTable();
                         exceptDt = insertDr.CopyToDataTable();
+
+                        // 手配品番がコード票に存在するかチェック
+                        string[] errHMCD = exceptDt.AsEnumerable()
+                            .Where(row =>
+                                !mpCodeMDt.AsEnumerable().Select(col => col["HMCD"]).ToArray()
+                                .Contains(row["HMCD"])
+                            ).Select(col => col["HMCD"].ToString()).ToArray();
+                        if (errHMCD.Length > 0)
+                        {
+                            Clipboard.SetText(string.Join("\n", errHMCD));
+                            var msg = "EM手配がコード票マスタに存在しません。\n" + 
+                                "このまま処理を続行しますか？\n\n" + 
+                                "（はい：エラー以外を取込 / いいえ：処理を中断）\n\n" + 
+                                "品番：" + string.Join(" , ", errHMCD) + "\n" + 
+                                "（対象品番をクリップしました．）";
+                            if (MessageBox.Show(msg, "選択", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                                == DialogResult.No) return;
+                        }
+
                         // MPシステム MySQLに集合差分を挿入
                         insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpZaikoDt, ref deleteODRNODt, c.Style.BackColor);
                         if (insCount < 0) return;

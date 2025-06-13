@@ -87,6 +87,7 @@ namespace MPPPS
             this.btn_PickupNaiji.TabIndex = 3;
             this.btn_PickupNaiji.Text = "工程別内示表データ作成";
             this.btn_PickupNaiji.UseVisualStyleBackColor = true;
+            this.btn_PickupNaiji.Click += new System.EventHandler(this.btn_PickupNaiji_Click);
             // 
             // btn_All_Print
             // 
@@ -102,18 +103,19 @@ namespace MPPPS
             // 
             // statusStrip1
             // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 240);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 236);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(321, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(321, 26);
             this.statusStrip1.TabIndex = 21;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(151, 20);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // Frm050_MfgCtrl
