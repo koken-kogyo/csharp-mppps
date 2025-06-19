@@ -62,8 +62,8 @@ namespace MPPPS
             this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnKTSEQPrev = new System.Windows.Forms.Button();
+            this.btnKTSEQNext = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_CodeSlipMst)).BeginInit();
@@ -79,23 +79,23 @@ namespace MPPPS
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 325);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 321);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 18, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1262, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1262, 26);
             this.statusStrip1.TabIndex = 5;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(112, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(143, 20);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
             // 
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(1131, 17);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(1100, 20);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -110,7 +110,7 @@ namespace MPPPS
             this.panel2.Controls.Add(this.btnReadExcelMaster);
             this.panel2.Controls.Add(this.btnConvertMP);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 277);
+            this.panel2.Location = new System.Drawing.Point(0, 273);
             this.panel2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1262, 48);
@@ -203,7 +203,7 @@ namespace MPPPS
             this.Dgv_CodeSlipMst.Name = "Dgv_CodeSlipMst";
             this.Dgv_CodeSlipMst.RowHeadersWidth = 51;
             this.Dgv_CodeSlipMst.RowTemplate.Height = 24;
-            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1262, 212);
+            this.Dgv_CodeSlipMst.Size = new System.Drawing.Size(1262, 208);
             this.Dgv_CodeSlipMst.TabIndex = 7;
             this.Dgv_CodeSlipMst.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.Dgv_CodeSlipMst_CellMouseDown);
             this.Dgv_CodeSlipMst.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.Dgv_CodeSlipMst_EditingControlShowing);
@@ -223,8 +223,8 @@ namespace MPPPS
             this.tableLayoutPanel1.Controls.Add(this.groupBox2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.groupBox3, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.button1, 4, 0);
-            this.tableLayoutPanel1.Controls.Add(this.button2, 5, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnKTSEQPrev, 4, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnKTSEQNext, 5, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -317,7 +317,7 @@ namespace MPPPS
             this.txtKTKEY.Font = new System.Drawing.Font("Yu Gothic UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.txtKTKEY.Location = new System.Drawing.Point(347, 18);
             this.txtKTKEY.Name = "txtKTKEY";
-            this.txtKTKEY.Size = new System.Drawing.Size(55, 32);
+            this.txtKTKEY.Size = new System.Drawing.Size(55, 38);
             this.txtKTKEY.TabIndex = 13;
             this.txtKTKEY.TextChanged += new System.EventHandler(this.txtKTKEY_TextChanged);
             // 
@@ -350,7 +350,7 @@ namespace MPPPS
             this.txtHMCD.Font = new System.Drawing.Font("Yu Gothic UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.txtHMCD.Location = new System.Drawing.Point(38, 18);
             this.txtHMCD.Name = "txtHMCD";
-            this.txtHMCD.Size = new System.Drawing.Size(177, 32);
+            this.txtHMCD.Size = new System.Drawing.Size(177, 38);
             this.txtHMCD.TabIndex = 10;
             this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
             // 
@@ -370,7 +370,7 @@ namespace MPPPS
             "ﾚｰｻﾞｰ"});
             this.cmbMaterial.Location = new System.Drawing.Point(442, 19);
             this.cmbMaterial.Name = "cmbMaterial";
-            this.cmbMaterial.Size = new System.Drawing.Size(67, 29);
+            this.cmbMaterial.Size = new System.Drawing.Size(67, 36);
             this.cmbMaterial.TabIndex = 9;
             this.cmbMaterial.SelectedIndexChanged += new System.EventHandler(this.cmbMaterial_SelectedIndexChanged);
             // 
@@ -381,7 +381,7 @@ namespace MPPPS
             this.label2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.label2.Location = new System.Drawing.Point(8, 27);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(29, 13);
+            this.label2.Size = new System.Drawing.Size(37, 19);
             this.label2.TabIndex = 15;
             this.label2.Text = "品番";
             // 
@@ -392,7 +392,7 @@ namespace MPPPS
             this.label1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.label1.Location = new System.Drawing.Point(297, 27);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(53, 13);
+            this.label1.Size = new System.Drawing.Size(65, 19);
             this.label1.TabIndex = 14;
             this.label1.Text = "設備ｺｰﾄﾞ";
             // 
@@ -403,7 +403,7 @@ namespace MPPPS
             this.label3.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.label3.Location = new System.Drawing.Point(412, 26);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(29, 13);
+            this.label3.Size = new System.Drawing.Size(37, 19);
             this.label3.TabIndex = 16;
             this.label3.Text = "材料";
             // 
@@ -473,31 +473,33 @@ namespace MPPPS
             this.radioButton1.CheckedChanged += new System.EventHandler(this.radio_CheckedChanged);
             this.radioButton1.Paint += new System.Windows.Forms.PaintEventHandler(this.RadioButton_Paint);
             // 
-            // button1
+            // btnKTSEQPrev
             // 
-            this.button1.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button1.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button1.Location = new System.Drawing.Point(1165, 15);
-            this.button1.Margin = new System.Windows.Forms.Padding(3, 15, 3, 8);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(44, 42);
-            this.button1.TabIndex = 21;
-            this.button1.Text = "前工程へ";
-            this.button1.UseVisualStyleBackColor = false;
+            this.btnKTSEQPrev.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.btnKTSEQPrev.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnKTSEQPrev.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.btnKTSEQPrev.Location = new System.Drawing.Point(1165, 15);
+            this.btnKTSEQPrev.Margin = new System.Windows.Forms.Padding(3, 15, 3, 8);
+            this.btnKTSEQPrev.Name = "btnKTSEQPrev";
+            this.btnKTSEQPrev.Size = new System.Drawing.Size(44, 42);
+            this.btnKTSEQPrev.TabIndex = 21;
+            this.btnKTSEQPrev.Text = "前工程へ";
+            this.btnKTSEQPrev.UseVisualStyleBackColor = false;
+            this.btnKTSEQPrev.Click += new System.EventHandler(this.btnKTSEQPrev_Click);
             // 
-            // button2
+            // btnKTSEQNext
             // 
-            this.button2.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.button2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button2.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.button2.Location = new System.Drawing.Point(1215, 15);
-            this.button2.Margin = new System.Windows.Forms.Padding(3, 15, 3, 8);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(44, 42);
-            this.button2.TabIndex = 22;
-            this.button2.Text = "次工程へ";
-            this.button2.UseVisualStyleBackColor = false;
+            this.btnKTSEQNext.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.btnKTSEQNext.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnKTSEQNext.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.btnKTSEQNext.Location = new System.Drawing.Point(1215, 15);
+            this.btnKTSEQNext.Margin = new System.Windows.Forms.Padding(3, 15, 3, 8);
+            this.btnKTSEQNext.Name = "btnKTSEQNext";
+            this.btnKTSEQNext.Size = new System.Drawing.Size(44, 42);
+            this.btnKTSEQNext.TabIndex = 22;
+            this.btnKTSEQNext.Text = "次工程へ";
+            this.btnKTSEQNext.UseVisualStyleBackColor = false;
+            this.btnKTSEQNext.Click += new System.EventHandler(this.btnKTSEQNext_Click);
             // 
             // Frm034_CodeSlipMstMaint
             // 
@@ -556,8 +558,8 @@ namespace MPPPS
         private ComboBox cmbMaterial;
         private Label label3;
         private Label label2;
-        private Button button2;
-        private Button button1;
+        private Button btnKTSEQNext;
+        private Button btnKTSEQPrev;
         private Button btnUpdateDatabase2;
         private GroupBox groupBox3;
         private RadioButton radioButton3;

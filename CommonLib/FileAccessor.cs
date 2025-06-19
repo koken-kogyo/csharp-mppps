@@ -2135,7 +2135,7 @@ namespace MPPPS
             // ⑭ TP工程（G32列とTP33列）（LFの後にTPをくっつけるので実行する場所に注意！）
             toolStripStatusLabel.Text = "[TP] 工程 (14/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "TP", 33
-                , 32, XlSortOrder.xlDescending
+                , 35, XlSortOrder.xlDescending
                 , 33, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
             );
@@ -2456,13 +2456,13 @@ namespace MPPPS
                         , Operator: Excel.XlAutoFilterOperator.xlFilterValues
                     );
                 }
-                //else if (filNames[idx] == "SK*")
-                //{
-                //    refRange.AutoFilter(Field: filCol
-                //        , Criteria1: new string[] { "SK", "SK2" }
-                //        , Operator: Excel.XlAutoFilterOperator.xlFilterValues
-                //    );
-                //}
+                else if (filNames[idx] == "SS")
+                {
+                    refRange.AutoFilter(Field: filCol
+                        , Criteria1: new string[] { "SS", "CT" }
+                        , Operator: Excel.XlAutoFilterOperator.xlFilterValues
+                    );
+                }
                 else
                 {
                     refRange.AutoFilter(filCol, Criteria1: filNames[idx]);

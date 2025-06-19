@@ -63,7 +63,7 @@ namespace MPPPS
             this.Btn_InformationPlan.Name = "Btn_InformationPlan";
             this.Btn_InformationPlan.Size = new System.Drawing.Size(300, 38);
             this.Btn_InformationPlan.TabIndex = 3;
-            this.Btn_InformationPlan.Text = "切削システム内示情報";
+            this.Btn_InformationPlan.Text = "内示検索";
             this.Btn_InformationPlan.UseVisualStyleBackColor = true;
             this.Btn_InformationPlan.Click += new System.EventHandler(this.Btn_InformationPlan_Click);
             // 
@@ -75,7 +75,7 @@ namespace MPPPS
             this.Btn_ImportPlan.Name = "Btn_ImportPlan";
             this.Btn_ImportPlan.Size = new System.Drawing.Size(300, 38);
             this.Btn_ImportPlan.TabIndex = 1;
-            this.Btn_ImportPlan.Text = "EM内示情報の取込";
+            this.Btn_ImportPlan.Text = "内示情報";
             this.Btn_ImportPlan.UseVisualStyleBackColor = true;
             this.Btn_ImportPlan.Click += new System.EventHandler(this.Btn_ImportPlan_Click);
             // 
@@ -100,7 +100,7 @@ namespace MPPPS
             this.Btn_InformationOrder.Name = "Btn_InformationOrder";
             this.Btn_InformationOrder.Size = new System.Drawing.Size(300, 38);
             this.Btn_InformationOrder.TabIndex = 2;
-            this.Btn_InformationOrder.Text = "切削システム手配情報";
+            this.Btn_InformationOrder.Text = "手配検索";
             this.Btn_InformationOrder.UseVisualStyleBackColor = true;
             this.Btn_InformationOrder.Click += new System.EventHandler(this.Btn_InformationOrder_Click);
             // 
@@ -112,7 +112,7 @@ namespace MPPPS
             this.Btn_ImportOrder.Name = "Btn_ImportOrder";
             this.Btn_ImportOrder.Size = new System.Drawing.Size(300, 38);
             this.Btn_ImportOrder.TabIndex = 0;
-            this.Btn_ImportOrder.Text = "EM手配取込～製造指示カード作成";
+            this.Btn_ImportOrder.Text = "手配情報";
             this.Btn_ImportOrder.UseVisualStyleBackColor = true;
             this.Btn_ImportOrder.Click += new System.EventHandler(this.Btn_ImportOrder_Click);
             // 

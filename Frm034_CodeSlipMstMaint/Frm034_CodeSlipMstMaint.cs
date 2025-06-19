@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Collections.Generic;
+using static System.Net.Mime.MediaTypeNames;
+using System.Text.RegularExpressions;
 
 namespace MPPPS
 {
@@ -1041,5 +1043,102 @@ namespace MPPPS
             myFilter();
         }
 
+        // 選択された工程順序をひとつ前にする
+        private void btnKTSEQPrev_Click(object sender, EventArgs e)
+        {
+            int row = Dgv_CodeSlipMst.CurrentCell.RowIndex;
+            int col = Dgv_CodeSlipMst.CurrentCell.ColumnIndex;
+            if (col <= cColKTKEY) return;
+            string headerText = Dgv_CodeSlipMst.Columns[col].HeaderText
+                .Replace('１', '1').Replace('２', '2').Replace('３', '3')
+                .Replace('４', '4').Replace('５', '5').Replace('６', '6');
+            bool isMatch = Regex.IsMatch(headerText, @"[1-6１-６]$");       // 移動対象かを判定
+            if (isMatch == false) return;
+            int ktseq = Convert.ToInt32(headerText.Substring(headerText.Length - 1));
+            if (ktseq == 1) return;
+            // DataTableを取得
+            var hmcd = Dgv_CodeSlipMst[0, row].Value;
+            DataRow[] dr = codeSlipDt.Select($"HMCD='{hmcd}'");
+            if (dr.Length != 1) return;
+            // 退避
+            var obj1 = dr[0][cColKTKEY + ((ktseq - 2) * 5) + 1];
+            var obj2 = dr[0][cColKTKEY + ((ktseq - 2) * 5) + 2];
+            var obj3 = dr[0][cColKTKEY + ((ktseq - 2) * 5) + 3];
+            var obj4 = dr[0][cColKTKEY + ((ktseq - 2) * 5) + 4];
+            var obj5 = dr[0][cColKTKEY + ((ktseq - 2) * 5) + 5];
+            // 移動
+            dr[0][cColKTKEY + ((ktseq - 2) * 5) + 1] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 1];
+            dr[0][cColKTKEY + ((ktseq - 2) * 5) + 2] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 2];
+            dr[0][cColKTKEY + ((ktseq - 2) * 5) + 3] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 3];
+            dr[0][cColKTKEY + ((ktseq - 2) * 5) + 4] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 4];
+            dr[0][cColKTKEY + ((ktseq - 2) * 5) + 5] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 5];
+            // 戻す
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 1] = obj1;
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 2] = obj2;
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 3] = obj3;
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 4] = obj4;
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 5] = obj5;
+            // 工程検索ｷｰの再作成
+            string ktkey = "";
+            for (int i = 1; i <= 6; i++)
+            {
+                if (dr[0][$"KT{i}MCGCD"] != null && dr[0][$"KT{i}MCGCD"] != DBNull.Value)
+                {
+                    ktkey += dr[0][$"KT{i}MCGCD"].ToString() + "-" + dr[0][$"KT{i}MCCD"].ToString() + ":";
+                }
+            }
+            dr[0][cColKTKEY] = ktkey;
+            // カーソルを移動
+            Dgv_CodeSlipMst.CurrentCell = Dgv_CodeSlipMst[col - 5, row];
+        }
+
+        // 選択された工程順序をひとつ後にする
+        private void btnKTSEQNext_Click(object sender, EventArgs e)
+        {
+            int row = Dgv_CodeSlipMst.CurrentCell.RowIndex;
+            int col = Dgv_CodeSlipMst.CurrentCell.ColumnIndex;
+            if (col <= cColKTKEY) return;
+            string headerText = Dgv_CodeSlipMst.Columns[col].HeaderText
+                .Replace('１', '1').Replace('２', '2').Replace('３', '3')
+                .Replace('４', '4').Replace('５', '5').Replace('６', '6');
+            bool isMatch = Regex.IsMatch(headerText, @"[1-6１-６]$");       // 移動対象かを判定
+            if (isMatch == false) return;
+            int ktseq = Convert.ToInt32(headerText.Substring(headerText.Length - 1));
+            if (ktseq == 6) return;
+            // DataTableを取得
+            var hmcd = Dgv_CodeSlipMst[0, row].Value;
+            DataRow[] dr = codeSlipDt.Select($"HMCD='{hmcd}'");
+            if (dr.Length != 1) return;
+            // 退避
+            var obj1 = dr[0][cColKTKEY + ((ktseq + 0) * 5) + 1];
+            var obj2 = dr[0][cColKTKEY + ((ktseq + 0) * 5) + 2];
+            var obj3 = dr[0][cColKTKEY + ((ktseq + 0) * 5) + 3];
+            var obj4 = dr[0][cColKTKEY + ((ktseq + 0) * 5) + 4];
+            var obj5 = dr[0][cColKTKEY + ((ktseq + 0) * 5) + 5];
+            // 移動
+            dr[0][cColKTKEY + ((ktseq + 0) * 5) + 1] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 1];
+            dr[0][cColKTKEY + ((ktseq + 0) * 5) + 2] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 2];
+            dr[0][cColKTKEY + ((ktseq + 0) * 5) + 3] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 3];
+            dr[0][cColKTKEY + ((ktseq + 0) * 5) + 4] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 4];
+            dr[0][cColKTKEY + ((ktseq + 0) * 5) + 5] = dr[0][cColKTKEY + ((ktseq - 1) * 5) + 5];
+            // 戻す
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 1] = obj1;
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 2] = obj2;
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 3] = obj3;
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 4]= obj4;
+            dr[0][cColKTKEY + ((ktseq - 1) * 5) + 5] = obj5;
+            // 工程検索ｷｰの再作成
+            string ktkey = "";
+            for (int i = 1; i <= 6; i++)
+            {
+                if (dr[0][$"KT{i}MCGCD"] != null && dr[0][$"KT{i}MCGCD"] != DBNull.Value)
+                {
+                    ktkey += dr[0][$"KT{i}MCGCD"].ToString() + "-" + dr[0][$"KT{i}MCCD"].ToString() + ":";
+                }
+            }
+            dr[0][cColKTKEY] = ktkey;
+            // カーソルを移動
+            Dgv_CodeSlipMst.CurrentCell = Dgv_CodeSlipMst[col + 5, row];
+        }
     }
 }
