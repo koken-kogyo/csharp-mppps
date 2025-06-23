@@ -1479,7 +1479,7 @@ namespace MPPPS
 
             bool ret = false;
             string yyMM = DateTime.Now.AddMonths(-3).ToString("yyMM");
-            string from = DateTime.Now.AddDays(-14).ToString("yyyy/MM/dd");
+            string from = DateTime.Now.AddDays(-31).ToString("yyyy/MM/dd");
             string to = DateTime.Now.AddDays(14).ToString("yyyy/MM/dd");
             OracleConnection emCnn = null;
 

@@ -42,9 +42,9 @@ namespace MPPPS
             this.label2 = new System.Windows.Forms.Label();
             this.Dgv_Calendar = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.Btn_ImportOrder = new System.Windows.Forms.Button();
-            this.Btn_PrintOrder = new System.Windows.Forms.Button();
             this.Btn_PrintCancel = new System.Windows.Forms.Button();
+            this.Btn_PrintOrder = new System.Windows.Forms.Button();
+            this.Btn_ImportOrder = new System.Windows.Forms.Button();
             this.statusStrip.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_Calendar)).BeginInit();
@@ -74,9 +74,10 @@ namespace MPPPS
             // 
             // toolStripStatusLabel2
             // 
-            this.toolStripStatusLabel2.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.toolStripStatusLabel2.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.toolStripStatusLabel2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(665, 23);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(626, 23);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -175,18 +176,18 @@ namespace MPPPS
             this.tableLayoutPanel1.Size = new System.Drawing.Size(851, 42);
             this.tableLayoutPanel1.TabIndex = 11;
             // 
-            // Btn_ImportOrder
+            // Btn_PrintCancel
             // 
-            this.Btn_ImportOrder.BackColor = System.Drawing.Color.MistyRose;
-            this.Btn_ImportOrder.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Btn_ImportOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_ImportOrder.Location = new System.Drawing.Point(3, 3);
-            this.Btn_ImportOrder.Name = "Btn_ImportOrder";
-            this.Btn_ImportOrder.Size = new System.Drawing.Size(334, 36);
-            this.Btn_ImportOrder.TabIndex = 12;
-            this.Btn_ImportOrder.Text = "手配データ取込";
-            this.Btn_ImportOrder.UseVisualStyleBackColor = false;
-            this.Btn_ImportOrder.Click += new System.EventHandler(this.Btn_ImportOrder_Click);
+            this.Btn_PrintCancel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.Btn_PrintCancel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_PrintCancel.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_PrintCancel.Location = new System.Drawing.Point(683, 3);
+            this.Btn_PrintCancel.Name = "Btn_PrintCancel";
+            this.Btn_PrintCancel.Size = new System.Drawing.Size(165, 36);
+            this.Btn_PrintCancel.TabIndex = 14;
+            this.Btn_PrintCancel.Text = "印刷不要";
+            this.Btn_PrintCancel.UseVisualStyleBackColor = false;
+            this.Btn_PrintCancel.Click += new System.EventHandler(this.Btn_PrintCancel_Click);
             // 
             // Btn_PrintOrder
             // 
@@ -201,18 +202,18 @@ namespace MPPPS
             this.Btn_PrintOrder.UseVisualStyleBackColor = false;
             this.Btn_PrintOrder.Click += new System.EventHandler(this.Btn_PrintOrder_Click);
             // 
-            // Btn_PrintCancel
+            // Btn_ImportOrder
             // 
-            this.Btn_PrintCancel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.Btn_PrintCancel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Btn_PrintCancel.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_PrintCancel.Location = new System.Drawing.Point(683, 3);
-            this.Btn_PrintCancel.Name = "Btn_PrintCancel";
-            this.Btn_PrintCancel.Size = new System.Drawing.Size(165, 36);
-            this.Btn_PrintCancel.TabIndex = 14;
-            this.Btn_PrintCancel.Text = "印刷不要";
-            this.Btn_PrintCancel.UseVisualStyleBackColor = false;
-            this.Btn_PrintCancel.Click += new System.EventHandler(this.Btn_PrintCancel_Click);
+            this.Btn_ImportOrder.BackColor = System.Drawing.Color.MistyRose;
+            this.Btn_ImportOrder.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_ImportOrder.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_ImportOrder.Location = new System.Drawing.Point(3, 3);
+            this.Btn_ImportOrder.Name = "Btn_ImportOrder";
+            this.Btn_ImportOrder.Size = new System.Drawing.Size(334, 36);
+            this.Btn_ImportOrder.TabIndex = 12;
+            this.Btn_ImportOrder.Text = "手配データ取込";
+            this.Btn_ImportOrder.UseVisualStyleBackColor = false;
+            this.Btn_ImportOrder.Click += new System.EventHandler(this.Btn_ImportOrder_Click);
             // 
             // Frm041_ImportOrder
             // 

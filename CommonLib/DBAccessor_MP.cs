@@ -2162,6 +2162,7 @@ namespace MPPPS
                     + ", concat('',sum(case when ODRSTS = '9' then ODRQTY else 0 end)) \"MP9取消本数\" "
                     + ", concat('',sum(case when ODRSTS in ('1','2','3','4','9') then ODRQTY else 0 end)) \"MP取込本数\" "
                     + ", concat('',sum(case when MPCARDDT is not NULL and ODRSTS != '9' then 1 else 0 end)) \"MP印刷件数\" "
+                    + ", concat('',sum(case when ODCD = '60605' and ODRSTS != '9' then 1 else 0 end)) \"MP印刷対象外\" "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                     + "WHERE "
@@ -3424,16 +3425,18 @@ namespace MPPPS
             return ret;
         }
 
-
+        // 通常の製造指示カード出力
         private string GetOrderCardPrintInfoSQL(ref DateTime eddtFrom, ref DateTime eddtTo)
         {
             string sql = GetOrderCardPrintInfoBaseSQL()
                 + $"and a.EDDT between '{eddtFrom}' and '{eddtTo}' "
+                + $"and a.ODRSTS <> '4' "
                 + "and MPCARDDT is null " // 製造指示カード発行日
             ;
             return sql;
         }
 
+        // 個別の製造指示カード再出力（手配No指定）
         private string GetOrderCardPrintInfoSQL(DataTable targetDt)
         {
             // 手配Noを設定
@@ -3488,8 +3491,9 @@ namespace MPPPS
                 + "WHERE "
                 + "a.HMCD = b.HMCD "
                 + "and a.ODRSTS <> '9' "
-                + "and a.ODCD like '6060%' "
+                + "and a.ODCD <> '60605' " // 印刷対象外として「60605:タナコン管理外」を新設
             ;
+            // 手配取込時に ODCD like '6060%'をしている
             return sql;
         }
 
@@ -3522,10 +3526,11 @@ namespace MPPPS
                     + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
                     + "WHERE "
                     + "ODRSTS<>'9' and "
-                    + "ODCD like '6060%' and "
+                    + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
                     + "MPCARDDT is NULL and " // 製造指示カード発行日
                     + $"EDDT between '{eddtFrom}' and '{eddtTo}'"
                 ;
+                // 手配取込時に ODCD like '6060%' をしている
 
                 using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
                 {
@@ -4636,7 +4641,7 @@ namespace MPPPS
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             int ret = 0;
-            string from = DateTime.Now.AddDays(-14).ToString("yyyy/MM/dd");
+            string from = DateTime.Now.AddDays(-31).ToString("yyyy/MM/dd");
             string to = DateTime.Now.AddDays(14).ToString("yyyy/MM/dd");
             MySqlConnection mpCnn = null;
 
@@ -4655,7 +4660,7 @@ namespace MPPPS
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                         + "WHERE "
                         + "ODCD like '6060%' "
-                        + "and ODRSTS in ('2','3') "
+                        + "and ODRSTS in ('1','2','3') "
                         + $"and EDDT between '{from}' and '{to}' "
                     ;
                     adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
