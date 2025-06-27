@@ -18,7 +18,6 @@ namespace MPPPS
         private readonly Common cmn;
         private DataTable invInfoEMDt = new DataTable(); // EM在庫ファイルを保持
         private DataTable invInfoMPDt = new DataTable(); // MP在庫ファイルを保持
-        private bool loadedFlg = false;
 
         // 自動で閉じるメッセージボックスで使用
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
@@ -85,15 +84,12 @@ namespace MPPPS
             // 件数を表示
             toolStripStatusLabel1.Text = (Dgv_InvInfo.Rows.Count - 1) + "件を読み込みました。";
 
-            loadedFlg = true;
-
         }
 
         // データグリッドビューの個別設定
         private void DataGridDetailSetting()
         {
             // 列ヘッダーの文字列を文字位置を設定
-            var offset = 0;
             string[] s1 = {
                 "品番",
                 "在庫場所",
@@ -108,9 +104,8 @@ namespace MPPPS
             };
             for (int i = 0; i < s1.Length; i++)
             {
-                Dgv_InvInfo.Columns[i + offset].HeaderText = s1[i];
+                Dgv_InvInfo.Columns[i].HeaderText = s1[i];
             }
-            offset += s1.Length;
 
             // 在庫数 AlignRight設定
             Dgv_InvInfo.Columns[3].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
@@ -128,12 +123,14 @@ namespace MPPPS
         private void addEMQTY(ref DataTable invInfoEMDt)
         {
             //DataGridViewTextBoxColumn列を作成する
-            DataGridViewTextBoxColumn textColumn = new DataGridViewTextBoxColumn();
-            // データソースの"Column1"をバインドする
-            textColumn.DataPropertyName = "EMQTY";
-            // 名前とヘッダーを設定する
-            textColumn.Name = "EMQTY";
-            textColumn.HeaderText = "EMの\n在庫情報";
+            DataGridViewTextBoxColumn textColumn = new DataGridViewTextBoxColumn
+            {
+                // データソースの"Column1"をバインドする
+                DataPropertyName = "EMQTY",
+                // 名前とヘッダーを設定する
+                Name = "EMQTY",
+                HeaderText = "EMの\n在庫情報"
+            };
             // 初回起動時のみ列を追加する
             if (Dgv_InvInfo.Columns.Count == invInfoMPDt.Columns.Count)
             {
@@ -200,8 +197,7 @@ namespace MPPPS
         // 検索条件を設定
         private void myFilter()
         {
-            var filter = "";
-            filter = (txtHMCD.Text.Length == 0) ? string.Empty :
+            string filter = (txtHMCD.Text.Length == 0) ? string.Empty :
                 $"HMCD LIKE '{txtHMCD.Text}*'";
             //if (filter != string.Empty && cmbMaterial.SelectedIndex > 0)
             //    filter += " and ";

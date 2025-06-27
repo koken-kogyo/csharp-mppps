@@ -1,18 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AD603D33-D8D7-48A8-92C9-0A29D45555B0}</ProjectGuid>
+    <ProjectGuid>{532DB9FB-1545-4D7A-998D-DB0BA7F854E6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Frm090_CutStore</RootNamespace>
-    <AssemblyName>Frm090_CutStore</AssemblyName>
+    <RootNamespace>Frm093_TanaChecker</RootNamespace>
+    <AssemblyName>Frm093_TanaChecker</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,7 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -45,37 +43,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Frm090_CutStore.cs">
+    <Compile Include="Frm093_TanaChecker.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Frm090_CutStore.Designer.cs">
-      <DependentUpon>Frm090_CutStore.cs</DependentUpon>
+    <Compile Include="Frm093_TanaChecker.Designer.cs">
+      <DependentUpon>Frm093_TanaChecker.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Frm093_TanaChecker.resx">
+      <DependentUpon>Frm093_TanaChecker.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommonLib\CommonLib.csproj">
       <Project>{ebb246ec-4547-402e-a4c1-43fc9b711c18}</Project>
       <Name>CommonLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Frm091_CutStoreDelv\Frm091_CutStoreDelv.csproj">
-      <Project>{fd223427-cf8e-4779-af87-33dd672d8eb3}</Project>
-      <Name>Frm091_CutStoreDelv</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Frm092_CutStoreInvInfo\Frm092_CutStoreInvInfo.csproj">
-      <Project>{ee437257-f067-41fb-a67d-6d48ab582d31}</Project>
-      <Name>Frm092_CutStoreInvInfo</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Frm093_TanaChecker\Frm093_TanaChecker.csproj">
-      <Project>{532db9fb-1545-4d7a-998d-db0ba7f854e6}</Project>
-      <Name>Frm093_TanaChecker</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Frm090_CutStore.resx">
-      <DependentUpon>Frm090_CutStore.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

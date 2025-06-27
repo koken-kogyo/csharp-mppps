@@ -48,6 +48,7 @@ namespace MPPPS
         public static readonly int DB_CONFIG_EM = 0;                         // DB 接続定義 (EM)
         public static readonly int DB_CONFIG_KK = 1;                         // DB 接続定義 (内製プログラム)
         public static readonly int DB_CONFIG_MP = 2;                         // DB 接続定義 (切削生産計画システム)
+        public static readonly int DB_CONFIG_TN = 3;                         // DB 接続定義 (タナコンサーバー)
 
 
         // デバッグ ログ
@@ -102,6 +103,7 @@ namespace MPPPS
         public static readonly string FRM_ID_090 = "#090";  // 切削ストア
         public static readonly string FRM_ID_091 = "#091";  // 切削ストア出庫
         public static readonly string FRM_ID_092 = "#092";  // 切削ストア在庫情報
+        public static readonly string FRM_ID_093 = "#093";  // タナコン在庫情報
         public static readonly string FRM_ID_100 = "#100";  // バージョン情報
 
         public static readonly string FRM_NAME_010 = "ログイン";
@@ -131,6 +133,7 @@ namespace MPPPS
         public static readonly string FRM_NAME_090 = "切削ストア";
         public static readonly string FRM_NAME_091 = "切削ストア出庫";
         public static readonly string FRM_NAME_092 = "切削ストア在庫情報";
+        public static readonly string FRM_NAME_093 = "タナコン在庫情報";
         public static readonly string FRM_NAME_100 = "バージョン情報";
 
         public static readonly string FRM_BUTTON_TEXT_CLEAR = "クリア";

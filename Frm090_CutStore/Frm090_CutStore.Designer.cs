@@ -35,6 +35,7 @@ namespace MPPPS
             this.Btn_CutStoreDelv = new System.Windows.Forms.Button();
             this.Btn_CutStoreInvInfo = new System.Windows.Forms.Button();
             this.Btn_Close = new System.Windows.Forms.Button();
+            this.Btn_TanaChecker = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Btn_CutStoreDelv
@@ -57,7 +58,7 @@ namespace MPPPS
             this.Btn_CutStoreInvInfo.Name = "Btn_CutStoreInvInfo";
             this.Btn_CutStoreInvInfo.Size = new System.Drawing.Size(300, 38);
             this.Btn_CutStoreInvInfo.TabIndex = 1;
-            this.Btn_CutStoreInvInfo.Text = "切削ストア在庫情報";
+            this.Btn_CutStoreInvInfo.Text = "仕掛り在庫情報";
             this.Btn_CutStoreInvInfo.UseVisualStyleBackColor = true;
             this.Btn_CutStoreInvInfo.Click += new System.EventHandler(this.Btn_CutStoreInvInfo_Click);
             // 
@@ -65,19 +66,32 @@ namespace MPPPS
             // 
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_Close.Location = new System.Drawing.Point(12, 96);
+            this.Btn_Close.Location = new System.Drawing.Point(12, 137);
             this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
-            this.Btn_Close.TabIndex = 2;
+            this.Btn_Close.TabIndex = 3;
             this.Btn_Close.Text = "閉じる";
             this.Btn_Close.UseVisualStyleBackColor = false;
             this.Btn_Close.Click += new System.EventHandler(this.Btn_Close_Click);
             // 
+            // Btn_TanaChecker
+            // 
+            this.Btn_TanaChecker.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_TanaChecker.Location = new System.Drawing.Point(12, 95);
+            this.Btn_TanaChecker.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Btn_TanaChecker.Name = "Btn_TanaChecker";
+            this.Btn_TanaChecker.Size = new System.Drawing.Size(300, 38);
+            this.Btn_TanaChecker.TabIndex = 2;
+            this.Btn_TanaChecker.Text = "タナコン チェッカー";
+            this.Btn_TanaChecker.UseVisualStyleBackColor = true;
+            this.Btn_TanaChecker.Click += new System.EventHandler(this.Btn_TanaChecker_Click);
+            // 
             // Frm090_CutStore
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(320, 145);
+            this.ClientSize = new System.Drawing.Size(320, 188);
+            this.Controls.Add(this.Btn_TanaChecker);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_CutStoreInvInfo);
             this.Controls.Add(this.Btn_CutStoreDelv);
@@ -103,5 +117,6 @@ namespace MPPPS
         private Button Btn_CutStoreDelv;
         private Button Btn_CutStoreInvInfo;
         private Button Btn_Close;
+        private Button Btn_TanaChecker;
     }
 }

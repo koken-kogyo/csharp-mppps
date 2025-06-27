@@ -71,6 +71,12 @@ namespace MPPPS
             //    sp.Y + (Btn_CutStoreDelv.Height / 2));
         }
 
+        private void Btn_TanaChecker_Click(object sender, EventArgs e)
+        {
+            Frm093_TanaChecker frm093 = new Frm093_TanaChecker(cmn);
+            this.Hide();
+            frm093.Show();
+        }
     }
 }
 

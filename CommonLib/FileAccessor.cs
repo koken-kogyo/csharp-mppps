@@ -1,5 +1,4 @@
-﻿using LumenWorks.Framework.IO.Csv;
-using QRCoder;
+﻿using QRCoder;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -88,14 +87,16 @@ namespace MPPPS
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             // 接続情報を設定
-            NETRESOURCE formNetReform = new NETRESOURCE();
-            formNetReform.dwScope = 0;
-            formNetReform.dwType = 1;
-            formNetReform.dwDisplayType = 0;
-            formNetReform.dwUsage = 0;
-            formNetReform.lpLocalName = ""; // ネットワーク ドライブにする場合は "z:" などドライブレター設定  
-            formNetReform.lpRemoteName = @cmn.FsCd[1].ShareName;
-            formNetReform.lpProvider = "";
+            NETRESOURCE formNetReform = new NETRESOURCE
+            {
+                dwScope = 0,
+                dwType = 1,
+                dwDisplayType = 0,
+                dwUsage = 0,
+                lpLocalName = "", // ネットワーク ドライブにする場合は "z:" などドライブレター設定  
+                lpRemoteName = @cmn.FsCd[1].ShareName,
+                lpProvider = ""
+            };
 
             int ret = 0;
             try
@@ -123,14 +124,16 @@ namespace MPPPS
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             // 接続情報を設定  
-            NETRESOURCE saveNetResource = new NETRESOURCE();
-            saveNetResource.dwScope = 0;
-            saveNetResource.dwType = 1;
-            saveNetResource.dwDisplayType = 0;
-            saveNetResource.dwUsage = 0;
-            saveNetResource.lpLocalName = ""; // ネットワークドライブにする場合は "z:" などドライブレター設定  
-            saveNetResource.lpRemoteName = @cmn.FsCd[1].ShareName;
-            saveNetResource.lpProvider = "";
+            NETRESOURCE saveNetResource = new NETRESOURCE
+            {
+                dwScope = 0,
+                dwType = 1,
+                dwDisplayType = 0,
+                dwUsage = 0,
+                lpLocalName = "", // ネットワークドライブにする場合は "z:" などドライブレター設定  
+                lpRemoteName = @cmn.FsCd[1].ShareName,
+                lpProvider = ""
+            };
 
             int ret = 0;
             try
@@ -266,116 +269,6 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// CSV ファイルを DataGridView に読み込み
-        /// </summary>
-        /// <param name="path">パス</param>
-        /// <param name="encoding">エンコード</param>
-        /// <param name="isTitled">ヘッダーあり (false: なし, true: あり)</param>
-        /// <param name="tableName">テーブル名</param>
-        /// <param name="dataTable">データ テーブル</param>
-        /// <returns>結果 (≦ 0: 保存成功 (保存件数), -2: 先頭行の項目数が異なる)</returns>
-        public int ReadCSVFile(string path, Encoding encoding, bool isTitled, string tableName, ref System.Data.DataTable dataTable)
-        {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
-            int ret = 0;
-
-            // ファイル情報作成
-            if (CreateFileInfo() == Common.FILE_INFO_NG)
-            {
-                if (cmn.Dba != null)
-                {
-                    if (cmn.MySqlCnn != null)
-                    {
-                        // 切削生産計画システム データベースから切断
-                        cmn.Dbm.CloseMySqlSchema(cmn.MySqlCnn);
-                    }
-
-                    if (cmn.OraCnn[Common.DB_CONFIG_EM] != null)
-                    {
-                        // EM データベースから切断
-                        cmn.Dbm.CloseOraSchema(cmn.OraCnn[Common.DB_CONFIG_EM]);
-                    }
-
-                    if (cmn.OraCnn[Common.DB_CONFIG_KK] != null)
-                    {
-                        // 内製プログラム データベースから切断
-                        cmn.Dbm.CloseOraSchema(cmn.OraCnn[Common.DB_CONFIG_KK]);
-                    }
-                }
-            }
-
-            // CSV ファイルを DataGridView に読み込み
-            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (TextReader sr = new StreamReader(fs, encoding))
-            // CSV の先頭行を読む
-            using (CsvReader vs = new CsvReader(sr, isTitled))
-            {
-                Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
-                int fieldCount = 0;
-                try
-                {
-                    fieldCount = vs.FieldCount; // 変換元項目数
-                }
-                catch
-                {
-                    // 「タイトル行ありの得意先」と「タイトル行なしの変換元ファイル」を選択したときに発生する例外の回避策
-                    // ファイルの先頭行がタイトル行と解釈されるので先頭行が重複するらしい
-                    // 例外は無視して次の項目数チェックでエラーにする
-                }
-
-                // 先頭行の項目数チェック
-                // 問題点: 同一得意先にファイル名称フィルターが同一の識別が複数あり、識別がファイル名から取得できない場合、
-                //         IsTargetFile() メソッド内で KM0850 を検索すると複数件が返される。
-                //         その後、ファイル名のパターン チェックにおいて、必ず先頭データのファイル名称フィルターと一致
-                //         してしまうため、実際の識別が 2 件目以降だった場合は誤ったファイル書式が取得されてしまう。
-                //         取得された書式のうち項目数が実際の識別の項目数と異なる場合、ConvertFileFormatAsync() メソッド内
-                //         の項目数チェックでエラーと判定されてしまう。
-                //
-                // 対策:   KM0850 から複数件が返った場合、とりあえず先頭の識別の文字コードとタイトル行の有無を使って
-                //         変換元 CSV の先頭行を読んで識別を取得したあと、再度 IsTargetFile() メソッドを呼ぶことで
-                //         KM0850 からユニークなデータを検索し、正しい情報を取得して項目数の判定に使用することで回避する。
-
-                // インポート先となるテーブルのカラム数を取得
-                DataSet dataSetColumnsCmment = new DataSet();
-                int tableColumnsCount = cmn.Dbm.GetMySqlTableInfo(ref dataSetColumnsCmment, tableName);
-
-                // 項目数比較
-                if (fieldCount != tableColumnsCount) // 先頭行の項目数が異なる
-                {
-                    Trace.WriteLine("項目数が間違っています。(CSV ファイル = " + fieldCount + " 件, インポート先テーブル = " + tableColumnsCount + "件)");
-                    return -2; // 先頭行の項目数が異なる
-                }
-
-                // データ テーブルに追加
-                // 列を追加
-                for (int cnt = 0; cnt < vs.FieldCount; cnt++)
-                {
-                    Debug.WriteLine("cnt = " + Convert.ToString(cnt));
-                    dataTable.Columns.Add();
-                }
-
-                // CSV の次行を読む
-                while (vs.ReadNextRecord())
-                {
-                    // データ行を作成
-                    DataRow dataRow = dataTable.NewRow();
-
-                    // 作成したデータ行に列の値を設定
-                    for (int cnt = 0; cnt < vs.FieldCount; cnt++)
-                    {
-                        dataRow[cnt] = vs[cnt];
-                    }
-                    // データ行をデータ テーブルに追加
-                    dataTable.Rows.Add(dataRow);
-                }
-            }
-            ret = dataTable.Rows.Count;
-            return ret;
-        }
-
-        /// <summary>
         /// DatGridView を CSV ファイルに保存
         /// </summary>
         /// <param name="dgv">DataGridView</param>
@@ -398,7 +291,7 @@ namespace MPPPS
                     // 1 行分を差し引く
                     if (dgv.AllowUserToAddRows == true)
                     {
-                        rowCount = rowCount - 1;
+                        rowCount--;
                     }
 
                     // 行
@@ -476,8 +369,10 @@ namespace MPPPS
 
             string excelName = @path;
 
-            oXls = new Excel.Application();
-            oXls.Visible = true;
+            oXls = new Excel.Application
+            {
+                Visible = true
+            };
 
             // Excelファイルをオープンする//
             oWBook = (Excel.Workbook)(oXls.Workbooks.Open(
@@ -543,8 +438,10 @@ namespace MPPPS
         /// <param name="idx">ファイルシステム設定ファイルのインデックス番号</param>
         public void OpenExcel2(int idx)
         {
-            oXls = new Excel.Application();
-            oXls.Visible = cmn.FsCd[idx].VisibleExcel;  // Excelのウィンドウの表示/非表示を設定ファイルから取得
+            oXls = new Excel.Application
+            {
+                Visible = cmn.FsCd[idx].VisibleExcel  // Excelのウィンドウの表示/非表示を設定ファイルから取得
+            };
 
             oQRGenerator = new QRCodeGenerator();
         }
@@ -621,10 +518,7 @@ namespace MPPPS
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             // アプリケーションの終了前に破棄可能なオブジェクトを破棄します。
-            if (oQRGenerator != null)
-            {
-                oQRGenerator.Dispose();
-            }
+            oQRGenerator?.Dispose();
 
             // アプリケーションの終了前に破棄可能なオブジェクトを破棄します。
             if (oWBook != null)
@@ -662,8 +556,10 @@ namespace MPPPS
         /// <param name="idx">ファイルシステム設定ファイルのインデックス番号</param>
         public void ExcelApplication(bool flg)
         {
-            oXls = new Excel.Application();
-            oXls.Visible = flg;
+            oXls = new Excel.Application
+            {
+                Visible = flg
+            };
         }
 
         /// <summary>
@@ -774,7 +670,6 @@ namespace MPPPS
             dynamic xlSheets = null;
             dynamic xlSheet = null;
             dynamic xlRange = null;
-            dynamic xlCell = null;
             System.Data.DataTable dataTable = new System.Data.DataTable();
             try
             {
@@ -873,14 +768,12 @@ namespace MPPPS
                     xlApp.DisplayAlerts = false;
                     xlWbook.Close();
                     // Marshal.ReleaseComObject(xlWbook); Closeするとオブジェクトがなくなる？？？
-                    xlWbook = null;
                 }
                 if (xlWbooks != null) Marshal.ReleaseComObject(xlWbooks);
 
                 //Excelアプリケーション終了
                 xlApp.Quit();
                 Marshal.ReleaseComObject(xlApp);
-                xlApp = null;
 
                 // アプリケーションの終了前にガベージ コレクトを強制します。
                 GC.Collect();
@@ -1273,9 +1166,9 @@ namespace MPPPS
         // Excelコピペした後に前のデータをクリアする
         private void ClearCardByPage(ref int rowbase)
         {
-            for (int row = rowbase; row <= rowbase + 21; row = row + 21)
+            for (int row = rowbase; row <= rowbase + 21; row += 21)
             {
-                for (int col = 2; col <= 11; col = col + 9)
+                for (int col = 2; col <= 11; col += 9)
                 {
                     oWSheet.Cells[row + 0, col].Value = String.Empty;
                     oWSheet.Cells[row + 3, col].Value = String.Empty;
@@ -1354,7 +1247,7 @@ namespace MPPPS
         }
 
         // 製造指示カードに記載するEX:検査工程の工程名を加工して返却
-        private string getEXKTName(ref string mccd)
+        private string GetEXKTName(ref string mccd)
         {
             if (mccd.StartsWith("BT"))
             {
@@ -1363,6 +1256,10 @@ namespace MPPPS
             else if (mccd.StartsWith("MT"))
             {
                 return "面取り";
+            }
+            else if (mccd.StartsWith("ED"))
+            {
+                return "ｴﾝﾄﾞﾚｽ";
             }
             else if (mccd.StartsWith("F"))
             {
@@ -1376,7 +1273,7 @@ namespace MPPPS
         }
 
         // 製造指示カードに記載するEX:検査工程の設備名を加工して返却
-        private string getEXMCName(ref string mccd)
+        private string GetEXMCName(ref string mccd)
         {
             if (mccd.StartsWith("F1"))
             {
@@ -1390,11 +1287,15 @@ namespace MPPPS
             {
                 return "目視検査";
             }
+            else if (mccd.StartsWith("ED"))
+            {
+                return ""; // エンドレスは1台しかない 2025.06.26 益田
+            }
             return mccd;
         }
 
         // 製造指示カードに記載する出荷先の工程名を加工して返却
-        private string getSTKTName(ref string store)
+        private string GetSTKTName(ref string store)
         {
             if (store == "")
             {
@@ -1410,7 +1311,7 @@ namespace MPPPS
             }
         }
         // 製造指示カードに記載する出荷先の設備名を加工して返却
-        private string getSTMCName(ref string store)
+        private string GetSTMCName(ref string store)
         {
             if (store == "")
             {
@@ -1495,8 +1396,8 @@ namespace MPPPS
             // 各工程順を設定
             if (r["KT1MCGCD"].ToString() == "")
             {
-                obj[9, 1] = getSTKTName(ref store);
-                obj[9, 2] = getSTMCName(ref store);
+                obj[9, 1] = GetSTKTName(ref store);
+                obj[9, 2] = GetSTMCName(ref store);
                 store = "";
             }
             else
@@ -1504,8 +1405,8 @@ namespace MPPPS
                 var mccd = r["KT1MCCD"].ToString();
                 if (r["KT1MCGCD"].ToString() == "EX")
                 {
-                    obj[9, 1] = getEXKTName(ref mccd);
-                    obj[9, 2] = getEXMCName(ref mccd);
+                    obj[9, 1] = GetEXKTName(ref mccd);
+                    obj[9, 2] = GetEXMCName(ref mccd);
                 }
                 else
                 {
@@ -1515,8 +1416,8 @@ namespace MPPPS
             }
             if (r["KT2MCGCD"].ToString() == "")
             {
-                obj[11, 1] = getSTKTName(ref store);
-                obj[11, 2] = getSTMCName(ref store);
+                obj[11, 1] = GetSTKTName(ref store);
+                obj[11, 2] = GetSTMCName(ref store);
                 store = "";
             }
             else
@@ -1524,8 +1425,8 @@ namespace MPPPS
                 var mccd = r["KT2MCCD"].ToString();
                 if (r["KT2MCGCD"].ToString() == "EX")
                 {
-                    obj[11, 1] = getEXKTName(ref mccd);
-                    obj[11, 2] = getEXMCName(ref mccd);
+                    obj[11, 1] = GetEXKTName(ref mccd);
+                    obj[11, 2] = GetEXMCName(ref mccd);
                 }
                 else
                 {
@@ -1535,8 +1436,8 @@ namespace MPPPS
             }
             if (r["KT3MCGCD"].ToString() == "")
             {
-                obj[13, 1] = getSTKTName(ref store);
-                obj[13, 2] = getSTMCName(ref store);
+                obj[13, 1] = GetSTKTName(ref store);
+                obj[13, 2] = GetSTMCName(ref store);
                 store = "";
             }
             else
@@ -1544,8 +1445,8 @@ namespace MPPPS
                 var mccd = r["KT3MCCD"].ToString();
                 if (r["KT3MCGCD"].ToString() == "EX")
                 {
-                    obj[13, 1] = getEXKTName(ref mccd);
-                    obj[13, 2] = getEXMCName(ref mccd);
+                    obj[13, 1] = GetEXKTName(ref mccd);
+                    obj[13, 2] = GetEXMCName(ref mccd);
                 }
                 else
                 {
@@ -1555,8 +1456,8 @@ namespace MPPPS
             }
             if (r["KT4MCGCD"].ToString() == "")
             {
-                obj[15, 1] = getSTKTName(ref store);
-                obj[15, 2] = getSTMCName(ref store);
+                obj[15, 1] = GetSTKTName(ref store);
+                obj[15, 2] = GetSTMCName(ref store);
                 store = "";
             }
             else
@@ -1564,8 +1465,8 @@ namespace MPPPS
                 var mccd = r["KT4MCCD"].ToString();
                 if (r["KT4MCGCD"].ToString() == "EX")
                 {
-                    obj[15, 1] = getEXKTName(ref mccd);
-                    obj[15, 2] = getEXMCName(ref mccd);
+                    obj[15, 1] = GetEXKTName(ref mccd);
+                    obj[15, 2] = GetEXMCName(ref mccd);
                 }
                 else
                 {
@@ -1575,8 +1476,8 @@ namespace MPPPS
             }
             if (r["KT5MCGCD"].ToString() == "")
             {
-                obj[17, 1] = getSTKTName(ref store);
-                obj[17, 2] = getSTMCName(ref store);
+                obj[17, 1] = GetSTKTName(ref store);
+                obj[17, 2] = GetSTMCName(ref store);
                 store = "";
             }
             else
@@ -1584,8 +1485,8 @@ namespace MPPPS
                 var mccd = r["KT5MCCD"].ToString();
                 if (r["KT5MCGCD"].ToString() == "EX")
                 {
-                    obj[17, 1] = getEXKTName(ref mccd);
-                    obj[17, 2] = getEXMCName(ref mccd);
+                    obj[17, 1] = GetEXKTName(ref mccd);
+                    obj[17, 2] = GetEXMCName(ref mccd);
                 }
                 else
                 {
@@ -1598,8 +1499,8 @@ namespace MPPPS
             {
                 if (store != "")
                 {
-                    obj[17, 1] += "\n" + getSTKTName(ref store);
-                    obj[17, 2] += "\n" + getSTMCName(ref store);
+                    obj[17, 1] += "\n" + GetSTKTName(ref store);
+                    obj[17, 2] += "\n" + GetSTMCName(ref store);
                 }
             }
             else
@@ -1629,8 +1530,8 @@ namespace MPPPS
                 if (store != "")
                 {
                     fontsize = "SMALLER";
-                    obj[17, 1] += "\n" + getSTKTName(ref store);
-                    obj[17, 2] += "\n" + getSTMCName(ref store);
+                    obj[17, 1] += "\n" + GetSTKTName(ref store);
+                    obj[17, 2] += "\n" + GetSTMCName(ref store);
                 }
             }
             var note = r["NOTE"].ToString();
@@ -2483,22 +2384,29 @@ namespace MPPPS
                 refSheet.Range[refSheet.Cells[headerRow, 2], refSheet.Cells[headerRow, 8]]
                     .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
                 destSheet.Cells[startRow + 1, 2].PasteSpecial(XlPasteType.xlPasteValues);
-                // 前半週のフィルタデータのコピペ
-                refSheet.Range[refSheet.Cells[refStartRow, 2],refSheet.Cells[refStartRow + rowCount, 8]]
-                    .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
-                destSheet.Cells[startRow + 2, 2].PasteSpecial(XlPasteType.xlPasteValues);
                 // 後半週のヘッダーのコピペ
                 refSheet.Range[refSheet.Cells[headerRow, 9], refSheet.Cells[headerRow, 13]]
                     .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
                 destSheet.Cells[startRow + 1, 11].PasteSpecial(XlPasteType.xlPasteValues);
-                // 後半週のフィルタデータのコピペ
-                refSheet.Range[refSheet.Cells[refStartRow, 9], refSheet.Cells[refStartRow + rowCount, 13]]
-                    .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
-                destSheet.Cells[startRow + 2, 11].PasteSpecial(XlPasteType.xlPasteValues);
-                // 1件の場合は空白行を削除
-                if (rowCount == 1) destSheet.Rows[startRow + 3].Delete();
-                // No振り直し
-                for (int i = 1; i <= rowCount; i++) destSheet.Cells[startRow + 1 + i, 1].Value2 = i;
+                if (rowCount == 0)
+                {
+                    destSheet.Rows[startRow + 2].Delete();
+                }
+                else
+                {
+                    // 前半週のフィルタデータのコピペ
+                    refSheet.Range[refSheet.Cells[refStartRow, 2], refSheet.Cells[refStartRow + rowCount, 8]]
+                        .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
+                    destSheet.Cells[startRow + 2, 2].PasteSpecial(XlPasteType.xlPasteValues);
+                    // 後半週のフィルタデータのコピペ
+                    refSheet.Range[refSheet.Cells[refStartRow, 9], refSheet.Cells[refStartRow + rowCount, 13]]
+                        .SpecialCells(XlCellType.xlCellTypeVisible).Copy();
+                    destSheet.Cells[startRow + 2, 11].PasteSpecial(XlPasteType.xlPasteValues);
+                    // 1件の場合は空白行を削除
+                    if (rowCount == 1) destSheet.Rows[startRow + 3].Delete();
+                    // No振り直し
+                    for (int i = 1; i <= rowCount; i++) destSheet.Cells[startRow + 1 + i, 1].Value2 = i;
+                }
                 // フィルターの解除ではなく抽出条件をクリア
                 refRange.AutoFilter(filCol);
             }
