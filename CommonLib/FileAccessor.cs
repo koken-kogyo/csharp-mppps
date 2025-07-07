@@ -1499,6 +1499,7 @@ namespace MPPPS
             {
                 if (store != "")
                 {
+                    fontsize = "SMALLER";
                     obj[17, 1] += "\n" + GetSTKTName(ref store);
                     obj[17, 2] += "\n" + GetSTMCName(ref store);
                 }
@@ -1646,7 +1647,7 @@ namespace MPPPS
 
         // ①工程グループコードと設備コードがダブっている場合は１つに集約
         // ②ダブっていない場合は[-]で連結
-        // ③工程①(mode==1)以外の場合は、先頭に連結文字[ > ]を挿入し返却
+        // ③内示カード(modeConnect != 1)の場合は、先頭に連結文字[ > ]を挿入し返却
         private string RemoveDuplicates(string mcgcd, string mccd, int modeConnect)
         {
             string prefix = string.Empty;
@@ -1654,8 +1655,9 @@ namespace MPPPS
             if (modeConnect != 1) prefix += " > ";
             if (mcgcd != string.Empty)
             {
+                if (mcgcd == "SK" && mccd == "XW") return prefix + "XW";    // 設備名の個別対応（[SK-XW]は[XW]のみで返却）
+                if (mcgcd == "3BP") return prefix + $"MC2-{mccd}";          // 設備名の個別対応（[3BP-*]は[MC2-*]で返却）
                 if (mcgcd == mccd) return prefix + mcgcd;
-                if (mcgcd == "SK" && mccd == "XW") return prefix + "XW"; // 設備名の個別対応
                 return prefix + $"{mcgcd}-{mccd}";
             }
             return string.Empty;
