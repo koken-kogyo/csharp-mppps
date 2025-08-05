@@ -2461,8 +2461,10 @@ namespace MPPPS
                 destSheet.Rows[$"{row + 2}:{nextrow - 1}"].RowHeight = 15.6d;
             }
             destSheet.Rows[$"{nextrow}:{nextrow + 2}"].RowHeight = 12.0d;   // 本数サマリー
-            destSheet.Rows[$"{nextrow + 3}"].RowHeight = 15.6d;             // 工数サマリー
+            destSheet.Rows[$"{nextrow + 3}"].RowHeight = 15.6d;             // 日当り本数
             destSheet.Rows[$"{nextrow + 4}"].RowHeight = 12.0d;             // おまけ解説
+
+            destSheet.PageSetup.PrintArea = $"A1:R{nextrow + 4}";           // コピペしたので印刷範囲を再設定
 
             // COMオブジェクトの解放
             System.Runtime.InteropServices.Marshal.ReleaseComObject(refSheet);
