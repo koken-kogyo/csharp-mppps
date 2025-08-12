@@ -4370,10 +4370,11 @@ namespace MPPPS
                             {
                                 for (int col = 0; col < dtUpdate.Columns.Count; col++)
                                 {
-                                    if (r[col].ToString() != dgv[0][col].ToString())
+                                    if (r[col].ToString() != dgv[0][col].ToString() && col != dtUpdate.Columns.IndexOf("UPDTID"))
                                     {
                                         // 変更あり
                                         r[col] = dgv[0][col];
+                                        r["UPDTID"] = cmn.Ui.UserId;
                                     }
                                 }
                                 //dtUpdate.Rows[0]["UPDTDT"] = DateTime.Now.ToString();
@@ -4396,6 +4397,7 @@ namespace MPPPS
                             // 挿入
                             if (dr.Length == 0)
                             {
+                                r["INSTID"] = cmn.Ui.UserId;
                                 dtUpdate.ImportRow(r);
                                 countInsert++;
                             }
