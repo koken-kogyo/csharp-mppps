@@ -161,7 +161,7 @@ namespace MPPPS
 
 
                 // ①_雛形.xlsxを開く
-                toolStripStatusLabel1.Text = "[①.xlsx] を作成中...";
+                toolStripStatusLabel1.Text = "[①.xlsx] に 最新のコード票 を 転送中...";
                 cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[5].RootPath}\{cmn.FsCd[5].FileName}");
 
                 // ①_雛形シート[1]に最新のコード票マスタを書き込む

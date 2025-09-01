@@ -1919,6 +1919,7 @@ namespace MPPPS
 
 
             // 工程シートのVLOOKUP列で#N/Aが存在するかチェック（17:協力工場列で検証）
+            toolStripStatusLabel.Text = "品番チェック中...";
             string errHMCD = string.Empty;
             Excel.Range range = ktSheet.Range["A1", ktSheet.Cells[endRow, 37]];
             object[,] values = (object[,])range.Value2; // 2次元配列として取得
@@ -2002,7 +2003,7 @@ namespace MPPPS
             );
             // ⑨MC工程
             toolStripStatusLabel.Text = "[MC] 工程 (9/22) を作成中...";
-            FilterCopyPasteSort(ref OutputRange, "MC", 31
+            FilterCopyPasteSort3(ref OutputRange, "MC", 31
                 , 31, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
@@ -2187,23 +2188,6 @@ namespace MPPPS
                     sort.MatchCase = false;
                     sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
                     sort.Apply();
-                    // 並び替え条件（MCを一番上にする）
-                    if (sheetName == "MC")
-                    {
-                        int currentRow = headerRow + 1; //挿入開始行番号
-                        for (int i = headerRow + 1; i <= endRow; i++)
-                        {
-                            Range cell = sheet.Cells[i, filCol];
-                            if (cell.Value != null && cell.Value.ToString().Contains("MC"))
-                            {
-                                // 行を先頭に移動
-                                sheet.Range[sheet.Cells[i, 2], sheet.Cells[i, 37 + 3]].Cut();
-                                sheet.Range[sheet.Cells[currentRow, 2], sheet.Cells[currentRow, 37 + 3]]
-                                    .Insert(XlInsertShiftDirection.xlShiftDown);
-                                currentRow++;
-                            }
-                        }
-                    }
                     // 罫線
                     for (int i = headerRow + 1; i < endRow; i++)                    // ５．中太罫線を入れる
                     {
@@ -2252,7 +2236,7 @@ namespace MPPPS
         private void FilterCopyPasteSort2(ref Microsoft.Office.Interop.Excel.Range OutputRange
             , ref ToolStripStatusLabel toolStripStatusLabel)
         {
-            int headerRow = 4;
+            //int headerRow = 4;
             int startRow = 0;
             int endRow = 0;
             int rowCount = 0;
@@ -2261,44 +2245,44 @@ namespace MPPPS
             sheet.Activate();
 
             // ON工程を処理
-            toolStripStatusLabel.Text = "[ON] 工程 (14/14) を作成中...";
-            Excel.Worksheet sheetON;
-            sheetON = (Excel.Worksheet)oWBook.Worksheets["ON"];
-            endRow = sheetON.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
-            rowCount = endRow - headerRow;
-            if (endRow < 65535)
-            {
-                // 設備名の行番号を取得
-                startRow = getRowNo(ref sheet,"ON", 2);
+            //toolStripStatusLabel.Text = "[ON] 工程 (14/14) を作成中...";
+            //Excel.Worksheet sheetON;
+            //sheetON = (Excel.Worksheet)oWBook.Worksheets["ON"];
+            //endRow = sheetON.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
+            //rowCount = endRow - headerRow;
+            //if (endRow < 65535)
+            //{
+            //    // 設備名の行番号を取得
+            //    startRow = getRowNo(ref sheet,"ON", 2);
 
-                // 貼り付ける枠を確保するための行挿入
-                // 上手く行っているので保存しておく
-                //for (int i = 1; i <= rowCount - 2; i++)
-                //{
-                //    sheet.Rows[startRow + 3].Insert(XlInsertShiftDirection.xlShiftDown);
-                //}
-                // 貼り付ける枠を確保するための行挿入
-                if (rowCount > 2)
-                {
-                    sheet.Rows[$"{startRow + 3}:{startRow + rowCount}"].Insert(XlInsertShiftDirection.xlShiftDown);
-                    // 空き行に式をコピー
-                    sheet.Range[sheet.Cells[startRow + 2, 14], sheet.Cells[startRow + 2, 37]].Copy();
-                    sheet.Range[sheet.Cells[startRow + 3, 14], sheet.Cells[startRow + rowCount + 1, 37]]
-                        .PasteSpecial(XlPasteType.xlPasteFormulas);
-                }
-                // ONシートから値のみコピー
-                sheetON.Range[sheetON.Cells[headerRow, 2], sheetON.Cells[headerRow + rowCount, 13]].Copy();
-                sheet.Cells[headerRow, 2].PasteSpecial(XlPasteType.xlPasteValues);
-                if (rowCount == 1) sheet.Rows[startRow + 3].Delete();
-                // 行番号の振り直し
-                for (int i = 1; i <= rowCount; i++) sheet.Cells[startRow + 1 + i, 1].Value2 = i;
-            }
+            //    // 貼り付ける枠を確保するための行挿入
+            //    // 上手く行っているので保存しておく
+            //    //for (int i = 1; i <= rowCount - 2; i++)
+            //    //{
+            //    //    sheet.Rows[startRow + 3].Insert(XlInsertShiftDirection.xlShiftDown);
+            //    //}
+            //    // 貼り付ける枠を確保するための行挿入
+            //    if (rowCount > 2)
+            //    {
+            //        sheet.Rows[$"{startRow + 3}:{startRow + rowCount}"].Insert(XlInsertShiftDirection.xlShiftDown);
+            //        // 空き行に式をコピー
+            //        sheet.Range[sheet.Cells[startRow + 2, 14], sheet.Cells[startRow + 2, 37]].Copy();
+            //        sheet.Range[sheet.Cells[startRow + 3, 14], sheet.Cells[startRow + rowCount + 1, 37]]
+            //            .PasteSpecial(XlPasteType.xlPasteFormulas);
+            //    }
+            //    // ONシートから値のみコピー
+            //    sheetON.Range[sheetON.Cells[headerRow, 2], sheetON.Cells[headerRow + rowCount, 13]].Copy();
+            //    sheet.Cells[headerRow, 2].PasteSpecial(XlPasteType.xlPasteValues);
+            //    if (rowCount == 1) sheet.Rows[startRow + 3].Delete();
+            //    // 行番号の振り直し
+            //    for (int i = 1; i <= rowCount; i++) sheet.Cells[startRow + 1 + i, 1].Value2 = i;
+            //}
 
             // NC1～NC8工程まで処理をループ
             for (int idx = 1; idx <= 9; idx++)
             {
                 string target = (idx == 9) ? "" : idx.ToString();
-                toolStripStatusLabel.Text = $"[NC{target}] 工程 (14/21) を作成中...";
+                toolStripStatusLabel.Text = $"[NC{target}] 工程 (14/22) を作成中...";
                 startRow = getRowNo(ref sheet, $"NC{target}", 2);
                 OutputRange.AutoFilter(26, Criteria1: (idx == 9) ? "NC" : idx.ToString());
                 rowCount = getFilteredRowCount(ref OutputRange);
@@ -2320,6 +2304,131 @@ namespace MPPPS
             sheet.AutoFilterMode = false;       // フィルター自体を解除
             sheet.Activate();
             sheet.Cells[1, 1].Select();
+
+            // COMオブジェクトの解放
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet);
+            //System.Runtime.InteropServices.Marshal.ReleaseComObject(sheetON);
+        }
+
+        /// <summary>
+        /// MC工程シートの作成（専用）
+        /// </summary>
+        /// <param name="OutputRange">入力データのRange</param>
+        /// <param name="sheetName">対象のシート名</param>
+        /// <param name="filCol">フィルターをかける列番号</param>
+        /// <param name="filCol">フィルターをかける列番号</param>
+        /// <param name="keyCol1">並び替え列番号</param>
+        /// <param name="order1">並び替え列番号</param>
+        private void FilterCopyPasteSort3(ref Microsoft.Office.Interop.Excel.Range OutputRange, string sheetName, int filCol
+            , int keyCol1, Excel.XlSortOrder order1
+            , int keyCol2, Excel.XlSortOrder order2
+            , int keyCol3, Excel.XlSortOrder order3)
+        {
+            int headerRow = 4;
+            Excel.Worksheet sheetON;
+            sheetON = (Excel.Worksheet)oWBook.Worksheets["ON"];
+            Excel.Worksheet sheet;
+            sheet = (Excel.Worksheet)oWBook.Worksheets[sheetName];
+            sheet.Activate();
+
+            OutputRange.AutoFilter(filCol, Criteria1: "<>");                    // １．col列の空白以外をフィルタ
+            int filteredCount = getFilteredRowCount(ref OutputRange);
+            if (filteredCount > 0)
+            {
+                // コピペ
+                OutputRange.SpecialCells(XlCellType.xlCellTypeVisible).Copy();      // ２．フィルタされた範囲をコピー
+                sheet.Cells[headerRow, 2].PasteSpecial(XlPasteType.xlPasteValues);  // ３．シートに値のみ貼り付け
+                int endNoRow = sheet.Cells[headerRow + 1, 1].End(Excel.XlDirection.xlDown).Row;
+                // ソート
+                int endRow = sheet.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
+                if (endRow < 65535)
+                {
+                    sheet.Activate();
+                    Excel.Range sortRange = sheet.Range[sheet.Cells[headerRow, 2], sheet.Cells[endRow, 37 + 3]]; // 並び替える対象列は少し多めに取っておく
+                    var sort = sheet.Sort;                                          // ４．ソートの設定
+                    sort.SortFields.Clear();
+                    if (keyCol1 > 0) sort.SortFields.Add(Key: sheet.Cells[headerRow, keyCol1], Order: order1);
+                    if (keyCol2 > 0) sort.SortFields.Add(Key: sheet.Cells[headerRow, keyCol2], Order: order2);
+                    if (keyCol3 > 0) sort.SortFields.Add(Key: sheet.Cells[headerRow, keyCol3], Order: order3);
+                    sort.SetRange(sortRange);
+                    sort.Header = Excel.XlYesNoGuess.xlYes; // ヘッダー行あり
+                    sort.MatchCase = false;
+                    sort.Orientation = Excel.XlSortOrientation.xlSortColumns;
+                    sort.Apply();
+                    // 並び替え条件（MCを一番上にする）
+                    if (sheetName == "MC")
+                    {
+                        int currentRow = headerRow + 1; //挿入開始行番号
+                        for (int i = headerRow + 1; i <= endRow; i++)
+                        {
+                            Range cell = sheet.Cells[i, filCol];
+                            if (cell.Value != null && cell.Value.ToString().Contains("MC"))
+                            {
+                                // 行を先頭に移動
+                                sheet.Range[sheet.Cells[i, 2], sheet.Cells[i, 37 + 3]].Cut();
+                                sheet.Range[sheet.Cells[currentRow, 2], sheet.Cells[currentRow, 37 + 3]]
+                                    .Insert(XlInsertShiftDirection.xlShiftDown);
+                                currentRow++;
+                            }
+                        }
+                    }
+                    // 罫線
+                    for (int i = headerRow + 1; i < endRow; i++)                    // ５．中太罫線を入れる
+                    {
+                        var currentValue = sheet.Cells[i, filCol].Value2;
+                        var nextValue = sheet.Cells[i + 1, filCol].Value2;
+                        try // 文字列と数値型の比較で異常が発生してしまうので罫線は無視する
+                        {
+                            if (currentValue != nextValue)
+                            {
+                                sheet.Range[sheet.Cells[i, 2], sheet.Cells[i, filCol]]
+                                    .Borders[XlBordersIndex.xlEdgeBottom].Weight = XlBorderWeight.xlMedium; // 太罫線xlThick;
+                            }
+                        }
+                        catch { continue; }
+                    }
+                }
+
+                // S500工程を処理
+                int endONRow = sheetON.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row; //ONシートの品番の最終行番号
+                int rowCount = endONRow - headerRow; // ONシートの件数
+                if (rowCount > 0)
+                {
+                    // 設備名の行番号を取得
+                    int startRow = endRow;
+
+                    // 貼り付ける枠を確保するための行挿入
+                    if (endNoRow - endRow < rowCount)
+                    {
+                        sheet.Rows[$"{startRow + 1}:{startRow + rowCount}"].Insert(XlInsertShiftDirection.xlShiftDown);
+                        // 空き行に式をコピー
+                        sheet.Range[sheet.Cells[startRow + 0, 14], sheet.Cells[startRow + 0, 37]].Copy();
+                        sheet.Range[sheet.Cells[startRow + 1, 14], sheet.Cells[startRow + rowCount + 1, 37]]
+                            .PasteSpecial(XlPasteType.xlPasteFormulas);
+                    }
+                    // S500との境目に罫線を追加
+                    sheet.Range[sheet.Cells[startRow, 2], sheet.Cells[startRow, filCol]]
+                        .Borders[XlBordersIndex.xlEdgeBottom].Weight = XlBorderWeight.xlMedium; // 太罫線xlThick;
+                    // ONシートから値のみコピー
+                    sheetON.Range[sheetON.Cells[headerRow + 1, 2], sheetON.Cells[headerRow + rowCount, 13]].Copy();
+                    sheet.Cells[endRow + 1, 2].PasteSpecial(XlPasteType.xlPasteValues);
+                    // S500の最終行に更新
+                    endRow += rowCount;
+                }
+
+                // 余分な行を削除
+                if (endRow < endNoRow)
+                {
+                    sheet.Rows[$"{endRow + 1}:{endNoRow}"].Delete();            // ６．余分な行を削除する
+                }
+                sheet.Cells[1, 1].Select();
+
+            }
+            else
+            {
+                sheet.Cells[5, 2].Value2 = "対象データなし";
+            }
+            OutputRange.AutoFilter(filCol); // フィルターの解除ではなく抽出条件をクリア
 
             // COMオブジェクトの解放
             System.Runtime.InteropServices.Marshal.ReleaseComObject(sheet);
