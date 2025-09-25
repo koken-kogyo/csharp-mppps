@@ -64,13 +64,12 @@ namespace MPPPS
             // 
             // Btn_EntryShipResults
             // 
-            this.Btn_EntryShipResults.Enabled = false;
             this.Btn_EntryShipResults.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Btn_EntryShipResults.Location = new System.Drawing.Point(12, 101);
             this.Btn_EntryShipResults.Name = "Btn_EntryShipResults";
             this.Btn_EntryShipResults.Size = new System.Drawing.Size(300, 38);
             this.Btn_EntryShipResults.TabIndex = 2;
-            this.Btn_EntryShipResults.Text = "EM への実績入力";
+            this.Btn_EntryShipResults.Text = "棚卸情報";
             this.Btn_EntryShipResults.UseVisualStyleBackColor = true;
             this.Btn_EntryShipResults.Click += new System.EventHandler(this.Btn_EntryShipResults_Click);
             // 

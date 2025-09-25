@@ -1656,7 +1656,7 @@ namespace MPPPS
             if (mcgcd != string.Empty)
             {
                 if (mcgcd == "SK" && mccd == "XW") return prefix + "XW";    // 設備名の個別対応（[SK-XW]は[XW]のみで返却）
-                if (mcgcd == "3BP") return prefix + $"MC2-{mccd}";          // 設備名の個別対応（[3BP-*]は[MC2-*]で返却）
+                if (mcgcd == "3BP" || mcgcd == "ON") return prefix + $"MC-{mccd}";          // 設備名の個別対応（[3BP-*]は[MC2-*]で返却）
                 if (mcgcd == mccd) return prefix + mcgcd;
                 return prefix + $"{mcgcd}-{mccd}";
             }

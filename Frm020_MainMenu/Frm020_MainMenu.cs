@@ -61,7 +61,7 @@ namespace MPPPS
             frm030 = new Frm030_MasterMaint(cmn);
             frm040 = new Frm040_OrderCtrl(cmn);
             frm050 = new Frm050_MfgCtrl(cmn);
-            frm070 = new Frm070_ReceiptCtrl();
+            frm070 = new Frm070_ReceiptCtrl(cmn);
             frm080 = new Frm080_MatlCtrl();
             frm090 = new Frm090_CutStore(cmn);
 

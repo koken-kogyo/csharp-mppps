@@ -17,8 +17,8 @@ namespace MPPPS
         private DataTable equipMstDt = new DataTable(); // 設備マスタを保持
 
         // null OK の列番号定数
-        private static int cColThick = 9;
-        private static int cColScrap = 10;
+        // private static int cColThick = 9;
+        private static readonly int cColScrap = 10;
 
         // 自動で閉じるメッセージボックスで使用
         [DllImport("user32.dll", CharSet = CharSet.Auto)]

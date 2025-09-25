@@ -6,7 +6,10 @@ namespace MPPPS
 {
     public partial class Frm070_ReceiptCtrl : Form
     {
-        public Frm070_ReceiptCtrl()
+        // 共通クラス
+        private readonly Common cmn;
+
+        public Frm070_ReceiptCtrl(Common cmn)
         {
             InitializeComponent();
 
@@ -17,6 +20,7 @@ namespace MPPPS
             // [切削設備登録] ボタンからの起動のとき
             Text = " <" + Common.FRM_ID_070 + ": " + Common.FRM_NAME_070 + ">";
 
+            this.cmn = cmn;
         }
 
         private void Frm070_ReceiptCtrl_Load(object sender, EventArgs e)
@@ -41,7 +45,7 @@ namespace MPPPS
         // EM への実績入力
         private void Btn_EntryShipResults_Click(object sender, EventArgs e)
         {
-            Frm073_EntryShipRes frm073 = new Frm073_EntryShipRes();
+            Frm073_EntryShipRes frm073 = new Frm073_EntryShipRes(cmn);
             frm073.Show();
         }
 

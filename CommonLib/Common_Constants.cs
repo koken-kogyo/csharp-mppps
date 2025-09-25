@@ -49,6 +49,7 @@ namespace MPPPS
         public static readonly int DB_CONFIG_KK = 1;                         // DB 接続定義 (内製プログラム)
         public static readonly int DB_CONFIG_MP = 2;                         // DB 接続定義 (切削生産計画システム)
         public static readonly int DB_CONFIG_TN = 3;                         // DB 接続定義 (タナコンサーバー)
+        public static readonly int DB_CONFIG_PG = 4;                         // DB 接続定義 (i-Reporterサーバー)
 
 
         // デバッグ ログ
@@ -125,7 +126,7 @@ namespace MPPPS
         public static readonly string FRM_NAME_070 = "実績管理";
         public static readonly string FRM_NAME_071 = "切削ストア受入実績処理";
         public static readonly string FRM_NAME_072 = "切削ストア受入実績情報表示";
-        public static readonly string FRM_NAME_073 = "EM への実績入力";
+        public static readonly string FRM_NAME_073 = "棚卸情報";
         public static readonly string FRM_NAME_080 = "材料管理";
         public static readonly string FRM_NAME_081 = "材料在庫一覧";
         public static readonly string FRM_NAME_082 = "材料発注処理";

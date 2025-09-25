@@ -22,7 +22,6 @@ namespace MPPPS
         private DataTable codeSlipDt = new DataTable(); // コード票マスタを保持
         private bool eventFlg = false;
         private int errorRow = 0;
-        private static System.Timers.Timer timer;
 
         // 列番号定数
         private static int cColKTSU = 24;
@@ -683,6 +682,7 @@ namespace MPPPS
                         }
                     }
                     catch (Exception ex) {
+                        Debug.Print(ex.ToString());
                         toolStripStatusLabel2.Text = row + "行 [" + Dgv_CodeSlipMst[0,row].Value.ToString() + "] で異常が発生しました．";
                     }
 
