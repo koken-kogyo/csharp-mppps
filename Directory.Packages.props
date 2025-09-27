@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="NLog" Version="6.0.4" />
+    <PackageVersion Include="Npgsql" Version="4.1.14" />
+    <PackageVersion Include="Oracle.ManagedDataAccess" Version="19.18.0" />
+    <PackageVersion Include="QRCoder" Version="1.6.0" />
+    <PackageVersion Include="System.Text.Encodings.Web" Version="4.7.2" />
+  </ItemGroup>
+</Project>

@@ -2,11 +2,9 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Configuration;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Windows.Forms;
 
 namespace MPPPS
