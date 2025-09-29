@@ -3505,7 +3505,7 @@ namespace MPPPS
             string sql = "SELECT "
                 + "a.ODRNO "
                 + ",a.EDDT "
-                + ",a.ODRQTY "
+                + ",a.ODRQTY - a.JIQTY as ODRQTY "
                 + ",a.HMCD "
                 + ",b.HMNM "
                 + ",b.MATESIZE "

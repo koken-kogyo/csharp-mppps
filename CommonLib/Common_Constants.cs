@@ -86,7 +86,7 @@ namespace MPPPS
         public static readonly string FRM_ID_034 = "#034";  // 切削コード表マスタ メンテ
         public static readonly string FRM_ID_040 = "#040";  // オーダー管理
         public static readonly string FRM_ID_041 = "#041";  // 手配情報一覧
-        public static readonly string FRM_ID_042 = "#042";  // 切削オーダーの平準化
+        public static readonly string FRM_ID_042 = "#042";  // 手配検索
         public static readonly string FRM_ID_043 = "#043";  // 追加オーダーの作成
         public static readonly string FRM_ID_044 = "#044";  // 内示情報一覧
         public static readonly string FRM_ID_045 = "#045";  // 加工進捗情報表示

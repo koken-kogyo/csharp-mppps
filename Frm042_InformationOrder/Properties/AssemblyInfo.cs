@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // アセンブリに関する一般情報は以下を通して制御されます
 // 制御されます。アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
-[assembly: AssemblyTitle("#042: 切削オーダーの平準化")]
-[assembly: AssemblyDescription("切削オーダーの平準化")]
+[assembly: AssemblyTitle("#042: 手配検索")]
+[assembly: AssemblyDescription("手配検索")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Koken Kogyo Co., Ltd.")]
-[assembly: AssemblyProduct("[KMD001SF] 切削生産計画システム - Ver.230613.01a")]
-[assembly: AssemblyCopyright("© 2023 Koken Kogyo Co., Ltd.")]
+[assembly: AssemblyProduct("[KMD001SF] 切削生産計画システム - Ver.250502.01")]
+[assembly: AssemblyCopyright("© 2025 Koken Kogyo Co., Ltd.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
