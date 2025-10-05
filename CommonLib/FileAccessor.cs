@@ -1702,7 +1702,7 @@ namespace MPPPS
         }
 
         // 1カード作成（DataRow1件分を作成）
-        public void SetPlanCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col
+        public void SetPlanCardBackup(ref DateTime cardDay, ref DataRow r, ref int row, ref int col
             , ref System.Data.DataTable materialDt)
         {
             // テンプレートオブジェクトをクローン
@@ -1816,6 +1816,305 @@ namespace MPPPS
 
         }
 
+        // 1カード作成（DataRow1件分を作成）
+        public void SetPlanCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col, int loopCnt, int loopMax)
+        {
+            // テンプレートオブジェクトをクローン
+            object[,] obj = templateOrderCardObject.Clone() as object[,];
+            var rowoff = templateOrderCardObject.GetLength(0);
+            var coloff = templateOrderCardObject.GetLength(1);
+
+            if (row > 40) // 2頁目以降に1頁目の雛形書式をコピペ＆行の高さも1ページ目に合わせる
+            {
+                if ((row - 1) % 42 == 0 && col <= 2)
+                {
+                    // A1:Q42をコピペ
+                    var range = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[42, 17]];
+                    range.Copy(oWSheet.Cells[row, 1]);
+                    // COMアクセスが遅いので廃止 ⇒ ClearCardByPage(ref row);
+                    // COMアクセスが遅いので廃止 ⇒ 行の高さはコピペされないのでRows(1:55)を複製
+                    //for (int y = 1; y <= 55; y++)
+                    //    oWSheet.Rows[row + y - 1].RowHeight = oWSheet.Rows[y].RowHeight;
+                    double rh1 = oWSheet.Rows[1].RowHeight;     // 全行の高さ
+                    double rh4 = oWSheet.Rows[4].RowHeight;
+                    double rh9 = oWSheet.Rows[9].RowHeight;
+                    double rh19 = oWSheet.Rows[19].RowHeight;
+                    for (int z = 0; z <= 21; z += 21) // A4用紙の上段、下段
+                    {
+                        // 品番1行目～3行目
+                        range = oWSheet.Range[oWSheet.Rows[row + z + 0], oWSheet.Rows[row + z + 2]];
+                        range.RowHeight = rh1;
+                        // 品名4行目～注文数量7行目
+                        range = oWSheet.Range[oWSheet.Rows[row + z + 3], oWSheet.Rows[row + z + 6]];
+                        range.RowHeight = rh4;
+                        // 工程①9行目～検査18行目
+                        range = oWSheet.Range[oWSheet.Rows[row + z + 8], oWSheet.Rows[row + z + 17]];
+                        range.RowHeight = rh9;
+                        // 備考19行目～20行目
+                        range = oWSheet.Range[oWSheet.Rows[row + z + 18], oWSheet.Rows[row + z + 19]];
+                        range.RowHeight = rh19;
+                    }
+                    // 行タイトル8行目を上段、下段に複製
+                    double rh8 = oWSheet.Rows[8].RowHeight;
+                    oWSheet.Rows[row + 7].RowHeight = rh8;
+                    oWSheet.Rows[row + 21 + 7].RowHeight = rh8;
+                    // 最終行（調整用）21行目を上段、下段に複製
+                    double rh21 = oWSheet.Rows[21].RowHeight;
+                    oWSheet.Rows[row + 20].RowHeight = rh21;
+                    oWSheet.Rows[row + 21 + 20].RowHeight = rh21;
+                }
+            }
+            // 値を設定
+            obj[1, 2] = r["HMCD"].ToString();
+            obj[4, 2] = r["HMNM"].ToString();
+            obj[5, 2] = r["PLNNO"].ToString();
+            // 手配完了日付はExcel雛形側でフォーマットを変えているのでFull日付でデータはセット
+            obj[6, 2] = DateTime.Parse(r["EDDT"].ToString()).ToString("yyyy/MM/dd");
+            obj[7, 2] = r["ODRQTY"].ToString();
+            obj[5, 7] = r["MATESIZE"].ToString();
+            obj[6, 7] = r["LENGTH"].ToString();
+            // 収容数関連
+            var boxcd1 = (r["BOXCD"].ToString() != "" && r["BOXQTY"].ToString() != "") ? r["BOXCD"].ToString() + "(" : "";
+            var boxcd2 = (r["BOXCD"].ToString() != "" && r["BOXQTY"].ToString() != "") ? ")" : "";
+            var boxinfo = (loopMax > 1) ? $"({loopCnt} / {loopMax})" : "";
+            obj[7, 7] = boxcd1 + r["BOXQTY"].ToString() + boxcd2 + boxinfo;
+            // タナコン関連
+            var store = (r["STORE"].ToString() == "") ? "調査開始" : r["STORE"].ToString();
+            // 各工程順を設定
+            if (r["KT1MCGCD"].ToString() == "")
+            {
+                obj[9, 1] = GetSTKTName(ref store);
+                obj[9, 2] = GetSTMCName(ref store);
+                store = "";
+            }
+            else
+            {
+                var mccd = r["KT1MCCD"].ToString();
+                if (r["KT1MCGCD"].ToString() == "EX")
+                {
+                    obj[9, 1] = GetEXKTName(ref mccd);
+                    obj[9, 2] = GetEXMCName(ref mccd);
+                }
+                else
+                {
+                    obj[9, 1] = "工程①";
+                    obj[9, 2] = RemoveDuplicates(r["KT1MCGCD"].ToString(), mccd, 1);
+                }
+            }
+            if (r["KT2MCGCD"].ToString() == "")
+            {
+                obj[11, 1] = GetSTKTName(ref store);
+                obj[11, 2] = GetSTMCName(ref store);
+                store = "";
+            }
+            else
+            {
+                var mccd = r["KT2MCCD"].ToString();
+                if (r["KT2MCGCD"].ToString() == "EX")
+                {
+                    obj[11, 1] = GetEXKTName(ref mccd);
+                    obj[11, 2] = GetEXMCName(ref mccd);
+                }
+                else
+                {
+                    obj[11, 1] = "工程②";
+                    obj[11, 2] = RemoveDuplicates(r["KT2MCGCD"].ToString(), mccd, 1);
+                }
+            }
+            if (r["KT3MCGCD"].ToString() == "")
+            {
+                obj[13, 1] = GetSTKTName(ref store);
+                obj[13, 2] = GetSTMCName(ref store);
+                store = "";
+            }
+            else
+            {
+                var mccd = r["KT3MCCD"].ToString();
+                if (r["KT3MCGCD"].ToString() == "EX")
+                {
+                    obj[13, 1] = GetEXKTName(ref mccd);
+                    obj[13, 2] = GetEXMCName(ref mccd);
+                }
+                else
+                {
+                    obj[13, 1] = "工程③";
+                    obj[13, 2] = RemoveDuplicates(r["KT3MCGCD"].ToString(), mccd, 1);
+                }
+            }
+            if (r["KT4MCGCD"].ToString() == "")
+            {
+                obj[15, 1] = GetSTKTName(ref store);
+                obj[15, 2] = GetSTMCName(ref store);
+                store = "";
+            }
+            else
+            {
+                var mccd = r["KT4MCCD"].ToString();
+                if (r["KT4MCGCD"].ToString() == "EX")
+                {
+                    obj[15, 1] = GetEXKTName(ref mccd);
+                    obj[15, 2] = GetEXMCName(ref mccd);
+                }
+                else
+                {
+                    obj[15, 1] = "工程④";
+                    obj[15, 2] = RemoveDuplicates(r["KT4MCGCD"].ToString(), mccd, 1);
+                }
+            }
+            if (r["KT5MCGCD"].ToString() == "")
+            {
+                obj[17, 1] = GetSTKTName(ref store);
+                obj[17, 2] = GetSTMCName(ref store);
+                store = "";
+            }
+            else
+            {
+                var mccd = r["KT5MCCD"].ToString();
+                if (r["KT5MCGCD"].ToString() == "EX")
+                {
+                    obj[17, 1] = GetEXKTName(ref mccd);
+                    obj[17, 2] = GetEXMCName(ref mccd);
+                }
+                else
+                {
+                    obj[17, 1] = "工程⑤";
+                    obj[17, 2] = RemoveDuplicates(r["KT5MCGCD"].ToString(), r["KT5MCCD"].ToString(), 1);
+                }
+            }
+            var fontsize = "NORMAL";
+            if (r["KT6MCGCD"].ToString() == "")
+            {
+                if (store != "")
+                {
+                    fontsize = "SMALLER";
+                    obj[17, 1] += "\n" + GetSTKTName(ref store);
+                    obj[17, 2] += "\n" + GetSTMCName(ref store);
+                }
+            }
+            else
+            {
+                var mccd = r["KT6MCCD"].ToString();
+                var tmp = RemoveDuplicates(r["KT6MCGCD"].ToString(), mccd, 1);
+                if (tmp.StartsWith("EX-MT"))
+                {
+                    obj[17, 1] += "\n面取り";
+                    obj[17, 2] += "\n" + mccd;
+                }
+                else if (tmp.StartsWith("EX-BT"))
+                {
+                    obj[17, 1] += "\nﾊﾞﾘ取り";
+                    obj[17, 2] += "\n" + mccd;
+                }
+                else if (tmp.StartsWith("EX-F"))
+                {
+                    obj[17, 1] += "\n平行度";
+                    obj[17, 2] += "\n" + tmp;
+                }
+                else
+                {
+                    obj[17, 1] += "\n" + "工程⑥";
+                    obj[17, 2] += "\n" + tmp;
+                }
+                if (store != "")
+                {
+                    fontsize = "SMALLER";
+                    obj[17, 1] += "\n" + GetSTKTName(ref store);
+                    obj[17, 2] += "\n" + GetSTMCName(ref store);
+                }
+            }
+            var note = r["NOTE"].ToString();
+            if (r["PARTNER"].ToString() != "") note += "\n" + r["PARTNER"].ToString();
+            obj[19, 2] = note;
+
+            // 設定したオブジェクトをレンジに貼り付け
+            oRange = oWSheet.Range[oWSheet.Cells[row, col], oWSheet.Cells[row + rowoff - 1, col + coloff - 1]];
+            oRange.Value = obj;
+
+            // フォントサイズの変更
+            if (fontsize == "NORMAL")
+            {
+                oWSheet.Cells[row + 16, col + 0].Font.Size = 12;
+                oWSheet.Cells[row + 16, col + 1].Font.Size = 16;
+            }
+            else if (fontsize == "SMALLER")
+            {
+                oWSheet.Cells[row + 16, col + 0].Font.Size = 10;
+                oWSheet.Cells[row + 16, col + 1].Font.Size = 10;
+            }
+
+            // スマート棚コン用QRコード画像ファイルの作成と保存
+            string tempFile1 = @Path.GetTempPath() + Common.QR_HMCD_IMG;
+            using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
+                $"{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+            using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
+            {
+                byte[] qrCodeImage = qrCode.GetGraphic(20);
+                using (MemoryStream ms = new MemoryStream(qrCodeImage))
+                {
+                    // QRコードを作成しビットマップにした後ファイルに保存
+                    using (Bitmap qrBmp = new Bitmap(ms))
+                    {
+                        qrBmp.Save(tempFile1);
+                    }
+                }
+            }
+            // 画像が保存できたか確認 
+            if (!System.IO.File.Exists(tempFile1)) Thread.Sleep(100);
+            // テスト用のQRコード画像
+            //var fn = @"\\kmtsvr\共有SVEM02\Koken\切削生産計画システム\雛形\QR.bmp";// こちらサンプル画像
+            // スマート棚コン用QRコードをExcelに作成
+            Excel.Range rng = oWSheet.Cells[row, col + 7];
+            Shape shp = oWSheet.Shapes.AddPicture2(
+                tempFile1
+                , Office.MsoTriState.msoFalse   // LinkToFile           図を作成元のファイルにリンクするかどうか
+                , Office.MsoTriState.msoTrue    // SaveWithDocument     上記がFalseの場合、こちらをTrueにしないと落ちる（ハマった）
+                , rng.Left + 8                  // Left [ Single ]
+                , rng.Top + 12                  // Top [Single]
+                , 42                            // Width [Single]  (旧：rng.Width - 14）
+                , 44                            // Height [Single]（旧：rng.Height - 14）
+                , Office.MsoPictureCompress.msoPictureCompressFalse //Compress 画像を挿入するときに圧縮するかどうか
+            );
+            shp.Left = (float)rng.Left + 8;
+            shp.Top = (float)rng.Top + 12;
+            shp.Placement = XlPlacement.xlFreeFloating; // セルに合わせて移動やサイズ変更しない
+
+
+
+            // i-Reporter用QRコード画像ファイルの作成と保存
+            string tempFile2 = @Path.GetTempPath() + Common.QR_ODRNO_IMG;
+            using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
+                $"{r["PLNNO"].ToString().Substring(1)}\t{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+            using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
+            {
+                byte[] qrCodeImage = qrCode.GetGraphic(20);
+                using (MemoryStream ms = new MemoryStream(qrCodeImage))
+                {
+                    // QRコードを作成しビットマップにした後ファイルに保存
+                    using (Bitmap qrBmp = new Bitmap(ms))
+                    {
+                        qrBmp.Save(tempFile2);
+                    }
+                }
+            }
+            //画像を保存できたかの確認 
+            if (!System.IO.File.Exists(tempFile2)) Thread.Sleep(100);
+            // i-Reporter用QRコード作成
+            rng = oWSheet.Cells[row + 18, col + 7];
+            shp = oWSheet.Shapes.AddPicture2(
+                tempFile2
+                , Office.MsoTriState.msoFalse   // LinkToFile           図を作成元のファイルにリンクするかどうか
+                , Office.MsoTriState.msoTrue    // SaveWithDocument     上記がFalseの場合、こちらをTrueにしないと落ちる（ハマった）
+                , rng.Left + 8                  // Left [ Single ]
+                , rng.Top + 12                  // Top [Single]
+                , 42                            // Width [Single]  (旧：rng.Width - 14）
+                , 44                            // Height [Single]（旧：rng.Height - 14）
+                , Office.MsoPictureCompress.msoPictureCompressFalse //Compress 画像を挿入するときに圧縮するかどうか
+            );
+            shp.Left = (float)rng.Left + 8;
+            shp.Top = (float)rng.Top + 12;
+            shp.Placement = XlPlacement.xlFreeFloating; // セルに合わせて移動やサイズ変更しない
+
+        }
 
         // ******************************************************************* 促進用
 

@@ -177,34 +177,12 @@ namespace MPPPS
                     // 日曜日
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
                 }
-                else if (column == 6)
-                {
-                    // 土曜日
-                    if (dtS0820working.Select($"YMD='{dayOfPrevMonth}'").Count() == 0)
-                    {
-                        // 本社非稼働日
-                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
-                    }
-                }
                 else if (column == 1)
                 {
-                    //DateTime firstDayOfWeek = currentDate.AddDays(((int)currentDate.DayOfWeek - 1) * -1);
-                    int a = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数=0 and EM本数>0")
-                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
-                    int b = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数>0 and EM本数=MP本数")
-                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
-                    int c = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数>0 and EM本数<>MP本数")
-                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
                     int countHMCD = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
                     int cardPrint = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and 内示カード出力日時>'2000/1/1'").Count();
-                    if (orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数=0 and EM本数>0")
-                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
-                    {
-                        // 注文あり取込データなし
-                        for (int i = 1; i <= 5; i++)
-                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
-                    }
-                    else if (countHMCD == cardPrint && cardPrint > 0)
+                    DateTime dayOfFriday = dayOfPrevMonth.AddDays(4);
+                    if (cardPrint > (countHMCD / 2)) // 内示数量の半数以上が印刷済の場合
                     {
                         // 内示カード印刷済み
                         for (int i = 1; i <= 5; i++)
@@ -215,20 +193,30 @@ namespace MPPPS
                     {
                         // 注文データ取込済
                         for (int i = 1; i <= 5; i++)
-                        {
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
-                        }
                     }
+                    else if (orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and MP本数=0 and EM本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
+                    {
+                        // 注文あり取込データなし
+                        for (int i = 1; i <= 5; i++)
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
+                    }
+                    else if (dtS0820working.Select($"YMD >= '{dayOfPrevMonth.ToString()}' and YMD <= '{dayOfFriday.ToString()}'").Count() == 0)
+                        {
+                        // 注文なし
+                        for (int i = 1; i <= 5; i++)
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    }
+                }
+                else if (column == 6)
+                {
+                    // 土曜日
                     if (dtS0820working.Select($"YMD='{dayOfPrevMonth}'").Count() == 0)
                     {
                         // 本社非稼働日
-                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
                     }
-                }
-                else if (dtS0820working.Select($"YMD='{dayOfPrevMonth}'").Count() == 0)
-                {
-                    // 本社非稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
                 }
                 dayOfPrevMonth = dayOfPrevMonth.AddDays(-1);
             }
@@ -252,15 +240,6 @@ namespace MPPPS
                     // 日曜日
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
                 }
-                else if (column == 6)
-                {
-                    // 土曜日
-                    if (dtS0820working.Select($"YMD='{currentDate}'").Count() == 0)
-                    {
-                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
-                    }
-                    row++;
-                }
                 // 週初めの月曜日にデータを集めたので週1回判定
                 else if (column == 1)
                 {
@@ -273,14 +252,8 @@ namespace MPPPS
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
                     int countHMCD = orderDt.Select($"WEEKEDDT='{currentDate}'").Count();
                     int cardPrint = orderDt.Select($"WEEKEDDT='{currentDate}' and 内示カード出力日時>'2000/1/1'").Count();
-                    if (orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数=0 and EM本数>0")
-                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
-                    {
-                        // 注文あり取込データなし
-                        for (int i = 1; i <= 5; i++)
-                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
-                    }
-                    else if (countHMCD == cardPrint && cardPrint > 0)
+                    DateTime dayOfFriday = currentDate.AddDays(4);
+                    if (cardPrint > (countHMCD / 2)) // 内示数量の半数以上が印刷済の場合
                     {
                         // 内示カード印刷済み
                         for (int i = 1; i <= 5; i++)
@@ -293,16 +266,28 @@ namespace MPPPS
                         for (int i = 1; i <= 5; i++)
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
                     }
-                    if (dtS0820working.Select($"YMD='{currentDate}'").Count() == 0)
+                    else if (orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数=0 and EM本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
                     {
-                        // 本社非稼働日
-                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                        // 注文あり取込データなし
+                        for (int i = 1; i <= 5; i++)
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
+                    }
+                    else if (dtS0820working.Select($"YMD >= '{currentDate.ToString()}' and YMD <= '{dayOfFriday.ToString()}'").Count() == 0)
+                    {
+                        // 注文なし
+                        for (int i = 1; i <= 5; i++)
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
                     }
                 }
-                else if (dtS0820working.Select($"YMD='{currentDate}'").Count() == 0)
+                else if (column == 6)
                 {
-                    // 本社非稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    // 土曜日
+                    if (dtS0820working.Select($"YMD='{currentDate}'").Count() == 0)
+                    {
+                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
+                    }
+                    row++;
                 }
             }
 
@@ -319,34 +304,13 @@ namespace MPPPS
                     // 日曜日
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
                 }
-                else if (column == 6)
-                {
-                    // 土曜日
-                    if (dtS0820working.Select($"YMD='{nextDate}'").Count() == 0)
-                    { 
-                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
-                    }
-                    row++;
-                }
                 else if (column == 1)
                 {
                     DateTime firstDayOfWeek = nextDate.AddDays(((int)nextDate.DayOfWeek - 1) * -1);
-                    int a = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数=0 and EM本数>0")
-                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
-                    int b = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数>0 and EM本数=MP本数")
-                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
-                    int c = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数>0 and EM本数<>MP本数")
-                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
                     int countHMCD = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
                     int cardPrint = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and 内示カード出力日時>'2000/1/1'").Count();
-                    if (orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数=0 and EM本数>0")
-                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
-                    {
-                        // 注文あり取込データなし
-                        for (int i = 1; i <= 5; i++)
-                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
-                    }
-                    else if (countHMCD == cardPrint && cardPrint > 0)
+                    DateTime dayOfFriday = firstDayOfWeek.AddDays(4);
+                    if (cardPrint > (countHMCD / 2)) // 内示数量の半数以上が印刷済の場合
                     {
                         // 内示カード印刷済み
                         for (int i = 1; i <= 5; i++)
@@ -359,16 +323,28 @@ namespace MPPPS
                         for (int i = 1; i <= 5; i++)
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_IMPORTED;
                     }
-                    if (dtS0820working.Select($"YMD='{nextDate}'").Count() == 0)
+                    else if (orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and MP本数=0 and EM本数>0")
+                        .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
                     {
-                        // 本社非稼働日
-                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                        // 注文あり取込データなし
+                        for (int i = 1; i <= 5; i++)
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
+                    }
+                    else if (dtS0820working.Select($"YMD >= '{firstDayOfWeek.ToString()}' and YMD <= '{dayOfFriday.ToString()}'").Count() == 0)
+                    {
+                        // 注文なし
+                        for (int i = 1; i <= 5; i++)
+                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
                     }
                 }
-                else if (dtS0820working.Select($"YMD='{nextDate}'").Count() == 0)
+                else if (column == 6)
                 {
-                    // 本社非稼働日
-                    Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_HOLIDAY;
+                    // 土曜日
+                    if (dtS0820working.Select($"YMD='{nextDate}'").Count() == 0)
+                    {
+                        Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_SATURDAY;
+                    }
+                    row++;
                 }
                 dayOfNextMonth++;
             }
@@ -535,7 +511,7 @@ namespace MPPPS
                 }
             }
             // 内示カード印刷ボタン活性化
-            if (countHMCD > 0 && countHMCD != cardPrint)
+            if (countHMCD > 0 && (countHMCD / 2) >= cardPrint)
             {
                 Btn_PrintPlan.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                 Btn_PrintPlan.Enabled = true;
@@ -617,7 +593,6 @@ namespace MPPPS
                 return;
             }
             // 雛形ファイルの存在チェック
-            idx += 2; // 内示カードのcmn.FsCd内の配列番号
             var templateFi = new FileInfo($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
             if (!templateFi.Exists)
             {
@@ -625,6 +600,10 @@ namespace MPPPS
                 cmn.ShowMessageBox(Common.MY_PGM_ID, Common.MSG_CD_103, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSG_NO_PATTERN_FILE, MessageBoxIcon.Error);
                 return;
             }
+
+            // 印刷前の最終確認
+            if (MessageBox.Show("内示カードを印刷します。\nよろしいですか？", "確認"
+                , MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Cancel) return;
 
             // 印刷ボタン非活性化
             Btn_PrintPlan.BackColor = SystemColors.Control;
@@ -649,7 +628,7 @@ namespace MPPPS
                 progressmsg = $"【{cardDay.ToString("M月")}" +
                     $"{GetWeekNum(cardDay)}週】内示カード";
 
-                // 内示カード雛形を開く（拡縮倍率にあった帳票を選択）
+                // 雛形カードを開く（拡縮倍率にあった帳票を選択）
                 cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
 
                 // 内示データをDataTableに読み込む
@@ -691,7 +670,7 @@ namespace MPPPS
         /// <param name="cardDay">完了予定日</param>
         /// 
         /// <returns>結果 (0: 保存成功 (保存件数), -1: 保存失敗, -2: 認証失敗)</returns>
-        public int PrintPlanCard(DateTime cardDay, ref System.Data.DataTable cardDt)
+        public int PrintPlanCardBackup(DateTime cardDay, ref System.Data.DataTable cardDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -723,7 +702,7 @@ namespace MPPPS
                     try
                     {
                         // １カード分をExcelオブジェクトにセット（新規ページの１件目の場合はコピペ処理含む）
-                        cmn.Fa.SetPlanCard(ref cardDay, ref r, ref row, ref col, ref materialDt);
+                        cmn.Fa.SetPlanCardBackup(ref cardDay, ref r, ref row, ref col, ref materialDt);
                     }
                     catch (Exception ex)
                     {
@@ -750,6 +729,90 @@ namespace MPPPS
                 Debug.WriteLine("Exception Source = " + e.Source);
                 Debug.WriteLine("Exception Message = " + e.Message);
 
+                cmn.Fa.CloseExcel2();
+
+                // 戻り値でエラー種別を判定
+                if (cmn.ConvertDecToHex(e.HResult) == Common.HRESULT_FILE_IN_USE)
+                {
+                    // ファイル使用中
+                    ret = Common.SFD_RET_FILE_IN_USE;
+                }
+                else
+                {
+                    // それ以外
+                    ret = Common.SFD_RET_SAVE_FAILED;
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// 内示カード作成
+        /// </summary>
+        /// <param name="cardDay">完了予定日</param>
+        /// 
+        /// <returns>結果 (0: 保存成功 (保存件数), -1: 保存失敗, -2: 認証失敗)</returns>
+        public int PrintPlanCard(DateTime cardDay, ref System.Data.DataTable cardDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+            int i = 0;
+
+            try
+            {
+                // Excelシートの作成
+                int baseRow = 1;
+                int cardCnt = 1;    // ※手配件数とカード枚数は異なる（ロットで分割するため）
+                int cardRows = 21;  // 1カードの行数（余白含む）
+                int row = 0;
+                int col = 0;
+                cmn.Fa.CreateTemplateOrderCard(); // テンプレートオブジェクトの作成（雛形カードを作成）
+                for (i = 0; i < cardDt.Rows.Count; i++)
+                {
+                    DataRow r = cardDt.Rows[i];
+
+                    // 収容数で分割
+                    decimal odrqty = Decimal.Parse(r["ODRQTY"].ToString());
+                    decimal boxqty = 0;
+                    int loopCnt = 1;
+                    if (Decimal.TryParse(r["BOXQTY"].ToString(), out boxqty)) {
+                        loopCnt = Decimal.ToInt32(Math.Ceiling((odrqty / boxqty)));
+                    }
+
+                    // 収容数でループ
+                    for (int j = 1; j <= loopCnt; j++)
+                    {
+                        // 書き込む先頭セル行番を計算
+                        row = cardRows * (Convert.ToInt32(Math.Ceiling(cardCnt / 2d)) - 1) + baseRow;
+
+                        // 左右の列番号を切り替え
+                        col = (cardCnt % 2 != 0) ? 1 : 10;
+
+                        // １カード分をExcelオブジェクトにセット（新規ページの１件目の場合はコピペ処理含む）
+                        cmn.Fa.SetPlanCard(ref cardDay, ref r, ref row, ref col, j, loopCnt);
+
+                        if (cardCnt % 5 == 0)
+                        {
+                            toolStripStatusLabel1.Text = progressmsg + $" {cardCnt}枚 / {cardDt.Rows.Count}件中 作成中...";
+                        }
+                        cardCnt++;
+                    }
+
+                }
+                // ループ終了時に最後のページの印刷枚数が４の倍数でなかった場合、
+                // 残りの余分なデータをクリア（COMアクセスを減らす為にクリア処理は最後の一回だけ行う）
+                cardCnt--;
+                if ((cardCnt) % 4 != 0)
+                    cmn.Fa.ClearZanOrderCard(cardCnt);
+                toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件-{cardCnt}枚のカードが作成されました.";
+            }
+            // ファイルの保存に失敗すると Exception が発生する
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception Source = " + e.Source);
+                Debug.WriteLine("Exception Message = " + e.Message);
+                MessageBox.Show("計画No [" + cardDt.Rows[i]["PLNNO"].ToString() + "] で異常が発生しました．");
                 cmn.Fa.CloseExcel2();
 
                 // 戻り値でエラー種別を判定
