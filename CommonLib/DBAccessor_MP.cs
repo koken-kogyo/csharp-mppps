@@ -3354,8 +3354,13 @@ namespace MPPPS
                 string sql = GetOrderCardPrintInfoSQL(ref eddtFrom, ref eddtTo);
 
                 // 1.品番番で印刷するパターン（SW）
+                DateTime monday = eddtFrom.AddDays(-(int)eddtFrom.DayOfWeek + 1);
+                DateTime friday = eddtTo.AddDays((int)(DayOfWeek.Friday) - (int)eddtTo.DayOfWeek + 1);
                 string sqlSW = sql +
                     "and b.KT1MCGCD = 'SW' " +
+                    "and not exists " +
+                        "(select * from kd8470 c where c.HMCD = a.HMCD " + 
+                        $"and c.WEEKEDDT between '{monday}' and '{friday}')" + 
                     "order by a.HMCD, a.EDDT"
                 ;
                 using (DataTable patternSW = new DataTable())
@@ -3560,66 +3565,81 @@ namespace MPPPS
 
             MySqlConnection cnn = null;
 
-            try
-            {
-                // 切削生産計画システム データベースへ接続
-                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+            // 切削生産計画システム データベースへ接続
+            cmn.Dbm.IsConnectMySqlSchema(ref cnn);
 
-                // 製造指示カード発行済みに更新 SQL
-                string sql =
-                    "UPDATE "
+            using (MySqlTransaction txn = cnn.BeginTransaction())
+            {
+                try
+                {
+                    string sql =　string.Empty;
+
+                    // 内示カードを加味する為の変数
+                    DateTime monday = eddtFrom.AddDays(-(int)eddtFrom.DayOfWeek + 1);
+
+                    // 製造指示カード発行済みに更新 SQL①
+                    sql = "UPDATE "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                     + "SET "
                     + "MPCARDDT = now(), "
                     + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
                     + "WHERE "
-                    + "ODRSTS<>'9' and "
+                    + "ODRSTS <> '9' and "
                     + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
+
+                    // 内示カードが発行されてなく、手配で載ってきた場合
+                    + "not exists "
+                    +    "(select * from kd8470 c where c.HMCD = KD8430.HMCD "
+                    +    $"and c.WEEKEDDT between '{monday}' and '{eddtTo}') and "
+
                     + "MPCARDDT is NULL and " // 製造指示カード発行日
                     + $"EDDT between '{eddtFrom}' and '{eddtTo}'"
-                ;
-                // 手配取込時に ODCD like '6060%' をしている
-
-                using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
-                {
-                    using (MySqlTransaction txn = cnn.BeginTransaction())
+                    ;
+                    using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
                     {
-                        try
-                        {
-                            int res = myCmd.ExecuteNonQuery();
-                            if (res >= 1)
-                            {
-                                txn.Commit();
-                                Debug.WriteLine(Common.TABLE_ID_KD8430 + " table data update succeed and commited.");
-                            }
-                            ret = res;
-                        }
-                        catch (Exception e)
-                        {
-                            txn.Rollback();
-                            Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
+                        int res = myCmd.ExecuteNonQuery();
+                        if (res >= 1) ret += res;
+                    }
 
-                            Debug.WriteLine("Exception Source = " + e.Source);
-                            Debug.WriteLine("Exception Message = " + e.Message);
-                            if (cnn != null)
-                            {
-                                // 接続を閉じる
-                                cnn.Close();
-                            }
-                            ret = -1;
-                        }
+                    // 製造指示カード発行済みに更新 SQL②
+                    sql = "UPDATE "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                    + "SET "
+                    + "MPCARDDT = ADDDATE(NOW(), INTERVAL 900 YEAR), "
+                    + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
+                    + "WHERE "
+                    + "ODRSTS <> '9' and "
+                    + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
+
+                    // 内示カード発行済みの場合は900年足して印刷済みにしておく
+                    + "and exists "
+                    + "(select * from kd8470 c where c.HMCD = HMCD "
+                    + $"and c.WEEKEDDT between '{monday}' and '{eddtTo}')"
+
+                    + "MPCARDDT is NULL and " // 製造指示カード発行日
+                    + $"EDDT between '{eddtFrom}' and '{eddtTo}'"
+                    ;
+                    using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
+                    {
+                        int res = myCmd.ExecuteNonQuery();
+                        if (res >= 1) ret += res;
+                    }
+
+                    // 製造指示カード発行済みに更新 SQLコミット
+                    if (ret >= 1)
+                    {
+                        txn.Commit();
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                // エラー
-                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
-                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+                catch (Exception e)
+                {
+                    txn.Rollback();
+                    Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
 
-                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
-                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
-                ret = -1;
+                    Debug.WriteLine("Exception Source = " + e.Source);
+                    Debug.WriteLine("Exception Message = " + e.Message);
+                    ret = -1;
+                }
             }
             // 接続を閉じる
             cmn.Dbm.CloseMySqlSchema(cnn);
@@ -4020,6 +4040,55 @@ namespace MPPPS
             }
             // 接続を閉じる
             cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+        /// <summary>
+        /// 内示カード発行済みを削除
+        /// </summary>
+        /// <param name="weekEddt">検査対象月</param>
+        public bool DeletePlanCard(DateTime weekEddt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+            MySqlTransaction transaction = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                // トランザクション開始
+                transaction = mpCnn.BeginTransaction();
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = mpCnn;
+
+                string sql = string.Empty;
+
+                // KD8440:切削手配日程ファイルの削除
+                sql = "delete from "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " "
+                    + $"where WEEKEDDT ='{weekEddt}'";
+                cmd.CommandText = sql;
+                cmd.ExecuteNonQuery();
+
+                // トランザクション終了
+                transaction.Commit();
+                ret = true;
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
 

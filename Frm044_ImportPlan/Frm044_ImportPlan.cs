@@ -109,6 +109,8 @@ namespace MPPPS
             // 内示カード印刷ボタン
             Btn_PrintPlan.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintPlan.Enabled = false;
+            Btn_PrintClear.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintClear.Enabled = false;
         }
 
         // EMデータテーブルとMPデータテーブルをマージ
@@ -357,8 +359,10 @@ namespace MPPPS
                 "#{1}# <= [{0}] AND [{0}] < #{2}#",
                 "YMD", targetMonth, targetMonth.AddMonths(1))).Count();
             CalendarLabel.Text = $"{targetMonth.Month}月 カレンダー ({days}日稼働)";
-            PrevMonthButton.Enabled = true;
-            NextMonthButton.Enabled = true;
+            if (targetMonth >= DateTime.Now.AddMonths(-5))
+                PrevMonthButton.Enabled = true;
+            if (targetMonth <= DateTime.Now.AddMonths(7))
+                NextMonthButton.Enabled = true;
             toolStripStatusLabel1.Text = "";
         }
 
@@ -427,11 +431,6 @@ namespace MPPPS
         {
             targetMonth = targetMonth.AddMonths(-1);
             PopulateCalendar();
-            if (targetMonth <= DateTime.Now.AddMonths(-5))
-            {
-                PrevMonthButton.Enabled = false;
-            }
-            NextMonthButton.Enabled = true;
         }
 
         // 当月を表示
@@ -439,8 +438,6 @@ namespace MPPPS
         {
             targetMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             PopulateCalendar();
-            PrevMonthButton.Enabled = true;
-            NextMonthButton.Enabled = true;
         }
 
         // 翌月ボタン
@@ -448,11 +445,6 @@ namespace MPPPS
         {
             targetMonth = targetMonth.AddMonths(1);
             PopulateCalendar();
-            if (targetMonth >= DateTime.Now.AddMonths(7))
-            {
-                NextMonthButton.Enabled = false;
-            }
-            PrevMonthButton.Enabled = true;
         }
 
         // フォームサイズの可変に対応
@@ -474,9 +466,6 @@ namespace MPPPS
                 Dgv_Calendar.Rows[i].Height = (Dgv_Calendar.Height - Dgv_Calendar.ColumnHeadersHeight) / 6 - 4;
             for (var i = 0; i < 7; i++)
                 Dgv_Calendar.Columns[i].Width = (Dgv_Calendar.Width / 7);
-            Btn_ImportPlan.Width = (Dgv_Calendar.Width / 2) - 5;
-            Btn_PrintPlan.Left = Btn_ImportPlan.Width + 5;
-            Btn_PrintPlan.Width = (Dgv_Calendar.Width / 2) - 5;
         }
 
         // ステータスにDB状態（取込済、印刷済）を表示（複数選択可能）
@@ -485,6 +474,8 @@ namespace MPPPS
             toolStripStatusLabel1.Text = "";
             Btn_PrintPlan.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintPlan.Enabled = false;
+            Btn_PrintClear.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+            Btn_PrintClear.Enabled = false;
             int emQty = 0;
             int mpQty = 0;
             int countHMCD = 0;
@@ -510,11 +501,17 @@ namespace MPPPS
                     cardPrint += orderDt.Select($"WEEKEDDT='{planDay}' and 内示カード出力日時>'2000/1/1'").Count();
                 }
             }
-            // 内示カード印刷ボタン活性化
+            // 内示カードがあまり印刷されていなかったら印刷ボタンを活性化
             if (countHMCD > 0 && (countHMCD / 2) >= cardPrint)
             {
                 Btn_PrintPlan.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                 Btn_PrintPlan.Enabled = true;
+            }
+            // 内示カードが多く印刷されていたら削除ボタンを活性化
+            if (countHMCD > 0 && (countHMCD / 2) <= cardPrint)
+            {
+                Btn_PrintClear.BackColor = Common.FRM40_BG_COLOR_WARNING;
+                Btn_PrintClear.Enabled = true;
             }
             if (emQty - mpQty == 0)
             {
@@ -608,6 +605,8 @@ namespace MPPPS
             // 印刷ボタン非活性化
             Btn_PrintPlan.BackColor = SystemColors.Control;
             Btn_PrintPlan.Enabled = false;
+            Btn_PrintClear.BackColor = SystemColors.Control;
+            Btn_PrintClear.Enabled = false;
 
             // ステータス表示
             toolStripStatusLabel1.Text = "内示カード印刷中...";
@@ -643,8 +642,8 @@ namespace MPPPS
                 await Task.Run(() => ret = PrintPlanCard(cardDay, ref cardDt));
                 if (ret != 0) break;
 
-                // ExcelブックからPDFを作成
-                var pdfName = cmn.FsCd[idx].FileName
+                // ExcelブックからPDFを作成（ファイル名は内示カードを使用）
+                var pdfName = cmn.FsCd[idx + 2].FileName
                     .Replace("雛形", "_" + cardDay.ToString("yyyyMMdd")
                                    + "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
                     .Replace(".xlsx", ".pdf");
@@ -864,9 +863,38 @@ namespace MPPPS
             }
         }
 
+        // キーボードショートカット
         private void Frm044_ImportPlan_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape) Close();
+        }
+
+        // カード廃棄
+        private void Btn_PrintClear_Click(object sender, EventArgs e)
+        {
+            // 選択セルの並び替え
+            var query = from DataGridViewRow r in Dgv_Calendar.SelectedRows
+                        orderby r.Index
+                        select r;
+            foreach (DataGridViewRow r in query)
+            {
+                // 対象日の製造指示カードを作成し印刷
+                DateTime cardDay = GetCurrentDateTime(r.Cells[1]); // 1:月曜日
+
+                progressmsg = $"【{cardDay.ToString("M月")}" +
+                    $"{GetWeekNum(cardDay)}週】内示カード";
+
+                // 切削内示カードファイル:KD8470を削除
+                toolStripStatusLabel1.Text = progressmsg + $"を削除中...";
+                // KD8470:切削内示カードファイルに印刷済みを出力
+                if (cmn.Dba.DeletePlanCard(cardDay) == false)
+                {
+                    MessageBox.Show("削除に失敗しました.", "カード廃棄", MessageBoxButtons.OK , MessageBoxIcon.Error);
+                    return;
+                }
+                // 取込後、再読み込みして表示
+                PopulateCalendar();
+            }
         }
     }
 }
