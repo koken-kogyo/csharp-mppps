@@ -67,7 +67,7 @@ namespace MPPPS
         // 内示情報表示
         private void Btn_InformationPlan_Click(object sender, EventArgs e)
         {
-            Frm045_InformationPlan frm045 = new Frm045_InformationPlan();
+            Frm045_InformationPlan frm045 = new Frm045_InformationPlan(cmn);
             frm045.Show();
         }
 

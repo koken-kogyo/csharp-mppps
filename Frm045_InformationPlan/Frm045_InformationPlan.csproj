@@ -7,8 +7,8 @@
     <ProjectGuid>{91088BC9-59B8-487C-AF5D-813B48661BB6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Frm045_MfgProgress</RootNamespace>
-    <AssemblyName>Frm045_MfgProgress</AssemblyName>
+    <RootNamespace>Frm045_InformationPlan</RootNamespace>
+    <AssemblyName>Frm045_InformationPlan</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

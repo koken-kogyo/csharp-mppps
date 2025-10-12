@@ -884,7 +884,7 @@ namespace MPPPS
 
                         if (cardCnt % 5 == 0)
                         {
-                            toolStripStatusLabel1.Text = progressmsg + $" {cardCnt}枚 / {cardDt.Rows.Count}件中 作成中...";
+                            toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件中 - {cardCnt}枚 作成中...";
                         }
                         cardCnt++;
                     }
@@ -895,7 +895,7 @@ namespace MPPPS
                 cardCnt--;
                 if ((cardCnt) % 4 != 0)
                     cmn.Fa.ClearZanOrderCard(cardCnt);
-                toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件-{cardCnt}枚のカードが作成されました.";
+                toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件 - {cardCnt}枚のカードが作成されました.";
             }
             // ファイルの保存に失敗すると Exception が発生する
             catch (Exception e)

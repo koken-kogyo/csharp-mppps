@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("加工進捗情報表示")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Koken Kogyo Co., Ltd.")]
-[assembly: AssemblyProduct("[KMD001SF] 切削生産計画システム - Ver.230613.01a")]
-[assembly: AssemblyCopyright("© 2023 Koken Kogyo Co., Ltd.")]
+[assembly: AssemblyProduct("[KMD001SF] 切削生産計画システム - Ver.250502.01")]
+[assembly: AssemblyCopyright("© 2025 Koken Kogyo Co., Ltd.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

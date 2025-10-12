@@ -3871,8 +3871,8 @@ namespace MPPPS
                 string sql =
                 "SELECT "
                     + "a.EDDT "
-                    + ",if(a.ODRNO is null, concat('P', a.PLNNO), concat('K', a.ODRNO)) PLNNO "
-                    + ",a.ODRQTY "
+                    + ",if(min(a.ODRNO) is null, concat('P', min(a.PLNNO)), concat('K', min(a.ODRNO))) PLNNO "
+                    + ",sum(a.ODRQTY) ODRQTY "
                     + ",a.HMCD "
                     + ",b.HMNM "
                     + ",b.MATESIZE "
@@ -3901,8 +3901,8 @@ namespace MPPPS
                     + ",b.KT6MCGCD "
                     + ",b.KT6MCCD "
                     + ",b.KT6CT "
-                    + ",c.CUTTHICKNESS "
-                    + ",c.SCRAPLEN "
+                    + ",min(c.CUTTHICKNESS) CUTTHICKNESS "
+                    + ",min(c.SCRAPLEN) SCRAPLEN "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " a, "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b, "
@@ -3915,9 +3915,14 @@ namespace MPPPS
                     + "and b.KT1MCGCD = c.MCGCD "
                     + "and b.KT1MCCD = c.MCCD "
                     + "and b.KT1MCGCD = 'SW' "
-                    + "ORDER BY "
+                    + "GROUP BY "
                     + "c.MCSEQ "
                     + ", b.MATESIZE "
+                    + ", a.HMCD "
+                    + ", a.EDDT "
+                    + "ORDER BY "
+                    + "c.MCSEQ "
+                    + ", b.MATESIZE desc "
                     + ", a.HMCD "
                     + ", a.EDDT"
                 ;
@@ -5150,6 +5155,274 @@ namespace MPPPS
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
+
+        /// <summary>
+        /// 内示情報データ取得
+        /// </summary>
+        /// <param name="mpPlanDt">注文情報データ</param>
+        /// <param name="select">検索条件WHERE文から指定</param>
+        /// <param name="where">検索条件WHERE文から指定</param>
+        /// <returns>注文情報データ</returns>
+        public bool FindMpPlan(ref DataTable mpPlanDt, string select, string where)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT " + select + " "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " a "
+                    + "LEFT OUTER JOIN "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " b "
+                    + " on b.HMCD=a.HMCD and b.WEEKEDDT=a.WEEKEDDT, "
+                    + "(SELECT HMCD, HMNM, MATERIALCD, KTKEY FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + ") m "
+                    + "WHERE "
+                    + "a.HMCD=m.HMCD and "
+                    + where
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpPlanDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 内示カードに印刷するデータの取得（個別明細指定）
+        /// </summary>
+        /// <param name="targetDt">データグリッドビューで指定した印刷対象</param>
+        /// <param name="cardDt">製造指示カードデータ</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int GetPlanCardPrintInfo(DataTable targetDt, ref DataTable cardDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = GetPlanCardPrintInfoSQL(targetDt);
+
+                using (DataTable patternSW = new DataTable())
+                {
+                    using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                    {
+                        using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                        {
+                            Debug.WriteLine("Read from DataTable:");
+                            // 結果取得
+                            myDa.Fill(cardDt);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        // 個別の製造指示カード再出力（計画No指定）
+        private string GetPlanCardPrintInfoSQL(DataTable targetDt)
+        {
+            // 計画Noを設定
+            string numbers = string.Empty;
+            foreach (DataRow dr in targetDt.Rows)
+            {
+                numbers += "'" + dr["計画No"].ToString().Substring(1) + "',"; // DataGridViewのタイトル名で来るので注意！
+            }
+            numbers += "'x'";
+            string addWhere = "and (" +
+                "a.ODRNO in (" + numbers + ") or " +
+                "a.PLNNO in (" + numbers + ")" +
+            ") ";
+
+            string sql =
+            "SELECT "
+                + "a.EDDT "
+                + ",if(a.ODRNO is null, concat('P', a.PLNNO), concat('K', a.ODRNO)) PLNNO "
+                + ",a.ODRQTY "
+                + ",a.HMCD "
+                + ",b.HMNM "
+                + ",b.MATESIZE "
+                + ",b.LENGTH "
+                + ",b.BOXQTY "
+                + ",b.BOXCD "
+                + ",b.PARTNER "
+                + ",b.MATERIALLEN "
+                + ",b.NOTE"
+                + ",b.STORE"
+                + ",b.KT1MCGCD "
+                + ",b.KT1MCCD "
+                + ",b.KT1CT "
+                + ",b.KT2MCGCD "
+                + ",b.KT2MCCD "
+                + ",b.KT2CT "
+                + ",b.KT3MCGCD "
+                + ",b.KT3MCCD "
+                + ",b.KT3CT "
+                + ",b.KT4MCGCD "
+                + ",b.KT4MCCD "
+                + ",b.KT4CT "
+                + ",b.KT5MCGCD "
+                + ",b.KT5MCCD "
+                + ",b.KT5CT "
+                + ",b.KT6MCGCD "
+                + ",b.KT6MCCD "
+                + ",b.KT6CT "
+                + ",c.CUTTHICKNESS "
+                + ",c.SCRAPLEN "
+                + "FROM "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " a, "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b, "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8420 + " c "
+                + "WHERE "
+                + "a.HMCD = b.HMCD "
+                + "and a.ODRSTS <> '9' "
+                + "and a.ODCD like '6060%' "
+                + "and b.KT1MCGCD = c.MCGCD "
+                + "and b.KT1MCCD = c.MCCD "
+                + addWhere
+                + "ORDER BY "
+                + "c.MCSEQ "
+                + ", b.MATESIZE desc "
+                + ", a.HMCD "
+                + ", a.EDDT"
+            ;
+            return sql;
+        }
+
+        /// <summary>
+        /// 内示カード発行済みに更新（個別明細指定）
+        /// </summary>
+        /// <param name="targetDt">手配日</param>
+        /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
+        public int UpdatePrintPlanCardDay(ref DataTable targetDt)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            int ret = 0;
+
+            MySqlConnection cnn = null;
+
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+
+                // 計画Noを設定
+                string numbers = string.Empty;
+                foreach (DataRow dr in targetDt.Rows)
+                {
+                    numbers += "'" + dr["計画No"].ToString().Substring(1) + "',"; // DataGridViewのタイトル名で来るので注意！
+                }
+                numbers += "'x'";
+                string addWhere = "and (" +
+                    "a.ODRNO in (" + numbers + ") or " +
+                    "a.PLNNO in (" + numbers + ")" +
+                ") ";
+
+                // 内示カード発行済みに更新 SQL
+                string sql =
+                    "UPDATE "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " "
+                    + "SET "
+                    + "MPCARDDT = now(), "
+                    + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
+                    + "WHERE "
+                    + "ODRSTS<>'9' and "
+                    + "ODCD like '6060%' and "
+                    + addWhere
+                ;
+
+                using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
+                {
+                    using (MySqlTransaction txn = cnn.BeginTransaction())
+                    {
+                        try
+                        {
+                            int res = myCmd.ExecuteNonQuery();
+                            if (res >= 1)
+                            {
+                                txn.Commit();
+                                Debug.WriteLine(Common.TABLE_ID_KD8430 + " table data update succeed and commited.");
+                            }
+                            ret = res;
+                        }
+                        catch (Exception e)
+                        {
+                            txn.Rollback();
+                            Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
+
+                            Debug.WriteLine("Exception Source = " + e.Source);
+                            Debug.WriteLine("Exception Message = " + e.Message);
+                            if (cnn != null)
+                            {
+                                // 接続を閉じる
+                                cnn.Close();
+                            }
+                            ret = -1;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = -1;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+
+
+
 
     }
 }

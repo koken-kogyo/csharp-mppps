@@ -56,7 +56,6 @@ namespace MPPPS
             // 
             // Btn_InformationPlan
             // 
-            this.Btn_InformationPlan.Enabled = false;
             this.Btn_InformationPlan.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Btn_InformationPlan.Location = new System.Drawing.Point(12, 137);
             this.Btn_InformationPlan.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);

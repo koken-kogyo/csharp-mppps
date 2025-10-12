@@ -1817,7 +1817,7 @@ namespace MPPPS
         }
 
         // 1カード作成（DataRow1件分を作成）
-        public void SetPlanCard(ref DateTime cardDay, ref DataRow r, ref int row, ref int col, int loopCnt, int loopMax)
+        public void SetPlanCard(ref DataRow r, ref int row, ref int col, int loopCnt, int loopMax)
         {
             // テンプレートオブジェクトをクローン
             object[,] obj = templateOrderCardObject.Clone() as object[,];

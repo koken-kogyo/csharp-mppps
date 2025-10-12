@@ -625,20 +625,20 @@ namespace MPPPS
                 DateTime cardDay = GetCurrentDateTime(r.Cells[1]); // 1:月曜日
 
                 progressmsg = $"【{cardDay.ToString("M月")}" +
-                    $"{GetWeekNum(cardDay)}週】内示カード";
+                    $"{GetWeekNum(cardDay)}週】内示カード ";
 
                 // 雛形カードを開く（拡縮倍率にあった帳票を選択）
                 cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
 
                 // 内示データをDataTableに読み込む
-                toolStripStatusLabel1.Text = progressmsg + " データ読み込み中...";
+                toolStripStatusLabel1.Text = progressmsg + "データ読み込み中...";
                 DataTable cardDt = new DataTable();
                 await Task.Run(() => cmn.Dba.GetPlanCardPrintInfo(cardDay, ref cardDt));
                 if (ret < 0) break;
 
                 // 内示カード雛形に内示データをセット
                 // 設定ファイルの場所にPDFとして保存して起動
-                toolStripStatusLabel1.Text = progressmsg + $" - 1件 / {cardDt.Rows.Count}件中 作成中...";
+                toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件中 - 1枚 作成中...";
                 await Task.Run(() => ret = PrintPlanCard(cardDay, ref cardDt));
                 if (ret != 0) break;
 
@@ -789,11 +789,11 @@ namespace MPPPS
                         col = (cardCnt % 2 != 0) ? 1 : 10;
 
                         // １カード分をExcelオブジェクトにセット（新規ページの１件目の場合はコピペ処理含む）
-                        cmn.Fa.SetPlanCard(ref cardDay, ref r, ref row, ref col, j, loopCnt);
+                        cmn.Fa.SetPlanCard(ref r, ref row, ref col, j, loopCnt);
 
                         if (cardCnt % 5 == 0)
                         {
-                            toolStripStatusLabel1.Text = progressmsg + $" {cardCnt}枚 / {cardDt.Rows.Count}件中 作成中...";
+                            toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件中 - {cardCnt}枚 作成中...";
                         }
                         cardCnt++;
                     }
@@ -804,7 +804,7 @@ namespace MPPPS
                 cardCnt--;
                 if ((cardCnt) % 4 != 0)
                     cmn.Fa.ClearZanOrderCard(cardCnt);
-                toolStripStatusLabel1.Text = progressmsg + $" {cardDt.Rows.Count}件-{cardCnt}枚のカードが作成されました.";
+                toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件 - {cardCnt}枚のカードが作成されました.";
             }
             // ファイルの保存に失敗すると Exception が発生する
             catch (Exception e)
