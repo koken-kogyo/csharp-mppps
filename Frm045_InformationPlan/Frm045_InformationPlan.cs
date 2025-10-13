@@ -41,7 +41,7 @@ namespace MPPPS
 
             // フォームのタイトルを設定する
             Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
-                      + " <" + Common.FRM_ID_042 + ": " + Common.FRM_NAME_041 + ">";
+                      + " <" + Common.FRM_ID_045 + ": " + Common.FRM_NAME_045 + ">";
 
             // 共通クラス
             this.cmn = cmn;
@@ -109,6 +109,10 @@ namespace MPPPS
             setCommandButtons(false);
 
             chk_EDDT.Checked = true;
+            chk_PLNNO.Checked = false;
+            chk_HMCD.Checked = false;
+            chk_ODRSTS.Checked = false;
+            chk_MCCD.Checked = false;
 
             // 初期フォーカス
             btn_Search.Focus();
@@ -165,11 +169,14 @@ namespace MPPPS
         // データグリッドの日本語列名、文字寄せ、幅px、文字フォーマットをここで設定
         private void columnHeaderText()
         {
+            // ヘッダーフォントがデザイナー設定が反映されない
+            this.dgv_Order.ColumnHeadersDefaultCellStyle.Font = new Font("Yu Gothic UI", 10);
+            // 
             Dictionary<string, MultipleValues> dic = new Dictionary<string, MultipleValues>();
-            dic.Add("PLNNO", new MultipleValues { JPNAME = "計画No", Width = 110 });
+            dic.Add("PLNNO", new MultipleValues { JPNAME = "計画No", Width = 130 });
             dic.Add("KTSEQ", new MultipleValues { JPNAME = "工程順序", Width = 40 });
-            dic.Add("HMCD", new MultipleValues { JPNAME = "品番", Width = 170 });
-            dic.Add("HMNM", new MultipleValues { JPNAME = "品名", Width = 170 });
+            dic.Add("HMCD", new MultipleValues { JPNAME = "品番", Width = 180 });
+            dic.Add("HMNM", new MultipleValues { JPNAME = "品名", Width = 190 });
             dic.Add("KTCD", new MultipleValues { JPNAME = "工程ｺｰﾄﾞ", Width = 60 });
             dic.Add("ODRQTY", new MultipleValues { JPNAME = "手配数", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
             dic.Add("ODCD", new MultipleValues { JPNAME = "手配先ｺｰﾄﾞ", Width = 60 });
@@ -177,9 +184,9 @@ namespace MPPPS
             dic.Add("LTTIME", new MultipleValues { JPNAME = "LT", Width = 40 });
             dic.Add("STDT", new MultipleValues { JPNAME = "着手予定日", Width = 100 });
             dic.Add("STTIM", new MultipleValues { JPNAME = "着手予定時刻", Width = 60 });
-            dic.Add("EDDT", new MultipleValues { JPNAME = "完了予定日", Width = 100 });
-            dic.Add("EDTM", new MultipleValues { JPNAME = "完了予定時刻", Width = 60 });
-            dic.Add("EDTIM", new MultipleValues { JPNAME = "完了予定時刻", Width = 60 });
+            dic.Add("EDDT", new MultipleValues { JPNAME = "完了予定日", Width = 120 });
+            dic.Add("EDTM", new MultipleValues { JPNAME = "完了予定時刻", Width = 70 });
+            dic.Add("EDTIM", new MultipleValues { JPNAME = "完了予定時刻", Width = 70 });
             dic.Add("ODRSTS", new MultipleValues { JPNAME = "手配状況", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
             dic.Add("ODRSTSNM", new MultipleValues { JPNAME = "手配", Width = 80, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
             dic.Add("QRCD", new MultipleValues { JPNAME = "QRコード", Width = 100 });
@@ -190,14 +197,14 @@ namespace MPPPS
             dic.Add("WKNOTE", new MultipleValues { JPNAME = "作業内容", Width = 100 });
             dic.Add("WKCOMMENT", new MultipleValues { JPNAME = "作業注釈", Width = 100 });
             dic.Add("DATAKBN", new MultipleValues { JPNAME = "データ区分", Width = 40 });
-            dic.Add("INSTID", new MultipleValues { JPNAME = "登録者", Width = 60 });
-            dic.Add("INSTDT", new MultipleValues { JPNAME = "登録日時", Width = 100, Format = "MM/dd HH:mm" });
-            dic.Add("UPDTID", new MultipleValues { JPNAME = "更新者", Width = 60 });
-            dic.Add("UPDTDT", new MultipleValues { JPNAME = "更新日時", Width = 100, Format = "MM/dd HH:mm" });
+            dic.Add("INSTID", new MultipleValues { JPNAME = "登録者", Width = 70 });
+            dic.Add("INSTDT", new MultipleValues { JPNAME = "登録日時", Width = 120, Format = "MM/dd HH:mm" });
+            dic.Add("UPDTID", new MultipleValues { JPNAME = "更新者", Width = 70 });
+            dic.Add("UPDTDT", new MultipleValues { JPNAME = "更新日時", Width = 120, Format = "MM/dd HH:mm" });
             dic.Add("NAIGAIKBN", new MultipleValues { JPNAME = "社内外区分", Width = 40 });
             dic.Add("RETKTCD", new MultipleValues { JPNAME = "検索用工程コード", Width = 40 });
 
-            dic.Add("KTKEY", new MultipleValues { JPNAME = "工程キー", Width = 100 });
+            dic.Add("KTKEY", new MultipleValues { JPNAME = "工程キー", Width = 120 });
             dic.Add("MATERIALCD", new MultipleValues { JPNAME = "切削母材品番", Width = 110 });
             dic.Add("PLANCARDDT", new MultipleValues { JPNAME = "内示カード発行日", Width = 100, Format = "MM/dd HH:mm" });
             dic.Add("MPCARDDT", new MultipleValues { JPNAME = "製造指示カード発行日", Width = 100, Format = "MM/dd HH:mm" });
@@ -348,7 +355,7 @@ namespace MPPPS
             }
             else
             {
-                kd8440.DefaultView.RowFilter = f;
+                kd8440.DefaultView.RowFilter = f.Replace("a.","");
                 toolStripStatusLabel1.Text = dgv_Order.RowCount.ToString("#,0") +
                         "件 / " + kd8440.Rows.Count.ToString("#,0") + "件中";
             }
@@ -366,12 +373,12 @@ namespace MPPPS
             if (chk_HMCD.Checked && txt_HMCD.Text != string.Empty && chk_Like.Checked == false)
             {
                 if (f != string.Empty) f += " and ";
-                f += "HMCD = '" + txt_HMCD.Text + "' ";
+                f += "a.HMCD = '" + txt_HMCD.Text + "' ";
             }
             if (chk_HMCD.Checked && txt_HMCD.Text != string.Empty && chk_Like.Checked == true)
             {
                 if (f != string.Empty) f += " and ";
-                f += "HMCD like '%" + txt_HMCD.Text + "%' ";
+                f += "a.HMCD like '%" + txt_HMCD.Text + "%' ";
             }
             if (chk_EDDT.Checked)
             {
@@ -453,6 +460,7 @@ namespace MPPPS
         // データグリッド上のセルダブルクリックイベント
         private void dgv_Order_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex == -1) return;
             string val = dgv_Order[e.ColumnIndex, e.RowIndex].Value.ToString();
             int cnt = 0;
             for (int i = 0; i < dgv_Order.Rows.Count; i++)
@@ -670,14 +678,11 @@ namespace MPPPS
             // 製造指示カード雛形を閉じる
             cmn.Fa.CloseExcelFile2(false);
 
-            // 出力済ステータスに更新
-            // 存在しない場合はインサートとかの処理 未実装
-            //cmn.Dba.UpdatePrintPlanCardDay(ref cardDt);
-
             // Excelアプリケーションを閉じる
             cmn.Fa.CloseExcel2();
 
-            MessageBox.Show("印刷済みステータスにする処理は未実装です！");
+            // 出力済ステータスに更新
+            cmn.Dba.InsertUpdatePlanCard(ref cardDt);
         }
 
         /// <summary>

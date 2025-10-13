@@ -40,9 +40,9 @@ namespace MPPPS
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.Dgv_Calendar = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.Btn_ImportPlan = new System.Windows.Forms.Button();
-            this.Btn_PrintPlan = new System.Windows.Forms.Button();
             this.Btn_PrintClear = new System.Windows.Forms.Button();
+            this.Btn_PrintPlan = new System.Windows.Forms.Button();
+            this.Btn_ImportPlan = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Dgv_Calendar)).BeginInit();
@@ -150,32 +150,6 @@ namespace MPPPS
             this.tableLayoutPanel1.Size = new System.Drawing.Size(852, 42);
             this.tableLayoutPanel1.TabIndex = 14;
             // 
-            // Btn_ImportPlan
-            // 
-            this.Btn_ImportPlan.BackColor = System.Drawing.Color.MistyRose;
-            this.Btn_ImportPlan.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Btn_ImportPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_ImportPlan.Location = new System.Drawing.Point(3, 3);
-            this.Btn_ImportPlan.Name = "Btn_ImportPlan";
-            this.Btn_ImportPlan.Size = new System.Drawing.Size(334, 36);
-            this.Btn_ImportPlan.TabIndex = 12;
-            this.Btn_ImportPlan.Text = "内示データ取込";
-            this.Btn_ImportPlan.UseVisualStyleBackColor = false;
-            this.Btn_ImportPlan.Click += new System.EventHandler(this.Btn_ImportPlan_Click);
-            // 
-            // Btn_PrintPlan
-            // 
-            this.Btn_PrintPlan.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.Btn_PrintPlan.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Btn_PrintPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_PrintPlan.Location = new System.Drawing.Point(343, 3);
-            this.Btn_PrintPlan.Name = "Btn_PrintPlan";
-            this.Btn_PrintPlan.Size = new System.Drawing.Size(334, 36);
-            this.Btn_PrintPlan.TabIndex = 14;
-            this.Btn_PrintPlan.Text = "内示カード印刷";
-            this.Btn_PrintPlan.UseVisualStyleBackColor = false;
-            this.Btn_PrintPlan.Click += new System.EventHandler(this.Btn_PrintPlan_Click);
-            // 
             // Btn_PrintClear
             // 
             this.Btn_PrintClear.BackColor = System.Drawing.Color.LightCoral;
@@ -188,6 +162,32 @@ namespace MPPPS
             this.Btn_PrintClear.Text = "カード廃棄";
             this.Btn_PrintClear.UseVisualStyleBackColor = false;
             this.Btn_PrintClear.Click += new System.EventHandler(this.Btn_PrintClear_Click);
+            // 
+            // Btn_PrintPlan
+            // 
+            this.Btn_PrintPlan.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.Btn_PrintPlan.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_PrintPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_PrintPlan.Location = new System.Drawing.Point(343, 3);
+            this.Btn_PrintPlan.Name = "Btn_PrintPlan";
+            this.Btn_PrintPlan.Size = new System.Drawing.Size(334, 36);
+            this.Btn_PrintPlan.TabIndex = 14;
+            this.Btn_PrintPlan.Text = "内示カード印刷 (SW)";
+            this.Btn_PrintPlan.UseVisualStyleBackColor = false;
+            this.Btn_PrintPlan.Click += new System.EventHandler(this.Btn_PrintPlan_Click);
+            // 
+            // Btn_ImportPlan
+            // 
+            this.Btn_ImportPlan.BackColor = System.Drawing.Color.MistyRose;
+            this.Btn_ImportPlan.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_ImportPlan.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Btn_ImportPlan.Location = new System.Drawing.Point(3, 3);
+            this.Btn_ImportPlan.Name = "Btn_ImportPlan";
+            this.Btn_ImportPlan.Size = new System.Drawing.Size(334, 36);
+            this.Btn_ImportPlan.TabIndex = 12;
+            this.Btn_ImportPlan.Text = "内示データ取込";
+            this.Btn_ImportPlan.UseVisualStyleBackColor = false;
+            this.Btn_ImportPlan.Click += new System.EventHandler(this.Btn_ImportPlan_Click);
             // 
             // Frm044_ImportPlan
             // 

@@ -3915,6 +3915,11 @@ namespace MPPPS
                     + "and b.KT1MCGCD = c.MCGCD "
                     + "and b.KT1MCCD = c.MCCD "
                     + "and b.KT1MCGCD = 'SW' "
+                    + "and NOT EXISTS ( "
+                        + "SELECT * FROM "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " tmp "
+                        + "WHERE tmp.HMCD=a.HMCD and tmp.WEEKEDDT=a.WEEKEDDT"
+                        + ") "
                     + "GROUP BY "
                     + "c.MCSEQ "
                     + ", b.MATESIZE "
@@ -3952,7 +3957,7 @@ namespace MPPPS
             return ret;
         }
         /// <summary>
-        /// 内示カード発行済み登録
+        /// 内示カード発行済み登録（新規印刷）
         /// </summary>
         /// <param name="weekEddt">検査対象月</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
@@ -3983,25 +3988,32 @@ namespace MPPPS
                 + ", MPUPDTID "
                 + ", MPUPDTDT "
                 + ") "
+                + "( "
                 + "SELECT "
-                + "HMCD "
-                + ", WEEKEDDT "
-                + ", SUM(ODRQTY) "
+                + "a.HMCD "
+                + ", a.WEEKEDDT "
+                + ", SUM(a.ODRQTY) "
                 + ", now() "
                 + ", '" + cmn.DrCommon.UpdtID + "' "
                 + ", now() "
                 + ", '" + cmn.DrCommon.UpdtID + "' "
                 + ", now() "
                 + "FROM "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " a, "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
                 + "WHERE "
-                + $"WEEKEDDT = '{weekEddt.ToString()}' "
+                + "a.HMCD=b.HMCD "
+                + "and b.KT1MCGCD = 'SW' "
+                + $"and a.WEEKEDDT = '{weekEddt.ToString()}' "
+                + "and NOT EXISTS ( "
+                    + "SELECT * FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " tmp "
+                    + "WHERE tmp.HMCD=a.HMCD and tmp.WEEKEDDT=a.WEEKEDDT"
+                    + ") "
                 + "GROUP BY "
-                + "HMCD "
-                + "ORDER BY "
-                + "HMCD "
+                + "a.HMCD "
+                + ") "
                 ;
-
                 using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
                 {
                     using (MySqlTransaction txn = cnn.BeginTransaction())
@@ -5282,6 +5294,7 @@ namespace MPPPS
                 + ",if(a.ODRNO is null, concat('P', a.PLNNO), concat('K', a.ODRNO)) PLNNO "
                 + ",a.ODRQTY "
                 + ",a.HMCD "
+                + ",a.WEEKEDDT "
                 + ",b.HMNM "
                 + ",b.MATESIZE "
                 + ",b.LENGTH "
@@ -5336,7 +5349,7 @@ namespace MPPPS
         /// </summary>
         /// <param name="targetDt">手配日</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int UpdatePrintPlanCardDay(ref DataTable targetDt)
+        public int InsertUpdatePlanCard(ref DataTable targetDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -5353,27 +5366,52 @@ namespace MPPPS
                 string numbers = string.Empty;
                 foreach (DataRow dr in targetDt.Rows)
                 {
-                    numbers += "'" + dr["計画No"].ToString().Substring(1) + "',"; // DataGridViewのタイトル名で来るので注意！
+                    numbers += "'" + dr["PLNNO"].ToString().Substring(1) + "',";
                 }
                 numbers += "'x'";
-                string addWhere = "and (" +
+                string where = "(" +
                     "a.ODRNO in (" + numbers + ") or " +
                     "a.PLNNO in (" + numbers + ")" +
                 ") ";
 
-                // 内示カード発行済みに更新 SQL
+                // 内示カード発行済みに更新（新規の場合はInsert、既存再印刷の場合はUpdate）
                 string sql =
-                    "UPDATE "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " "
-                    + "SET "
-                    + "MPCARDDT = now(), "
-                    + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
-                    + "WHERE "
-                    + "ODRSTS<>'9' and "
-                    + "ODCD like '6060%' and "
-                    + addWhere
+                "INSERT INTO "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " "
+                + "("
+                + "HMCD "
+                + ", WEEKEDDT "
+                + ", PLANQTY "
+                + ", PLANCARDDT "
+                + ", MPINSTID "
+                + ", MPINSTDT "
+                + ", MPUPDTID "
+                + ", MPUPDTDT "
+                + ") "
+                + "( "
+                + "SELECT "
+                + "a.HMCD "
+                + ", a.WEEKEDDT "
+                + ", SUM(a.ODRQTY) "
+                + ", now() "
+                + ", '" + cmn.DrCommon.UpdtID + "' "
+                + ", now() "
+                + ", '" + cmn.DrCommon.UpdtID + "' "
+                + ", now() "
+                + "FROM "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " a "
+                + "WHERE "
+                + where
+                + "GROUP BY "
+                + "a.WEEKEDDT "
+                + ", a.HMCD "
+                + ") " +
+                "ON DUPLICATE KEY UPDATE " // 主キーが設定されている場合のみ可能
+                + "PLANQTY=VALUES(PLANQTY) "
+                + ", PLANCARDDT=VALUES(PLANCARDDT) "
+                + ", MPUPDTID=VALUES(MPUPDTID) "
+                + ", MPUPDTDT=VALUES(MPUPDTDT) "
                 ;
-
                 using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
                 {
                     using (MySqlTransaction txn = cnn.BeginTransaction())

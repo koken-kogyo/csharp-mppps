@@ -40,7 +40,7 @@ namespace MPPPS
 
             // フォームのタイトルを設定する
             Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
-                      + " <" + Common.FRM_ID_041 + ": " + Common.FRM_NAME_041 + ">";
+                      + " <" + Common.FRM_ID_044 + ": " + Common.FRM_NAME_044 + ">";
 
             // 共通クラス
             this.cmn = cmn;
@@ -184,7 +184,7 @@ namespace MPPPS
                     int countHMCD = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
                     int cardPrint = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and 内示カード出力日時>'2000/1/1'").Count();
                     DateTime dayOfFriday = dayOfPrevMonth.AddDays(4);
-                    if (cardPrint > (countHMCD / 2)) // 内示数量の半数以上が印刷済の場合
+                    if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
                         // 内示カード印刷済み
                         for (int i = 1; i <= 5; i++)
@@ -255,11 +255,11 @@ namespace MPPPS
                     int countHMCD = orderDt.Select($"WEEKEDDT='{currentDate}'").Count();
                     int cardPrint = orderDt.Select($"WEEKEDDT='{currentDate}' and 内示カード出力日時>'2000/1/1'").Count();
                     DateTime dayOfFriday = currentDate.AddDays(4);
-                    if (cardPrint > (countHMCD / 2)) // 内示数量の半数以上が印刷済の場合
+                    if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
                         // 内示カード印刷済み
                         for (int i = 1; i <= 5; i++)
-                            Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
+                        Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                     }
                     else if (orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数>0")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count() != 0)
@@ -312,7 +312,7 @@ namespace MPPPS
                     int countHMCD = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
                     int cardPrint = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and 内示カード出力日時>'2000/1/1'").Count();
                     DateTime dayOfFriday = firstDayOfWeek.AddDays(4);
-                    if (cardPrint > (countHMCD / 2)) // 内示数量の半数以上が印刷済の場合
+                    if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
                         // 内示カード印刷済み
                         for (int i = 1; i <= 5; i++)
@@ -507,8 +507,7 @@ namespace MPPPS
                 Btn_PrintPlan.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                 Btn_PrintPlan.Enabled = true;
             }
-            // 内示カードが多く印刷されていたら削除ボタンを活性化
-            if (countHMCD > 0 && (countHMCD / 2) <= cardPrint)
+            if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
             {
                 Btn_PrintClear.BackColor = Common.FRM40_BG_COLOR_WARNING;
                 Btn_PrintClear.Enabled = true;
@@ -630,7 +629,7 @@ namespace MPPPS
                 // 雛形カードを開く（拡縮倍率にあった帳票を選択）
                 cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
 
-                // 内示データをDataTableに読み込む
+                // 内示データをDataTableに読み込む（KD8470に存在しないデータが対象）
                 toolStripStatusLabel1.Text = progressmsg + "データ読み込み中...";
                 DataTable cardDt = new DataTable();
                 await Task.Run(() => cmn.Dba.GetPlanCardPrintInfo(cardDay, ref cardDt));
@@ -872,6 +871,9 @@ namespace MPPPS
         // カード廃棄
         private void Btn_PrintClear_Click(object sender, EventArgs e)
         {
+            if (MessageBox.Show("印刷済み日付をクリアします。よろしいですか？", "最終質問",
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Cancel) return;
+
             // 選択セルの並び替え
             var query = from DataGridViewRow r in Dgv_Calendar.SelectedRows
                         orderby r.Index

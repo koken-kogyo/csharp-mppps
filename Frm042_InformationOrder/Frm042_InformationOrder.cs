@@ -43,7 +43,7 @@ namespace MPPPS
 
             // フォームのタイトルを設定する
             Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
-                      + " <" + Common.FRM_ID_042 + ": " + Common.FRM_NAME_041 + ">";
+                      + " <" + Common.FRM_ID_042 + ": " + Common.FRM_NAME_042 + ">";
 
             // 共通クラス
             this.cmn = cmn;
