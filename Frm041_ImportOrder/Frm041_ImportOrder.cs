@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -143,7 +144,7 @@ namespace MPPPS
                 orderDt.Columns.Add("MP取込本数", typeof(long));
 
                 orderDt.Columns.Add("MP印刷件数", typeof(long));
-                orderDt.Columns.Add("MP印刷対象外", typeof(long));
+                orderDt.Columns.Add("MP未印刷件数", typeof(long));
             }
 
             // MPデータの内容をEM注文データにマージ
@@ -164,7 +165,7 @@ namespace MPPPS
                     r["MP取込本数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP取込本数"];
 
                     r["MP印刷件数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP印刷件数"];
-                    r["MP印刷対象外"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP印刷対象外"];
+                    r["MP未印刷件数"] = mpOrderDt.Select($"EDDT='{r["EDDT"]}'")[0]["MP未印刷件数"];
                 }
                 else
                 {
@@ -181,7 +182,7 @@ namespace MPPPS
                     r["MP取込本数"] = 0;
 
                     r["MP印刷件数"] = 0;
-                    r["MP印刷対象外"] = 0;
+                    r["MP未印刷件数"] = 0;
                 }
             }
         }
@@ -267,15 +268,13 @@ namespace MPPPS
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED ;
                     Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                 }
-                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP印刷件数>0 and MP印刷件数<(MP取込件数-MP9取消件数-MP印刷対象外)").Count() != 0)
+                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP印刷件数>0 and MP未印刷件数>0").Count() != 0)
                 {
                     // 未印刷データあり
-                    var mpCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP取込件数"].ToString());
-                    var cancelCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP9取消件数"].ToString());
-                    var printCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP印刷件数"].ToString());
+                    var printCount = Int32.Parse(orderDt.Select($"EDDT='{currentDate}'")[0]["MP未印刷件数"].ToString());
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_WARNING;
                     Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
-                    Dgv_Calendar[column, row].Value = day + $"\n未印刷が\n{mpCount - cancelCount - printCount}件あります";
+                    Dgv_Calendar[column, row].Value = day + $"\n未印刷が\n{printCount}件あります";
                 }
                 else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and EM合計件数<>MP取込件数").Count() != 0)
                 {
@@ -295,7 +294,7 @@ namespace MPPPS
                     Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     Dgv_Calendar[column, row].Value = day + $"\nEM取消が\n{emCancel - mpCancel}件あります";
                 }
-                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP取込件数-MP9取消件数-MP印刷対象外<=MP印刷件数").Count() != 0)
+                else if (orderDt.Select($"EDDT='{currentDate}' and MP取込件数>0 and MP未印刷件数=0").Count() != 0)
                 {
                     // 製造指示カード印刷済み
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
@@ -367,7 +366,7 @@ namespace MPPPS
                     Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     Dgv_Calendar[column, row].Value = dayOfNextMonth + $"\nEM取消が\n{emCancel - mpCancel}件あります";
                 }
-                else if (orderDt.Select($"EDDT='{nextDate}' and MP取込件数>0 and MP取込件数-MP9取消件数-MP印刷対象外<=MP印刷件数").Count() != 0)
+                else if (orderDt.Select($"EDDT='{nextDate}' and MP取込件数>0 and MP未印刷件数=0").Count() != 0)
                 {
                     // 製造指示カード印刷済み
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
@@ -560,7 +559,7 @@ namespace MPPPS
                     mp9qty += Int32.Parse(r["MP9取消本数"].ToString());
 
                     printCnt += Int32.Parse(r["MP印刷件数"].ToString());
-                    excludeCnt += Int32.Parse(r["MP印刷対象外"].ToString());
+                    excludeCnt += Int32.Parse(r["MP未印刷件数"].ToString());
                 }
             }
             if (emOrder > 0)
@@ -579,7 +578,7 @@ namespace MPPPS
 
                 }
                 // 注文データ印刷ボタン活性化
-                if (mpOrder > 0 && (mpOrder - mpCancel - excludeCnt) > printCnt)
+                if (mpOrder > 0 && excludeCnt > 0)
                 {
                     Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                     Btn_PrintOrder.Enabled = true;
@@ -587,13 +586,9 @@ namespace MPPPS
                     Btn_PrintCancel.Enabled = true;
                     toolStripStatusLabel1.Text += $" 未印刷: {mpOrder - mpCancel - printCnt}件";
                 }
-                if (mpOrder > 0 && (mpOrder - mpCancel - excludeCnt) == printCnt)
+                if (mpOrder > 0 && printCnt > 0 && excludeCnt == 0)
                 {
                     toolStripStatusLabel1.Text += $" 印刷済: {printCnt}件";
-                }
-                if (mpOrder > 0 && excludeCnt > 0)
-                {
-                    toolStripStatusLabel1.Text += $"(管理外: {excludeCnt}件)";
                 }
                 // EM取消情報との差異を注意喚起
                 if (emCancel > 0 && mpOrder > 0 && emCancel != mpCancel)
@@ -628,9 +623,12 @@ namespace MPPPS
             toolStripStatusLabel1.Text = "注文データ取込中...";
             int insCount = 0;
             int delCount = 0;
-            // 削除したODRNOを控えておく
+            // 削除したODRNOを控えておくための変数
             DataTable deleteODRNODt = new DataTable();
             deleteODRNODt.Columns.Add("ODRNO", typeof(string));
+            // 月曜日の場合は内示情報を取得。その後の手配作成時に使用
+            DataTable mpNaijiDt = new DataTable();
+            Task taskE = null;
             // 選択セルの並び替え
             var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
                         where c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING
@@ -652,9 +650,17 @@ namespace MPPPS
                     var taskB = Task.Run(() => cmn.Dba.GetMpOrder(ref mpOrderDt, eddt));
                     var taskC = Task.Run(() => cmn.Dba.GetCodeSlipMst(ref mpCodeMDt));
                     var taskD = Task.Run(() => cmn.Dba.GetMpZaiko(ref mpZaikoDt, "'SW'"));
-
-                    // 全ての読み込みが完了するまで待機する
-                    await Task.WhenAll(taskA, taskB, taskC, taskD);
+                    if (c.ColumnIndex == 1)
+                    {
+                        mpNaijiDt.Rows.Clear();
+                        taskE = Task.Run(() => cmn.Dba.GetMpNaiji(ref mpNaijiDt, eddt));
+                        await Task.WhenAll(taskA, taskB, taskC, taskD, taskE);
+                    }
+                    else
+                    {
+                        // 全ての読み込みが完了するまで待機する
+                        await Task.WhenAll(taskA, taskB, taskC, taskD);
+                    }
 
                     // 削除対象が存在するかチェック（二つのODRNOの集合差を求める）
                     DataRow[] deleteDr = mpOrderDt.AsEnumerable()
@@ -703,7 +709,7 @@ namespace MPPPS
                         }
 
                         // MPシステム MySQLに集合差分を挿入
-                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpZaikoDt, ref deleteODRNODt, c.Style.BackColor);
+                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpZaikoDt, ref mpNaijiDt, ref deleteODRNODt, c.Style.BackColor);
                         if (insCount < 0) return;
                     }
                 }
@@ -786,8 +792,9 @@ namespace MPPPS
             toolStripStatusLabel1.Text = progressmsg + "データ読み込み中...";
             DataTable cardDt = new DataTable();
             await Task.Run(() => ret = cmn.Dba.GetOrderCardPrintInfo(ref dayFrom, ref dayTo, ref cardDt));
-            if (ret < 0)
+            if (ret <= 0)
             {
+                if (ret == 0) toolStripStatusLabel1.Text = "印刷対象のデータはありませんでした.";
                 cmn.Fa.CloseExcel2(); // Excelアプリケーションを閉じる
                 return;
             }
@@ -979,6 +986,14 @@ namespace MPPPS
             Btn_PrintOrder.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintCancel.Enabled = false;
             Btn_PrintCancel.BackColor = Common.FRM40_BG_COLOR_CONTROL;
+        }
+
+        private void Dgv_Calendar_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            DateTime dateValue = GetCurrentDateTime(Dgv_Calendar[e.ColumnIndex, e.RowIndex]);
+            Frm042_InformationOrder frm042 = new Frm042_InformationOrder(cmn, dateValue);
+            Thread.Sleep(500);
+            frm042.Show();
         }
     }
 }

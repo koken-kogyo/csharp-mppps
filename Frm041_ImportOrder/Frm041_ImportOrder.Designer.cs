@@ -77,7 +77,7 @@ namespace MPPPS
             this.toolStripStatusLabel2.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(626, 23);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(665, 23);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -157,6 +157,7 @@ namespace MPPPS
             this.Dgv_Calendar.Size = new System.Drawing.Size(851, 482);
             this.Dgv_Calendar.TabIndex = 9;
             this.Dgv_Calendar.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Dgv_Calendar_CellClick);
+            this.Dgv_Calendar.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Dgv_Calendar_CellDoubleClick);
             this.Dgv_Calendar.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Dgv_Calendar_MouseUp);
             // 
             // tableLayoutPanel1

@@ -2162,7 +2162,7 @@ namespace MPPPS
                     + ", concat('',sum(case when ODRSTS = '9' then ODRQTY else 0 end)) \"MP9取消本数\" "
                     + ", concat('',sum(case when ODRSTS in ('1','2','3','4','9') then ODRQTY else 0 end)) \"MP取込本数\" "
                     + ", concat('',sum(case when MPCARDDT is not NULL and ODRSTS != '9' then 1 else 0 end)) \"MP印刷件数\" "
-                    + ", concat('',sum(case when ODCD = '60605' and ODRSTS != '9' then 1 else 0 end)) \"MP印刷対象外\" "
+                    + ", concat('',sum(case when MPCARDDT is NULL and ODCD != '60605' and ODRSTS != '4' and ODRSTS != '9' then 1 else 0 end)) \"MP未印刷件数\" "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                     + "WHERE "
@@ -2410,7 +2410,7 @@ namespace MPPPS
         /// <param name="exceptDt">EMとの差分の登録すべきデータテーブル</param>
         /// <param name="zaikoDt">仕掛り在庫（手配登録時に消込）</param>
         /// <returns>挿入件数、失敗時-1</returns>
-        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt , ref DataTable zaikoDt, ref DataTable deleteODRNODt, Color styleBackColor)
+        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt , ref DataTable zaikoDt, ref DataTable naijiDt, ref DataTable deleteODRNODt, Color styleBackColor)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2446,6 +2446,17 @@ namespace MPPPS
                     int delCountToday = cmd.ExecuteNonQuery();
 
                     // 受注状態「１：追加」を新設
+                    if (styleBackColor == Common.FRM40_BG_COLOR_WARNING && r["ODRSTS"].ToString() == "2")
+                    {
+                        // 納期前倒し(delCountToday>0)または
+                        // 納期後倒し(deleteODRNODt>0)の場合はステータスは更新しない
+                        if (delCountToday == 0 && deleteODRNODt.Select($"ODRNO='{odrno}'").Count() == 0)
+                        {
+                            r["ODRSTS"] = "1";
+                        }
+                    }
+
+                    // 内示カード発行済みの場合は
                     if (styleBackColor == Common.FRM40_BG_COLOR_WARNING && r["ODRSTS"].ToString() == "2")
                     {
                         // 納期前倒し(delCountToday>0)または
@@ -3219,8 +3230,8 @@ namespace MPPPS
                 + "MPTANADT = now(), "
                 + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
                 + "WHERE "
-                + "ODRSTS<>'9' and "
-                + "ODCD like '6060%' and "
+                + "ODRSTS <> '9' and "
+                + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
                 + "EDDT = '" + planDay.ToString() + "' and "
                 + "MPTANADT is NULL " // 棚コンデータ作成日
                 ;
@@ -3414,6 +3425,7 @@ namespace MPPPS
                         }
                     }
                 }
+                ret = mpDt.Rows.Count;
             }
             catch (Exception ex)
             {
@@ -3612,9 +3624,9 @@ namespace MPPPS
                     + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
 
                     // 内示カード発行済みの場合は900年足して印刷済みにしておく
-                    + "and exists "
-                    + "(select * from kd8470 c where c.HMCD = HMCD "
-                    + $"and c.WEEKEDDT between '{monday}' and '{eddtTo}')"
+                    + "exists "
+                    +   "(select * from kd8470 c where c.HMCD = KD8430.HMCD "
+                    +   $"and c.WEEKEDDT between '{monday}' and '{eddtTo}') and "
 
                     + "MPCARDDT is NULL and " // 製造指示カード発行日
                     + $"EDDT between '{eddtFrom}' and '{eddtTo}'"
@@ -3634,6 +3646,7 @@ namespace MPPPS
                 catch (Exception e)
                 {
                     txn.Rollback();
+                    MessageBox.Show("印刷済みステータス更新で異常が発生しました．\nシステム担当者に連絡してください．", "異常発生", MessageBoxButtons.OK,MessageBoxIcon.Error);
                     Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
 
                     Debug.WriteLine("Exception Source = " + e.Source);
@@ -3680,8 +3693,8 @@ namespace MPPPS
                     + "MPCARDDT = now(), "
                     + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
                     + "WHERE "
-                    + "ODRSTS<>'9' and "
-                    + "ODCD like '6060%' and "
+                    + "ODRSTS <> '9' and "
+                    + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
                     + addWhere
                 ;
 
@@ -5455,6 +5468,56 @@ namespace MPPPS
             }
             // 接続を閉じる
             cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 内示カードファイル取得
+        /// </summary>
+        /// <param name="mpNaijiDt">仕掛り在庫データ</param>
+        /// <param name="eddtmon">月曜日を日付文字列で指定</param>
+        /// <returns>内示カードファイルを取得（月曜日からの一週間分）</returns>
+        public bool GetMpNaiji(ref DataTable mpNaijiDt, string eddtmon)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " "
+                    + "WHERE "
+                    + $"WEEKEDDT = '{eddtmon}'"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpNaijiDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
 

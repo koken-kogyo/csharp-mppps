@@ -21,6 +21,9 @@ namespace MPPPS
         private DataTable kd8430 = new DataTable();     // 手配ファイル
         private DataTable kd8450 = new DataTable();     // 切削オーダーファイル
 
+        // フォーム表示直後に検索を行うかどうかのフラグ
+        private bool isFirstSearch = false;
+
         // データグリッドビューヘッダータイトル
         private class MultipleValues
         {
@@ -50,6 +53,34 @@ namespace MPPPS
 
             // 初期設定
             SetInitialValues();
+        }
+
+        /// <summary>
+        /// コンストラクター
+        /// </summary>
+        /// <param name="common">共通クラス</param>
+        public Frm042_InformationOrder(Common cmn, DateTime cellValue)
+        {
+            InitializeComponent();
+
+            // フォームのアイコンを設定する
+            Icon = new System.Drawing.Icon(Common.ICON_FILE);
+
+            // フォームのタイトルを設定する
+            Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
+                      + " <" + Common.FRM_ID_042 + ": " + Common.FRM_NAME_042 + ">";
+
+            // 共通クラス
+            this.cmn = cmn;
+
+            // 初期設定
+            SetInitialValues();
+
+            // 初期表示設定
+            isFirstSearch = true;
+            chk_EDDT.Checked = true;
+            dtp_EDDT_From.Value = cellValue;
+
         }
 
         // ********************** コントロールの初期化関連ここから ************************
@@ -172,11 +203,14 @@ namespace MPPPS
         // データグリッドの日本語列名、文字寄せ、幅px、文字フォーマットをここで設定
         private void columnHeaderText()
         {
+            // ヘッダーフォントがデザイナー設定が反映されない
+            this.dgv_Order.ColumnHeadersDefaultCellStyle.Font = new Font("Yu Gothic UI", 10);
+            //
             Dictionary<string, MultipleValues> dic = new Dictionary<string, MultipleValues>();
-            dic.Add("ODRNO", new MultipleValues { JPNAME = "手配No", Width = 110 });
+            dic.Add("ODRNO", new MultipleValues { JPNAME = "手配No", Width = 130 });
             dic.Add("KTSEQ", new MultipleValues { JPNAME = "工程順序", Width = 40 });
-            dic.Add("HMCD", new MultipleValues { JPNAME = "品番", Width = 170 });
-            dic.Add("HMNM", new MultipleValues { JPNAME = "品名", Width = 170 });
+            dic.Add("HMCD", new MultipleValues { JPNAME = "品番", Width = 180 });
+            dic.Add("HMNM", new MultipleValues { JPNAME = "品名", Width = 190 });
             dic.Add("KTCD", new MultipleValues { JPNAME = "工程ｺｰﾄﾞ", Width = 60 });
             dic.Add("ODRQTY", new MultipleValues { JPNAME = "手配数", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
             dic.Add("ODCD", new MultipleValues { JPNAME = "手配先ｺｰﾄﾞ", Width = 60 });
@@ -184,8 +218,8 @@ namespace MPPPS
             dic.Add("LTTIME", new MultipleValues { JPNAME = "LT", Width = 40 });
             dic.Add("STDT", new MultipleValues { JPNAME = "着手予定日", Width = 100 });
             dic.Add("STTIM", new MultipleValues { JPNAME = "着手予定時刻", Width = 60 });
-            dic.Add("EDDT", new MultipleValues { JPNAME = "完了予定日", Width = 100 });
-            dic.Add("EDTIM", new MultipleValues { JPNAME = "完了予定時刻", Width = 60 });
+            dic.Add("EDDT", new MultipleValues { JPNAME = "完了予定日", Width = 120 });
+            dic.Add("EDTIM", new MultipleValues { JPNAME = "完了予定時刻", Width = 70 });
             dic.Add("ODRSTS", new MultipleValues { JPNAME = "手配状況", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
             dic.Add("ODRSTSNM", new MultipleValues { JPNAME = "手配", Width = 80, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
             dic.Add("QRCD", new MultipleValues { JPNAME = "QRコード", Width = 100 });
@@ -196,16 +230,16 @@ namespace MPPPS
             dic.Add("WKNOTE", new MultipleValues { JPNAME = "作業内容", Width = 100 });
             dic.Add("WKCOMMENT", new MultipleValues { JPNAME = "作業注釈", Width = 100 });
             dic.Add("DATAKBN", new MultipleValues { JPNAME = "データ区分", Width = 40 });
-            dic.Add("INSTID", new MultipleValues { JPNAME = "登録者", Width = 60 });
-            dic.Add("INSTDT", new MultipleValues { JPNAME = "登録日時", Width = 100, Format = "MM/dd HH:mm" });
-            dic.Add("UPDTID", new MultipleValues { JPNAME = "更新者", Width = 60 });
-            dic.Add("UPDTDT", new MultipleValues { JPNAME = "更新日時", Width = 100, Format = "MM/dd HH:mm" });
+            dic.Add("INSTID", new MultipleValues { JPNAME = "登録者", Width = 70 });
+            dic.Add("INSTDT", new MultipleValues { JPNAME = "登録日時", Width = 120, Format = "MM/dd HH:mm" });
+            dic.Add("UPDTID", new MultipleValues { JPNAME = "更新者", Width = 70 });
+            dic.Add("UPDTDT", new MultipleValues { JPNAME = "更新日時", Width = 120, Format = "MM/dd HH:mm" });
             dic.Add("NAIGAIKBN", new MultipleValues { JPNAME = "社内外区分", Width = 40 });
             dic.Add("RETKTCD", new MultipleValues { JPNAME = "検索用工程コード", Width = 40 });
 
-            dic.Add("KTKEY", new MultipleValues { JPNAME = "工程キー", Width = 100 });
+            dic.Add("KTKEY", new MultipleValues { JPNAME = "工程キー", Width = 120 });
             dic.Add("MATERIALCD", new MultipleValues { JPNAME = "切削母材品番", Width = 110 });
-            dic.Add("MPCARDDT", new MultipleValues { JPNAME = "製造指示カード発行日", Width = 100, Format = "MM/dd HH:mm" });
+            dic.Add("MPCARDDT", new MultipleValues { JPNAME = "製造指示カード発行日", Width = 120, Format = "MM/dd HH:mm" });
             dic.Add("MPTANADT", new MultipleValues { JPNAME = "棚コンデータ作成日", Width = 100, Format = "MM/dd HH:mm" });
             dic.Add("MPINSTID", new MultipleValues { JPNAME = "MP登録者", Width = 100 });
             dic.Add("MPINSTDT", new MultipleValues { JPNAME = "MP登録日時", Width = 100, Format = "MM/dd HH:mm" });
@@ -650,11 +684,20 @@ namespace MPPPS
             // 製造指示カード雛形を開く（拡縮倍率にあった帳票を選択）
             cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
 
+            // タナコン管理外をカウントし印刷対象をチェック
+            int otherCount = targetDt.AsEnumerable()
+                .Where(x => x["作業内容"].ToString().Contains("ﾀﾅｺﾝ管理外")).Count();
+            if (targetDt.Rows.Count == otherCount)
+            {
+                MessageBox.Show("ﾀﾅｺﾝ管理外品番を印刷する事は出来ません", "確認");
+                return;
+            }
+
             // 対象の製造指示データをDataTableに読み込む
             int ret = 0;
             DataTable cardDt = new DataTable();
             await Task.Run(() => ret = cmn.Dba.GetOrderCardPrintInfo(targetDt, ref cardDt));
-            if (ret < 0)
+            if (ret <= 0)
             {
                 cmn.Fa.CloseExcel2(); // Excelアプリケーションを閉じる
                 return;
@@ -775,6 +818,16 @@ namespace MPPPS
         private void btn_Progress_Click(object sender, EventArgs e)
         {
             MessageBox.Show("未実装");
+        }
+
+        // フォームが最初に表示されたタイミングで検索された状態で表示するかを判定
+        private void Frm042_InformationOrder_Shown(object sender, EventArgs e)
+        {
+            if (isFirstSearch)
+            {
+                btn_Search_Click(sender, e);
+                isFirstSearch = false;
+            }
         }
 
         // ******************************** メイン処理ここまで *********************************

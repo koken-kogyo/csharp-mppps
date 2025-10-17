@@ -206,7 +206,7 @@ namespace MPPPS
 
             dic.Add("KTKEY", new MultipleValues { JPNAME = "工程キー", Width = 120 });
             dic.Add("MATERIALCD", new MultipleValues { JPNAME = "切削母材品番", Width = 110 });
-            dic.Add("PLANCARDDT", new MultipleValues { JPNAME = "内示カード発行日", Width = 100, Format = "MM/dd HH:mm" });
+            dic.Add("PLANCARDDT", new MultipleValues { JPNAME = "内示カード発行日", Width = 120, Format = "MM/dd HH:mm" });
             dic.Add("MPCARDDT", new MultipleValues { JPNAME = "製造指示カード発行日", Width = 100, Format = "MM/dd HH:mm" });
             dic.Add("MPTANADT", new MultipleValues { JPNAME = "棚コンデータ作成日", Width = 100, Format = "MM/dd HH:mm" });
             dic.Add("MPINSTID", new MultipleValues { JPNAME = "MP登録者", Width = 100 });

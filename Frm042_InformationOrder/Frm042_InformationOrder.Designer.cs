@@ -56,12 +56,12 @@ namespace MPPPS
             this.btn_ODRNOPaste = new System.Windows.Forms.Button();
             this.chk_ODRNO = new System.Windows.Forms.CheckBox();
             this.pnl_ODRSTS = new System.Windows.Forms.Panel();
-            this.chk_1 = new System.Windows.Forms.CheckBox();
             this.chk_9 = new System.Windows.Forms.CheckBox();
             this.chk_4 = new System.Windows.Forms.CheckBox();
             this.chk_3 = new System.Windows.Forms.CheckBox();
             this.chk_2 = new System.Windows.Forms.CheckBox();
             this.chk_ODRSTS = new System.Windows.Forms.CheckBox();
+            this.chk_1 = new System.Windows.Forms.CheckBox();
             this.dgv_Order = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.btn_ExportOrder = new System.Windows.Forms.Button();
@@ -359,18 +359,6 @@ namespace MPPPS
             this.pnl_ODRSTS.Size = new System.Drawing.Size(297, 82);
             this.pnl_ODRSTS.TabIndex = 4;
             // 
-            // chk_1
-            // 
-            this.chk_1.AutoSize = true;
-            this.chk_1.Enabled = false;
-            this.chk_1.Location = new System.Drawing.Point(7, 36);
-            this.chk_1.Name = "chk_1";
-            this.chk_1.Size = new System.Drawing.Size(74, 32);
-            this.chk_1.TabIndex = 1;
-            this.chk_1.Text = "追加";
-            this.chk_1.UseVisualStyleBackColor = true;
-            this.chk_1.CheckedChanged += new System.EventHandler(this.chk_1_CheckedChanged);
-            // 
             // chk_9
             // 
             this.chk_9.AutoSize = true;
@@ -430,6 +418,18 @@ namespace MPPPS
             this.chk_ODRSTS.Text = "手配状態";
             this.chk_ODRSTS.UseVisualStyleBackColor = true;
             this.chk_ODRSTS.CheckedChanged += new System.EventHandler(this.chk_ODRSTS_CheckedChanged);
+            // 
+            // chk_1
+            // 
+            this.chk_1.AutoSize = true;
+            this.chk_1.Enabled = false;
+            this.chk_1.Location = new System.Drawing.Point(7, 36);
+            this.chk_1.Name = "chk_1";
+            this.chk_1.Size = new System.Drawing.Size(74, 32);
+            this.chk_1.TabIndex = 1;
+            this.chk_1.Text = "追加";
+            this.chk_1.UseVisualStyleBackColor = true;
+            this.chk_1.CheckedChanged += new System.EventHandler(this.chk_1_CheckedChanged);
             // 
             // dgv_Order
             // 
@@ -537,6 +537,7 @@ namespace MPPPS
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Frm042_InformationOrder";
             this.Text = "[KMD004SF] オーダー管理 - 手配情報 - Ver.250215";
+            this.Shown += new System.EventHandler(this.Frm042_InformationOrder_Shown);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm042_InformationOrder_KeyDown);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
