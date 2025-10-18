@@ -2161,8 +2161,8 @@ namespace MPPPS
                     + ", concat('',sum(case when ODRSTS = '4' then ODRQTY else 0 end)) \"MP4完了本数\" "
                     + ", concat('',sum(case when ODRSTS = '9' then ODRQTY else 0 end)) \"MP9取消本数\" "
                     + ", concat('',sum(case when ODRSTS in ('1','2','3','4','9') then ODRQTY else 0 end)) \"MP取込本数\" "
-                    + ", concat('',sum(case when MPCARDDT is not NULL and ODRSTS != '9' then 1 else 0 end)) \"MP印刷件数\" "
-                    + ", concat('',sum(case when MPCARDDT is NULL and ODCD != '60605' and ODRSTS != '4' and ODRSTS != '9' then 1 else 0 end)) \"MP未印刷件数\" "
+                    + ", concat('',sum(case when ODRSTS != '9' and ODCD != '60605' and (MPCARDDT<>'2999/12/31 23:59:00' or MPCARDDT is NULL) then 1 else 0 end)) \"MP印刷対象\" "
+                    + ", concat('',sum(case when ODRSTS != '9' and ODCD != '60605' and MPCARDDT<>'2999/12/31 23:59:00' and MPCARDDT is not NULL then 1 else 0 end)) \"MP印刷件数\" "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                     + "WHERE "
@@ -2407,10 +2407,12 @@ namespace MPPPS
         /// <summary>
         /// 注文情報取込
         /// </summary>
-        /// <param name="exceptDt">EMとの差分の登録すべきデータテーブル</param>
+        /// <param name="exceptDt">EM側の登録すべきデータテーブル</param>
+        /// <param name="codeDt">コード票マスタ</param>
         /// <param name="zaikoDt">仕掛り在庫（手配登録時に消込）</param>
+        /// <param name="naijiDt">内示カードファイル（手配登録時に印刷済み）</param>
         /// <returns>挿入件数、失敗時-1</returns>
-        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt , ref DataTable zaikoDt, ref DataTable naijiDt, ref DataTable deleteODRNODt, Color styleBackColor)
+        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt, ref DataTable zaikoDt, ref DataTable naijiDt, ref DataTable deleteODRNODt, Color styleBackColor)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2456,19 +2458,32 @@ namespace MPPPS
                         }
                     }
 
-                    // 内示カード発行済みの場合は
-                    if (styleBackColor == Common.FRM40_BG_COLOR_WARNING && r["ODRSTS"].ToString() == "2")
+                    // 内示カード発行済みの場合
+                    string mpCardDt = string.Empty;
+                    if (naijiDt.Rows.Count > 0 && naijiDt.Select($"HMCD='{hmcd}'").Count() != 0)
                     {
                         // 納期前倒し(delCountToday>0)または
-                        // 納期後倒し(deleteODRNODt>0)の場合はステータスは更新しない
-                        if (delCountToday == 0 && deleteODRNODt.Select($"ODRNO='{odrno}'").Count() == 0)
+                        DataRow[] nr = naijiDt.Select($"HMCD='{hmcd}'");
+                        int planqty = Int32.Parse(nr[0]["PLANQTY"].ToString());
+                        int allocqty = Int32.Parse(nr[0]["ALLOCQTY"].ToString());
+                        int odrqty = Int32.Parse(r["ODRQTY"].ToString());
+                        if (planqty - allocqty >= odrqty)
                         {
-                            r["ODRSTS"] = "1";
+                            mpCardDt = "2999/12/31 23:59:00";
+                            nr[0]["ALLOCQTY"] = allocqty + odrqty;
+                            nr[0]["MPUPDTID"] = cmn.DrCommon.UpdtID;
+                            nr[0]["MPUPDTDT"] = DateTime.Now;
+                        }
+                        else
+                        {
+                            nr[0]["ALLOCQTY"] = planqty;
+                            nr[0]["MPUPDTID"] = cmn.DrCommon.UpdtID;
+                            nr[0]["MPUPDTDT"] = DateTime.Now;
                         }
                     }
 
                     // KD8430:切削手配ファイルの登録
-                    sql = ImportMpOrderSql(r);
+                    sql = ImportMpOrderSql(r, mpCardDt);
                     cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
 
@@ -2503,9 +2518,13 @@ namespace MPPPS
                         sql = DivideMpOrderSql(odrno, jiqty, kt, mcgcd, mccd, odrsts);
                         cmd.CommandText = sql;
                         cmd.ExecuteNonQuery();
-                        // KD8460:在庫ファイル仕掛り在庫数を減算
+                        // 実績計上ありの場合
                         if (jiqty > 0)
                         {
+                            // zaikoDt:仕掛在庫データテーブル在庫数から実績数を減算
+                            zr[0]["ZAIQTY"] = zaiko - jiqty;
+
+                            // KD8460:在庫ファイル在庫数から実績数を減算
                             sql = UpdateZaikoSql(hmcd, mcgcd, mccd, jiqty);
                             cmd.CommandText = sql;
                             cmd.ExecuteNonQuery();
@@ -2563,7 +2582,8 @@ namespace MPPPS
                 + "SET "
                 + $"ZAIQTY = ZAIQTY - {jiqty},"
                 + "OUTDT = now(),"
-                + $"MPUPDTID = '{cmn.IkM0010.TanCd}' "
+                + $"MPUPDTID = '{cmn.IkM0010.TanCd}', "
+                + "MPUPDTDT = now() "
                 + "WHERE "
                 + $"HMCD = '{hmcd}' and "
                 + $"MCGCD = '{mcgcd}' and "
@@ -2741,7 +2761,7 @@ namespace MPPPS
         /// 切削設備情報登録/更新 SQL 構文編集 (KM8420 切削設備マスター) 
         /// </summary>
         /// <returns>SQL 構文</returns>
-        public string ImportMpOrderSql(DataRow r)
+        public string ImportMpOrderSql(DataRow r, string mpCardDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2781,6 +2801,7 @@ namespace MPPPS
                 + "UKCD, "
                 + "NAIGAIKBN, "
                 + "RETKTCD, "
+                + "MPCARDDT, "
                 + "MPINSTID, "
                 + "MPUPDTID "
                 + ") "
@@ -2814,6 +2835,7 @@ namespace MPPPS
                 + "'" + r["UKCD"].ToString() + "',"
                 + "'" + r["NAIGAIKBN"].ToString() + "',"
                 + "'" + r["RETKTCD"].ToString() + "',"
+                + (string.IsNullOrEmpty(mpCardDt) ? "null," : $"'{mpCardDt}',")
                 + "'" + cmn.IkM0010.TanCd + "',"
                 + "'" + cmn.IkM0010.TanCd + "'"
                 + ")"
@@ -3365,13 +3387,8 @@ namespace MPPPS
                 string sql = GetOrderCardPrintInfoSQL(ref eddtFrom, ref eddtTo);
 
                 // 1.品番番で印刷するパターン（SW）
-                DateTime monday = eddtFrom.AddDays(-(int)eddtFrom.DayOfWeek + 1);
-                DateTime friday = eddtTo.AddDays((int)(DayOfWeek.Friday) - (int)eddtTo.DayOfWeek + 1);
                 string sqlSW = sql +
                     "and b.KT1MCGCD = 'SW' " +
-                    "and not exists " +
-                        "(select * from kd8470 c where c.HMCD = a.HMCD " + 
-                        $"and c.WEEKEDDT between '{monday}' and '{friday}')" + 
                     "order by a.HMCD, a.EDDT"
                 ;
                 using (DataTable patternSW = new DataTable())
@@ -3474,6 +3491,7 @@ namespace MPPPS
                         }
                     }
                 }
+                ret = cardDt.Rows.Count;
             }
             catch (Exception ex)
             {
@@ -3584,12 +3602,12 @@ namespace MPPPS
             {
                 try
                 {
-                    string sql =　string.Empty;
+                    string sql = string.Empty;
 
                     // 内示カードを加味する為の変数
                     DateTime monday = eddtFrom.AddDays(-(int)eddtFrom.DayOfWeek + 1);
 
-                    // 製造指示カード発行済みに更新 SQL①
+                    // 製造指示カード発行済みに更新
                     sql = "UPDATE "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                     + "SET "
@@ -3598,36 +3616,6 @@ namespace MPPPS
                     + "WHERE "
                     + "ODRSTS <> '9' and "
                     + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
-
-                    // 内示カードが発行されてなく、手配で載ってきた場合
-                    + "not exists "
-                    +    "(select * from kd8470 c where c.HMCD = KD8430.HMCD "
-                    +    $"and c.WEEKEDDT between '{monday}' and '{eddtTo}') and "
-
-                    + "MPCARDDT is NULL and " // 製造指示カード発行日
-                    + $"EDDT between '{eddtFrom}' and '{eddtTo}'"
-                    ;
-                    using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
-                    {
-                        int res = myCmd.ExecuteNonQuery();
-                        if (res >= 1) ret += res;
-                    }
-
-                    // 製造指示カード発行済みに更新 SQL②
-                    sql = "UPDATE "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
-                    + "SET "
-                    + "MPCARDDT = ADDDATE(NOW(), INTERVAL 900 YEAR), "
-                    + "UPDTID = '" + cmn.DrCommon.UpdtID + "' "
-                    + "WHERE "
-                    + "ODRSTS <> '9' and "
-                    + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
-
-                    // 内示カード発行済みの場合は900年足して印刷済みにしておく
-                    + "exists "
-                    +   "(select * from kd8470 c where c.HMCD = KD8430.HMCD "
-                    +   $"and c.WEEKEDDT between '{monday}' and '{eddtTo}') and "
-
                     + "MPCARDDT is NULL and " // 製造指示カード発行日
                     + $"EDDT between '{eddtFrom}' and '{eddtTo}'"
                     ;
@@ -3646,7 +3634,7 @@ namespace MPPPS
                 catch (Exception e)
                 {
                     txn.Rollback();
-                    MessageBox.Show("印刷済みステータス更新で異常が発生しました．\nシステム担当者に連絡してください．", "異常発生", MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    MessageBox.Show("印刷済みステータス更新で異常が発生しました．\nシステム担当者に連絡してください．", "異常発生", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Debug.WriteLine(Common.TABLE_ID_KD8430 + " table no data inserted/updated.");
 
                     Debug.WriteLine("Exception Source = " + e.Source);
@@ -4096,7 +4084,7 @@ namespace MPPPS
 
                 string sql = string.Empty;
 
-                // KD8440:切削手配日程ファイルの削除
+                // KD8470:内示カードファイルの削除
                 sql = "delete from "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " "
                     + $"where WEEKEDDT ='{weekEddt}'";
@@ -4810,12 +4798,13 @@ namespace MPPPS
                 {
                     var dtUpdate = new DataTable();
                     var countUpdate = 0;
+                    var countDelete = 0;
                     string sql = "SELECT ODRNO, ODRSTS, JIQTY "
                         + "FROM "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                         + "WHERE "
                         + "ODCD like '6060%' "
-                        + "and ODRSTS in ('1','2','3') "
+                        + "and ODRSTS in ('1','2','3','9') "
                         + $"and EDDT between '{from}' and '{to}' "
                     ;
                     adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
@@ -4824,25 +4813,33 @@ namespace MPPPS
                         Debug.WriteLine("Read from DataTable:");
                         adapter.Fill(dtUpdate);
 
-                        // EMが3:着手、4:完了、9:取消になっているかチェック
                         foreach (DataRow r in dtUpdate.Rows)
                         {
+                            string MpSTS = r["ODRSTS"].ToString();
                             DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");
                             if (drEM.Length == 1)
                             {
-                                if (r["ODRSTS"].ToString() != drEM[0]["ODRSTS"].ToString())
+                                // EMのステータスと相違がないかチェック 2:確定、3:着手、4:完了、9:取消
+                                string EmSTS = drEM[0]["ODRSTS"].ToString();
+                                if (MpSTS == "1" && EmSTS == "2") continue;
+                                if (MpSTS != EmSTS)
                                 {
                                     r["ODRSTS"] = drEM[0]["ODRSTS"];
                                     r["JIQTY"] = drEM[0]["JIQTY"];
                                     countUpdate++;
                                 }
                             }
+                            else if (drEM.Length == 0 && MpSTS == "9")
+                            {
+                                r.Delete();
+                                countDelete++;
+                            }
                         }
                         // 更新があればデータベースへの一括更新
-                        if (countUpdate > 0)
+                        if (countUpdate + countDelete > 0)
                         {
                             adapter.Update(dtUpdate);
-                            ret = countUpdate;
+                            ret = countUpdate + countDelete;
                         }
                     }
                 }
@@ -4852,11 +4849,12 @@ namespace MPPPS
                 {
                     var dtUpdate = new DataTable();
                     var countUpdate = 0;
+                    var countDelete = 0;
                     string sql = "SELECT ODRNO, MPSEQ, LOTSEQ, ODRSTS, JIQTY "
                         + "FROM "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
                         + "WHERE "
-                        + "ODRSTS in ('1','2','3') "
+                        + "ODRSTS in ('1','2','3','9') "
                         + $"and EDDT between '{from}' and '{to}' "
                     ;
                     adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
@@ -4865,22 +4863,30 @@ namespace MPPPS
                         Debug.WriteLine("Read from DataTable:");
                         adapter.Fill(dtUpdate);
 
-                        // EMが3:着手、4:完了、9:取消になっているかチェック
                         foreach (DataRow r in dtUpdate.Rows)
                         {
+                            string MpSTS = r["ODRSTS"].ToString();
                             DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");
                             if (drEM.Length == 1)
                             {
-                                if (r["ODRSTS"].ToString() != drEM[0]["ODRSTS"].ToString())
+                                // EMのステータスと相違がないかチェック 2:確定、3:着手、4:完了、9:取消
+                                string EmSTS = drEM[0]["ODRSTS"].ToString();
+                                if (MpSTS == "1" && EmSTS == "2") continue;
+                                if (MpSTS != EmSTS)
                                 {
                                     r["ODRSTS"] = drEM[0]["ODRSTS"];
                                     r["JIQTY"] = drEM[0]["JIQTY"];
                                     countUpdate++;
                                 }
                             }
+                            else if (drEM.Length == 0 && MpSTS == "9")
+                            {
+                                r.Delete();
+                                countDelete++;
+                            }
                         }
                         // 更新があればデータベースへの一括更新
-                        if (countUpdate > 0)
+                        if (countUpdate + countDelete > 0)
                         {
                             adapter.Update(dtUpdate);
                         }
@@ -5521,6 +5527,66 @@ namespace MPPPS
             return ret;
         }
 
+        /// <summary>
+        /// KD8470: 内示カードファイル更新（コマンドビルダーにて一括更新）
+        /// 手配インポートした際、手配数を内示カードの手配引当数として加算
+        /// </summary>
+        /// <param name="mpNaijiReportDt">DataGridView</param>
+        /// <returns>注文情報データ</returns>
+        public bool UpdateMpNaiji(ref DataTable mpNaijiReportDt)
+        {
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                using (MySqlTransaction txn = mpCnn.BeginTransaction())
+                {
+                    using (var adapter = new MySqlDataAdapter())
+                    {
+                        DateTime eddtFrom = DateTime.Parse(mpNaijiReportDt.Compute("MIN(WEEKEDDT)", string.Empty).ToString());
+                        DateTime eddtTo = DateTime.Parse(mpNaijiReportDt.Compute("MAX(WEEKEDDT)", string.Empty).ToString());
+                        string sql = "SELECT * FROM "
+                            + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " "
+                            + $"WHERE WEEKEDDT between '{eddtFrom}' and '{eddtTo}'"
+                        ;
+                        adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
+                        using (var buider = new MySqlCommandBuilder(adapter))
+                        {
+
+                            // 更新があればコマンドビルダーにて一括更新
+                            try
+                            {
+                                adapter.Update(mpNaijiReportDt);
+                            }
+                            catch (Exception ex)
+                            {
+                                txn.Rollback();
+                                throw ex;
+                            }
+                        }
+                    }
+                    txn.Commit();
+                    ret = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
 
 

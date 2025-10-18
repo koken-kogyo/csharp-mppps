@@ -482,7 +482,7 @@ namespace MPPPS
         {
             if (e.KeyCode == Keys.F5) btn_Search_Click(sender, e);
             if (e.KeyCode == Keys.F10) btn_ExportOrder_Click(sender, e);
-            if (e.KeyCode == Keys.F12) btn_PrintOrder_Click(sender, e);
+            if (e.KeyCode == Keys.F12) btn_PrintSelectedOrder_Click(sender, e);
             if (e.KeyCode == Keys.Escape) Close();
         }
 
@@ -570,11 +570,10 @@ namespace MPPPS
             }
         }
 
-        // フィルターされた行を取得しデータテーブルとして返却（外部出力時使用）
+        // フィルターされた行を取得しデータテーブルとして返却（製造指示カード印刷時使用と外部出力時に使用）
         private void GetFilteredRows(DataGridView dataGridView, ref DataTable exportDt)
         {
-            //List<DataGridViewRow> filteredRows = new List<DataGridViewRow>();
-            // カラムの追加
+            // カラムの作成
             foreach (DataGridViewColumn column in dataGridView.Columns)
             {
                 exportDt.Columns.Add(column.HeaderText, column.ValueType);
@@ -584,23 +583,37 @@ namespace MPPPS
             {
                 if (row.Visible) // フィルターされた行は Visible プロパティが true になります
                 {
-                    // 追加機能：複数行選択された場合は選択行のみデータを取得
-                    if (dgv_Order.SelectedRows.Count == 0 || 
-                        dgv_Order.SelectedRows.Count == 1 ||
-                        dgv_Order.SelectedRows.Count > 1 && row.Selected)
+                    DataRow dr = exportDt.NewRow();
+                    for (int i = 0; i < dataGridView.Columns.Count; i++)
                     {
-                        DataRow dr = exportDt.NewRow();
-                        for (int i = 0; i < dataGridView.Columns.Count; i++)
-                        {
-                            dr[i] = row.Cells[i].Value;
-                        }
-                        exportDt.Rows.Add(dr);
-
-                        //filteredRows.Add(row);
+                        dr[i] = row.Cells[i].Value;
                     }
+                    exportDt.Rows.Add(dr);
                 }
             }
-            //return filteredRows;
+        }
+
+        // フィルターされた行を取得しデータテーブルとして返却（外部出力時使用）
+        private void GetSelectedRows(DataGridView dataGridView, ref DataTable exportDt)
+        {
+            // カラムの作成
+            foreach (DataGridViewColumn column in dataGridView.Columns)
+            {
+                exportDt.Columns.Add(column.HeaderText, column.ValueType);
+            }
+            // 行の追加
+            foreach (DataGridViewRow row in dataGridView.Rows)
+            {
+                if (row.Selected) // フィルターされた行は Visible プロパティが true になります
+                {
+                    DataRow dr = exportDt.NewRow();
+                    for (int i = 0; i < dataGridView.Columns.Count; i++)
+                    {
+                        dr[i] = row.Cells[i].Value;
+                    }
+                    exportDt.Rows.Add(dr);
+                }
+            }
         }
 
         // 外部出力（F10）
@@ -649,8 +662,33 @@ namespace MPPPS
 
         }
 
-        // 製造指示カード発行（F12）
-        private async void btn_PrintOrder_Click(object sender, EventArgs e)
+        // 製造指示カード発行（個別明細）（F12）
+        private void btn_PrintSelectedOrder_Click(object sender, EventArgs e)
+        {
+            // 印刷対象データの取得と最終確認
+            DataTable targetDt = new DataTable();
+            GetSelectedRows(dgv_Order, ref targetDt);
+            var msg = targetDt.Rows.Count.ToString() + "件を印刷します．\nよろしいですか？";
+            if (MessageBox.Show(msg, "最終確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question
+                , MessageBoxDefaultButton.Button1) == DialogResult.Cancel) return;
+            PrintOrder(targetDt);
+        }
+
+
+        // 製造指示カード発行（表示中の全明細）
+        private void btn_PrintOrder_Click(object sender, EventArgs e)
+        {
+            // 印刷対象データの取得と最終確認
+            DataTable targetDt = new DataTable();
+            GetFilteredRows(dgv_Order, ref targetDt);
+            var msg = targetDt.Rows.Count.ToString() + "件を印刷します．\nよろしいですか？";
+            if (MessageBox.Show(msg, "最終確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question
+                , MessageBoxDefaultButton.Button1) == DialogResult.Cancel) return;
+            PrintOrder(targetDt);
+        }
+
+        // 製造指示カード発行本体
+        private async void PrintOrder(DataTable targetDt)
         {
             // モニターの倍率をチェックし雛形ファイルのインデックス番号を取得
             int idx = (cmn.ScreenMagnification == 1d) ? 1 : (cmn.ScreenMagnification == 1.25d) ? 2 : 9;
@@ -668,12 +706,6 @@ namespace MPPPS
                 cmn.ShowMessageBox(Common.MY_PGM_ID, Common.MSG_CD_103, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSG_NO_PATTERN_FILE, MessageBoxIcon.Error);
                 return;
             }
-            // 印刷対象データの取得と最終確認
-            DataTable targetDt = new DataTable();
-            GetFilteredRows(dgv_Order, ref targetDt);
-            var msg = targetDt.Rows.Count.ToString() + "件を印刷します．\nよろしいですか？";
-            if (MessageBox.Show(msg, "最終確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question
-                , MessageBoxDefaultButton.Button1) == DialogResult.Cancel) return;
 
             // ステータス表示
             toolStripStatusLabel1.Text = "製造指示カード印刷中...";

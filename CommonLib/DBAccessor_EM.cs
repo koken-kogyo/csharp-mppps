@@ -1495,7 +1495,7 @@ namespace MPPPS
                     + "WHERE "
                     + $"ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
                     + "and ODCD like '6060%' "
-                    + "and ODRSTS in ('3','4','9') "
+                    + "and ODRSTS in ('2','3','4','9') "
                     + $"and EDDT between '{from}' and '{to}' "
                 ;
                 using (OracleCommand myCmd = new OracleCommand(sql, emCnn))

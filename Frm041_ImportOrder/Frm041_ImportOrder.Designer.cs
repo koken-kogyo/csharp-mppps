@@ -58,9 +58,9 @@ namespace MPPPS
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip.Location = new System.Drawing.Point(0, 537);
+            this.statusStrip.Location = new System.Drawing.Point(0, 542);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(851, 29);
+            this.statusStrip.Size = new System.Drawing.Size(851, 24);
             this.statusStrip.TabIndex = 6;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -68,7 +68,7 @@ namespace MPPPS
             // 
             this.toolStripStatusLabel1.Font = new System.Drawing.Font("Yu Gothic UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(171, 23);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(139, 19);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -77,7 +77,7 @@ namespace MPPPS
             this.toolStripStatusLabel2.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.toolStripStatusLabel2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(665, 23);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(697, 19);
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -154,9 +154,8 @@ namespace MPPPS
             this.Dgv_Calendar.Name = "Dgv_Calendar";
             this.Dgv_Calendar.RowHeadersWidth = 51;
             this.Dgv_Calendar.RowTemplate.Height = 24;
-            this.Dgv_Calendar.Size = new System.Drawing.Size(851, 482);
+            this.Dgv_Calendar.Size = new System.Drawing.Size(851, 487);
             this.Dgv_Calendar.TabIndex = 9;
-            this.Dgv_Calendar.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Dgv_Calendar_CellClick);
             this.Dgv_Calendar.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Dgv_Calendar_CellDoubleClick);
             this.Dgv_Calendar.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Dgv_Calendar_MouseUp);
             // 
@@ -170,7 +169,7 @@ namespace MPPPS
             this.tableLayoutPanel1.Controls.Add(this.Btn_PrintOrder, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.Btn_ImportOrder, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 495);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 500);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -232,7 +231,7 @@ namespace MPPPS
             this.Name = "Frm041_ImportOrder";
             this.Text = "[KMD004SF] オーダー管理 - 手配情報作成 - Ver.250215";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm041_ImportOrder_KeyDown);
-            this.Resize += new System.EventHandler(this.Frm041_CreateOrder_Resize);
+            this.Resize += new System.EventHandler(this.Frm041_ImportOrder_Resize);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.panel1.ResumeLayout(false);

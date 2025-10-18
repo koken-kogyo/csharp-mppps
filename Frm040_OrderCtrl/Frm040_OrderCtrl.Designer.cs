@@ -38,6 +38,8 @@ namespace MPPPS
             this.Btn_CreateAddOrder = new System.Windows.Forms.Button();
             this.Btn_InformationOrder = new System.Windows.Forms.Button();
             this.Btn_ImportOrder = new System.Windows.Forms.Button();
+            this.lbl_Line1 = new System.Windows.Forms.Label();
+            this.lbl_Line2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // Btn_Close
@@ -45,7 +47,7 @@ namespace MPPPS
             this.Btn_Close.AutoSize = true;
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_Close.Location = new System.Drawing.Point(12, 221);
+            this.Btn_Close.Location = new System.Drawing.Point(12, 258);
             this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
@@ -57,7 +59,7 @@ namespace MPPPS
             // Btn_InformationPlan
             // 
             this.Btn_InformationPlan.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_InformationPlan.Location = new System.Drawing.Point(12, 137);
+            this.Btn_InformationPlan.Location = new System.Drawing.Point(12, 156);
             this.Btn_InformationPlan.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_InformationPlan.Name = "Btn_InformationPlan";
             this.Btn_InformationPlan.Size = new System.Drawing.Size(300, 38);
@@ -69,12 +71,12 @@ namespace MPPPS
             // Btn_ImportPlan
             // 
             this.Btn_ImportPlan.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_ImportPlan.Location = new System.Drawing.Point(12, 53);
+            this.Btn_ImportPlan.Location = new System.Drawing.Point(12, 114);
             this.Btn_ImportPlan.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_ImportPlan.Name = "Btn_ImportPlan";
             this.Btn_ImportPlan.Size = new System.Drawing.Size(300, 38);
-            this.Btn_ImportPlan.TabIndex = 1;
-            this.Btn_ImportPlan.Text = "内示情報";
+            this.Btn_ImportPlan.TabIndex = 2;
+            this.Btn_ImportPlan.Text = "内示一覧";
             this.Btn_ImportPlan.UseVisualStyleBackColor = true;
             this.Btn_ImportPlan.Click += new System.EventHandler(this.Btn_ImportPlan_Click);
             // 
@@ -82,7 +84,7 @@ namespace MPPPS
             // 
             this.Btn_CreateAddOrder.Enabled = false;
             this.Btn_CreateAddOrder.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_CreateAddOrder.Location = new System.Drawing.Point(12, 179);
+            this.Btn_CreateAddOrder.Location = new System.Drawing.Point(12, 216);
             this.Btn_CreateAddOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_CreateAddOrder.Name = "Btn_CreateAddOrder";
             this.Btn_CreateAddOrder.Size = new System.Drawing.Size(300, 38);
@@ -94,11 +96,11 @@ namespace MPPPS
             // Btn_InformationOrder
             // 
             this.Btn_InformationOrder.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_InformationOrder.Location = new System.Drawing.Point(12, 95);
+            this.Btn_InformationOrder.Location = new System.Drawing.Point(12, 53);
             this.Btn_InformationOrder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_InformationOrder.Name = "Btn_InformationOrder";
             this.Btn_InformationOrder.Size = new System.Drawing.Size(300, 38);
-            this.Btn_InformationOrder.TabIndex = 2;
+            this.Btn_InformationOrder.TabIndex = 1;
             this.Btn_InformationOrder.Text = "手配検索";
             this.Btn_InformationOrder.UseVisualStyleBackColor = true;
             this.Btn_InformationOrder.Click += new System.EventHandler(this.Btn_InformationOrder_Click);
@@ -111,14 +113,32 @@ namespace MPPPS
             this.Btn_ImportOrder.Name = "Btn_ImportOrder";
             this.Btn_ImportOrder.Size = new System.Drawing.Size(300, 38);
             this.Btn_ImportOrder.TabIndex = 0;
-            this.Btn_ImportOrder.Text = "手配情報";
+            this.Btn_ImportOrder.Text = "手配一覧";
             this.Btn_ImportOrder.UseVisualStyleBackColor = true;
             this.Btn_ImportOrder.Click += new System.EventHandler(this.Btn_ImportOrder_Click);
+            // 
+            // lbl_Line1
+            // 
+            this.lbl_Line1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.lbl_Line1.Location = new System.Drawing.Point(12, 101);
+            this.lbl_Line1.Name = "lbl_Line1";
+            this.lbl_Line1.Size = new System.Drawing.Size(300, 2);
+            this.lbl_Line1.TabIndex = 6;
+            // 
+            // lbl_Line2
+            // 
+            this.lbl_Line2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.lbl_Line2.Location = new System.Drawing.Point(12, 204);
+            this.lbl_Line2.Name = "lbl_Line2";
+            this.lbl_Line2.Size = new System.Drawing.Size(300, 2);
+            this.lbl_Line2.TabIndex = 7;
             // 
             // Frm040_OrderCtrl
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(322, 268);
+            this.ClientSize = new System.Drawing.Size(322, 303);
+            this.Controls.Add(this.lbl_Line2);
+            this.Controls.Add(this.lbl_Line1);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_InformationPlan);
             this.Controls.Add(this.Btn_ImportPlan);
@@ -151,5 +171,7 @@ namespace MPPPS
         private Button Btn_CreateAddOrder;
         private Button Btn_InformationOrder;
         private Button Btn_ImportOrder;
+        private Label lbl_Line1;
+        private Label lbl_Line2;
     }
 }

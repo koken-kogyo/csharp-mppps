@@ -65,6 +65,10 @@
       <Project>{ebb246ec-4547-402e-a4c1-43fc9b711c18}</Project>
       <Name>CommonLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Frm042_InformationOrder\Frm042_InformationOrder.csproj">
+      <Project>{44978783-c0a5-4f51-b0f9-db26b67d5d27}</Project>
+      <Name>Frm042_InformationOrder</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

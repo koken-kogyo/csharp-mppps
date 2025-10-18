@@ -2989,7 +2989,81 @@ namespace MPPPS
             }
         }
 
+        // 内示カードレポートに個別設定を施す
+        // ①シート名の変更
+        // ②シートのページ設定
+        // ③条件付き書式*2を設定
+        public void SetNaijiReport()
+        {
+            oWSheet = oWBook.Sheets[1];
+            oWSheet.Name = "SW工程";
 
+            // シートのページ設定
+            PageSetup pageSetup = oWSheet.PageSetup;
+            pageSetup.CenterHeader = "[SW工程] 内示カードから手配移行（詳細レポート）"; // 中央ヘッダー
+            pageSetup.Zoom = false;                     // ズームを無効化
+            pageSetup.FitToPagesWide = 1;               // 横方向1ページ
+            pageSetup.FitToPagesTall = false;           // 縦方向は制限なし
+            pageSetup.CenterFooter = "Page &P of &N";   // 中央フッターに「現在のページ数 / 総ページ数」
+            pageSetup.RightFooter = "&F";               // 右フッターに「ファイル名」
+
+            // 条件付き書式①を追加
+            Range formatRange1 = oWSheet.Range["D2:D65535"];
+            FormatConditions formatConditions1 = formatRange1.FormatConditions;
+            FormatCondition condition1 = (FormatCondition)formatConditions1.Add(
+                XlFormatConditionType.xlExpression,
+                Type.Missing,
+                "=C2<>D2" // 条件式: C列とD列が異なる場合
+            );
+            // 書式の設定（背景色を赤、フォントを黄色にする）
+            condition1.Interior.Color = XlRgbColor.rgbLightPink;
+            condition1.Font.Color = XlRgbColor.rgbYellow;
+
+            // 条件付き書式②を追加
+            Range formatRange2 = oWSheet.Range["F2:F65535"];
+            FormatConditions formatConditions2 = formatRange2.FormatConditions;
+            FormatCondition condition2 = (FormatCondition)formatConditions2.Add(
+                XlFormatConditionType.xlExpression,
+                Type.Missing,
+                "=AND(D2>0,F2>0)" // 条件式: D列が1以上かつF列が1以上
+            );
+
+            // 書式の設定（背景色を赤、フォントを黄色にする）
+            condition2.Interior.Color = XlRgbColor.rgbLightPink;
+            condition2.Font.Color = XlRgbColor.rgbYellow;
+
+            // UsedRangeに格子を設定
+            SetUsedRangeBorders();       
+        }
+
+        public void SetFitPagesWide()
+        {
+            oWSheet = oWBook.Sheets[1];
+
+            // ページ設定を取得
+            PageSetup pageSetup = oWSheet.PageSetup;
+
+            // すべての列を1ページに収める設定
+            pageSetup.Zoom = false;             // ズームを無効化
+            pageSetup.FitToPagesWide = 1;       // 横方向1ページ
+            pageSetup.FitToPagesTall = false;   // 縦方向は制限なし
+        }
+
+        // UsedRangeに格子を設定
+        public void SetUsedRangeBorders()
+        {
+            oWSheet = oWBook.Sheets[1];
+
+            // 罫線を格子状に設定
+            var borders = oWSheet.UsedRange.Borders;
+            borders.LineStyle = Excel.XlLineStyle.xlContinuous; // 実線
+            borders.Weight = Excel.XlBorderWeight.xlThin;       // 線の太さを細めに設定
+        }
+
+        public void SaveWorkBook(string filepath)
+        {
+            oWBook.SaveAs(filepath);
+        }
 
     }
 }
