@@ -782,14 +782,14 @@ namespace MPPPS
             }
 
             // Excelファイル処理
-            string FileName = $"内示カードレポート_{DateTime.Now.ToString("M")}";
-            string InitialDirectory = Environment.GetEnvironmentVariable("USERPROFILE");
             int i = 1;
-            string FilePath = Path.Combine(InitialDirectory, "Desktop", FileName + ".xlsx"); // ファイルパスの取得
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop); // デスクトップフォルダのパスを取得
+            string FileName = $"内示カードレポート_{DateTime.Now.ToString("M")}";
+            string FilePath = Path.Combine(desktopPath, FileName + ".xlsx");    // ファイルパスの取得
             while (File.Exists(@FilePath))
             {
                 i++;
-                FilePath = Path.Combine(InitialDirectory, "Desktop", FileName + $"({i}).xlsx"); // ファイルパスの取得
+                FilePath = Path.Combine(desktopPath, FileName + $"({i}).xlsx"); // ファイルパスの取得
             }
             try
             {
