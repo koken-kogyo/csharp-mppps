@@ -3755,16 +3755,13 @@ namespace MPPPS
                     + "a.WEEKEDDT "
                     + ", a.HMCD"
                     + ", SUM(ODRQTY) \"MP本数\" "
-                    + ", MAX(IFNULL(PLANCARDDT, CONVERT('1900/01/01', DATETIME))) \"内示カード出力日時\" "
+                    + ", b.KTKEY "
                     + "FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " a "
-                    + "LEFT OUTER JOIN "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " b "
-                    + "ON "
-                        + "b.HMCD = a.HMCD and "
-                        + "b.WEEKEDDT = a.WEEKEDDT "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " a, "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
                     + "WHERE "
-                    + "ODCD like '6060%' "
+                    + "a.HMCD = b.HMCD "
+                    + "and ODCD like '6060%' "
                     + $"and EDDT < convert('{yyyyMMdd}', date) "
                     + "GROUP BY a.WEEKEDDT, a.HMCD "
                     + "ORDER BY a.WEEKEDDT, a.HMCD "
@@ -5478,9 +5475,9 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 内示カードファイル取得
+        /// 内示カードファイル一週間分を取得
         /// </summary>
-        /// <param name="mpNaijiDt">仕掛り在庫データ</param>
+        /// <param name="mpNaijiDt">空の内示カードデータファイル</param>
         /// <param name="eddtmon">月曜日を日付文字列で指定</param>
         /// <returns>内示カードファイルを取得（月曜日からの一週間分）</returns>
         public bool GetMpNaiji(ref DataTable mpNaijiDt, string eddtmon)
@@ -5508,6 +5505,58 @@ namespace MPPPS
                         Debug.WriteLine("Read from DataTable:");
                         // 結果取得
                         myDa.Fill(mpNaijiDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 内示カードファイル３カ月分を取得
+        /// </summary>
+        /// <param name="mpNaijiReportDt">空の内示カードデータファイル</param>
+        /// <param name="eddtmon">月曜日を日付文字列で指定</param>
+        /// <returns>内示カードファイルを取得（月曜日からの一週間分）</returns>
+        public bool GetMpNaijiReport(ref DataTable mpNaijiReportDt, DateTime targetMonth)
+        {
+            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                var from = targetMonth.AddMonths(-1);
+                var to = targetMonth.AddMonths(2);
+                string sql = "SELECT * "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " "
+                    + "WHERE "
+                    + $"WEEKEDDT between '{from}' and '{to}'"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpNaijiReportDt);
                         ret = true;
                     }
                 }

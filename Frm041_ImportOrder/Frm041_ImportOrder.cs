@@ -643,10 +643,10 @@ namespace MPPPS
                     // 全ての読み込みが完了するまで待機する
                     await Task.WhenAll(taskA, taskB);
 
-                    // 内示カードファイル処理（初回のみ取得）
+                    // 内示カードファイル処理（初回取込時のみ取得）
                     if (c.ColumnIndex == 0 && mpNaijiDt.Rows.Count > 0) mpNaijiReportDt.Merge(mpNaijiDt);
                     if (c.ColumnIndex == 0) mpNaijiDt.Rows.Clear(); // 2行に渡って選択された場合の初期化処理
-                    if (mpNaijiDt.Rows.Count == 0)
+                    if (mpNaijiDt.Rows.Count == 0 && c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED)
                     {
                         // 今週の月曜日を計算
                         int daysSinceMonday = (int)eddt.DayOfWeek - (int)DayOfWeek.Monday;
@@ -709,7 +709,7 @@ namespace MPPPS
             }
 
             // 内示カードの使用状況レポートExcelの作成とDB更新
-            if (mpNaijiDt.Rows.Count > 0)
+            if (mpNaijiDt.Rows.Count > 0 || mpNaijiReportDt.Rows.Count > 0)
             {
                 mpNaijiReportDt.Merge(mpNaijiDt);
                 cmn.Dba.UpdateMpNaiji(ref mpNaijiReportDt); // KD8470:内示カードの更新

@@ -123,7 +123,7 @@ namespace MPPPS
             if (orderDt.Columns.Count == 3)
             {
                 orderDt.Columns.Add("MP本数", typeof(long));
-                orderDt.Columns.Add("内示カード出力日時", typeof(DateTime));
+                orderDt.Columns.Add("KTKEY");
             }
 
             // MPデータの内容をEM注文データにマージ
@@ -133,12 +133,12 @@ namespace MPPPS
                 if (mpDr.Length > 0)
                 {
                     r["MP本数"] = mpDr[0]["MP本数"];
-                    r["内示カード出力日時"] = mpDr[0]["内示カード出力日時"];
+                    r["KTKEY"] = mpDr[0]["KTKEY"];
                 }
                 else
                 {
                     r["MP本数"] = 0;
-                    r["内示カード出力日時"] = DateTime.Parse("1900/01/01");
+                    r["KTKEY"] = string.Empty;
                 }
             }
         }
@@ -153,12 +153,15 @@ namespace MPPPS
             toolStripStatusLabel1.Text = "内示データ確認中...";
             DataTable emPlanDt = new DataTable();
             DataTable mpPlanDt = new DataTable();
+            DataTable mpNaijiReportDt = new DataTable();      // 内示カードファイル
             bool retEM = false;
             bool retMP = false;
+            bool retNR = false;
             var taskEM = Task.Run(() => retEM = cmn.Dba.GetEmPlanSummaryInfo(ref emPlanDt, targetMonth));
             var taskMP = Task.Run(() => retMP = cmn.Dba.GetMpPlanSummaryInfo(ref mpPlanDt, targetMonth));
+            var taskNR = Task.Run(() => retNR = cmn.Dba.GetMpNaijiReport(ref mpNaijiReportDt, targetMonth));
             // 両者が完了するまで待機する
-            await Task.WhenAll(taskEM, taskMP);
+            await Task.WhenAll(taskEM, taskMP, taskNR);
 
             if (retEM == false || retMP == false) return;
 
@@ -182,7 +185,7 @@ namespace MPPPS
                 else if (column == 1)
                 {
                     int countHMCD = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
-                    int cardPrint = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}' and 内示カード出力日時>'2000/1/1'").Count();
+                    int cardPrint = mpNaijiReportDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
                     DateTime dayOfFriday = dayOfPrevMonth.AddDays(4);
                     if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
@@ -253,7 +256,7 @@ namespace MPPPS
                     int c = orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数>0 and EM本数<>MP本数")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
                     int countHMCD = orderDt.Select($"WEEKEDDT='{currentDate}'").Count();
-                    int cardPrint = orderDt.Select($"WEEKEDDT='{currentDate}' and 内示カード出力日時>'2000/1/1'").Count();
+                    int cardPrint = mpNaijiReportDt.Select($"WEEKEDDT='{currentDate}'").Count();
                     DateTime dayOfFriday = currentDate.AddDays(4);
                     if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
@@ -310,7 +313,7 @@ namespace MPPPS
                 {
                     DateTime firstDayOfWeek = nextDate.AddDays(((int)nextDate.DayOfWeek - 1) * -1);
                     int countHMCD = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
-                    int cardPrint = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}' and 内示カード出力日時>'2000/1/1'").Count();
+                    int cardPrint = mpNaijiReportDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
                     DateTime dayOfFriday = firstDayOfWeek.AddDays(4);
                     if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
@@ -476,6 +479,7 @@ namespace MPPPS
             Btn_PrintPlan.Enabled = false;
             Btn_PrintClear.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintClear.Enabled = false;
+            DataTable mpNaijiDt = new DataTable();      // 内示カードファイル
             int emQty = 0;
             int mpQty = 0;
             int countHMCD = 0;
@@ -487,6 +491,9 @@ namespace MPPPS
                 {
                     //DataRow r = orderDt.Select($"EDDT='{planDay}'")[0];
 
+                    mpNaijiDt.Rows.Clear();
+                    cmn.Dba.GetMpNaiji(ref mpNaijiDt, planDay.ToString("yyyy/MM/dd"));
+                    
                     var result = orderDt.Select($"WEEKEDDT='{planDay}'")
                         .GroupBy(g => g["WEEKEDDT"].ToString())
                         .Select(grp => new
@@ -497,33 +504,24 @@ namespace MPPPS
                         });
                     emQty += (int)result.Sum(res => res.EMQTY);
                     mpQty += (int)result.Sum(res => res.MPQTY);
-                    countHMCD += orderDt.Select($"WEEKEDDT='{planDay}'").Count();
-                    cardPrint += orderDt.Select($"WEEKEDDT='{planDay}' and 内示カード出力日時>'2000/1/1'").Count();
+                    countHMCD += orderDt.Select($"WEEKEDDT='{planDay}' and KTKEY like '%SW-%'").Count();
+                    cardPrint += mpNaijiDt.Select($"WEEKEDDT='{planDay}'").Count();
                 }
             }
-            // 内示カードがあまり印刷されていなかったら印刷ボタンを活性化
-            if (countHMCD > 0 && (countHMCD / 2) >= cardPrint)
+            // 内示カードが印刷されていなかったら印刷ボタンを活性化
+            if (cardPrint == 0)
             {
                 Btn_PrintPlan.BackColor = Common.FRM40_BG_COLOR_PRINTED;
                 Btn_PrintPlan.Enabled = true;
             }
-            if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
+            else
             {
                 Btn_PrintClear.BackColor = Common.FRM40_BG_COLOR_WARNING;
                 Btn_PrintClear.Enabled = true;
             }
-            if (emQty - mpQty == 0)
-            {
-                toolStripStatusLabel1.Text = $"内示 {emQty.ToString("#,0")}本 ／ ";
-                toolStripStatusLabel1.Text +=
-                    (countHMCD == cardPrint) ? $"印刷済み {cardPrint.ToString("#,0")}件" : 
-                    (cardPrint == 0) ? $"品番点数 {countHMCD.ToString("#,0")}件" :
-                    $"未印刷 {countHMCD - cardPrint}件";
-            }
-            else
-            {
-                toolStripStatusLabel1.Text = $"内示 EM{emQty.ToString("#,0")}本 / MP{mpQty.ToString("#,0")}本";
-            }
+            toolStripStatusLabel1.Text = $"内示 EM{emQty.ToString("#,0")}本 / MP{mpQty.ToString("#,0")}本";
+            toolStripStatusLabel1.Text +=
+                (cardPrint > 0) ? $" / 印刷済み {cardPrint.ToString("#,0")}件" : "";
         }
 
         // DataGridViewの選択セル日付を日付型に変換して返却する関数
