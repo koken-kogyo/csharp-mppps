@@ -4796,7 +4796,7 @@ namespace MPPPS
                     var dtUpdate = new DataTable();
                     var countUpdate = 0;
                     var countDelete = 0;
-                    string sql = "SELECT ODRNO, ODRSTS, JIQTY "
+                    string sql = "SELECT ODRNO, ODRSTS, JIQTY, DENPYODT, UPDTID, UPDTDT "
                         + "FROM "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                         + "WHERE "
@@ -4823,6 +4823,9 @@ namespace MPPPS
                                 {
                                     r["ODRSTS"] = drEM[0]["ODRSTS"];
                                     r["JIQTY"] = drEM[0]["JIQTY"];
+                                    r["DENPYODT"] = drEM[0]["DENPYODT"];
+                                    r["UPDTID"] = drEM[0]["UPDTID"];
+                                    r["UPDTDT"] = drEM[0]["UPDTDT"];
                                     countUpdate++;
                                 }
                             }
