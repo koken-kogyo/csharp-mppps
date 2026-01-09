@@ -416,6 +416,7 @@ namespace MPPPS
             config.AppSettings.Settings["oracleVer"].Value = Cbx_OracleVer.Text;
             config.AppSettings.Settings["schema"].Value = Cbx_Schema.Text;
             config.AppSettings.Settings["userID"].Value = Tbx_UserId.Text;
+            config.AppSettings.Settings["textBox"].Value = Tbx_Passwd.Text;
             config.AppSettings.Settings["memUserId"].Value = Chk_MemUserId.Checked.ToString();
             config.Save();
         }
@@ -443,7 +444,7 @@ namespace MPPPS
                 //▼[デバッグ][MOD] 評価用初期表示
                 // リリース時には元に戻すこと
                 Tbx_UserId.Text = config.AppSettings.Settings["userID"].Value;
-                Tbx_Passwd.Text = "";
+                Tbx_Passwd.Text = config.AppSettings.Settings["textBox"].Value;
                 //Tbx_UserId.Text = "11014";
                 //Tbx_Passwd.Text = "0215";
                 //▲[デバッグ][MOD] 評価用初期表示

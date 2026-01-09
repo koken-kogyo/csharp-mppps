@@ -4796,7 +4796,7 @@ namespace MPPPS
                     var dtUpdate = new DataTable();
                     var countUpdate = 0;
                     var countDelete = 0;
-                    string sql = "SELECT ODRNO, ODRSTS, JIQTY, DENPYODT, UPDTID, UPDTDT "
+                    string sql = "SELECT ODRNO, ODRSTS, JIQTY, DENPYODT, UPDTID, UPDTDT, MPUPDTID "
                         + "FROM "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                         + "WHERE "
@@ -4826,6 +4826,7 @@ namespace MPPPS
                                     r["DENPYODT"] = drEM[0]["DENPYODT"];
                                     r["UPDTID"] = drEM[0]["UPDTID"];
                                     r["UPDTDT"] = drEM[0]["UPDTDT"];
+                                    r["MPUPDTID"] = cmn.Ui.UserId;
                                     countUpdate++;
                                 }
                             }
@@ -4850,7 +4851,7 @@ namespace MPPPS
                     var dtUpdate = new DataTable();
                     var countUpdate = 0;
                     var countDelete = 0;
-                    string sql = "SELECT ODRNO, MPSEQ, LOTSEQ, ODRSTS, JIQTY "
+                    string sql = "SELECT ODRNO, MPSEQ, LOTSEQ, ODRSTS, JIQTY, MPUPDTID "
                         + "FROM "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
                         + "WHERE "
@@ -4876,6 +4877,7 @@ namespace MPPPS
                                 {
                                     r["ODRSTS"] = drEM[0]["ODRSTS"];
                                     r["JIQTY"] = drEM[0]["JIQTY"];
+                                    r["MPUPDTID"] = cmn.Ui.UserId;
                                     countUpdate++;
                                 }
                             }
