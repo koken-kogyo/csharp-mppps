@@ -82,7 +82,7 @@ namespace MPPPS
         private void Frm034_CodeSlipMstMaint_Load(object sender, EventArgs e)
         {
             this.Activate();
-            this.Dgv_CodeSlipMst.Focus();
+            this.txtHMCD.Focus();
         }
 
         // DataGridViewへのデータの読込（初期時と再読み込み時）
@@ -273,16 +273,17 @@ namespace MPPPS
             offset += s1.Length;
 
             // 設備マスタの設備グループ名を取得
-            var s2 = equipMstDt.AsEnumerable()
-                .OrderBy(x => x["MCGSEQ"])
-                .GroupBy(grp => new { MCGCD = grp["MCGCD"].ToString() })
-                .Select(x => x.Key.MCGCD)
-                .ToArray();
-            if (s2.Length != 17 && s2.Length != 18) // 工程G[EX]を新規追加 2025.04.03
-            {
-                MessageBox.Show("設備マスタに異常があります（列が17個ではない)");
-                return;
-            }
+            //var s2 = equipMstDt.AsEnumerable()
+            //    .OrderBy(x => x["MCGSEQ"])
+            //    .GroupBy(grp => new { MCGCD = grp["MCGCD"].ToString() })
+            //    .Select(x => x.Key.MCGCD)
+            //    .ToArray();
+            //if (s2.Length != 17 && s2.Length != 18) // 工程G[EX]を新規追加 2025.04.03
+            //{
+            //    MessageBox.Show("設備マスタに異常があります（列が17個ではない)");
+            //    return;
+            //}
+            string[] s2 = {"SW", "SS", "XT", "CN", "MS", "LA", "NC", "ON", "3BP", "MD", "D", "MC", "G", "TP", "SK", "LF", "TN"};
             for (int i = 0; i < 17; i++)
             {
                 Dgv_CodeSlipMst.Columns[i + offset].HeaderText = s2[i];

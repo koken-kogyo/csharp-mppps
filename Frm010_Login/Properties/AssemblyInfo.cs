@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("認証ダイアログ")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Koken Kogyo Co., Ltd.")]
-[assembly: AssemblyProduct("[KMD001SF] 切削生産計画システム - Ver.260106.01a")]
+[assembly: AssemblyProduct("[KMD001SF] 切削生産計画システム - Ver.260119.01")]
 [assembly: AssemblyCopyright("© since 2025 Koken Kogyo Co., Ltd.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
