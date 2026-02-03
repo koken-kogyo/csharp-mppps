@@ -1,11 +1,9 @@
-﻿using Mysqlx.Crud;
-using Oracle.ManagedDataAccess.Client;
+﻿using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace MPPPS
 {
@@ -177,7 +175,7 @@ namespace MPPPS
                        + "TANCD = '" + cmn.PkM0010.TanCd + "'"
                        ;
 
-                return sql;
+            return sql;
         }
 
         /// <summary>
@@ -211,8 +209,8 @@ namespace MPPPS
                             myDa.Fill(myDs, "emp");
                             foreach (DataRow dr in myDs.Tables[0].Rows)
                             {
-                                Debug.Write("ODCD = "   + dr[0]  + ", ");
-                                Debug.Write("ODRNM = "  + dr[3]  + ", ");
+                                Debug.Write("ODCD = " + dr[0] + ", ");
+                                Debug.Write("ODRNM = " + dr[3] + ", ");
                                 Debug.Write("IOKBNM = " + dr[11] + ", ");
                                 Debug.WriteLine("");
                             }
@@ -468,10 +466,10 @@ namespace MPPPS
                             myDa.Fill(myDs, "emp");
                             foreach (DataRow dr in myDs.Tables[0].Rows)
                             {
-                                Debug.Write("KTCD = "   + dr[0] + ", ");
-                                Debug.Write("KTNM = "   + dr[1] + ", ");
-                                Debug.Write("KTGCD = "  + dr[2] + ", ");
-                                Debug.Write("ODCD = "   + dr[3] + ", ");
+                                Debug.Write("KTCD = " + dr[0] + ", ");
+                                Debug.Write("KTNM = " + dr[1] + ", ");
+                                Debug.Write("KTGCD = " + dr[2] + ", ");
+                                Debug.Write("ODCD = " + dr[3] + ", ");
                                 Debug.Write("ODRKBN = " + dr[6] + ", ");
                                 Debug.WriteLine("");
                             }
@@ -1365,27 +1363,25 @@ namespace MPPPS
                 // EMデータベースへ接続
                 cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
 
-                string sql;
+                // 再来週の月曜日を取得
+                string from = 切削の再来週月曜日().ToString("yyyy/MM/dd");
+
+                string sql; // EM内示データに、独自列（MP週初完了予定日）を追加して取得
                 sql = "SELECT "
                     + Common.TABLE_ID_D0440 + ".*, NEXT_DAY(EDDT - 7, 2) WEEKEDDT "
                     + "FROM "
                     + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0440 + " "
                     + "WHERE "
-                    + "ODCD like '6060%' "
-                    + "ORDER BY EDDT "
+                    + "ODCD like '6060%' and "
+                    + $"EDDT >= '{from}' "
+                    + "ORDER BY EDDT, HMCD, PLNNO "
                 ;
                 using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
                 {
                     using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
                     {
-                        Debug.WriteLine("Read from DataTable:");
-                        using (DataTable myDt = new DataTable())
-                        {
-                            // 結果取得
-                            myDa.Fill(myDt);
-                            emPlanDt = myDt;
-                            ret = true;
-                        }
+                        myDa.Fill(emPlanDt);
+                        ret = true;
                     }
                 }
                 // 接続を閉じる
@@ -1404,6 +1400,27 @@ namespace MPPPS
             // 接続を閉じる
             cmn.Dbm.CloseOraSchema(emCnn);
             return ret;
+        }
+
+        // PCの日付を起算日として、再来週の月曜日を返却
+        // ※切削の今週の月曜日の扱いに注意（月曜日の場合は先週の月曜日が今週の月曜日となる）
+        private DateTime 切削の再来週月曜日()
+        {
+            DateTime today = DateTime.Today.AddDays(0);
+
+            // 今日の曜日を取得（0=Sunday, 1=Monday, ... 6=Saturday）
+            int todayDayOfWeek = (int)today.DayOfWeek;
+
+            // 今週の月曜日までの日数差
+            int daysUntilMonday = ((int)DayOfWeek.Monday - todayDayOfWeek) % 7;
+
+            // 今週の月曜日（日・月の場合は-7日）
+            DateTime thisWeekMonday = today.AddDays((todayDayOfWeek <= 1) ? daysUntilMonday - 7 : daysUntilMonday);
+
+            // 再来週の月曜日 = 今週の月曜日 + 14日
+            DateTime mondayAfterNextWeek = thisWeekMonday.AddDays(14);
+
+            return mondayAfterNextWeek;
         }
 
         /// <summary>

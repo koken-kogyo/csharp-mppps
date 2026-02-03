@@ -1,10 +1,13 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Win32;
+using MySql.Data.MySqlClient;
+using Mysqlx.Crud;
 using System;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows.Forms;
 
 namespace MPPPS
@@ -961,9 +964,9 @@ namespace MPPPS
         /// <summary>
         /// 手配日程ファイル取込
         /// </summary>
-        /// <param name="exceptDt">取込対象のデータテーブル</param>
+        /// <param name="emPlanDt">取込対象のデータテーブル</param>
         /// <returns>可否</returns>
-        public bool ImportMpPlan(ref DataTable exceptDt)
+        public bool ImportMpPlan(ref DataTable emPlanDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -983,25 +986,107 @@ namespace MPPPS
 
                 string sql = string.Empty;
 
-                // KD8440:切削手配日程ファイルの削除
+                // １．切削内示ファイルの実績数を集計
+                DataTable naijiJissekiDt = new DataTable();
+                sql = $"select HMCD, SUM(JIQTY) as JIQTY, 0 as PLNALLOC from " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " " +
+                    "group by HMCD having sum(JIQTY) > 0 order by HMCD";
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        myDa.Fill(naijiJissekiDt);
+                    }
+                }
+
+                // ２．KD8440:切削手配日程ファイルの全削除
                 sql = "delete from "
                 + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " ";
                 cmd.CommandText = sql;
                 cmd.ExecuteNonQuery();
 
+                // Bulk Insert 準備
                 var insCount = 0;
-                foreach (DataRow r in exceptDt.Rows)
+                StringBuilder sb = new StringBuilder();
+                string bulkinsert = ImportMpPlanBulkSql();
+                foreach (DataRow r in emPlanDt.Rows)
                 {
-                    // KD8440:切削手配日程ファイルの挿入
-                    sql = ImportMpPlanSql(r);
-                    cmd.CommandText = sql;
-                    cmd.ExecuteNonQuery();
+                    // ３．実績数チェック
+                    string hmcd = r["HMCD"].ToString();
+                    DataRow[] naijiJissekiDr = naijiJissekiDt.Select($"HMCD='{hmcd}'");
+                    if (naijiJissekiDr.Length > 0)
+                    {
+                        int emodrqty = Convert.ToInt32(r["ODRQTY"].ToString());
+                        int emjiqty = Convert.ToInt32(r["JIQTY"].ToString());
+                        int mpalloc = Convert.ToInt32(naijiJissekiDr[0]["PLNALLOC"].ToString());
+                        int mpjiqty = Convert.ToInt32(naijiJissekiDr[0]["JIQTY"].ToString());
+                        if (mpjiqty != mpalloc)
+                        {
+                            if (emodrqty > emjiqty + (mpjiqty - mpalloc))
+                            {
+                                r["JIQTY"] = emjiqty + (mpjiqty - mpalloc);
+                                r["ODRSTS"] = "3";
+                                naijiJissekiDr[0]["PLNALLOC"] = mpjiqty;
+                            }
+                            else
+                            {
+                                r["JIQTY"] = emodrqty;
+                                r["ODRSTS"] = "4";
+                                naijiJissekiDr[0]["PLNALLOC"] = mpalloc + (emodrqty - emjiqty);
+                            }
+                        }
+                    }
+
+                    // ４．KD8440:切削手配日程ファイルの挿入
+                    sb.Append(ImportMpPlanBulkData(r));
+                    if (insCount > 0 && insCount % 2000 == 0)
+                    {
+                        if (sb.Length > 0) sb.Remove(sb.Length - 1, 1); // 最後の1文字(,)を削除
+                        sql = bulkinsert + sb.ToString();
+                        cmd.CommandText = sql;
+                        cmd.ExecuteNonQuery();
+                        sb.Clear();
+                    }
 
                     insCount++;
+                }
+                if (insCount > 0 && sb.Length > 0) // Bulk残の挿入
+                {
+                    sb.Remove(sb.Length - 1, 1); // 最後の1文字(,)を削除
+                    sql = bulkinsert + sb.ToString();
+                    cmd.CommandText = sql;
+                    cmd.ExecuteNonQuery();
+                }
+
+                // ５．KW8440:切削手配日程テンポラリ削除
+                var userid = cmn.Ui.UserId;
+                sql = "delete from " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440 + " ";
+                cmd.CommandText = sql;
+                cmd.ExecuteNonQuery();
+
+                // ６．KW8440:切削手配日程テンポラリへの一括登録
+                sb.Clear();
+                if (naijiJissekiDt.Rows.Count > 0)
+                    sb.Append("insert into "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440
+                    + "(HMCD, JIQTY, PLNALLOC, INSTID, UPDTID) values ");
+                for (int i = 0; i < naijiJissekiDt.Rows.Count; i++)
+                {
+                    var row = naijiJissekiDt.Rows[i];
+                    sb.AppendFormat("('{0}',{1},{2},'{3}','{4}'),"
+                        , row["HMCD"].ToString(), row["JIQTY"], row["PLNALLOC"], userid, userid);
+                }
+                if (sb.Length > 0)
+                {
+                    sb.Remove(sb.Length - 1, 1); // 最後の1文字(,)を削除
+                    cmd.CommandText = sb.ToString();
+                    cmd.ExecuteNonQuery();
                 }
 
                 // トランザクション終了
                 transaction.Commit();
+
                 ret = true;
             }
             catch (Exception ex)
@@ -1026,10 +1111,8 @@ namespace MPPPS
         /// SQL 構文編集 (KM8440 切削手配日程ファイル) 
         /// </summary>
         /// <returns>SQL 構文</returns>
-        public string ImportMpPlanSql(DataRow r)
+        private string ImportMpPlanBulkSql()
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             string sql = "insert into "
                 + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
                 + "("
@@ -1075,9 +1158,13 @@ namespace MPPPS
                 + "JIQTY, "
                 + "SEQ, "
                 + "WEEKEDDT "
-                + ") "
-                + "values "
-                + "("
+                + ") values ";
+            return sql;
+        }
+        private string ImportMpPlanBulkData(DataRow r)
+        {
+            string data = 
+                "("
                 + "'" + r["ODCD"].ToString() + "',"
                 + (r["PLNNO"].ToString() == "" ? "null," : "'" + r["PLNNO"].ToString() + "',")
                 + (r["ODRNO"].ToString() == "" ? "null," : "'" + r["ODRNO"].ToString() + "',")
@@ -1120,9 +1207,9 @@ namespace MPPPS
                 + r["JIQTY"] + ","
                 + r["SEQ"] + ","
                 + "'" + r["WEEKEDDT"] + "'"
-                + ")"
+                + "),"
                 ;
-            return sql;
+            return data;
         }
 
 

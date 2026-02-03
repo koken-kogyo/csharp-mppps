@@ -545,19 +545,19 @@ namespace MPPPS
 
             toolStripStatusLabel1.Text = "内示データ取込中...";
 
-            // データベースから注文情報を非同期並列処理で取得（Oracle:D0410, MySQL:KD8430)
-            DataTable emOrderDt = new DataTable();
+            DataTable emPlanDt = new DataTable();
 
             // EMから手配日程ファイルを読み込む
-            if (await Task.Run(() => cmn.Dba.GetEmPlan(ref emOrderDt)) == false) return;
+            if (await Task.Run(() => cmn.Dba.GetEmPlan(ref emPlanDt)) == false) return;
 
             // MP切削手配日程ファイルを全削除して、EM手配日程ファイルをそのまま取り込む
             // トランザクション処理の為、Delete命令で削除しImport成功後Commit
-            if (await Task.Run(() => cmn.Dba.ImportMpPlan(ref emOrderDt)) == false) return;
+            if (await Task.Run(() => cmn.Dba.ImportMpPlan(ref emPlanDt)) == false) return;
 
             // 取込後、再読み込みして表示
             PopulateCalendar();
 
+            MessageBox.Show("内示データの取込みが完了しました．", "内示データ作成", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
 
