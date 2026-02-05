@@ -611,17 +611,17 @@ namespace MPPPS
             int delCount = 0;
             // マスタ類データテーブル定義
             DataTable mpCodeMDt = new DataTable();      // コード票マスタ
-            DataTable mpZaikoDt = new DataTable();      // 仕掛かり在庫テーブル（SWのみ）
-            DataTable mpNaijiDt = new DataTable();      // 内示カードファイル
-            DataTable mpNaijiReportDt = new DataTable();// レポート提出用
+            DataTable mpNaijiDt = new DataTable();      // 内示テーブルの実績ありレコードのみ
+            DataTable mpCardDt = new DataTable();       // 内示カードファイル
+            DataTable mpCardReportDt = new DataTable(); // レポート提出用
             DataTable deleteODRNODt = new DataTable();  // 削除したODRNOを控えておくための変数
             deleteODRNODt.Columns.Add("ODRNO", typeof(string));
             // 全てのマスタ類の読み込み
             Task taskC = Task.Run(() => cmn.Dba.GetCodeSlipMst(ref mpCodeMDt));
-            Task taskD = Task.Run(() => cmn.Dba.GetMpZaiko(ref mpZaikoDt, "'SW'"));
+            Task taskD = Task.Run(() => cmn.Dba.GetMpNaiji(ref mpNaijiDt));
             await Task.WhenAll(taskC, taskD);
-            // 引当前在庫を保持
-            DataTable mpZaikoReportDt = mpZaikoDt.Copy();
+            // 引当前実績数を保持
+            DataTable mpNaijiOriginalDt = mpNaijiDt.Copy();
             // 選択セルの並び替え
             var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
                         where c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING
@@ -644,15 +644,15 @@ namespace MPPPS
                     await Task.WhenAll(taskA, taskB);
 
                     // 内示カードファイル処理（初回取込時のみ取得）
-                    if (c.ColumnIndex == 0 && mpNaijiDt.Rows.Count > 0) mpNaijiReportDt.Merge(mpNaijiDt);
-                    if (c.ColumnIndex == 0) mpNaijiDt.Rows.Clear(); // 2行に渡って選択された場合の初期化処理
-                    if (mpNaijiDt.Rows.Count == 0 && c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED)
+                    if (c.ColumnIndex == 0 && mpCardDt.Rows.Count > 0) mpCardReportDt.Merge(mpCardDt);
+                    if (c.ColumnIndex == 0) mpCardDt.Rows.Clear(); // 2行に渡って選択された場合の初期化処理
+                    if (mpCardDt.Rows.Count == 0 && c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED)
                     {
                         // 今週の月曜日を計算
                         int daysSinceMonday = (int)eddt.DayOfWeek - (int)DayOfWeek.Monday;
                         if (daysSinceMonday < 0) daysSinceMonday += 7; // 日曜日の場合の調整
                         DateTime thisMonday = eddt.AddDays(-daysSinceMonday);
-                        await Task.Run(() => cmn.Dba.GetMpNaiji(ref mpNaijiDt, thisMonday.ToString("yyyy/MM/dd")));
+                        await Task.Run(() => cmn.Dba.GetMpCard(ref mpCardDt, thisMonday.ToString("yyyy/MM/dd")));
                     }
 
                     // 削除対象が存在するかチェック（二つのODRNOの集合差を求める）
@@ -702,20 +702,20 @@ namespace MPPPS
                         }
 
                         // MPシステム MySQLに集合差分を挿入
-                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpZaikoDt, ref mpNaijiDt, ref deleteODRNODt, c.Style.BackColor);
+                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpNaijiDt, ref mpCardDt, ref deleteODRNODt, c.Style.BackColor);
                         if (insCount < 0) return;
                     }
                 }
             }
 
             // 内示カードの使用状況レポートExcelの作成とDB更新
-            if (mpNaijiDt.Rows.Count > 0 || mpNaijiReportDt.Rows.Count > 0)
+            if (mpCardDt.Rows.Count > 0 || mpCardReportDt.Rows.Count > 0)
             {
-                mpNaijiReportDt.Merge(mpNaijiDt);
-                cmn.Dba.UpdateMpNaiji(ref mpNaijiReportDt); // KD8470:内示カードの更新
+                mpCardReportDt.Merge(mpCardDt);
+                cmn.Dba.UpdateMpNaiji(ref mpCardReportDt); // KD8470:内示カードの更新
                 // 内示カード使用状況レポートの作成
-                // ※mpNaijiReportDtを直接加工するので以降のコードでは [mpNaijiReportDt] 使用不可
-                await Task.Run(() => NaijiReport(ref mpNaijiReportDt, ref mpZaikoReportDt)); 
+                // ※mpCardReportDtを直接加工するので以降のコードでは [mpCardReportDt] 使用不可
+                await Task.Run(() => NaijiCardReport(ref mpCardReportDt, ref mpNaijiOriginalDt)); 
             }
 
             // 取込後、再読み込みして表示
@@ -736,29 +736,29 @@ namespace MPPPS
         }
 
         // 内示カードファイルの使用状況をレポート
-        private void NaijiReport(ref DataTable mpNaijiReportDt, ref DataTable mpZaikoDt)
+        private void NaijiCardReport(ref DataTable mpCardReportDt, ref DataTable mpNaijiOriginalDt)
         {
             // データテーブルをExcelに落とした時に見やすくなるよう編集
             // 列ヘッダー名を日本語に変換
-            mpNaijiReportDt.Columns["HMCD"].ColumnName = "品番";
-            mpNaijiReportDt.Columns["WEEKEDDT"].ColumnName = "内示カード発行週";
-            mpNaijiReportDt.Columns["PLANQTY"].ColumnName = "内示数";
-            mpNaijiReportDt.Columns["ALLOCQTY"].ColumnName = "手配引当数";
-            mpNaijiReportDt.Columns["PLANCARDDT"].ColumnName = "内示カード発行日";
+            mpCardReportDt.Columns["HMCD"].ColumnName = "品番";
+            mpCardReportDt.Columns["WEEKEDDT"].ColumnName = "内示カード発行週";
+            mpCardReportDt.Columns["PLANQTY"].ColumnName = "内示数";
+            mpCardReportDt.Columns["ALLOCQTY"].ColumnName = "手配引当数";
+            mpCardReportDt.Columns["PLANCARDDT"].ColumnName = "内示カード発行日";
             // 列ヘッダー名を削除
-            mpNaijiReportDt.Columns.Remove("MPINSTID");
-            mpNaijiReportDt.Columns.Remove("MPINSTDT");
-            mpNaijiReportDt.Columns.Remove("MPUPDTID");
-            mpNaijiReportDt.Columns.Remove("MPUPDTDT");
+            mpCardReportDt.Columns.Remove("MPINSTID");
+            mpCardReportDt.Columns.Remove("MPINSTDT");
+            mpCardReportDt.Columns.Remove("MPUPDTID");
+            mpCardReportDt.Columns.Remove("MPUPDTDT");
 
             // 仕掛かり在庫列と備考列を追加し仕掛かり在庫テーブルとコメントを設定
-            mpNaijiReportDt.Columns.Add("仕掛在庫（引当前）", typeof(int));
-            mpNaijiReportDt.Columns.Add("備考");
-            foreach (DataRow r in mpNaijiReportDt.Rows)
+            mpCardReportDt.Columns.Add("仕掛在庫（引当前）", typeof(int));
+            mpCardReportDt.Columns.Add("備考");
+            foreach (DataRow r in mpCardReportDt.Rows)
             {
-                if (mpZaikoDt.Select($"HMCD='{r["品番"]}'").Length > 0)
+                if (mpNaijiOriginalDt.Select($"HMCD='{r["品番"]}'").Length > 0)
                 {
-                    r["仕掛在庫（引当前）"] = mpZaikoDt.Select($"HMCD='{r["品番"]}'")[0]["ZAIQTY"];
+                    r["仕掛在庫（引当前）"] = mpNaijiOriginalDt.Select($"HMCD='{r["品番"]}'")[0]["JIQTY"];
                 }
                 else
                 {
@@ -795,7 +795,7 @@ namespace MPPPS
             {
                 cmn.Fa.ExcelApplication(false);
                 cmn.Fa.AddNewBook();
-                cmn.Fa.ExportExcel(mpNaijiReportDt, @FilePath);
+                cmn.Fa.ExportExcel(mpCardReportDt, @FilePath);
                 cmn.Fa.SetNaijiReport();            // 内示カードレポートのExcel設定
                 cmn.Fa.SaveWorkBook(@FilePath);     // oWBookを上書き保存
                 cmn.Fa.CloseExcel2();

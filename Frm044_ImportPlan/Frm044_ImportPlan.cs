@@ -153,13 +153,13 @@ namespace MPPPS
             toolStripStatusLabel1.Text = "内示データ確認中...";
             DataTable emPlanDt = new DataTable();
             DataTable mpPlanDt = new DataTable();
-            DataTable mpNaijiReportDt = new DataTable();      // 内示カードファイル
+            DataTable mpCardReportDt = new DataTable();      // 内示カードファイル
             bool retEM = false;
             bool retMP = false;
             bool retNR = false;
             var taskEM = Task.Run(() => retEM = cmn.Dba.GetEmPlanSummaryInfo(ref emPlanDt, targetMonth));
             var taskMP = Task.Run(() => retMP = cmn.Dba.GetMpPlanSummaryInfo(ref mpPlanDt, targetMonth));
-            var taskNR = Task.Run(() => retNR = cmn.Dba.GetMpNaijiReport(ref mpNaijiReportDt, targetMonth));
+            var taskNR = Task.Run(() => retNR = cmn.Dba.GetMpCardReport(ref mpCardReportDt, targetMonth));
             // 両者が完了するまで待機する
             await Task.WhenAll(taskEM, taskMP, taskNR);
 
@@ -185,7 +185,7 @@ namespace MPPPS
                 else if (column == 1)
                 {
                     int countHMCD = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
-                    int cardPrint = mpNaijiReportDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
+                    int cardPrint = mpCardReportDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
                     DateTime dayOfFriday = dayOfPrevMonth.AddDays(4);
                     if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
@@ -256,7 +256,7 @@ namespace MPPPS
                     int c = orderDt.Select($"WEEKEDDT='{currentDate}' and MP本数>0 and EM本数<>MP本数")
                         .GroupBy(grp => grp["WEEKEDDT"].ToString()).Count();
                     int countHMCD = orderDt.Select($"WEEKEDDT='{currentDate}'").Count();
-                    int cardPrint = mpNaijiReportDt.Select($"WEEKEDDT='{currentDate}'").Count();
+                    int cardPrint = mpCardReportDt.Select($"WEEKEDDT='{currentDate}'").Count();
                     DateTime dayOfFriday = currentDate.AddDays(4);
                     if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
@@ -313,7 +313,7 @@ namespace MPPPS
                 {
                     DateTime firstDayOfWeek = nextDate.AddDays(((int)nextDate.DayOfWeek - 1) * -1);
                     int countHMCD = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
-                    int cardPrint = mpNaijiReportDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
+                    int cardPrint = mpCardReportDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
                     DateTime dayOfFriday = firstDayOfWeek.AddDays(4);
                     if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
@@ -479,7 +479,7 @@ namespace MPPPS
             Btn_PrintPlan.Enabled = false;
             Btn_PrintClear.BackColor = Common.FRM40_BG_COLOR_CONTROL;
             Btn_PrintClear.Enabled = false;
-            DataTable mpNaijiDt = new DataTable();      // 内示カードファイル
+            DataTable mpCardDt = new DataTable();      // 内示カードファイル
             int emQty = 0;
             int mpQty = 0;
             int countHMCD = 0;
@@ -491,8 +491,8 @@ namespace MPPPS
                 {
                     //DataRow r = orderDt.Select($"EDDT='{planDay}'")[0];
 
-                    mpNaijiDt.Rows.Clear();
-                    cmn.Dba.GetMpNaiji(ref mpNaijiDt, planDay.ToString("yyyy/MM/dd"));
+                    mpCardDt.Rows.Clear();
+                    cmn.Dba.GetMpCard(ref mpCardDt, planDay.ToString("yyyy/MM/dd"));
                     
                     var result = orderDt.Select($"WEEKEDDT='{planDay}'")
                         .GroupBy(g => g["WEEKEDDT"].ToString())
@@ -505,7 +505,7 @@ namespace MPPPS
                     emQty += (int)result.Sum(res => res.EMQTY);
                     mpQty += (int)result.Sum(res => res.MPQTY);
                     countHMCD += orderDt.Select($"WEEKEDDT='{planDay}' and KTKEY like '%SW-%'").Count();
-                    cardPrint += mpNaijiDt.Select($"WEEKEDDT='{planDay}'").Count();
+                    cardPrint += mpCardDt.Select($"WEEKEDDT='{planDay}'").Count();
                 }
             }
             // 内示カードが印刷されていなかったら印刷ボタンを活性化

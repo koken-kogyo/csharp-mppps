@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32;
-using MySql.Data.MySqlClient;
-using Mysqlx.Crud;
+﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
 using System.Diagnostics;
@@ -405,11 +403,11 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 仕掛り在庫データ取得
+        /// 内示実績ありデータ取得
         /// </summary>
-        /// <param name="mpZaikoDt">仕掛り在庫データ</param>
-        /// <returns>仕掛り在庫データ</returns>
-        public bool GetMpZaiko(ref DataTable mpZaikoDt, string mcgcds)
+        /// <param name="mpNaijiDt">内示実績ありデータ</param>
+        /// <returns>内示実績ありデータ</returns>
+        public bool GetMpNaiji(ref DataTable mpNaijiDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -421,19 +419,16 @@ namespace MPPPS
                 // MPデータベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                string sql = "SELECT * "
-                    + "FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460 + " "
-                    + "WHERE "
-                    + $"MCGCD in ({mcgcds})"
-                ;
+                string sql = "select * from "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
+                    + "where JIQTY > 0 order by EDDT desc, EDTM desc, PLNNO desc, HMCD";
                 using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
                 {
                     using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
                     {
                         Debug.WriteLine("Read from DataTable:");
                         // 結果取得
-                        myDa.Fill(mpZaikoDt);
+                        myDa.Fill(mpNaijiDt);
                         ret = true;
                     }
                 }
@@ -458,10 +453,10 @@ namespace MPPPS
         /// </summary>
         /// <param name="exceptDt">EM側の登録すべきデータテーブル</param>
         /// <param name="codeDt">コード票マスタ</param>
-        /// <param name="zaikoDt">仕掛り在庫（手配登録時に消込）</param>
-        /// <param name="naijiDt">内示カードファイル（手配登録時に印刷済み）</param>
+        /// <param name="naijiDt">内示実績ありレコード</param>
+        /// <param name="cardDt">内示カードファイル（手配登録時に印刷済み）</param>
         /// <returns>挿入件数、失敗時-1</returns>
-        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt, ref DataTable zaikoDt, ref DataTable naijiDt, ref DataTable deleteODRNODt, Color styleBackColor)
+        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt, ref DataTable naijiDt, ref DataTable cardDt, ref DataTable deleteODRNODt, Color styleBackColor)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -479,6 +474,10 @@ namespace MPPPS
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = mpCnn;
 
+                // Bulk Insert用
+                StringBuilder sb30 = new StringBuilder();
+                StringBuilder sb50 = new StringBuilder();
+
                 string sql = string.Empty;
                 foreach (DataRow r in exceptDt.Rows)
                 {
@@ -486,7 +485,7 @@ namespace MPPPS
                     string hmcd = r["HMCD"].ToString();
 
                     // KM8430:コード票マスタの品番抽出
-                    DataRow[] cr = codeDt.Select($"HMCD='{hmcd}'");
+                    DataRow[] mr = codeDt.Select($"HMCD='{hmcd}'");
 
                     // ODRNOが他の手配日付に存在したら削除しておく（手配日付がコロコロ変えられる対応）
                     // KD8450:切削オーダーの削除
@@ -507,80 +506,120 @@ namespace MPPPS
                         }
                     }
 
-                    // 内示カード発行済みの場合
-                    string mpCardDt = string.Empty;
-                    if (naijiDt.Rows.Count > 0 && naijiDt.Select($"HMCD='{hmcd}'").Count() != 0)
+                    // 内示カード発行済みの手配引当数を加算
+                    string MPCARDDT = string.Empty;
+                    if (cardDt.Rows.Count > 0 && cardDt.Select($"HMCD='{hmcd}'").Count() != 0)
                     {
                         // 納期前倒し(delCountToday>0)または
-                        DataRow[] nr = naijiDt.Select($"HMCD='{hmcd}'");
-                        int planqty = Int32.Parse(nr[0]["PLANQTY"].ToString());
-                        int allocqty = Int32.Parse(nr[0]["ALLOCQTY"].ToString());
+                        DataRow[] cr = cardDt.Select($"HMCD='{hmcd}'");
+                        int planqty = Int32.Parse(cr[0]["PLANQTY"].ToString());
+                        int allocqty = Int32.Parse(cr[0]["ALLOCQTY"].ToString());
                         int odrqty = Int32.Parse(r["ODRQTY"].ToString());
                         if (planqty - allocqty >= odrqty)
                         {
-                            mpCardDt = "2999/12/31 23:59:00";
-                            nr[0]["ALLOCQTY"] = allocqty + odrqty;
-                            nr[0]["MPUPDTID"] = cmn.DrCommon.UpdtID;
-                            nr[0]["MPUPDTDT"] = DateTime.Now;
+                            MPCARDDT = "2999/12/31 23:59:00";
+                            cr[0]["ALLOCQTY"] = allocqty + odrqty;
+                            cr[0]["MPUPDTID"] = cmn.DrCommon.UpdtID;
+                            cr[0]["MPUPDTDT"] = DateTime.Now;
                         }
                         else
                         {
-                            nr[0]["ALLOCQTY"] = planqty;
-                            nr[0]["MPUPDTID"] = cmn.DrCommon.UpdtID;
-                            nr[0]["MPUPDTDT"] = DateTime.Now;
+                            cr[0]["ALLOCQTY"] = planqty;
+                            cr[0]["MPUPDTID"] = cmn.DrCommon.UpdtID;
+                            cr[0]["MPUPDTDT"] = DateTime.Now;
                         }
                     }
 
                     // KD8430:切削手配ファイルの登録
-                    sql = ImportMpOrderSql(r, mpCardDt);
-                    cmd.CommandText = sql;
-                    cmd.ExecuteNonQuery();
+                    // sql = ImportMpOrderSql(r, MPCARDDT);
+                    sb30.Append(ImportMpOrderBulkData(r, MPCARDDT));
 
                     // KD8450:切削オーダーの登録（工程数分をループ）
-                    int ktsu = Convert.ToInt32(cr[0]["KTSU"].ToString());
+                    int ktsu = Convert.ToInt32(mr[0]["KTSU"].ToString());
                     for (int kt = 1; kt <= ktsu; kt++)
                     {
-                        string mcgcd = cr[0][$"KT{kt}MCGCD"].ToString();
-                        string mccd = cr[0][$"KT{kt}MCCD"].ToString();
-                        // KD8460:切削在庫ファイルの取得
-                        DataRow[] zr = zaikoDt.Select(
-                            $"HMCD='{hmcd}' and MCGCD='{mcgcd}' and MCCD='{mccd}' " +
-                            "and ZAIQTY>0");
-                        int odrqty = Convert.ToInt32(r["ODRQTY"].ToString());
-                        int odrjiq = Convert.ToInt32(r["JIQTY"].ToString());
-                        int zaiko = (zr.Length == 0) ? 0 :
-                            Convert.ToInt32(zr[0]["ZAIQTY"].ToString());
-                        int jiqty = 0;
-                        string odrsts = string.Empty;
+                        string mcgcd = mr[0][$"KT{kt}MCGCD"].ToString();
+                        string mccd = mr[0][$"KT{kt}MCCD"].ToString();
+
+                        int appendqty = 0;
+                        string odrsts = r["ODRSTS"].ToString();
                         // 追加処理の場合は実績数とステータスをいじらない
                         if (styleBackColor == Common.FRM40_BG_COLOR_WARNING)
                         {
                             odrsts = r["ODRSTS"].ToString();
                         }
-                        else
+                        // 初工程の場合のみ内示データの実績数を判定する（内示データが工程毎に分割されていない為）
+                        // この方式が良いのかは不安が残る
+                        else if (kt == 1)
                         {
-                            // 実績数とステータス算出
-                            jiqty = ((odrqty - odrjiq) <= zaiko) ? (odrqty - odrjiq) : zaiko;
-                            odrsts = (jiqty == 0) ? "2" : (odrqty == jiqty) ? "4" : "3";
-                        }
-                        // KD8450:切削オーダーファイルの登録（各設備毎に分解）
-                        sql = DivideMpOrderSql(odrno, jiqty, kt, mcgcd, mccd, odrsts);
-                        cmd.CommandText = sql;
-                        cmd.ExecuteNonQuery();
-                        // 実績計上ありの場合
-                        if (jiqty > 0)
-                        {
-                            // zaikoDt:仕掛在庫データテーブル在庫数から実績数を減算
-                            zr[0]["ZAIQTY"] = zaiko - jiqty;
-
-                            // KD8460:在庫ファイル在庫数から実績数を減算
-                            sql = UpdateZaikoSql(hmcd, mcgcd, mccd, jiqty);
+                            int odrqty = Convert.ToInt32(r["ODRQTY"].ToString());
+                            int odrjiq = Convert.ToInt32(r["JIQTY"].ToString());
+                            int countdownqty = odrqty - odrjiq;
+                            // KD8440:手配日程ファイル（実績あり）を取得しループ
+                            DataRow[] jissekiRecords = naijiDt.Select($"HMCD='{hmcd}' and JIQTY>0");
+                            foreach (DataRow jr in jissekiRecords)
+                            {
+                                int naijiq = Convert.ToInt32(jr["JIQTY"].ToString());
+                                if (countdownqty < naijiq) // 内示データの実績数が余った場合
+                                {
+                                    jr["JIQTY"] = naijiq - countdownqty;
+                                    jr["ODRSTS"] = "3";
+                                    appendqty += countdownqty;
+                                    countdownqty = 0;
+                                }
+                                else // 内示データの実績数を使い切った場合
+                                {
+                                    jr["JIQTY"] = 0;
+                                    jr["ODRSTS"] = "2";
+                                    appendqty += naijiq;
+                                    countdownqty -= naijiq;
+                                }
+                                // KD8440:手配日程ファイル実績数を減算
+                                string plnno = jr["PLNNO"].ToString();
+                                string newsts = jr["ODRSTS"].ToString();
+                                int newjiqty = Convert.ToInt32(jr["JIQTY"].ToString());
+                                sql = SubtracJissekiSql(plnno, newjiqty, newsts);
+                                cmd.CommandText = sql;
+                                cmd.ExecuteNonQuery();
+                                // 手配データの実績数が完了していた場合はループを抜ける
+                                if (countdownqty <= 0) break;
+                            }
+                            // KW8440:手配日程ファイルテンポラリ手配引当数に「内示実績から移動させた数」を加算
+                            sql = orderAllocSql(hmcd, appendqty);
                             cmd.CommandText = sql;
                             cmd.ExecuteNonQuery();
+
+                            // 「内示実績から移動させた数」と手配の数を比較
+                            if (appendqty > 0)
+                                odrsts = (countdownqty == 0) ? "4" : "3";
                         }
-                    }
+
+                        // KD8450:切削オーダーファイルの登録（各設備毎に分解）
+                        // sql = DivideMpOrderSql(odrno, jiqty, kt, mcgcd, mccd, odrsts);
+                        sb50.Append(DivideMpOrderBulkData(r, appendqty, kt, mcgcd, mccd, odrsts));
+
+                    }   // kt ループ
                     insCount++;
                 }
+
+                // 最終的なデータベースへの一括登録
+                int insert8430 = 0;
+                int insert8450 = 0;
+                if (sb30.Length > 0)
+                {
+                    sb30.Remove(sb30.Length - 1, 1); // 最後の1文字(,)を削除
+                    sql = ImportMpOrderBulkSql() + sb30.ToString();
+                    cmd.CommandText = sql;
+                    insert8430 = cmd.ExecuteNonQuery();
+                }
+                if (sb50.Length > 0)
+                {
+                    sb50.Remove(sb50.Length - 1, 1); // 最後の1文字(,)を削除
+                    sql = DivideMpOrderBulkSql() + sb50.ToString();
+                    cmd.CommandText = sql;
+                    insert8450 = cmd.ExecuteNonQuery();
+                }
+                Debug.WriteLine(exceptDt.Rows[0]["EDDT"].ToString() + $"手配: {insert8430} ({insert8450})件取込");
 
                 // トランザクション終了
                 transaction.Commit();
@@ -620,257 +659,110 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 在庫ファイル仕掛り在庫から実績数を引き落とす処理
+        /// 手配日程ファイルから実績数を引き落とす処理
         /// </summary>
-        /// <param name="odrno">手配番号</param>
+        /// <param name="plnno">計画No</param>
         /// <returns>SQL 構文</returns>
-        public string UpdateZaikoSql(string hmcd, string mcgcd, string mccd, int jiqty)
+        private string SubtracJissekiSql(string plnno, int newjiqty, string newsts)
         {
             string sql = "update "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460 + " "
-                + "SET "
-                + $"ZAIQTY = ZAIQTY - {jiqty},"
-                + "OUTDT = now(),"
-                + $"MPUPDTID = '{cmn.IkM0010.TanCd}', "
-                + "MPUPDTDT = now() "
-                + "WHERE "
-                + $"HMCD = '{hmcd}' and "
-                + $"MCGCD = '{mcgcd}' and "
-                + $"MCCD = '{mccd}'"
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
+                + "set "
+                + $"JIQTY = {newjiqty},"
+                + $"ODRSTS = '{newsts}',"
+                + $"UPDTID = '{cmn.IkM0010.TanCd}', UPDTDT = now() "
+                + $"where PLNNO = '{plnno}'"
             ;
             return sql;
         }
 
 
         /// <summary>
-        /// 切削オーダーファイルインサート用SQL文の作成
+        /// 手配日程テンポラリの手配引当数を加算する処理
         /// </summary>
-        /// <param name="odrno">手配番号</param>
+        /// <param name="plnno">計画No</param>
         /// <returns>SQL 構文</returns>
-        public string DivideMpOrderSql(string odrno, int jiqty, int kt, string mcgcd, string mccd, string odrsts)
+        private string orderAllocSql(string hmcd, int appendqty)
         {
-            string sql = "insert into "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
-                + "("
-                + "ODRNO,"
-                + "MPSEQ,"
-                + "MCGCD,"
-                + "MCCD,"
-                + "HMCD,"
-                + "EDDT,"
-                + "ODRQTY,"
-                + "JIQTY,"
-                + "ODRSTS,"
-                + "MPINSTID,"
-                + "MPUPDTID"
-                + ") "
-                +  "select "
-                +  "a.ODRNO,"
-                +  $"{kt} as MPSEQ,"
-                +  $"'{mcgcd}' as MCGCD,"
-                +  $"'{mccd}' as MCCD,"
-                + "a.HMCD,"
-                + "a.EDDT,"
-                + "a.ODRQTY,"
-                + $"a.JIQTY+{jiqty},"
-                + $"'{odrsts}',"
-                + $"'{cmn.IkM0010.TanCd}' as MPINSTDT,"
-                + $"'{cmn.IkM0010.TanCd}' as MPUPDTDT "
-                +  "from "
-                +   cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a "
-                +  "where "
-                + $"ODRNO='{odrno}' "
-                ;
+            string sql = "update "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440 + " "
+                + "set "
+                + $"ODRALLOC = ODRALLOC + {appendqty},"
+                + $"UPDTID = '{cmn.IkM0010.TanCd}', UPDTDT = now() "
+                + $"where HMCD = '{hmcd}'"
+            ;
             return sql;
         }
 
 
         /// <summary>
-        /// 切削オーダーファイルインサート用SQL文の作成
+        /// SQL 構文編集 (KD8430 切削手配ファイル) 
         /// </summary>
-        /// <param name="odrno">手配番号</param>
         /// <returns>SQL 構文</returns>
-        public string DivideMpOrderSql_Backup(string odrno)
+        private string ImportMpOrderBulkSql()
         {
             string sql = "insert into "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
                 + "("
                 + "ODRNO,"
-                + "MPSEQ,"
-                + "MCGCD,"
-                + "MCCD,"
+                + "KTSEQ,"
                 + "HMCD,"
-                + "EDDT,"
+                + "KTCD,"
                 + "ODRQTY,"
-                + "JIQTY,"
+                + "ODCD,"
+                + "NEXTODCD,"
+                + "LTTIME,"
+                + "STDT,"
+                + "STTIM,"
+                + "EDDT,"
+                + "EDTIM,"
                 + "ODRSTS,"
+                + "QRCD,"
+                + "JIQTY,"
+                + "DENPYOKBN,"
+                + "DENPYODT,"
+                + "NOTE,"
+                + "WKNOTE,"
+                + "WKCOMMENT,"
+                + "DATAKBN,"
+                + "INSTID,"
+                + "INSTDT,"
+                + "UPDTID,"
+                + "UPDTDT,"
+                + "UKCD,"
+                + "NAIGAIKBN,"
+                + "RETKTCD,"
+                + "MPCARDDT,"
                 + "MPINSTID,"
                 + "MPUPDTID"
                 + ") "
-                + "select "
-                + "a.ODRNO,"
-                + "1 as MPSEQ,"
-                + "b.KT1MCGCD as MCGCD,"
-                + "b.KT1MCCD as MCCD,"
-                + "a.HMCD,"
-                + "a.EDDT,"
-                + "a.ODRQTY,"
-                + "a.JIQTY,"
-                + "a.ODRSTS,"
-                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
-                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
-                + "from "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
-                + "where "
-                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
-                + "b.KT1MCCD is not NULL "
-                + "union "
-                + "select "
-                + "a.ODRNO,"
-                + "2 as MPSEQ,"
-                + "b.KT2MCGCD as MCGCD,"
-                + "b.KT2MCCD as MCCD,"
-                + "a.HMCD,"
-                + "a.EDDT,"
-                + "a.ODRQTY,"
-                + "a.JIQTY,"
-                + "a.ODRSTS,"
-                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
-                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
-                + "from "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
-                + "where "
-                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
-                + "b.KT2MCCD is not NULL "
-                + "union "
-                + "select "
-                + "a.ODRNO,"
-                + "3 as MPSEQ,"
-                + "b.KT3MCGCD as MCGCD,"
-                + "b.KT3MCCD as MCCD,"
-                + "a.HMCD,"
-                + "a.EDDT,"
-                + "a.ODRQTY,"
-                + "a.JIQTY,"
-                + "a.ODRSTS,"
-                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
-                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
-                + "from "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
-                + "where "
-                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
-                + "b.KT3MCCD is not NULL "
-                + "union "
-                + "select "
-                + "a.ODRNO,"
-                + "4 as MPSEQ,"
-                + "b.KT4MCGCD as MCGCD,"
-                + "b.KT4MCCD as MCCD,"
-                + "a.HMCD,"
-                + "a.EDDT,"
-                + "a.ODRQTY,"
-                + "a.JIQTY,"
-                + "a.ODRSTS,"
-                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
-                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
-                + "from "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
-                + "where "
-                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
-                + "b.KT4MCCD is not NULL "
-                + "union "
-                + "select "
-                + "a.ODRNO,"
-                + "5 as MPSEQ,"
-                + "b.KT5MCGCD as MCGCD,"
-                + "b.KT5MCCD as MCCD,"
-                + "a.HMCD,"
-                + "a.EDDT,"
-                + "a.ODRQTY,"
-                + "a.JIQTY,"
-                + "a.ODRSTS,"
-                + $"{cmn.IkM0010.TanCd} as MPINSTDT,"
-                + $"{cmn.IkM0010.TanCd} as MPUPDTDT "
-                + "from "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a, "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " b "
-                + "where "
-                + $"a.HMCD = b.HMCD and a.ODRNO='{odrno}' and "
-                + "b.KT5MCCD is not NULL "
-                ;
+                + "values ";
             return sql;
         }
-
-
-        /// <summary>
-        /// 切削設備情報登録/更新 SQL 構文編集 (KM8420 切削設備マスター) 
-        /// </summary>
-        /// <returns>SQL 構文</returns>
-        public string ImportMpOrderSql(DataRow r, string mpCardDt)
+        private string ImportMpOrderBulkData(DataRow r, string mpCardDt)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 登録形式により抽出対象が異なる
             // MySql の DATE 型列に値を代入するときは、その列が時刻を持っているか否かに関わらず、必ず to_datetime('<代入元>') メソッドで変換してから代入する必要がある
             // 代入元が定数か変数化に関わらずシングル クォーテーション括りは必須
             // 代入元に書式 'YYYY/MM/DD HH24:MI:SS' 等の記述は不要、MySql が適切に合わせ込んで登録してくれる
             // この変換を怠ると「ORA-01861: リテラルが書式文字列と一致しません」の例外が発生する
-            string sql = "insert into "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
-                + "("
-                + "ODRNO, "
-                + "KTSEQ, "
-                + "HMCD, "
-                + "KTCD, "
-                + "ODRQTY, "
-                + "ODCD, "
-                + "NEXTODCD, "
-                + "LTTIME, "
-                + "STDT, "
-                + "STTIM, "
-                + "EDDT, "
-                + "EDTIM, "
-                + "ODRSTS, "
-                + "QRCD, "
-                + "JIQTY, "
-                + "DENPYOKBN, "
-                + "DENPYODT, "
-                + "NOTE, "
-                + "WKNOTE, "
-                + "WKCOMMENT, "
-                + "DATAKBN, "
-                + "INSTID, "
-                + "INSTDT, "
-                + "UPDTID, "
-                + "UPDTDT, "
-                + "UKCD, "
-                + "NAIGAIKBN, "
-                + "RETKTCD, "
-                + "MPCARDDT, "
-                + "MPINSTID, "
-                + "MPUPDTID "
-                + ") "
-                + "values "
-                + "("
+            string data = 
+                "("
                 + "'" + r["ODRNO"].ToString() + "',"
-                +       r["KTSEQ"] + ","
+                + r["KTSEQ"] + ","
                 + "'" + r["HMCD"].ToString() + "',"
                 + "'" + r["KTCD"].ToString() + "',"
-                +       r["ODRQTY"] + ","
+                + r["ODRQTY"] + ","
                 + "'" + r["ODCD"].ToString() + "',"
                 + "'" + r["NEXTODCD"].ToString() + "',"
-                +       r["LTTIME"] + ","
+                + r["LTTIME"] + ","
                 + "'" + r["STDT"] + "',"
                 + "'" + r["STTIM"].ToString() + "',"
                 + "'" + r["EDDT"] + "',"
                 + "'" + r["EDTIM"].ToString() + "',"
                 + "'" + r["ODRSTS"].ToString() + "',"
                 + "'" + r["QRCD"].ToString() + "',"
-                +       r["JIQTY"] + ","
+                + r["JIQTY"] + ","
                 + "'" + r["DENPYOKBN"].ToString() + "',"
                 + (r["DENPYODT"].ToString() == "" ? "null," : "'" + r["DENPYODT"] + "',")
                 + "'" + r["NOTE"].ToString() + "',"
@@ -887,10 +779,55 @@ namespace MPPPS
                 + (string.IsNullOrEmpty(mpCardDt) ? "null," : $"'{mpCardDt}',")
                 + "'" + cmn.IkM0010.TanCd + "',"
                 + "'" + cmn.IkM0010.TanCd + "'"
-                + ")"
+                + "),"
+                ;
+            return data;
+        }
+
+        /// <summary>
+        /// SQL 構文編集 KD8440：切削オーダーファイル
+        /// </summary>
+        /// <returns>SQL 構文</returns>
+        private string DivideMpOrderBulkSql()
+        {
+            string sql = "insert into "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                + "("
+                + "ODRNO,"
+                + "MPSEQ,"
+                + "MCGCD,"
+                + "MCCD,"
+                + "HMCD,"
+                + "EDDT,"
+                + "ODRQTY,"
+                + "JIQTY,"
+                + "ODRSTS,"
+                + "MPINSTID,"
+                + "MPUPDTID"
+                + ") values "
                 ;
             return sql;
         }
+        private string DivideMpOrderBulkData(DataRow r, int appendqty, int kt, string mcgcd, string mccd, string odrsts)
+        {
+            string data =
+                "("
+                + "'" + r["ODRNO"].ToString() + "',"
+                + $"{kt},"
+                + $"'{mcgcd}',"
+                + $"'{mccd}',"
+                + "'" + r["HMCD"].ToString() + "',"
+                + "'" + r["EDDT"] + "',"
+                + r["ODRQTY"] + ","
+                + (Convert.ToInt32(r["JIQTY"].ToString()) + appendqty) + ","
+                + $"'{odrsts}',"
+                + $"'{cmn.IkM0010.TanCd}',"
+                + $"'{cmn.IkM0010.TanCd}'"
+                + "),"
+                ;
+            return data;
+        }
+
 
         /// <summary>
         /// 注文情報削除
@@ -3615,10 +3552,10 @@ namespace MPPPS
         /// <summary>
         /// 内示カードファイル一週間分を取得
         /// </summary>
-        /// <param name="mpNaijiDt">空の内示カードデータファイル</param>
+        /// <param name="mpCardDt">空の内示カードデータファイル</param>
         /// <param name="eddtmon">月曜日を日付文字列で指定</param>
         /// <returns>内示カードファイルを取得（月曜日からの一週間分）</returns>
-        public bool GetMpNaiji(ref DataTable mpNaijiDt, string eddtmon)
+        public bool GetMpCard(ref DataTable mpCardDt, string eddtmon)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -3642,7 +3579,7 @@ namespace MPPPS
                     {
                         Debug.WriteLine("Read from DataTable:");
                         // 結果取得
-                        myDa.Fill(mpNaijiDt);
+                        myDa.Fill(mpCardDt);
                         ret = true;
                     }
                 }
@@ -3665,10 +3602,10 @@ namespace MPPPS
         /// <summary>
         /// 内示カードファイル３カ月分を取得
         /// </summary>
-        /// <param name="mpNaijiReportDt">空の内示カードデータファイル</param>
+        /// <param name="mpCardReportDt">空の内示カードデータファイル</param>
         /// <param name="eddtmon">月曜日を日付文字列で指定</param>
         /// <returns>内示カードファイルを取得（月曜日からの一週間分）</returns>
-        public bool GetMpNaijiReport(ref DataTable mpNaijiReportDt, DateTime targetMonth)
+        public bool GetMpCardReport(ref DataTable mpCardReportDt, DateTime targetMonth)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -3694,7 +3631,7 @@ namespace MPPPS
                     {
                         Debug.WriteLine("Read from DataTable:");
                         // 結果取得
-                        myDa.Fill(mpNaijiReportDt);
+                        myDa.Fill(mpCardReportDt);
                         ret = true;
                     }
                 }
