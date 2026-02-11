@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using System.Windows.Interop;
 
 namespace MPPPS
 {
@@ -3712,6 +3713,192 @@ namespace MPPPS
             return ret;
         }
 
+
+        /// <summary>
+        /// 切削オーダーファイル集計（注文ダッシュボード用）
+        /// リアルタイムで集計するのはサーバーの負荷が大きすぎるので
+        /// 夜間バッチor手配取込時に計算してKD8510:集計テーブルを作成
+        /// 先週・今週・来週の3週間分をリフレッシュ
+        /// </summary>
+        /// <param name="emDt">EMの手配ファイル</param>
+        /// <returns>終了状態</returns>
+        public bool HowManyOrders(ref DataTable calendarDt)
+        {
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+            try
+            {
+                // 切削生産計画システム データベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                // 今週の月曜日を取得
+                DateTime today = DateTime.Today;
+                int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+                DateTime thisMonday = today.AddDays(-diff);
+
+                // 稼働日ベースでの先週の月曜日をカレンダーテーブルから取得
+                DateTime prevMonday = thisMonday;
+                int workingDaysCount = 0;
+                while (workingDaysCount == 0)
+                {
+                    prevMonday = prevMonday.AddDays(-7);
+                    workingDaysCount = calendarDt.AsEnumerable()
+                    .Where(row =>
+                        row.Field<DateTime>("YMD") >= prevMonday &&
+                        row.Field<DateTime>("YMD") <= prevMonday.AddDays(5))
+                    .Count();
+                }
+
+                // 稼働日ベースでの来週の月曜日をカレンダーテーブルから取得
+                DateTime nextMonday = thisMonday;
+                workingDaysCount = 0;
+                while (workingDaysCount == 0)
+                {
+                    nextMonday = nextMonday.AddDays(7);
+                    workingDaysCount = calendarDt.AsEnumerable()
+                    .Where(row =>
+                        row.Field<DateTime>("YMD") >= nextMonday &&
+                        row.Field<DateTime>("YMD") <= nextMonday.AddDays(5))
+                    .Count();
+                }
+
+                DateTime[] from = new DateTime[3];
+                DateTime[] to = new DateTime[3];
+                from[0] = prevMonday;
+                from[1] = thisMonday;
+                from[2] = nextMonday;
+                to[0] = prevMonday.AddDays(5);
+                to[1] = thisMonday.AddDays(5);
+                to[2] = nextMonday.AddDays(5);
+
+                string sql = string.Empty;
+                string mpSchema = cmn.DbCd[Common.DB_CONFIG_MP].Schema;
+                int countInsert = 0;
+                int countDelete = 0;
+
+                // ①前回分削除
+                sql = "delete from " + mpSchema + ".kd8510 where EDDT between " +
+                    $"'{from[0]}' and '{to[2]}'";
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    countDelete = myCmd.ExecuteNonQuery();
+                }
+                for (int i = 0; i < 3; i++)
+                {
+                    // ②SW工程（週の段取り回数合計を手配日で割って取得するパターン）
+                    sql = "insert into " + mpSchema + ".kd8510 " +
+                        // サブクエリで週合計段取り回数を日当たりで割った回数を取得
+                        "with w as " +
+                        "(" +
+                            "select MCGCD, MCCD, truncate(count(distinct MATESIZE) / count(distinct EDDT), 2) as SETUPNUM " +
+                            "from " + mpSchema + ".kd8450 a " +
+                            "inner join " + mpSchema + ".km8430 m30 on m30.HMCD=a.HMCD " +
+                            "where a.ODRSTS <> '9' " +
+                                $"and a.EDDT between '{from[i]}' and '{to[i]}' " +
+                                "and concat(a.MCGCD,'-',a.MCCD) in ('SW-SW') " +
+                            "group by a.MCGCD, a.MCCD" +
+                        ")" +
+                        // 本体クエリで日ごとの稼働明細を集計したレコード
+                        "select z.EDDT, z.MCGCD, z.MCCD, m20.KTNKBN" +
+                            ", count(z.HMCD) as アイテム数" +
+                            ", sum(z.ODRQTY) as 注文本数" +
+                            ", sum(z.OT) as 稼働時間" +
+                            ", round(sum(z.OT) / 3600, 2) as 稼働時間h" +
+                            ", w.SETUPNUM as 段取り回数" +
+                            ", w.SETUPNUM * m20.SETUPTM2 as 段取り時間" +
+                            ", round(w.SETUPNUM * m20.SETUPTM2 / 3600, 2) as 段取り時間h" +
+                            ",'YAKAN' as 登録者" +
+                            ", now() as 登録日時 " +
+                        "from " +
+                        "(" +
+                            // サブクエリで稼働明細を取得
+                            "select a.EDDT, a.MCGCD, a.MCCD, a.HMCD, m30.MATESIZE, sum(a.ODRQTY) as ODRQTY" +
+                                ",case " +
+                                    "when a.MCGCD=m30.KT1MCGCD and a.MCCD=m30.KT1MCCD then sum(a.ODRQTY) * ifnull(m30.KT1CT,0)" +
+                                    "when a.MCGCD=m30.KT2MCGCD and a.MCCD=m30.KT2MCCD then sum(a.ODRQTY) * ifnull(m30.KT2CT,0)" +
+                                    "when a.MCGCD=m30.KT3MCGCD and a.MCCD=m30.KT3MCCD then sum(a.ODRQTY) * ifnull(m30.KT3CT,0)" +
+                                    "when a.MCGCD=m30.KT4MCGCD and a.MCCD=m30.KT4MCCD then sum(a.ODRQTY) * ifnull(m30.KT4CT,0)" +
+                                    "when a.MCGCD=m30.KT5MCGCD and a.MCCD=m30.KT5MCCD then sum(a.ODRQTY) * ifnull(m30.KT5CT,0)" +
+                                    "when a.MCGCD=m30.KT6MCGCD and a.MCCD=m30.KT6MCCD then sum(a.ODRQTY) * ifnull(m30.KT6CT,0)" +
+                                    "else 0 " +
+                                "end as OT " +
+                            "from " + mpSchema + ".kd8450 a " +
+                            "inner join " + mpSchema + ".km8430 m30 on m30.HMCD=a.HMCD " +
+                            "where a.ODRSTS <> '9' " +
+                                $"and a.EDDT between '{from[i]}' and '{to[i]}' " +
+                                "and concat(a.MCGCD,'-',a.MCCD) in ('SW-SW') " +
+                            "group by a.EDDT,a.MCGCD,a.MCCD,a.HMCD" +
+                        ") z, " + mpSchema + ".km8420 m20, w " +
+                        "where z.MCGCD=m20.MCGCD and z.MCCD=m20.MCCD and w.MCGCD=z.MCGCD and w.MCCD=z.MCCD " +
+                        "group by z.EDDT, z.MCGCD, z.MCCD, w.SETUPNUM, m20.KTNKBN, m20.SETUPTM2 " +
+                        "order by z.EDDT, z.MCGCD, z.MCCD"
+                    ;
+                    using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                    {
+                        countInsert = myCmd.ExecuteNonQuery();
+                    }
+                    // ③SW工程以外
+                    sql = "insert into " + mpSchema + ".kd8510 " +
+                        // 本体クエリで日ごとの稼働明細を集計したレコード
+                        "select z.EDDT, z.MCGCD, z.MCCD, m20.KTNKBN" +
+                            ", count(z.HMCD) as アイテム数" +
+                            ", sum(z.ODRQTY) as 注文本数" +
+                            ", case when z.MCCD='S500' then sum(z.OT) / 2 else sum(z.OT) end as 稼働時間" +
+                            ", case when z.MCCD='S500' then round(sum(z.OT) / 2 / 3600, 2) else round(sum(z.OT) / 3600, 2) end as 稼働時間h" +
+                            ", case when z.MCCD='S500' then count(distinct z.MATESIZE) / 2 else count(distinct z.MATESIZE) end as 段取り回数" +
+                            ", case when z.MCCD='S500' then count(distinct z.MATESIZE) / 2 * m20.SETUPTM1 else count(distinct z.MATESIZE) * m20.SETUPTM1 end as 段取り時間" +
+                            ", case when z.MCCD='S500' then round(count(distinct z.MATESIZE) / 2 * m20.SETUPTM1 / 3600, 2) else round(count(distinct z.MATESIZE) * m20.SETUPTM1 / 3600, 2) end as 段取り時間h" +
+                            ",'YAKAN' as 登録者" +
+                            ", now() as 登録日時 " +
+                        "from " +
+                        "(" +
+                            // サブクエリで稼働明細を取得
+                            "select a.EDDT, a.MCGCD, a.MCCD, a.HMCD, m30.MATESIZE, sum(a.ODRQTY) as ODRQTY" +
+                                ",case " +
+                                    "when a.MCGCD=m30.KT1MCGCD and a.MCCD=m30.KT1MCCD then sum(a.ODRQTY) * ifnull(m30.KT1CT,0)" +
+                                    "when a.MCGCD=m30.KT2MCGCD and a.MCCD=m30.KT2MCCD then sum(a.ODRQTY) * ifnull(m30.KT2CT,0)" +
+                                    "when a.MCGCD=m30.KT3MCGCD and a.MCCD=m30.KT3MCCD then sum(a.ODRQTY) * ifnull(m30.KT3CT,0)" +
+                                    "when a.MCGCD=m30.KT4MCGCD and a.MCCD=m30.KT4MCCD then sum(a.ODRQTY) * ifnull(m30.KT4CT,0)" +
+                                    "when a.MCGCD=m30.KT5MCGCD and a.MCCD=m30.KT5MCCD then sum(a.ODRQTY) * ifnull(m30.KT5CT,0)" +
+                                    "when a.MCGCD=m30.KT6MCGCD and a.MCCD=m30.KT6MCCD then sum(a.ODRQTY) * ifnull(m30.KT6CT,0)" +
+                                    "else 0 " +
+                                "end as OT " +
+                            "from " + mpSchema + ".kd8450 a " +
+                            "inner join " + mpSchema + ".km8430 m30 on m30.HMCD=a.HMCD " +
+                            "where a.ODRSTS <> '9' " +
+                                $"and a.EDDT between '{from[i]}' and '{to[i]}' " +
+                                "and concat(a.MCGCD,'-',a.MCCD) in " +
+                                "(" +
+                                    "'NC-4','NC-5','NC-6','NC-7','NC-8'," +
+                                    "'MC-3B','MC-3F','MC-CL','3BP-3BI','3BP-3BP','ON-S500'," +
+                                    "'SS-SS','XT-XT','CN-CN1','CN-CN2','CN-CN3','CN-CN4'," +
+                                    "'MS-1','MS-2','MS-3','MS-4','MS-5','MS-6','SK-SK2','TN-TN'" +
+                                ") " +
+                            "group by a.EDDT,a.MCGCD,a.MCCD,a.HMCD" +
+                        ") z, " + mpSchema + ".km8420 m20 " +
+                        "where z.MCGCD=m20.MCGCD and z.MCCD=m20.MCCD " +
+                        "group by z.EDDT, z.MCGCD, z.MCCD, m20.KTNKBN, m20.SETUPTM1, m20.SETUPTM2 " +
+                        "order by z.EDDT, z.MCGCD, z.MCCD"
+                    ;
+                    using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                    {
+                        countInsert += myCmd.ExecuteNonQuery();
+                    }
+                    if (countInsert > 0)
+                    {
+                        Console.WriteLine($"[{from[i]}] {countInsert.ToString("#,0")}件 登録しました．");
+                    }
+                }
+                ret = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
 
 
 

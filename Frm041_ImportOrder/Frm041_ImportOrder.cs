@@ -718,6 +718,9 @@ namespace MPPPS
                 await Task.Run(() => NaijiCardReport(ref mpCardReportDt, ref mpNaijiOriginalDt)); 
             }
 
+            // 切削オーダー集計ファイル:KD8510の作成
+            await Task.Run(() => cmn.Dba.HowManyOrders(ref dtS0820working));
+
             // 取込後、再読み込みして表示
             PopulateCalendar();
 
@@ -752,17 +755,17 @@ namespace MPPPS
             mpCardReportDt.Columns.Remove("MPUPDTDT");
 
             // 仕掛かり在庫列と備考列を追加し仕掛かり在庫テーブルとコメントを設定
-            mpCardReportDt.Columns.Add("仕掛在庫（引当前）", typeof(int));
+            mpCardReportDt.Columns.Add("内示実績（引当前）", typeof(int));
             mpCardReportDt.Columns.Add("備考");
             foreach (DataRow r in mpCardReportDt.Rows)
             {
                 if (mpNaijiOriginalDt.Select($"HMCD='{r["品番"]}'").Length > 0)
                 {
-                    r["仕掛在庫（引当前）"] = mpNaijiOriginalDt.Select($"HMCD='{r["品番"]}'")[0]["JIQTY"];
+                    r["内示実績（引当前）"] = mpNaijiOriginalDt.Select($"HMCD='{r["品番"]}'")[0]["JIQTY"];
                 }
                 else
                 {
-                    r["仕掛在庫（引当前）"] = 0;
+                    r["内示実績（引当前）"] = 0;
                 }
                 r["備考"] = string.Empty;
                 if (int.Parse(r["手配引当数"].ToString()) == 0)
@@ -772,10 +775,10 @@ namespace MPPPS
                 else
                 {
                     if (int.Parse(r["内示数"].ToString()) > int.Parse(r["手配引当数"].ToString())) r["備考"] += "手配減算";
-                    if (int.Parse(r["仕掛在庫（引当前）"].ToString()) >= int.Parse(r["手配引当数"].ToString()))
+                    if (int.Parse(r["内示実績（引当前）"].ToString()) >= int.Parse(r["手配引当数"].ToString()))
                     {
                         r["備考"] += (string.IsNullOrEmpty(r["備考"].ToString())) ? "" : "、";
-                        r["備考"] += "仕掛かり在庫から手配完了";
+                        r["備考"] += "内示実績から手配完了";
 
                     }
                 }
@@ -799,8 +802,8 @@ namespace MPPPS
                 cmn.Fa.SetNaijiReport();            // 内示カードレポートのExcel設定
                 cmn.Fa.SaveWorkBook(@FilePath);     // oWBookを上書き保存
                 cmn.Fa.CloseExcel2();
-                // Interop.Excelではなく標準アプリケーションで開く
-                Process.Start(@FilePath);
+                // Interop.Excelではなく標準アプリケーションで開く 2026.02.11 変更 → 開かない
+                // Process.Start(@FilePath);
             }
             catch (Exception ex) // 例外処理
             {
