@@ -612,6 +612,7 @@ namespace MPPPS
             // マスタ類データテーブル定義
             DataTable mpCodeMDt = new DataTable();      // コード票マスタ
             DataTable mpNaijiDt = new DataTable();      // 内示テーブルの実績ありレコードのみ
+            DataTable mpNaijiTempDt = new DataTable();  // 手配日程テンポラリ
             DataTable mpCardDt = new DataTable();       // 内示カードファイル
             DataTable mpCardReportDt = new DataTable(); // レポート提出用
             DataTable deleteODRNODt = new DataTable();  // 削除したODRNOを控えておくための変数
@@ -619,9 +620,8 @@ namespace MPPPS
             // 全てのマスタ類の読み込み
             Task taskC = Task.Run(() => cmn.Dba.GetCodeSlipMst(ref mpCodeMDt));
             Task taskD = Task.Run(() => cmn.Dba.GetMpNaiji(ref mpNaijiDt));
-            await Task.WhenAll(taskC, taskD);
-            // 引当前実績数を保持
-            DataTable mpNaijiOriginalDt = mpNaijiDt.Copy();
+            Task taskE = Task.Run(() => cmn.Dba.CreateMpNaijiTemp(ref mpNaijiTempDt));
+            await Task.WhenAll(taskC, taskD, taskE);
             // 選択セルの並び替え
             var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
                         where c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING
@@ -702,7 +702,7 @@ namespace MPPPS
                         }
 
                         // MPシステム MySQLに集合差分を挿入
-                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpNaijiDt, ref mpCardDt, ref deleteODRNODt, c.Style.BackColor);
+                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpNaijiDt, ref mpNaijiTempDt, ref mpCardDt, ref deleteODRNODt, c.Style.BackColor);
                         if (insCount < 0) return;
                     }
                 }
@@ -712,10 +712,10 @@ namespace MPPPS
             if (mpCardDt.Rows.Count > 0 || mpCardReportDt.Rows.Count > 0)
             {
                 mpCardReportDt.Merge(mpCardDt);
-                cmn.Dba.UpdateMpNaiji(ref mpCardReportDt); // KD8470:内示カードの更新
+                cmn.Dba.UpdateMpNaijiCard(ref mpCardReportDt); // KD8470:内示カードの更新
                 // 内示カード使用状況レポートの作成
                 // ※mpCardReportDtを直接加工するので以降のコードでは [mpCardReportDt] 使用不可
-                await Task.Run(() => NaijiCardReport(ref mpCardReportDt, ref mpNaijiOriginalDt)); 
+                await Task.Run(() => NaijiCardReport(ref mpCardReportDt)); 
             }
 
             // 切削オーダー集計ファイル:KD8510の作成
@@ -739,7 +739,7 @@ namespace MPPPS
         }
 
         // 内示カードファイルの使用状況をレポート
-        private void NaijiCardReport(ref DataTable mpCardReportDt, ref DataTable mpNaijiOriginalDt)
+        private void NaijiCardReport(ref DataTable mpCardReportDt)
         {
             // データテーブルをExcelに落とした時に見やすくなるよう編集
             // 列ヘッダー名を日本語に変換
@@ -755,18 +755,9 @@ namespace MPPPS
             mpCardReportDt.Columns.Remove("MPUPDTDT");
 
             // 仕掛かり在庫列と備考列を追加し仕掛かり在庫テーブルとコメントを設定
-            mpCardReportDt.Columns.Add("内示実績（引当前）", typeof(int));
             mpCardReportDt.Columns.Add("備考");
             foreach (DataRow r in mpCardReportDt.Rows)
             {
-                if (mpNaijiOriginalDt.Select($"HMCD='{r["品番"]}'").Length > 0)
-                {
-                    r["内示実績（引当前）"] = mpNaijiOriginalDt.Select($"HMCD='{r["品番"]}'")[0]["JIQTY"];
-                }
-                else
-                {
-                    r["内示実績（引当前）"] = 0;
-                }
                 r["備考"] = string.Empty;
                 if (int.Parse(r["手配引当数"].ToString()) == 0)
                 {
@@ -774,13 +765,9 @@ namespace MPPPS
                 }
                 else
                 {
-                    if (int.Parse(r["内示数"].ToString()) > int.Parse(r["手配引当数"].ToString())) r["備考"] += "手配減算";
-                    if (int.Parse(r["内示実績（引当前）"].ToString()) >= int.Parse(r["手配引当数"].ToString()))
-                    {
-                        r["備考"] += (string.IsNullOrEmpty(r["備考"].ToString())) ? "" : "、";
-                        r["備考"] += "内示実績から手配完了";
-
-                    }
+                    int plnqty = int.Parse(r["内示数"].ToString());
+                    int allocqty = int.Parse(r["手配引当数"].ToString());
+                    r["備考"] = (plnqty > allocqty) ? "手配減産" : (plnqty < allocqty) ? "手配増加" : "";
                 }
             }
 

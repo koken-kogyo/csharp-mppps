@@ -3025,12 +3025,24 @@ namespace MPPPS
             FormatCondition condition2 = (FormatCondition)formatConditions2.Add(
                 XlFormatConditionType.xlExpression,
                 Type.Missing,
-                "=AND(D2>0,F2>0)" // 条件式: D列が1以上かつF列が1以上
+                "=C2<D2" // 手配増加
             );
-
             // 書式の設定（背景色を赤、フォントを黄色にする）
-            condition2.Interior.Color = XlRgbColor.rgbLightPink;
+            condition2.Interior.Color = XlRgbColor.rgbRed;
             condition2.Font.Color = XlRgbColor.rgbYellow;
+            condition2.Font.Bold= true;
+
+            // 条件付き書式③を追加
+            Range formatRange3 = oWSheet.Range["F2:F65535"];
+            FormatConditions formatConditions3 = formatRange3.FormatConditions;
+            FormatCondition condition3 = (FormatCondition)formatConditions3.Add(
+                XlFormatConditionType.xlExpression,
+                Type.Missing,
+                "=LEN(TRIM(F2))>0" // 条件式: D列が1以上かつF列が1以上
+            );
+            // 書式の設定（背景色を赤、フォントを黄色にする）
+            condition3.Interior.Color = XlRgbColor.rgbLightPink;
+            condition3.Font.Color = XlRgbColor.rgbYellow;
 
             // UsedRangeに格子を設定
             SetUsedRangeBorders();       

@@ -1,9 +1,11 @@
 ﻿using MySql.Data.MySqlClient;
+using NLog.Targets;
 using System;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
@@ -410,11 +412,8 @@ namespace MPPPS
         /// <returns>内示実績ありデータ</returns>
         public bool GetMpNaiji(ref DataTable mpNaijiDt)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             bool ret = false;
             MySqlConnection mpCnn = null;
-
             try
             {
                 // MPデータベースへ接続
@@ -422,14 +421,72 @@ namespace MPPPS
 
                 string sql = "select * from "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
-                    + "where JIQTY > 0 order by EDDT desc, EDTM desc, PLNNO desc, HMCD";
+                    + "where JIQTY > 0 order by HMCD asc, EDDT asc, EDTM asc, PLNNO asc";
                 using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
                 {
                     using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
                     {
-                        Debug.WriteLine("Read from DataTable:");
-                        // 結果取得
                         myDa.Fill(mpNaijiDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // エラー
+                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
+                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 手配日程テンポラリの作成
+        /// </summary>
+        /// <param name="mpNaijiTempDt">内示実績ありデータ</param>
+        /// <returns>内示実績ありデータ</returns>
+        public bool CreateMpNaijiTemp(ref DataTable mpNaijiTempDt)
+        {
+            bool ret = false;
+            MySqlConnection mpCnn = null;
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = mpCnn;
+
+                // 手配日程テンポラリの削除
+                cmd.CommandText = "delete from "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440;
+                int deleteCount = cmd.ExecuteNonQuery();
+
+                // 手配日程テンポラリの作成
+                string tancd = cmn.IkM0010.TanCd;
+                string sql = "insert into " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440 + " " +
+                    "(HMCD, JIQTY, ODRALLOC, PLNALLOC, INSTID, UPDTID) " +
+                    $"select HMCD, sum(JIQTY), 0, 0, '{tancd}','{tancd}' from " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " " +
+                    "group by HMCD having sum(JIQTY) > 0 order by HMCD";
+                cmd.CommandText = sql;
+                int insertCount = cmd.ExecuteNonQuery();
+
+                // 手配日程テンポラリ読み込み
+                sql = "select * from " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        myDa.Fill(mpNaijiTempDt);
                         ret = true;
                     }
                 }
@@ -455,9 +512,10 @@ namespace MPPPS
         /// <param name="exceptDt">EM側の登録すべきデータテーブル</param>
         /// <param name="codeDt">コード票マスタ</param>
         /// <param name="naijiDt">内示実績ありレコード</param>
+        /// <param name="mpNaijiTempDt">手配日程テンポラリ</param>
         /// <param name="cardDt">内示カードファイル（手配登録時に印刷済み）</param>
         /// <returns>挿入件数、失敗時-1</returns>
-        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt, ref DataTable naijiDt, ref DataTable cardDt, ref DataTable deleteODRNODt, Color styleBackColor)
+        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt, ref DataTable naijiDt, ref DataTable mpNaijiTempDt, ref DataTable cardDt, ref DataTable deleteODRNODt, Color styleBackColor)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -507,7 +565,7 @@ namespace MPPPS
                         }
                     }
 
-                    // 内示カード発行済みの手配引当数を加算
+                    // 内示カード発行済みの場合は手配カードを出させない
                     string MPCARDDT = string.Empty;
                     if (cardDt.Rows.Count > 0 && cardDt.Select($"HMCD='{hmcd}'").Count() != 0)
                     {
@@ -516,19 +574,13 @@ namespace MPPPS
                         int planqty = Int32.Parse(cr[0]["PLANQTY"].ToString());
                         int allocqty = Int32.Parse(cr[0]["ALLOCQTY"].ToString());
                         int odrqty = Int32.Parse(r["ODRQTY"].ToString());
-                        if (planqty - allocqty >= odrqty)
+                        if ((planqty - allocqty) >= odrqty)
                         {
                             MPCARDDT = "2999/12/31 23:59:00";
-                            cr[0]["ALLOCQTY"] = allocqty + odrqty;
-                            cr[0]["MPUPDTID"] = cmn.DrCommon.UpdtID;
-                            cr[0]["MPUPDTDT"] = DateTime.Now;
                         }
-                        else
-                        {
-                            cr[0]["ALLOCQTY"] = planqty;
-                            cr[0]["MPUPDTID"] = cmn.DrCommon.UpdtID;
-                            cr[0]["MPUPDTDT"] = DateTime.Now;
-                        }
+                        cr[0]["ALLOCQTY"] = allocqty + odrqty;
+                        cr[0]["MPUPDTID"] = cmn.DrCommon.UpdtID;
+                        cr[0]["MPUPDTDT"] = DateTime.Now;
                     }
 
                     // KD8430:切削手配ファイルの登録
@@ -542,7 +594,7 @@ namespace MPPPS
                         string mcgcd = mr[0][$"KT{kt}MCGCD"].ToString();
                         string mccd = mr[0][$"KT{kt}MCCD"].ToString();
 
-                        int appendqty = 0;
+                        int appendqty = 0; // 実績に加算する数量
                         string odrsts = r["ODRSTS"].ToString();
                         // 追加処理の場合は実績数とステータスをいじらない
                         if (styleBackColor == Common.FRM40_BG_COLOR_WARNING)
@@ -555,44 +607,26 @@ namespace MPPPS
                         {
                             int odrqty = Convert.ToInt32(r["ODRQTY"].ToString());
                             int odrjiq = Convert.ToInt32(r["JIQTY"].ToString());
-                            int countdownqty = odrqty - odrjiq;
-                            // KD8440:手配日程ファイル（実績あり）を取得しループ
-                            DataRow[] jissekiRecords = naijiDt.Select($"HMCD='{hmcd}' and JIQTY>0");
-                            foreach (DataRow jr in jissekiRecords)
+                            int needqty = odrqty - odrjiq;
+                            // KW8440:手配日程テンポラリ
+                            DataRow[] wr = mpNaijiTempDt.Select($"HMCD='{hmcd}' and JIQTY>ODRALLOC");
+                            if (wr.Length > 0)
                             {
-                                int naijiq = Convert.ToInt32(jr["JIQTY"].ToString());
-                                if (countdownqty < naijiq) // 内示データの実績数が余った場合
-                                {
-                                    jr["JIQTY"] = naijiq - countdownqty;
-                                    jr["ODRSTS"] = "3";
-                                    appendqty += countdownqty;
-                                    countdownqty = 0;
-                                }
-                                else // 内示データの実績数を使い切った場合
-                                {
-                                    jr["JIQTY"] = 0;
-                                    jr["ODRSTS"] = "2";
-                                    appendqty += naijiq;
-                                    countdownqty -= naijiq;
-                                }
-                                // KD8440:手配日程ファイル実績数を減算
-                                string plnno = jr["PLNNO"].ToString();
-                                string newsts = jr["ODRSTS"].ToString();
-                                int newjiqty = Convert.ToInt32(jr["JIQTY"].ToString());
-                                sql = SubtracJissekiSql(plnno, newjiqty, newsts);
-                                cmd.CommandText = sql;
-                                cmd.ExecuteNonQuery();
-                                // 手配データの実績数が完了していた場合はループを抜ける
-                                if (countdownqty <= 0) break;
-                            }
-                            // KW8440:手配日程ファイルテンポラリ手配引当数に「内示実績から移動させた数」を加算
-                            sql = orderAllocSql(hmcd, appendqty);
-                            cmd.CommandText = sql;
-                            cmd.ExecuteNonQuery();
+                                int jiqty = Convert.ToInt32(wr[0]["JIQTY"].ToString());
+                                int allocqty = Convert.ToInt32(wr[0]["ODRALLOC"].ToString());
 
-                            // 「内示実績から移動させた数」と手配の数を比較
-                            if (appendqty > 0)
-                                odrsts = (countdownqty == 0) ? "4" : "3";
+                                if ((jiqty - allocqty) >= needqty)
+                                {
+                                    wr[0]["ODRALLOC"] = allocqty + needqty;     // テンポラリの引当数にまだまだ余裕がある
+                                    odrsts = "4";
+                                    appendqty = needqty;
+                                } else
+                                {
+                                    wr[0]["ODRALLOC"] = jiqty;                  // テンポラリの引当数を使い切った
+                                    appendqty = jiqty - allocqty;
+                                    odrsts = "3";
+                                }
+                            }
                         }
 
                         // KD8450:切削オーダーファイルの登録（各設備毎に分解）
@@ -621,6 +655,9 @@ namespace MPPPS
                     insert8450 = cmd.ExecuteNonQuery();
                 }
                 Debug.WriteLine(exceptDt.Rows[0]["EDDT"].ToString() + $"手配: {insert8430} ({insert8450})件取込");
+
+                // 内示ファイルと手配日程テンポラリの更新
+                UpdateMpNaijiTemp(ref mpCnn, ref naijiDt, ref mpNaijiTempDt);
 
                 // トランザクション終了
                 transaction.Commit();
@@ -660,39 +697,97 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 手配日程ファイルから実績数を引き落とす処理
+        /// 内示ファイルと手配日程テンポラリの更新
+        /// 手配日程テンポラリを参照し、内示実績をクリアした後、余りがあれば実績を付け替える
         /// </summary>
         /// <param name="plnno">計画No</param>
         /// <returns>SQL 構文</returns>
-        private string SubtracJissekiSql(string plnno, int newjiqty, string newsts)
+        private bool UpdateMpNaijiTemp(ref MySqlConnection mpCnn, ref DataTable naijiDt, ref DataTable mpNaijiTempDt)
         {
-            string sql = "update "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
-                + "set "
-                + $"JIQTY = {newjiqty},"
-                + $"ODRSTS = '{newsts}',"
-                + $"UPDTID = '{cmn.IkM0010.TanCd}', UPDTDT = now() "
-                + $"where PLNNO = '{plnno}'"
-            ;
-            return sql;
-        }
+            MySqlCommand cmd = new MySqlCommand();
+            cmd.Connection = mpCnn;
+            int updateCount = 0;
+            string sql = string.Empty;
+            string tancd = cmn.IkM0010.TanCd;
 
+            foreach (DataRow tmpRow in mpNaijiTempDt.Rows)
+            {
+                string hmcd = tmpRow["HMCD"].ToString();
+                int jiqty = Convert.ToInt32(tmpRow["JIQTY"].ToString());
+                int odralloc = Convert.ToInt32(tmpRow["ODRALLOC"].ToString());
+                int plnalloc = 0;
+                int countdownQty = jiqty - odralloc;
+                if (tmpRow.RowState != DataRowState.Unchanged)
+                {
+                    DataRow[] targetRows =
+                        naijiDt.Select($"HMCD='{hmcd}' and JIQTY>0",
+                        "EDDT asc, EDTM asc, PLNNO asc");
 
-        /// <summary>
-        /// 手配日程テンポラリの手配引当数を加算する処理
-        /// </summary>
-        /// <param name="plnno">計画No</param>
-        /// <returns>SQL 構文</returns>
-        private string orderAllocSql(string hmcd, int appendqty)
-        {
-            string sql = "update "
-                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440 + " "
-                + "set "
-                + $"ODRALLOC = ODRALLOC + {appendqty},"
-                + $"UPDTID = '{cmn.IkM0010.TanCd}', UPDTDT = now() "
-                + $"where HMCD = '{hmcd}'"
-            ;
-            return sql;
+                    // 対象品番の実績数とステータスを一括クリア
+                    sql = $"update " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " " +
+                    $"set JIQTY=0, ODRSTS='2' where HMCD='{hmcd}' and JIQTY>0";
+                    cmd.CommandText = sql;
+                    cmd.ExecuteNonQuery();
+                    foreach (DataRow row in targetRows)
+                    {
+                        row["JIQTY"] = 0;
+                        row["ODRSTS"] = "2";
+                    }
+                    // 実績の残りを付け替え
+                    foreach (DataRow row in targetRows)
+                    {
+                        if (countdownQty == 0) break; // 実績の余りが無い場合は即、手配日程テンポラリの更新へ
+                        string plnno = row["PLNNO"].ToString();
+                        int odrqty = Convert.ToInt32(row["ODRQTY"].ToString());
+                        if (countdownQty >= odrqty)
+                        {
+                            // 内示の実績を付け替え
+                            sql = $"update " +
+                            cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " " +
+                            $"set JIQTY={odrqty}, ODRSTS='4', UPDTID='{tancd}', UPDTDT=now() where PLNNO='{plnno}'";
+                            cmd.CommandText = sql;
+                            cmd.ExecuteNonQuery();
+                            row["JIQTY"] = odrqty;
+                            row["ODRSTS"] = "4";
+                            // テンポラリの内示引落変数に加算
+                            plnalloc += odrqty;
+                            // ループ変数から引落
+                            countdownQty -= odrqty;
+                        }
+                        else
+                        {
+                            // 内示の実績を付け替え
+                            sql = $"update " +
+                            cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " " +
+                            $"set JIQTY={countdownQty}, ODRSTS='3', UPDTID='{tancd}', UPDTDT=now() where PLNNO='{plnno}'";
+                            cmd.CommandText = sql;
+                            cmd.ExecuteNonQuery();
+                            row["JIQTY"] = countdownQty;
+                            row["ODRSTS"] = "3";
+                            // テンポラリの内示引落変数に加算
+                            plnalloc += countdownQty;
+                            // ループ変数をクリア
+                            countdownQty = 0;
+                        }
+                    }
+                    // テンポラリの内示引落数を更新
+                    sql = $"update " +
+                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440 + " " +
+                    $"set ODRALLOC={odralloc},PLNALLOC={plnalloc} where HMCD='{hmcd}'";
+                    cmd.CommandText = sql;
+                    cmd.ExecuteNonQuery();
+                    tmpRow["PLNALLOC"] = plnalloc;
+
+                    updateCount++;
+                }
+            }
+            if (updateCount > 0)
+            {
+                naijiDt.AcceptChanges();
+                mpNaijiTempDt.AcceptChanges();
+            }
+            return true;
         }
 
 
@@ -3658,7 +3753,7 @@ namespace MPPPS
         /// </summary>
         /// <param name="mpNaijiReportDt">DataGridView</param>
         /// <returns>注文情報データ</returns>
-        public bool UpdateMpNaiji(ref DataTable mpNaijiReportDt)
+        public bool UpdateMpNaijiCard(ref DataTable mpNaijiReportDt)
         {
             bool ret = false;
             MySqlConnection mpCnn = null;

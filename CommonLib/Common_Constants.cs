@@ -20,7 +20,7 @@ namespace MPPPS
         public static readonly string KEN_PGM_ID = "KMD000ZZ";                  // 製造部プログラム ID
         public static readonly string MY_PGM_ID = "KMD001SF";                   // プログラム ID
         public static readonly string MY_PGM_NAME = "切削生産計画システム";     // プログラム名称
-        public static readonly string MY_PGM_VER = "260119.01";                 // プログラム バージョン
+        public static readonly string MY_PGM_VER = "260215.01";                 // プログラム バージョン
         public static readonly string PGM_STS_CD_ALPHA = "a";                   // プログラムの状態 (α版)
         public static readonly string PGM_STS_CD_BETA = "b";                    // プログラムの状態 (β版)
         public static readonly string PGM_STS_TXT_ALPHA = "アルファ版";         // プログラムの状態 (α版)
