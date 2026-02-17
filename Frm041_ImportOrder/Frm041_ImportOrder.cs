@@ -620,8 +620,10 @@ namespace MPPPS
             // 全てのマスタ類の読み込み
             Task taskC = Task.Run(() => cmn.Dba.GetCodeSlipMst(ref mpCodeMDt));
             Task taskD = Task.Run(() => cmn.Dba.GetMpNaiji(ref mpNaijiDt));
-            Task taskE = Task.Run(() => cmn.Dba.CreateMpNaijiTemp(ref mpNaijiTempDt));
-            await Task.WhenAll(taskC, taskD, taskE);
+            await Task.WhenAll(taskC, taskD);
+            // 火曜日の取込時のみ内示実績の付け替えを行いたい
+            bool isNotRed = IsSelectedCellsNotRed();
+            cmn.Dba.CreateMpNaijiTemp(ref mpNaijiTempDt, isNotRed);
             // 選択セルの並び替え
             var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
                         where c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING
@@ -736,6 +738,18 @@ namespace MPPPS
             toolStripStatusLabel2.Text = insCount.ToString("#,0") + "件の登録 ";
             toolStripStatusLabel2.Text += (delCount > 0) ? delCount.ToString("#,0") + "件を削除 " : "";
             toolStripStatusLabel2.Text += "しました．";
+        }
+
+        // セルの背景色に赤が1つでも含まれていたら falseを返却
+        private bool IsSelectedCellsNotRed()
+        {
+            var selectedCells = Dgv_Calendar.SelectedCells;
+            if (selectedCells.Count == 0) return false; // 選択なしは false
+            foreach (DataGridViewCell c in selectedCells)
+            {
+                if (c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING) return false;
+            }
+            return true;
         }
 
         // 内示カードファイルの使用状況をレポート

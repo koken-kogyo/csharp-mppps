@@ -113,7 +113,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
             MySqlConnection cnn = null;
 
             try
@@ -190,7 +190,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -258,7 +258,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -314,7 +314,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -367,7 +367,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -412,7 +412,7 @@ namespace MPPPS
         /// <returns>内示実績ありデータ</returns>
         public bool GetMpNaiji(ref DataTable mpNaijiDt)
         {
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
             try
             {
@@ -451,37 +451,42 @@ namespace MPPPS
         /// </summary>
         /// <param name="mpNaijiTempDt">内示実績ありデータ</param>
         /// <returns>内示実績ありデータ</returns>
-        public bool CreateMpNaijiTemp(ref DataTable mpNaijiTempDt)
+        public bool CreateMpNaijiTemp(ref DataTable mpNaijiTempDt, bool isNotRed)
         {
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
             try
             {
                 // MPデータベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                MySqlCommand cmd = new MySqlCommand();
-                cmd.Connection = mpCnn;
+                MySqlCommand cmd = new MySqlCommand
+                {
+                    Connection = mpCnn
+                };
 
-                // 手配日程テンポラリの削除
-                cmd.CommandText = "delete from "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440;
-                int deleteCount = cmd.ExecuteNonQuery();
+                if (isNotRed)
+                {
+                    // 手配日程テンポラリの削除
+                    cmd.CommandText = "delete from "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440;
+                    int deleteCount = cmd.ExecuteNonQuery();
 
-                // 手配日程テンポラリの作成
-                string tancd = cmn.IkM0010.TanCd;
-                string sql = "insert into " +
-                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440 + " " +
-                    "(HMCD, JIQTY, ODRALLOC, PLNALLOC, INSTID, UPDTID) " +
-                    $"select HMCD, sum(JIQTY), 0, 0, '{tancd}','{tancd}' from " +
-                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " " +
-                    "group by HMCD having sum(JIQTY) > 0 order by HMCD";
-                cmd.CommandText = sql;
-                int insertCount = cmd.ExecuteNonQuery();
-
+                    // 手配日程テンポラリの作成
+                    string tancd = cmn.IkM0010.TanCd;
+                    string insertSql = "insert into " +
+                        cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440 + " " +
+                        "(HMCD, JIQTY, ODRALLOC, PLNALLOC, INSTID, UPDTID) " +
+                        $"select HMCD, sum(JIQTY), 0, 0, '{tancd}','{tancd}' from " +
+                        cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " " +
+                        "group by HMCD having sum(JIQTY) > 0 order by HMCD";
+                    cmd.CommandText = insertSql;
+                    int insertCount = cmd.ExecuteNonQuery();
+                }
                 // 手配日程テンポラリ読み込み
-                sql = "select * from " +
+                string sql = "select * from " +
                     cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440;
+                if (!isNotRed) sql += " " + "limit 0";
                 using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
                 {
                     using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
@@ -530,8 +535,10 @@ namespace MPPPS
 
                 // トランザクション開始
                 transaction = mpCnn.BeginTransaction();
-                MySqlCommand cmd = new MySqlCommand();
-                cmd.Connection = mpCnn;
+                MySqlCommand cmd = new MySqlCommand
+                {
+                    Connection = mpCnn
+                };
 
                 // Bulk Insert用
                 StringBuilder sb30 = new StringBuilder();
@@ -620,7 +627,8 @@ namespace MPPPS
                                     wr[0]["ODRALLOC"] = allocqty + needqty;     // テンポラリの引当数にまだまだ余裕がある
                                     odrsts = "4";
                                     appendqty = needqty;
-                                } else
+                                }
+                                else
                                 {
                                     wr[0]["ODRALLOC"] = jiqty;                  // テンポラリの引当数を使い切った
                                     appendqty = jiqty - allocqty;
@@ -657,7 +665,10 @@ namespace MPPPS
                 Debug.WriteLine(exceptDt.Rows[0]["EDDT"].ToString() + $"手配: {insert8430} ({insert8450})件取込");
 
                 // 内示ファイルと手配日程テンポラリの更新
-                UpdateMpNaijiTemp(ref mpCnn, ref naijiDt, ref mpNaijiTempDt);
+                if (styleBackColor != Common.FRM40_BG_COLOR_WARNING)
+                {
+                    UpdateMpNaijiTemp(ref mpCnn, ref naijiDt, ref mpNaijiTempDt);
+                }
 
                 // トランザクション終了
                 transaction.Commit();
@@ -665,7 +676,7 @@ namespace MPPPS
             catch (Exception ex)
             {
                 // ロールバック
-                if (transaction != null) transaction.Rollback();
+                transaction?.Rollback();
 
                 // エラー
                 string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
@@ -704,10 +715,12 @@ namespace MPPPS
         /// <returns>SQL 構文</returns>
         private bool UpdateMpNaijiTemp(ref MySqlConnection mpCnn, ref DataTable naijiDt, ref DataTable mpNaijiTempDt)
         {
-            MySqlCommand cmd = new MySqlCommand();
-            cmd.Connection = mpCnn;
+            MySqlCommand cmd = new MySqlCommand
+            {
+                Connection = mpCnn
+            };
             int updateCount = 0;
-            string sql = string.Empty;
+            string sql;
             string tancd = cmn.IkM0010.TanCd;
 
             foreach (DataRow tmpRow in mpNaijiTempDt.Rows)
@@ -945,8 +958,10 @@ namespace MPPPS
 
                 // トランザクション開始
                 transaction = mpCnn.BeginTransaction();
-                MySqlCommand cmd = new MySqlCommand();
-                cmd.Connection = mpCnn;
+                MySqlCommand cmd = new MySqlCommand
+                {
+                    Connection = mpCnn
+                };
 
                 foreach (DataRow r in exceptDt.Rows)
                 {
@@ -979,7 +994,7 @@ namespace MPPPS
             catch (Exception ex)
             {
                 // ロールバック
-                if (transaction != null) transaction.Rollback();
+                transaction?.Rollback();
 
                 // エラー
                 string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
@@ -1003,7 +1018,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
             MySqlTransaction transaction = null;
 
@@ -1014,8 +1029,10 @@ namespace MPPPS
 
                 // トランザクション開始
                 transaction = mpCnn.BeginTransaction();
-                MySqlCommand cmd = new MySqlCommand();
-                cmd.Connection = mpCnn;
+                MySqlCommand cmd = new MySqlCommand
+                {
+                    Connection = mpCnn
+                };
 
                 string sql = string.Empty;
 
@@ -1125,7 +1142,7 @@ namespace MPPPS
             catch (Exception ex)
             {
                 // ロールバック
-                if (transaction != null) transaction.Rollback();
+                transaction?.Rollback();
 
                 // エラー
                 string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
@@ -1261,7 +1278,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -1328,7 +1345,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -1401,7 +1418,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
 
             MySqlConnection cnn = null;
 
@@ -1445,11 +1462,8 @@ namespace MPPPS
 
                             Debug.WriteLine("Exception Source = " + e.Source);
                             Debug.WriteLine("Exception Message = " + e.Message);
-                            if (cnn != null)
-                            {
-                                // 接続を閉じる
-                                cnn.Close();
-                            }
+                            // 接続を閉じる
+                            cnn?.Close();
                             ret = -1;
                         }
                     }
@@ -1482,7 +1496,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -1541,7 +1555,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -1635,7 +1649,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -1822,7 +1836,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
 
             MySqlConnection cnn = null;
 
@@ -1873,11 +1887,8 @@ namespace MPPPS
 
                             Debug.WriteLine("Exception Source = " + e.Source);
                             Debug.WriteLine("Exception Message = " + e.Message);
-                            if (cnn != null)
-                            {
-                                // 接続を閉じる
-                                cnn.Close();
-                            }
+                            // 接続を閉じる
+                            cnn?.Close();
                             ret = -1;
                         }
                     }
@@ -1908,7 +1919,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -1967,7 +1978,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -2024,7 +2035,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -2129,7 +2140,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
 
             MySqlConnection cnn = null;
 
@@ -2199,11 +2210,8 @@ namespace MPPPS
 
                             Debug.WriteLine("Exception Source = " + e.Source);
                             Debug.WriteLine("Exception Message = " + e.Message);
-                            if (cnn != null)
-                            {
-                                // 接続を閉じる
-                                cnn.Close();
-                            }
+                            // 接続を閉じる
+                            cnn?.Close();
                             ret = -1;
                         }
                     }
@@ -2231,9 +2239,9 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
-            MySqlTransaction transaction = null;
+            MySqlTransaction transaction;
 
             try
             {
@@ -2242,8 +2250,10 @@ namespace MPPPS
 
                 // トランザクション開始
                 transaction = mpCnn.BeginTransaction();
-                MySqlCommand cmd = new MySqlCommand();
-                cmd.Connection = mpCnn;
+                MySqlCommand cmd = new MySqlCommand
+                {
+                    Connection = mpCnn
+                };
 
                 string sql = string.Empty;
 
@@ -2287,7 +2297,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -2335,7 +2345,7 @@ namespace MPPPS
 
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -2539,7 +2549,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -2587,7 +2597,7 @@ namespace MPPPS
 
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -2703,7 +2713,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -2751,7 +2761,7 @@ namespace MPPPS
 
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -3083,7 +3093,7 @@ namespace MPPPS
         /// <returns>取得件数</returns>
         public bool GetTehaiZan(ref DataTable tehaiDt, int offsetdays)
         {
-            bool ret = false;
+            bool ret;
             DateTime today = DateTime.Today;
             if (today.DayOfWeek <= DayOfWeek.Monday) today = today.AddDays(-7);         // 基準日（月曜日までは先週扱い）
             int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek) % 7;   // 基準日を月曜日にする為の差分値
@@ -3158,7 +3168,7 @@ namespace MPPPS
         /// <returns>取得件数</returns>
         public bool GetNaiji(ref DataTable naijiDt)
         {
-            bool ret = false;
+            bool ret;
             DateTime today = DateTime.Today;
             if (today.DayOfWeek <= DayOfWeek.Monday) today = today.AddDays(-7);         // 基準日（月曜日までは先週扱い）
             int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek) % 7;   // 基準日を月曜日にする為の差分値
@@ -3223,7 +3233,7 @@ namespace MPPPS
         /// <returns>取得件数</returns>
         public bool GetZaiko(ref DataTable zaikoDt)
         {
-            bool ret = false;
+            bool ret;
             DateTime today = DateTime.Today;
             if (today.DayOfWeek <= DayOfWeek.Monday) today = today.AddDays(-7);         // 基準日（月曜日までは先週扱い）
             int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek) % 7;   // 基準日を月曜日にする為の差分値
@@ -3296,7 +3306,7 @@ namespace MPPPS
         // ②1つ前の(KTSEQ - 10 ) を抽出する
         public bool GetMPMaeKT(ref DataTable maektDt)
         {
-            bool ret = false;
+            bool ret;
 
             MySqlConnection mpCnn = null;
             try
@@ -3366,7 +3376,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -3540,7 +3550,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
 
             MySqlConnection cnn = null;
 
@@ -3620,11 +3630,8 @@ namespace MPPPS
 
                             Debug.WriteLine("Exception Source = " + e.Source);
                             Debug.WriteLine("Exception Message = " + e.Message);
-                            if (cnn != null)
-                            {
-                                // 接続を閉じる
-                                cnn.Close();
-                            }
+                            // 接続を閉じる
+                            cnn?.Close();
                             ret = -1;
                         }
                     }
@@ -3655,7 +3662,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -3705,7 +3712,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
@@ -3755,7 +3762,7 @@ namespace MPPPS
         /// <returns>注文情報データ</returns>
         public bool UpdateMpNaijiCard(ref DataTable mpNaijiReportDt)
         {
-            bool ret = false;
+            bool ret;
             MySqlConnection mpCnn = null;
 
             try
