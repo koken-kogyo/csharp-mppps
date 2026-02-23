@@ -2348,8 +2348,8 @@ namespace MPPPS
             // ⑯TN(2)シートの作成
             toolStripStatusLabel.Text = "[TN(2)] 工程 (16/22) を作成中...";
             FilterCopyPaste3("TN(2)", 36
-                , new string[] {"TN1", "TN3", "TN4", "TN" }
-                , new string[] { "1", "3", "4", "TN" }
+                , new string[] {"TN2", "TN3", "TN4", "TN5", "TN6" }
+                , new string[] { "2", "3", "4", "5", "6" }
                 , ref toolStripStatusLabel);
             // ⑰SS(2)シートの作成
             toolStripStatusLabel.Text = "[SS(2)] 工程 (17/22) を作成中...";
