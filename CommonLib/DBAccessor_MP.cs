@@ -3974,7 +3974,8 @@ namespace MPPPS
                                     "'NC-4','NC-5','NC-6','NC-7','NC-8'," +
                                     "'MC-3B','MC-3F','MC-CL','3BP-3BI','3BP-3BP','ON-S500'," +
                                     "'SS-SS','XT-XT','CN-CN1','CN-CN2','CN-CN3','CN-CN4'," +
-                                    "'MS-1','MS-2','MS-3','MS-4','MS-5','MS-6','SK-SK2','TN-TN'" +
+                                    "'MS-1','MS-2','MS-3','MS-4','MS-5','MS-6','SK-SK2'," +
+                                    "'TN-2','TN-3','TN-4','TN-5','TN-6'" +
                                 ") " +
                             "group by a.EDDT,a.MCGCD,a.MCCD,a.HMCD" +
                         ") z, " + mpSchema + ".km8420 m20 " +

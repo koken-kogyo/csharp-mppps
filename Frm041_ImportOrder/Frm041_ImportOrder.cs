@@ -362,7 +362,7 @@ namespace MPPPS
                     Dgv_Calendar[column, row].Style.ForeColor = Common.FRM40_COLOR_BLACK;
                     Dgv_Calendar[column, row].Value = dayOfNextMonth + $"\nEM取消が\n{emCancel - mpCancel}件あります";
                 }
-                else if (orderDt.Select($"EDDT='{nextDate}' and MP取込件数>0 and MP印刷件数>MP印刷対象").Count() != 0)
+                else if (orderDt.Select($"EDDT='{nextDate}' and MP取込件数>0 and MP印刷件数=MP印刷対象").Count() != 0)
                 {
                     // 製造指示カード印刷済み
                     Dgv_Calendar[column, row].Style.BackColor = Common.FRM40_BG_COLOR_PRINTED;
