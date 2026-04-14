@@ -1,15 +1,12 @@
 ﻿using MySql.Data.MySqlClient;
-using NLog.Targets;
 using System;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using System.Windows.Interop;
 
 namespace MPPPS
 {
@@ -2028,10 +2025,9 @@ namespace MPPPS
         /// <summary>
         /// 内示カード(SW工程)に印刷するデータの取得
         /// </summary>
-        /// <param name="dt">内示カードデータ</param>
-        /// <param name="weekeddt">週初完了予定日</param>
+        /// <param name="mpDt">内示カードデータ</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int GetPlanCardPrintInfo(DateTime weekeddt, ref DataTable mpDt)
+        public int GetPlanCardPrintInfo(ref DateTime eddtFrom, ref DateTime eddtTo, ref DataTable mpDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2086,7 +2082,7 @@ namespace MPPPS
                     + "a.HMCD = b.HMCD "
                     + "and a.ODRSTS <> '9' "
                     + "and a.ODCD like '6060%' "
-                    + $"and a.WEEKEDDT = '{weekeddt}' "
+                    + $"and a.EDDT between '{eddtFrom}' and '{eddtTo}' "
                     + "and b.KT1MCGCD = c.MCGCD "
                     + "and b.KT1MCCD = c.MCCD "
                     + "and b.KT1MCGCD = 'SW' "
@@ -2134,9 +2130,8 @@ namespace MPPPS
         /// <summary>
         /// 内示カード発行済み登録（新規印刷）
         /// </summary>
-        /// <param name="weekEddt">検査対象月</param>
         /// <returns>結果 (0≦: 成功 (件数), 0＞: 失敗)</returns>
-        public int InsertPlanCard(DateTime weekEddt)
+        public int InsertPlanCard(ref DateTime eddtFrom, ref DateTime eddtTo)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -2179,14 +2174,14 @@ namespace MPPPS
                 + "WHERE "
                 + "a.HMCD=b.HMCD "
                 + "and b.KT1MCGCD = 'SW' "
-                + $"and a.WEEKEDDT = '{weekEddt.ToString()}' "
+                + $"and a.EDDT between '{eddtFrom}' and '{eddtTo}' "
                 + "and NOT EXISTS ( "
                     + "SELECT * FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8470 + " tmp "
                     + "WHERE tmp.HMCD=a.HMCD and tmp.WEEKEDDT=a.WEEKEDDT"
                     + ") "
                 + "GROUP BY "
-                + "a.HMCD "
+                + "a.HMCD, a.WEEKEDDT "
                 + ") "
                 ;
                 using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))

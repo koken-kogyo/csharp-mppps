@@ -20,7 +20,7 @@ namespace MPPPS
         public static readonly string KEN_PGM_ID = "KMD000ZZ";                  // 製造部プログラム ID
         public static readonly string MY_PGM_ID = "KMD001SF";                   // プログラム ID
         public static readonly string MY_PGM_NAME = "切削生産計画システム";     // プログラム名称
-        public static readonly string MY_PGM_VER = "260215.01";                 // プログラム バージョン
+        public static readonly string MY_PGM_VER = "260415.01";                 // プログラム バージョン
         public static readonly string PGM_STS_CD_ALPHA = "a";                   // プログラムの状態 (α版)
         public static readonly string PGM_STS_CD_BETA = "b";                    // プログラムの状態 (β版)
         public static readonly string PGM_STS_TXT_ALPHA = "アルファ版";         // プログラムの状態 (α版)
@@ -557,6 +557,7 @@ namespace MPPPS
         public static readonly string MSG_NO_DATA = "指定された条件に合致する手配データがありません。\n生産計画 CSV ファイルは作成されません。";
         public static readonly string MSG_NO_CONFIG_FILE = "設定ファイルが存在しません。";
         public static readonly string MSG_NO_PATTERN_FILE = "帳票定義雛形ファイルが存在しません。";
+        public static readonly string MSG_SCHEDULE_NOT_FIXED = "手配日程データがまだ確定されていません。";
         public static readonly string MSG_PP_FILE_EXISTS = "生産計画ファイルが既に存在しています。";
         public static readonly string MSG_ORDER_NUM = "設備別手配件数";
         public static readonly string PROGRESS_COMPLETED = "生産計画 CSV ファイルから i-Reporter 帳票を作成してください。";

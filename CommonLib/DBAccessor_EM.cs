@@ -825,6 +825,34 @@ namespace MPPPS
 
         }
 
+        /// <summary>
+        /// 手配日程が当日更新データかをチェック
+        /// </summary>
+        public bool IsD0440Today()
+        {
+            bool ret = false;
+            OracleConnection emCnn = null;
+            cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
+            string sql = "SELECT COUNT(*) as CNT FROM "
+                + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0440 + " "
+                + "WHERE ODCD like '6060%' and TRUNC(INSTDT)=TRUNC(SYSDATE) ";
+            using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+            {
+                using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                {
+                    using (DataTable myDt = new DataTable())
+                    {
+                        myDa.Fill(myDt);
+                        ret = (myDt.Rows[0]["CNT"].ToString() != "0");
+                    }
+                }
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(emCnn);
+            return ret;
+        }
+
+
 
 
 

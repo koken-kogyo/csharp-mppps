@@ -1,16 +1,11 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -315,7 +310,7 @@ namespace MPPPS
                     int countHMCD = orderDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
                     int cardPrint = mpCardReportDt.Select($"WEEKEDDT='{firstDayOfWeek}'").Count();
                     DateTime dayOfFriday = firstDayOfWeek.AddDays(4);
-                    if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
+                    if (cardPrint > 30) // 30件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
                         // 内示カード印刷済み
                         for (int i = 1; i <= 5; i++)
@@ -539,6 +534,14 @@ namespace MPPPS
         // 内示データ取込直し
         private async void Btn_ImportPlan_Click(object sender, EventArgs e)
         {
+            // 手配日程確定日チェック（YGW（容子さん）→所要（容子さん）→手配日程（那月さん））
+            if (!cmn.Dba.IsD0440Today())
+            {
+                Debug.WriteLine(Common.MSG_SCHEDULE_NOT_FIXED);
+                MessageBox.Show(Common.MSG_SCHEDULE_NOT_FIXED + "\n\n" + "生産管理に確認してください。", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (MessageBox.Show("切削システム内の内示データを再作成します\n" + 
                 "よろしいですか？", "内示データ再作成", MessageBoxButtons.YesNo, 
                 MessageBoxIcon.Question) == DialogResult.No) return;
@@ -595,6 +598,15 @@ namespace MPPPS
                 return;
             }
 
+            // 選択セル範囲の開始日と終了日を設定
+            var sortedCells = from DataGridViewCell c in Dgv_Calendar.SelectedCells
+                              orderby c.RowIndex, c.ColumnIndex
+                              select c;
+            var firstCell = sortedCells.ToArray().First();
+            var lastCell = sortedCells.ToArray().Last();
+            var dayFrom = GetCurrentDateTime(firstCell);
+            var dayTo = GetCurrentDateTime(lastCell);
+
             // 印刷前の最終確認
             if (MessageBox.Show("内示カードを印刷します。\nよろしいですか？", "確認"
                 , MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Cancel) return;
@@ -606,52 +618,48 @@ namespace MPPPS
             Btn_PrintClear.Enabled = false;
 
             // ステータス表示
-            toolStripStatusLabel1.Text = "内示カード印刷中...";
+            progressmsg = "【内示カード】 ";
+            toolStripStatusLabel1.Text = progressmsg + "準備中...";
 
             // Excelアプリケーションを起動
             cmn.Fa.OpenExcel2(idx);
 
-            // 選択セルの並び替え
-            var query = from DataGridViewRow r in Dgv_Calendar.SelectedRows
-                        orderby r.Index
-                        select r;
+            // 雛形カードを開く（拡縮倍率にあった帳票を選択）
+            cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
+
+            // 内示データをDataTableに読み込む（KD8470に存在しないデータが対象）
             int ret = 0;
-            foreach (DataGridViewRow r in query)
+            toolStripStatusLabel1.Text = progressmsg + "データ読み込み中...";
+            DataTable cardDt = new DataTable();
+            await Task.Run(() => ret = cmn.Dba.GetPlanCardPrintInfo(ref dayFrom, ref dayTo, ref cardDt));
+            if (ret <= 0)
             {
-                // 対象日の製造指示カードを作成し印刷
-                DateTime cardDay = GetCurrentDateTime(r.Cells[1]); // 1:月曜日
-
-                progressmsg = $"【{cardDay.ToString("M月")}" +
-                    $"{GetWeekNum(cardDay)}週】内示カード ";
-
-                // 雛形カードを開く（拡縮倍率にあった帳票を選択）
-                cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[idx].RootPath}\{cmn.FsCd[idx].FileName}");
-
-                // 内示データをDataTableに読み込む（KD8470に存在しないデータが対象）
-                toolStripStatusLabel1.Text = progressmsg + "データ読み込み中...";
-                DataTable cardDt = new DataTable();
-                await Task.Run(() => cmn.Dba.GetPlanCardPrintInfo(cardDay, ref cardDt));
-                if (ret < 0) break;
-
-                // 内示カード雛形に内示データをセット
-                // 設定ファイルの場所にPDFとして保存して起動
-                toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件中 - 1枚 作成中...";
-                await Task.Run(() => ret = PrintPlanCard(cardDay, ref cardDt));
-                if (ret != 0) break;
-
-                // ExcelブックからPDFを作成（ファイル名は内示カードを使用）
-                var pdfName = cmn.FsCd[idx + 2].FileName
-                    .Replace("雛形", "_" + cardDay.ToString("yyyyMMdd")
-                                   + "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
-                    .Replace(".xlsx", ".pdf");
-                cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[0].RootPath}\{pdfName}"); // 0:生産計画システム出力先フォルダ
-
-                // 内示カード雛形を閉じる
-                cmn.Fa.CloseExcelFile2(false);
-
-                // KD8470:切削内示カードファイルに印刷済みを出力
-                cmn.Dba.InsertPlanCard(cardDay);
+                if (ret == 0) toolStripStatusLabel1.Text = "印刷対象のデータはありませんでした.";
+                cmn.Fa.CloseExcel2(); // Excelアプリケーションを閉じる
+                return;
             }
+
+            // 内示カード雛形に内示データをセット
+            // 設定ファイルの場所にPDFとして保存して起動
+            toolStripStatusLabel1.Text = progressmsg + $"{cardDt.Rows.Count}件中 - 作成中...";
+            await Task.Run(() => ret = PrintPlanCard(ref cardDt));
+            if (ret != 0)
+            {
+                cmn.Fa.CloseExcel2(); // Excelアプリケーションを閉じる
+                return;
+            }
+
+            // ExcelブックからPDFを作成（ファイル名は内示カードを使用）
+            var pdfName = cmn.FsCd[idx + 2].FileName
+                .Replace("雛形", "_" + DateTime.Now.ToString("yyyyMMddhhmm"))
+                .Replace(".xlsx", ".pdf");
+            cmn.Fa.ExportExcelToPDF($@"{cmn.FsCd[0].RootPath}\{pdfName}"); // 0:生産計画システム出力先フォルダ
+
+            // 内示カード雛形を閉じる
+            cmn.Fa.CloseExcelFile2(false);
+
+            // KD8470:切削内示カードファイルに印刷済みを出力
+            cmn.Dba.InsertPlanCard(ref dayFrom, ref dayTo);
 
             // Excelアプリケーションを閉じる
             cmn.Fa.CloseExcel2();
@@ -666,7 +674,7 @@ namespace MPPPS
         /// <param name="cardDay">完了予定日</param>
         /// 
         /// <returns>結果 (0: 保存成功 (保存件数), -1: 保存失敗, -2: 認証失敗)</returns>
-        public int PrintPlanCardBackup(DateTime cardDay, ref System.Data.DataTable cardDt)
+        public int PrintPlanCardBackup(DateTime cardDay, ref DataTable cardDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -745,10 +753,8 @@ namespace MPPPS
         /// <summary>
         /// 内示カード作成
         /// </summary>
-        /// <param name="cardDay">完了予定日</param>
-        /// 
         /// <returns>結果 (0: 保存成功 (保存件数), -1: 保存失敗, -2: 認証失敗)</returns>
-        public int PrintPlanCard(DateTime cardDay, ref System.Data.DataTable cardDt)
+        public int PrintPlanCard(ref DataTable cardDt)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -827,7 +833,7 @@ namespace MPPPS
         }
 
         // 印字する週に使用する材料種類毎の使用する合計長さを各明細を印字する前に算出
-        private void CalculateMaterial(ref System.Data.DataTable cardDt, ref System.Data.DataTable materialDt)
+        private void CalculateMaterial(ref DataTable cardDt, ref DataTable materialDt)
         {
             // 材料種類ごとの必要長さを算出
             var result = cardDt
