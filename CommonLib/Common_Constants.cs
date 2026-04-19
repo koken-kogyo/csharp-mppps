@@ -741,6 +741,7 @@ namespace MPPPS
         public const string TABLE_ID_M0010 = "M0010";    // 担当者マスター
         public const string TABLE_ID_M0200 = "M0200";    // 得意先名称マスター
         public const string TABLE_ID_M0300 = "M0300";    // 手配先名称マスター
+        public const string TABLE_ID_M0340 = "M0340";    // 手配先管理期間マスター
         public const string TABLE_ID_M0410 = "M0410";    // 工程マスター
         public const string TABLE_ID_M0500 = "M0500";    // 品目マスター
         public const string TABLE_ID_M0510 = "M0510";    // 品目手順詳細マスター

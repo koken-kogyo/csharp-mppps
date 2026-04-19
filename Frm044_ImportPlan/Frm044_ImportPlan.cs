@@ -182,7 +182,7 @@ namespace MPPPS
                     int countHMCD = orderDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
                     int cardPrint = mpCardReportDt.Select($"WEEKEDDT='{dayOfPrevMonth}'").Count();
                     DateTime dayOfFriday = dayOfPrevMonth.AddDays(4);
-                    if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
+                    if (cardPrint > 30) // 30件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
                         // 内示カード印刷済み
                         for (int i = 1; i <= 5; i++)
@@ -253,7 +253,7 @@ namespace MPPPS
                     int countHMCD = orderDt.Select($"WEEKEDDT='{currentDate}'").Count();
                     int cardPrint = mpCardReportDt.Select($"WEEKEDDT='{currentDate}'").Count();
                     DateTime dayOfFriday = currentDate.AddDays(4);
-                    if (cardPrint > 50) // 50件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
+                    if (cardPrint > 30) // 30件以上印刷されている場合に印刷済みと判断（SW工程のみ印刷対象のため）
                     {
                         // 内示カード印刷済み
                         for (int i = 1; i <= 5; i++)

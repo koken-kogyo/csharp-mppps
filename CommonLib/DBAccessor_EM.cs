@@ -2,6 +2,7 @@
 using System;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -655,60 +656,23 @@ namespace MPPPS
                 // EM データベースへ接続
                 cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref cnn);
 
-                string from = string.Empty;
-                string to = string.Empty;
-
                 // 当日日付を取得（調整し易いようPCの日付を利用）
                 DateTime today = DateTime.Today; //.AddDays(-15); // Debug用 ⇒ .AddDays(-xx)で月曜日にしてテスト
 
-                // 今週の火曜日を計算
-                DateTime thisTuesday = today.AddDays((DayOfWeek.Tuesday - today.DayOfWeek) % 7);
+                // 主キー検索での高速化
+                string yyMM = today.AddMonths(-3).ToString("yyMM");
 
-                // 0:日曜日、1:月曜日の場合は今週の火曜日を先週に巻き戻す
-                if (today.DayOfWeek < DayOfWeek.Tuesday)
-                {
-                    thisTuesday = thisTuesday.AddDays(-7);
-
-                    // 先週に稼働日があるか判定
-                    from = thisTuesday.AddDays(-1).ToString("yyyy/MM/dd");
-                    to = thisTuesday.AddDays(3).ToString("yyyy/MM/dd");
-                    sql =
-                        "select COUNT(*) as WKCNT "
-                        + "from "
-                        + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_S0820 + " "
-                        + "where CALTYP='00001' "
-                        + "and WKKBN='1' "
-                        + $"and YMD between '{from}' and '{to}'"
-                    ;
-                    using (OracleCommand myCmd = new OracleCommand(sql, cnn))
-                    {
-                        using (OracleDataReader reader = myCmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                // 先週が長期休み等で稼働日が無い場合は１週間前にずらす
-                                if (reader["WKCNT"].ToString() == "0") thisTuesday = thisTuesday.AddDays(-7);
-                            }
-                        }
-                    }
-                }
-
-                // 来週の日付を取得
-                DateTime oneWeeksLater = thisTuesday.AddDays(7);
-
-                // 来週の金曜日を取得
-                DateTime nextFriday = oneWeeksLater.AddDays((DayOfWeek.Friday - oneWeeksLater.DayOfWeek) % 7);
-
-                // 来週に稼働日があるか判定
-                from = nextFriday.AddDays(-4).ToString("yyyy/MM/dd");
-                to = nextFriday.ToString("yyyy/MM/dd");
+                // M0340:手配先管理期間マスタ／今回確定終了日:KKTEDDT／2026/5/8
+                DateTime 前回確定開始日 = today.AddYears(1);   // 変な初期値を入れておく
+                DateTime 前回火曜日 = DateTime.MinValue;
+                DateTime 前回確定終了日 = today.AddYears(-1);
+                DateTime 今回確定開始日 = today.AddYears(1);
+                DateTime 今回確定終了日 = today.AddYears(-1);
                 sql =
-                    "select COUNT(*) as WKCNT "
+                    "select ZKTSTDT, ZKTEDDT, KKTSTDT, KKTEDDT "
                     + "from "
-                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_S0820 + " "
-                    + "where CALTYP='00001' "
-                    + "and WKKBN='1' "
-                    + $"and YMD between '{from}' and '{to}'"
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_M0340 + " "
+                    + "where ODCTLNO='60600' "
                 ;
                 using (OracleCommand myCmd = new OracleCommand(sql, cnn))
                 {
@@ -716,17 +680,21 @@ namespace MPPPS
                     {
                         if (reader.Read())
                         {
-                            // 来週が長期休み等で稼働日が無い場合は１週間先に延ばす
-                            if (reader["WKCNT"].ToString() == "0") nextFriday = nextFriday.AddDays(7);
+                            前回確定開始日 = reader.GetDateTime(reader.GetOrdinal("ZKTSTDT"));
+                            前回確定終了日 = reader.GetDateTime(reader.GetOrdinal("ZKTEDDT"));
+                            今回確定開始日 = reader.GetDateTime(reader.GetOrdinal("KKTSTDT"));
+                            今回確定終了日 = reader.GetDateTime(reader.GetOrdinal("KKTEDDT"));
+                            var tuesdays = Enumerable.Range(0, (前回確定終了日 - 前回確定開始日).Days + 1)
+                                .Select(i => 前回確定開始日.AddDays(i))
+                                .Where(d => d.DayOfWeek == DayOfWeek.Tuesday)
+                                .ToList();
+                            前回火曜日 = tuesdays[0];
                         }
                     }
                 }
 
-                // 主キー検索での高速化
-                string yyMM = today.AddMonths(-3).ToString("yyMM");
-
                 // 遅れ手配データを取得し、今週の月曜日に集約させる
-                sql = $"select a.HMCD \"品番\", b.HMRNM \"品目略称\", '{thisTuesday.AddDays(-1).ToString("yyyy/MM/dd")}' \"完了予定日\""
+                sql = $"select a.HMCD \"品番\", b.HMRNM \"品目略称\", '{前回火曜日.AddDays(-1):yyyy/MM/dd}' \"完了予定日\""
                     + ", sum(a.ODRQTY) \"手配数\", sum(a.JIQTY) \"実績数\", count(*) \"件数\", sum(a.ODRQTY-a.JIQTY) \"S\" "
                     + "from "
                     + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " a, "
@@ -737,7 +705,7 @@ namespace MPPPS
                     + "and a.ODRSTS in ('2', '3') "
                     + "and a.KTCD like 'MP%' "
                     + "and a.ODCD like '6060%' "
-                    + $"and a.EDDT < '{thisTuesday.ToString("yyyy/MM/dd")}' "
+                    + $"and a.EDDT < '{前回火曜日:yyyy/MM/dd}' "
                     + "group by a.HMCD, b.HMRNM "
                 ;
                 using (OracleCommand myCmd = new OracleCommand(sql, cnn))
@@ -753,8 +721,6 @@ namespace MPPPS
                 }
 
                 // 今週来週の手配データ取得
-                from = thisTuesday.ToString("yyyy/MM/dd");
-                to = nextFriday.ToString("yyyy/MM/dd");
                 sql = "select a.HMCD \"品番\", b.HMRNM \"品目略称\", to_char(a.EDDT,'YYYY/MM/DD') \"完了予定日\""
                     + ", sum(a.ODRQTY) \"手配数\", sum(a.JIQTY) \"実績数\", count(*) \"件数\", sum(a.ODRQTY-a.JIQTY) \"S\" "
                     + "from "
@@ -766,7 +732,7 @@ namespace MPPPS
                     + "and a.ODRSTS in ('2', '3') "
                     + "and a.KTCD like 'MP%' "
                     + "and a.ODCD like '6060%' "
-                    + $"and a.EDDT between '{from}' and '{to}' "
+                    + $"and a.EDDT between '{前回火曜日:yyyy/MM/dd}' and '{今回確定終了日:yyyy/MM/dd}' "
                     + "group by a.HMCD, b.HMRNM, a.EDDT "
                 ;
                 using (OracleCommand myCmd = new OracleCommand(sql, cnn))
@@ -784,8 +750,6 @@ namespace MPPPS
                 // ダミーデータの作成
                 if (dataTable.Rows.Count > 0)
                 {
-                    from = thisTuesday.AddDays(-1).ToString("yyyy/MM/dd");
-                    to = nextFriday.ToString("yyyy/MM/dd");
                     sql = "select '!DUMMY' \"品番\", '!DUMMY' \"品目略称\", to_char(YMD,'YYYY/MM/DD') \"完了予定日\""
                         + ", 0 \"手配数\", 0 \"実績数\", 1 \"件数\", 0 \"S\" "
                         + "from "
@@ -793,7 +757,7 @@ namespace MPPPS
                         + "where "
                         + "CALTYP = '00001' "
                         + "and WKKBN = '1' "
-                        + $"and YMD between '{from}' and '{to}' "
+                        + $"and YMD between '{前回確定開始日:yyyy/MM/dd}' and '{今回確定終了日:yyyy/MM/dd}' "
                     ;
                     using (OracleCommand myCmd = new OracleCommand(sql, cnn))
                     {
