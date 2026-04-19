@@ -616,11 +616,13 @@ namespace MPPPS
             DataTable mpCardDt = new DataTable();       // 内示カードファイル
             DataTable mpCardReportDt = new DataTable(); // レポート提出用
             DataTable deleteODRNODt = new DataTable();  // 削除したODRNOを控えておくための変数
+            DataTable emOdCtrl = new DataTable();       // 手配先管理期間マスタ
             deleteODRNODt.Columns.Add("ODRNO", typeof(string));
             // 全てのマスタ類の読み込み
             Task taskC = Task.Run(() => cmn.Dba.GetCodeSlipMst(ref mpCodeMDt));
             Task taskD = Task.Run(() => cmn.Dba.GetMpNaiji(ref mpNaijiDt));
-            await Task.WhenAll(taskC, taskD);
+            Task taskE = Task.Run(() => cmn.Dba.GetEmOdCtrl(ref emOdCtrl));
+            await Task.WhenAll(taskC, taskD, taskE);
             // 火曜日の取込時のみ内示実績の付け替えを行いたい
             bool isNotRed = IsSelectedCellsNotRed();
             cmn.Dba.CreateMpNaijiTemp(ref mpNaijiTempDt, isNotRed);
@@ -722,6 +724,10 @@ namespace MPPPS
 
             // 切削オーダー集計ファイル:KD8510の作成
             await Task.Run(() => cmn.Dba.HowManyOrders(ref dtS0820working));
+
+            // 手配先管理期間マスタ:M0340の更新
+            if (isNotRed)
+                await Task.Run(() => cmn.Dba.UpdateMpOdCtrl(ref emOdCtrl));
 
             // 取込後、再読み込みして表示
             PopulateCalendar();

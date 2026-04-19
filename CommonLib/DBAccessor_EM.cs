@@ -816,6 +816,44 @@ namespace MPPPS
             return ret;
         }
 
+        /// <summary>
+        /// 手配先管理期間マスタ取得
+        /// </summary>
+        public bool GetEmOdCtrl(ref DataTable dt)
+        {
+            bool ret = false;
+            OracleConnection emCnn = null;
+            try
+            {
+                // EMデータベースへ接続
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
+                string sql = "SELECT * FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_M0340 + " "
+                    + "WHERE ODCTLNO = '60600'";
+                using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        using (DataTable myDt = new DataTable())
+                        {
+                            myDa.Fill(dt);
+                            ret = true;
+                        }
+                    }
+                }
+                // 接続を閉じる
+                cmn.Dbm.CloseOraSchema(emCnn);
+            }
+            catch (Exception)
+            {
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseOraSchema(emCnn);
+            return ret;
+        }
+
 
 
 

@@ -3998,6 +3998,50 @@ namespace MPPPS
             return ret;
         }
 
+        /// <summary>
+        /// 手配先管理期間マスタの更新
+        /// </summary>
+        public bool UpdateMpOdCtrl(ref DataTable emOdCtrl)
+        {
+            bool ret;
+            MySqlConnection mpCnn = null;
+
+            // MPデータベースへ接続
+            cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+            string sql = "SELECT * FROM "
+                + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_M0340 + " "
+                + $"WHERE ODCTLNO = '60600'";
+            using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+            {
+                using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                {
+                    using (var buider = new MySqlCommandBuilder(myDa))
+                    {
+                        DataTable dt = new DataTable();
+                        myDa.Fill(dt);
+                        if (dt.Rows.Count == 0)
+                            throw new Exception("A5SQLMk2でM0340に空の60600を作成しておいてください。");
+                        dt.Rows[0]["ZKTSTDT"] = emOdCtrl.Rows[0]["ZKTSTDT"];
+                        dt.Rows[0]["ZKTEDDT"] = emOdCtrl.Rows[0]["ZKTEDDT"];
+                        dt.Rows[0]["ZKTODDT"] = emOdCtrl.Rows[0]["ZKTODDT"];
+                        dt.Rows[0]["ZSJHKDT"] = emOdCtrl.Rows[0]["ZSJHKDT"];
+                        dt.Rows[0]["KKTSTDT"] = emOdCtrl.Rows[0]["KKTSTDT"];
+                        dt.Rows[0]["KKTEDDT"] = emOdCtrl.Rows[0]["KKTEDDT"];
+                        dt.Rows[0]["KKTODDT"] = emOdCtrl.Rows[0]["KKTODDT"];
+                        dt.Rows[0]["KSJHKDT"] = emOdCtrl.Rows[0]["KSJHKDT"];
+                        dt.Rows[0]["UPDTID"] = emOdCtrl.Rows[0]["UPDTID"];
+                        dt.Rows[0]["UPDTDT"] = emOdCtrl.Rows[0]["UPDTDT"];
+                        int cnt = myDa.Update(dt);
+                    }
+                    ret = true;
+                }
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
 
 
     }
