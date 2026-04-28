@@ -122,12 +122,12 @@ namespace MPPPS
             txtHMCD.SelectionLength = sellen;
         }
 
-        private void txtLikeHMCD_KeyDown(object sender, KeyEventArgs e)
+        private void TxtLikeHMCD_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter) SearchHMCD("%" + txtLikeHMCD.Text + "%");
         }
 
-        private void txtLikeHMCD_TextChanged(object sender, EventArgs e)
+        private void TxtLikeHMCD_TextChanged(object sender, EventArgs e)
         {
             var selpos = txtLikeHMCD.SelectionStart;
             var sellen = txtLikeHMCD.SelectionLength;

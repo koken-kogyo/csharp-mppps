@@ -97,7 +97,7 @@ namespace MPPPS
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
-            int ret = 0;
+            int ret;
             OracleConnection cnn = null;
 
             try

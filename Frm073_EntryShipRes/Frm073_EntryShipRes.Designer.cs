@@ -67,7 +67,7 @@ namespace MPPPS
             this.btnRefreshDataGridView.TabIndex = 15;
             this.btnRefreshDataGridView.Text = "再読み込み (F5)";
             this.btnRefreshDataGridView.UseVisualStyleBackColor = false;
-            this.btnRefreshDataGridView.Click += new System.EventHandler(this.btnRefreshDataGridView_Click);
+            this.btnRefreshDataGridView.Click += new System.EventHandler(this.BtnRefreshDataGridView_Click);
             // 
             // btn_ExportExcel
             // 
@@ -79,7 +79,7 @@ namespace MPPPS
             this.btn_ExportExcel.TabIndex = 14;
             this.btn_ExportExcel.Text = "外部出力 (F10)";
             this.btn_ExportExcel.UseVisualStyleBackColor = false;
-            this.btn_ExportExcel.Click += new System.EventHandler(this.btn_ExportExcel_Click);
+            this.btn_ExportExcel.Click += new System.EventHandler(this.Btn_ExportExcel_Click);
             // 
             // groupBox1
             // 
@@ -116,8 +116,8 @@ namespace MPPPS
             this.txtBUCD.Size = new System.Drawing.Size(42, 39);
             this.txtBUCD.TabIndex = 10;
             this.txtBUCD.Text = "K";
-            this.txtBUCD.TextChanged += new System.EventHandler(this.txtBUCD_TextChanged);
-            this.txtBUCD.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBUCD_KeyDown);
+            this.txtBUCD.TextChanged += new System.EventHandler(this.TxtBUCD_TextChanged);
+            this.txtBUCD.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtBUCD_KeyDown);
             // 
             // statusStrip1
             // 

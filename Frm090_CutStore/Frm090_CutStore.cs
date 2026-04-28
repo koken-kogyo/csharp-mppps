@@ -32,7 +32,7 @@ namespace MPPPS
         // 計画出庫データ作成
         private void Btn_CutStoreDelv_Click(object sender, EventArgs e)
         {
-            Frm091_CutStoreDelv frm091 = new Frm091_CutStoreDelv(cmn, sender);
+            Frm091_CutStoreDelv frm091 = new Frm091_CutStoreDelv(cmn);
             this.Hide();
             frm091.Show();
         }
@@ -64,7 +64,7 @@ namespace MPPPS
         private void Frm090_CutStore_Activated(object sender, EventArgs e)
         {
             // フォーム上のクライアント座標を、画面座標に変換する
-            Point sp = this.PointToScreen(new Point(Btn_CutStoreDelv.Left, Btn_CutStoreDelv.Top));
+            //Point sp = this.PointToScreen(new Point(Btn_CutStoreDelv.Left, Btn_CutStoreDelv.Top));
 
             // マウスポインタの位置をトップボタンに設定
             //System.Windows.Forms.Cursor.Position = new System.Drawing.Point(sp.X + 10,

@@ -202,7 +202,7 @@ namespace MPPPS
                         for (int i = 1; i <= 5; i++)
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
                     }
-                    else if (dtS0820working.Select($"YMD >= '{dayOfPrevMonth.ToString()}' and YMD <= '{dayOfFriday.ToString()}'").Count() == 0)
+                    else if (dtS0820working.Select($"YMD >= '{dayOfPrevMonth}' and YMD <= '{dayOfFriday}'").Count() == 0)
                         {
                         // 注文なし
                         for (int i = 1; i <= 5; i++)
@@ -273,7 +273,7 @@ namespace MPPPS
                         for (int i = 1; i <= 5; i++)
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
                     }
-                    else if (dtS0820working.Select($"YMD >= '{currentDate.ToString()}' and YMD <= '{dayOfFriday.ToString()}'").Count() == 0)
+                    else if (dtS0820working.Select($"YMD >= '{currentDate}' and YMD <= '{dayOfFriday}'").Count() == 0)
                     {
                         // 注文なし
                         for (int i = 1; i <= 5; i++)
@@ -330,7 +330,7 @@ namespace MPPPS
                         for (int i = 1; i <= 5; i++)
                             Dgv_Calendar[i, row].Style.BackColor = Common.FRM40_BG_COLOR_ORDERED;
                     }
-                    else if (dtS0820working.Select($"YMD >= '{firstDayOfWeek.ToString()}' and YMD <= '{dayOfFriday.ToString()}'").Count() == 0)
+                    else if (dtS0820working.Select($"YMD >= '{firstDayOfWeek} ' and YMD <= ' {dayOfFriday}'").Count() == 0)
                     {
                         // 注文なし
                         for (int i = 1; i <= 5; i++)
@@ -409,7 +409,7 @@ namespace MPPPS
                 var diff = totalEMQty - totalMPQty;
                 if (diff == 0 && totalEMQty > 0)
                 {
-                    Dgv_Calendar[6, row].Value += $"\n {totalEMQty.ToString("#,0")}本";
+                    Dgv_Calendar[6, row].Value += $"\n {totalEMQty:#,0}本";
                 }
                 else if (diff > 0)
                 {
@@ -514,9 +514,9 @@ namespace MPPPS
                 Btn_PrintClear.BackColor = Common.FRM40_BG_COLOR_WARNING;
                 Btn_PrintClear.Enabled = true;
             }
-            toolStripStatusLabel1.Text = $"内示 EM{emQty.ToString("#,0")}本 / MP{mpQty.ToString("#,0")}本";
+            toolStripStatusLabel1.Text = $"内示 EM{emQty:#,0}本 / MP{mpQty:#,0}本";
             toolStripStatusLabel1.Text +=
-                (cardPrint > 0) ? $" / 印刷済み {cardPrint.ToString("#,0")}件" : "";
+                (cardPrint > 0) ? $" / 印刷済み {cardPrint:#,0}件" : "";
         }
 
         // DataGridViewの選択セル日付を日付型に変換して返却する関数
@@ -568,7 +568,7 @@ namespace MPPPS
         // 引数で渡された日付が、その月の第何週なのかを数値で返却する関数
         private int GetWeekNum(DateTime dt)
         {
-            int weekNum = 0;
+            int weekNum;
             DateTime firstDayOfMonth = new DateTime(dt.Year, dt.Month, 1);
             DateTimeFormatInfo dfi = DateTimeFormatInfo.CurrentInfo;
             Calendar cal = dfi.Calendar;
@@ -776,9 +776,8 @@ namespace MPPPS
 
                     // 収容数で分割
                     decimal odrqty = Decimal.Parse(r["ODRQTY"].ToString());
-                    decimal boxqty = 0;
                     int loopCnt = 1;
-                    if (Decimal.TryParse(r["BOXQTY"].ToString(), out boxqty)) {
+                    if (Decimal.TryParse(r["BOXQTY"].ToString(), out decimal boxqty)) {
                         loopCnt = Decimal.ToInt32(Math.Ceiling((odrqty / boxqty)));
                     }
 
@@ -887,7 +886,7 @@ namespace MPPPS
                 // 対象日の製造指示カードを作成し印刷
                 DateTime cardDay = GetCurrentDateTime(r.Cells[1]); // 1:月曜日
 
-                progressmsg = $"【{cardDay.ToString("M月")}" +
+                progressmsg = $"【{cardDay:M月}" +
                     $"{GetWeekNum(cardDay)}週】内示カード";
 
                 // 切削内示カードファイル:KD8470を削除

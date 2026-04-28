@@ -425,7 +425,7 @@ namespace MPPPS
                     }
                 }
                 if (totalEMQty > 0) 
-                    Dgv_Calendar[6, row].Value += $"\n {totalEMQty.ToString("#,0")}本";
+                    Dgv_Calendar[6, row].Value += $"\n {totalEMQty:#,0}本";
             }
         }
         
@@ -574,10 +574,10 @@ namespace MPPPS
                 }
                 // 手配件数をステータスストラップ２に表示
                 toolStripStatusLabel2.Text = "[ ";
-                toolStripStatusLabel2.Text += (em2qty > 0) ? $"EM確定{em2qty.ToString("#,0")}本／" : "";
-                toolStripStatusLabel2.Text += (em3qty > 0) ? $"着手{em3qty.ToString("#,0")}本／" : "";
-                toolStripStatusLabel2.Text += $"完了{em4qty.ToString("#,0")}本";
-                toolStripStatusLabel2.Text += (em9qty > 0) ? $"／取消{em9qty.ToString("#,0")}本" : "";
+                toolStripStatusLabel2.Text += (em2qty > 0) ? $"EM確定{em2qty:#,0}本／" : "";
+                toolStripStatusLabel2.Text += (em3qty > 0) ? $"着手{em3qty:#,0}本／" : "";
+                toolStripStatusLabel2.Text += $"完了{em4qty:#,0}本";
+                toolStripStatusLabel2.Text += (em9qty > 0) ? $"／取消{em9qty:#,0}本" : "";
                 toolStripStatusLabel2.Text += " ]";
             }
         }
@@ -794,7 +794,7 @@ namespace MPPPS
             // Excelファイル処理
             int i = 1;
             string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop); // デスクトップフォルダのパスを取得
-            string FileName = $"内示カードレポート_{DateTime.Now.ToString("M")}";
+            string FileName = $"内示カードレポート_{DateTime.Now:M}";
             string FilePath = Path.Combine(desktopPath, FileName + ".xlsx");    // ファイルパスの取得
             while (File.Exists(@FilePath))
             {
@@ -952,9 +952,8 @@ namespace MPPPS
 
                     // 収容数で分割
                     decimal odrqty = Decimal.Parse(r["ODRQTY"].ToString());
-                    decimal boxqty = 0;
                     int loopCnt = 1;
-                    if (Decimal.TryParse(r["BOXQTY"].ToString(), out boxqty)) {
+                    if (Decimal.TryParse(r["BOXQTY"].ToString(), out decimal boxqty)) {
                         loopCnt = Decimal.ToInt32(Math.Ceiling((odrqty / boxqty)));
                     }
 
@@ -1043,7 +1042,7 @@ namespace MPPPS
             Btn_PrintCancel.BackColor = Common.FRM40_BG_COLOR_CONTROL;
         }
 
-        private void toolStripStatusLabel2_MouseDown(object sender, MouseEventArgs e)
+        private void ToolStripStatusLabel2_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {

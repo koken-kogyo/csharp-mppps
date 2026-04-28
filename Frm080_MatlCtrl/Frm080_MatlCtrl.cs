@@ -64,7 +64,7 @@ namespace MPPPS
         private void Frm080_MatlCtrl_Activated(object sender, EventArgs e)
         {
             // フォーム上のクライアント座標を、画面座標に変換する
-            Point sp = this.PointToScreen(new Point(Btn_MatlInvList.Left, Btn_MatlInvList.Top));
+            //Point sp = this.PointToScreen(new Point(Btn_MatlInvList.Left, Btn_MatlInvList.Top));
 
             // マウスポインタの位置をトップボタンに設定
             //System.Windows.Forms.Cursor.Position = new System.Drawing.Point(sp.X + 10,

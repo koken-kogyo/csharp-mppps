@@ -98,8 +98,8 @@ namespace MPPPS
         // キープレビュー
         private void Frm033_EqMstMaint_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F5) btnReloadDatabase_Click(sender, e);
-            if (e.KeyCode == Keys.F9) btnUpdateDatabase_Click(sender, e);
+            if (e.KeyCode == Keys.F5) BtnReloadDatabase_Click(sender, e);
+            if (e.KeyCode == Keys.F9) BtnUpdateDatabase_Click(sender, e);
             if (e.KeyCode == Keys.Escape) Close();
         }
 
@@ -110,30 +110,32 @@ namespace MPPPS
             Dgv_EquipMst.ColumnHeadersHeight = 100;
 
             // 列ヘッダーの文字列を文字位置を設定
-            Dictionary<string, MultipleValues> dic = new Dictionary<string, MultipleValues>();
-            dic.Add("MCGSEQ", new MultipleValues { JPNAME = "表示順", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("MCGCD", new MultipleValues { JPNAME = "ｸﾞﾙｰﾌﾟｺｰﾄﾞ", Width = 60 });
-            dic.Add("MCGNM", new MultipleValues { JPNAME = "ｸﾞﾙｰﾌﾟ名称", Width = 100 });
-            dic.Add("MCSEQ", new MultipleValues { JPNAME = "表示順", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("MCCD", new MultipleValues { JPNAME = "設備ｺｰﾄﾞ", Width = 60});
-            dic.Add("MCNM", new MultipleValues { JPNAME = "設備名称", Width = 100 });
-            dic.Add("TANNM1", new MultipleValues { JPNAME = "主担当", Width = 100 });
-            dic.Add("TANNM2", new MultipleValues { JPNAME = "副担当", Width = 100 });
-            dic.Add("ONTIME", new MultipleValues { JPNAME = "稼働時間", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("FLG1", new MultipleValues { JPNAME = "", Width = 20 });
-            dic.Add("FLG2", new MultipleValues { JPNAME = "", Width = 20 });
-            dic.Add("CUTTHICKNESS", new MultipleValues { JPNAME = "切断刃厚", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("SCRAPLEN", new MultipleValues { JPNAME = "端材長", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("SETUPNM1", new MultipleValues { JPNAME = "段取り１", Width = 140 });
-            dic.Add("SETUPTM1", new MultipleValues { JPNAME = "CT1", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("SETUPNM2", new MultipleValues { JPNAME = "段取り２", Width = 140 });
-            dic.Add("SETUPTM2", new MultipleValues { JPNAME = "CT2", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("SETUPNM3", new MultipleValues { JPNAME = "段取り３", Width = 140 });
-            dic.Add("SETUPTM3", new MultipleValues { JPNAME = "CT3", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("INSTID", new MultipleValues { JPNAME = "登録者", Width = 60 });
-            dic.Add("INSTDT", new MultipleValues { JPNAME = "登録日時", Width = 100, Format = "yyyy/MM/dd HH:mm:ss" });
-            dic.Add("UPDTID", new MultipleValues { JPNAME = "更新者", Width = 60 });
-            dic.Add("UPDTDT", new MultipleValues { JPNAME = "更新日時", Width = 100, Format = "yyyy/MM/dd HH:mm:ss" });
+            Dictionary<string, MultipleValues> dic = new Dictionary<string, MultipleValues>
+            {
+                { "MCGSEQ", new MultipleValues { JPNAME = "表示順", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "MCGCD", new MultipleValues { JPNAME = "ｸﾞﾙｰﾌﾟｺｰﾄﾞ", Width = 60 } },
+                { "MCGNM", new MultipleValues { JPNAME = "ｸﾞﾙｰﾌﾟ名称", Width = 100 } },
+                { "MCSEQ", new MultipleValues { JPNAME = "表示順", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "MCCD", new MultipleValues { JPNAME = "設備ｺｰﾄﾞ", Width = 60 } },
+                { "MCNM", new MultipleValues { JPNAME = "設備名称", Width = 100 } },
+                { "TANNM1", new MultipleValues { JPNAME = "主担当", Width = 100 } },
+                { "TANNM2", new MultipleValues { JPNAME = "副担当", Width = 100 } },
+                { "ONTIME", new MultipleValues { JPNAME = "稼働時間", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "FLG1", new MultipleValues { JPNAME = "", Width = 20 } },
+                { "FLG2", new MultipleValues { JPNAME = "", Width = 20 } },
+                { "CUTTHICKNESS", new MultipleValues { JPNAME = "切断刃厚", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "SCRAPLEN", new MultipleValues { JPNAME = "端材長", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "SETUPNM1", new MultipleValues { JPNAME = "段取り１", Width = 140 } },
+                { "SETUPTM1", new MultipleValues { JPNAME = "CT1", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "SETUPNM2", new MultipleValues { JPNAME = "段取り２", Width = 140 } },
+                { "SETUPTM2", new MultipleValues { JPNAME = "CT2", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "SETUPNM3", new MultipleValues { JPNAME = "段取り３", Width = 140 } },
+                { "SETUPTM3", new MultipleValues { JPNAME = "CT3", Width = 60, Format = "#,0", StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "INSTID", new MultipleValues { JPNAME = "登録者", Width = 60 } },
+                { "INSTDT", new MultipleValues { JPNAME = "登録日時", Width = 100, Format = "yyyy/MM/dd HH:mm:ss" } },
+                { "UPDTID", new MultipleValues { JPNAME = "更新者", Width = 60 } },
+                { "UPDTDT", new MultipleValues { JPNAME = "更新日時", Width = 100, Format = "yyyy/MM/dd HH:mm:ss" } }
+            };
 
             for (int i = 0; i < Dgv_EquipMst.Columns.Count; i++)
             {
@@ -176,7 +178,7 @@ namespace MPPPS
         }
 
         // 設備選択条件の変更
-        private void cmbMCGCD_SelectedIndexChanged(object sender, EventArgs e)
+        private void CmbMCGCD_SelectedIndexChanged(object sender, EventArgs e)
         {
             // 複数検索条件を設定
             if (cmbMCGCD.SelectedIndex == 0)
@@ -188,11 +190,11 @@ namespace MPPPS
                 var filter = "MCGCD='" + cmbMCGCD.Text.Split(':')[0] + "'";
                 equipMstDt.DefaultView.RowFilter = filter;
             }
-            setRowHeight();
+            SetRowHeight();
         }
 
         // データベース反映ボタン
-        private void btnUpdateDatabase_Click(object sender, EventArgs e)
+        private void BtnUpdateDatabase_Click(object sender, EventArgs e)
         {
             int insertCount = 0;
             int modifyCount = 0;
@@ -234,7 +236,7 @@ namespace MPPPS
         }
 
         // データベースからマスタを取得
-        private void btnReloadDatabase_Click(object sender, EventArgs e)
+        private void BtnReloadDatabase_Click(object sender, EventArgs e)
         {
             equipMstDt.Clear();
             cmn.Dba.GetEquipMstDt(ref equipMstDt);
@@ -319,17 +321,17 @@ namespace MPPPS
         }
 
         // 表示拡大ボタン
-        private void btnDisplayExpantion_Click(object sender, EventArgs e)
+        private void BtnDisplayExpantion_Click(object sender, EventArgs e)
         {
             var fntName = Dgv_EquipMst.DefaultCellStyle.Font.Name;
             var fntStyle = Dgv_EquipMst.DefaultCellStyle.Font.Style;
             var fntSize = Dgv_EquipMst.DefaultCellStyle.Font.Size + 3;
             Dgv_EquipMst.DefaultCellStyle.Font = new Font(fntName, fntSize, fntStyle);
             Dgv_EquipMst.ColumnHeadersDefaultCellStyle.Font = new Font(fntName, fntSize, fntStyle);
-            setRowHeight();
+            SetRowHeight();
         }
         // 表示縮小ボタン
-        private void btnDisplayReduction_Click(object sender, EventArgs e)
+        private void BtnDisplayReduction_Click(object sender, EventArgs e)
         {
             var fntName = Dgv_EquipMst.DefaultCellStyle.Font.Name;
             var fntStyle = Dgv_EquipMst.DefaultCellStyle.Font.Style;
@@ -337,10 +339,10 @@ namespace MPPPS
             Dgv_EquipMst.DefaultCellStyle.Font = new Font(fntName, fntSize, fntStyle);
             Dgv_EquipMst.ColumnHeadersDefaultCellStyle.Font = new Font(fntName, fntSize, fntStyle);
             // 現在のフォントに合わせた高さに調整
-            setRowHeight();
+            SetRowHeight();
         }
         // 行高さ調整
-        private void setRowHeight()
+        private void SetRowHeight()
         {
             int intRowHeight = Int32.Parse(Math.Ceiling(Dgv_EquipMst.DefaultCellStyle.Font.Size).ToString()) + 10;
             for (int i = 0; i < Dgv_EquipMst.Rows.Count; i++)
@@ -352,7 +354,7 @@ namespace MPPPS
         }
 
         // 列幅自動調整ボタン
-        private void btnColumnsAutoFit_Click(object sender, EventArgs e)
+        private void BtnColumnsAutoFit_Click(object sender, EventArgs e)
         {
             FixedColumnAfterAutoAdjustment();
         }

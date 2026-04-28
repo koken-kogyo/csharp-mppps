@@ -125,7 +125,7 @@ namespace MPPPS
             this.btnRefreshDataGridView.TabIndex = 7;
             this.btnRefreshDataGridView.Text = "再読み込み (F5)";
             this.btnRefreshDataGridView.UseVisualStyleBackColor = false;
-            this.btnRefreshDataGridView.Click += new System.EventHandler(this.btnRefreshDataGridView_Click);
+            this.btnRefreshDataGridView.Click += new System.EventHandler(this.BtnRefreshDataGridView_Click);
             // 
             // btn_HMCDDelete
             // 
@@ -136,7 +136,7 @@ namespace MPPPS
             this.btn_HMCDDelete.TabIndex = 6;
             this.btn_HMCDDelete.Text = "行削除";
             this.btn_HMCDDelete.UseVisualStyleBackColor = false;
-            this.btn_HMCDDelete.Click += new System.EventHandler(this.btn_HMCDDelete_Click);
+            this.btn_HMCDDelete.Click += new System.EventHandler(this.Btn_HMCDDelete_Click);
             // 
             // btn_ExportExcel
             // 
@@ -147,7 +147,7 @@ namespace MPPPS
             this.btn_ExportExcel.TabIndex = 4;
             this.btn_ExportExcel.Text = "外部出力 (F10)";
             this.btn_ExportExcel.UseVisualStyleBackColor = false;
-            this.btn_ExportExcel.Click += new System.EventHandler(this.btn_ExportExcel_Click);
+            this.btn_ExportExcel.Click += new System.EventHandler(this.Btn_ExportExcel_Click);
             // 
             // btnNextDiffer
             // 
@@ -158,7 +158,7 @@ namespace MPPPS
             this.btnNextDiffer.TabIndex = 3;
             this.btnNextDiffer.Text = "次の相違点";
             this.btnNextDiffer.UseVisualStyleBackColor = false;
-            this.btnNextDiffer.Click += new System.EventHandler(this.btnNextDiffer_Click);
+            this.btnNextDiffer.Click += new System.EventHandler(this.BtnNextDiffer_Click);
             // 
             // btnUpdateDatabase
             // 
@@ -169,7 +169,7 @@ namespace MPPPS
             this.btnUpdateDatabase.TabIndex = 2;
             this.btnUpdateDatabase.Text = "編集をデータベースに反映 (F9)";
             this.btnUpdateDatabase.UseVisualStyleBackColor = false;
-            this.btnUpdateDatabase.Click += new System.EventHandler(this.btnUpdateDatabase_Click);
+            this.btnUpdateDatabase.Click += new System.EventHandler(this.BtnUpdateDatabase_Click);
             // 
             // btnReadExcelMaster
             // 
@@ -180,7 +180,7 @@ namespace MPPPS
             this.btnReadExcelMaster.TabIndex = 1;
             this.btnReadExcelMaster.Text = "Excelコード票と比較";
             this.btnReadExcelMaster.UseVisualStyleBackColor = false;
-            this.btnReadExcelMaster.Click += new System.EventHandler(this.btnReadExcelMaster_Click);
+            this.btnReadExcelMaster.Click += new System.EventHandler(this.BtnReadExcelMaster_Click);
             // 
             // btnConvertMP
             // 
@@ -191,7 +191,7 @@ namespace MPPPS
             this.btnConvertMP.TabIndex = 0;
             this.btnConvertMP.Text = "SSからTNを連結して検索ｷｰへ";
             this.btnConvertMP.UseVisualStyleBackColor = false;
-            this.btnConvertMP.Click += new System.EventHandler(this.btnConvertMP_Click);
+            this.btnConvertMP.Click += new System.EventHandler(this.BtnConvertMP_Click);
             // 
             // Dgv_CodeSlipMst
             // 
@@ -245,7 +245,7 @@ namespace MPPPS
             this.btnUpdateDatabase2.TabIndex = 20;
             this.btnUpdateDatabase2.Text = "工程数と検索キーを自動作成してデータベースに反映";
             this.btnUpdateDatabase2.UseVisualStyleBackColor = false;
-            this.btnUpdateDatabase2.Click += new System.EventHandler(this.btnUpdateDatabase2_Click);
+            this.btnUpdateDatabase2.Click += new System.EventHandler(this.BtnUpdateDatabase2_Click);
             // 
             // groupBox2
             // 
@@ -274,7 +274,7 @@ namespace MPPPS
             this.tglViewSimple.Text = "新システム";
             this.tglViewSimple.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.tglViewSimple.UseVisualStyleBackColor = true;
-            this.tglViewSimple.Click += new System.EventHandler(this.tglViewSimple_CheckedChanged);
+            this.tglViewSimple.Click += new System.EventHandler(this.TglViewSimple_CheckedChanged);
             // 
             // tglViewNormal
             // 
@@ -290,7 +290,7 @@ namespace MPPPS
             this.tglViewNormal.Text = "標準";
             this.tglViewNormal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.tglViewNormal.UseVisualStyleBackColor = false;
-            this.tglViewNormal.Click += new System.EventHandler(this.tglViewNormal_CheckedChanged);
+            this.tglViewNormal.Click += new System.EventHandler(this.TglViewNormal_CheckedChanged);
             // 
             // groupBox1
             // 
@@ -319,7 +319,7 @@ namespace MPPPS
             this.txtKTKEY.Name = "txtKTKEY";
             this.txtKTKEY.Size = new System.Drawing.Size(55, 38);
             this.txtKTKEY.TabIndex = 13;
-            this.txtKTKEY.TextChanged += new System.EventHandler(this.txtKTKEY_TextChanged);
+            this.txtKTKEY.TextChanged += new System.EventHandler(this.TxtKTKEY_TextChanged);
             // 
             // btnHMCDPaste
             // 
@@ -331,7 +331,7 @@ namespace MPPPS
             this.btnHMCDPaste.TabIndex = 12;
             this.btnHMCDPaste.Text = "貼り付け";
             this.btnHMCDPaste.UseVisualStyleBackColor = true;
-            this.btnHMCDPaste.Click += new System.EventHandler(this.btnHMCDPaste_Click);
+            this.btnHMCDPaste.Click += new System.EventHandler(this.BtnHMCDPaste_Click);
             // 
             // btnFilterClear
             // 
@@ -343,7 +343,7 @@ namespace MPPPS
             this.btnFilterClear.TabIndex = 11;
             this.btnFilterClear.Text = "条件クリア";
             this.btnFilterClear.UseVisualStyleBackColor = true;
-            this.btnFilterClear.Click += new System.EventHandler(this.btnFilterClear_Click);
+            this.btnFilterClear.Click += new System.EventHandler(this.BtnFilterClear_Click);
             // 
             // txtHMCD
             // 
@@ -352,7 +352,7 @@ namespace MPPPS
             this.txtHMCD.Name = "txtHMCD";
             this.txtHMCD.Size = new System.Drawing.Size(177, 38);
             this.txtHMCD.TabIndex = 10;
-            this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
+            this.txtHMCD.TextChanged += new System.EventHandler(this.TxtHMCD_TextChanged);
             // 
             // cmbMaterial
             // 
@@ -372,7 +372,7 @@ namespace MPPPS
             this.cmbMaterial.Name = "cmbMaterial";
             this.cmbMaterial.Size = new System.Drawing.Size(67, 36);
             this.cmbMaterial.TabIndex = 9;
-            this.cmbMaterial.SelectedIndexChanged += new System.EventHandler(this.cmbMaterial_SelectedIndexChanged);
+            this.cmbMaterial.SelectedIndexChanged += new System.EventHandler(this.CmbMaterial_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -436,7 +436,7 @@ namespace MPPPS
             this.radioButton3.Text = "自動機";
             this.radioButton3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.radioButton3.UseVisualStyleBackColor = false;
-            this.radioButton3.CheckedChanged += new System.EventHandler(this.radio_CheckedChanged);
+            this.radioButton3.CheckedChanged += new System.EventHandler(this.Radio_CheckedChanged);
             this.radioButton3.Paint += new System.Windows.Forms.PaintEventHandler(this.RadioButton_Paint);
             // 
             // radioButton2
@@ -453,7 +453,7 @@ namespace MPPPS
             this.radioButton2.Text = "手動機";
             this.radioButton2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.radioButton2.UseVisualStyleBackColor = false;
-            this.radioButton2.CheckedChanged += new System.EventHandler(this.radio_CheckedChanged);
+            this.radioButton2.CheckedChanged += new System.EventHandler(this.Radio_CheckedChanged);
             this.radioButton2.Paint += new System.Windows.Forms.PaintEventHandler(this.RadioButton_Paint);
             // 
             // radioButton1
@@ -470,7 +470,7 @@ namespace MPPPS
             this.radioButton1.Text = "全て";
             this.radioButton1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.radioButton1.UseVisualStyleBackColor = false;
-            this.radioButton1.CheckedChanged += new System.EventHandler(this.radio_CheckedChanged);
+            this.radioButton1.CheckedChanged += new System.EventHandler(this.Radio_CheckedChanged);
             this.radioButton1.Paint += new System.Windows.Forms.PaintEventHandler(this.RadioButton_Paint);
             // 
             // btnKTSEQPrev
@@ -485,7 +485,7 @@ namespace MPPPS
             this.btnKTSEQPrev.TabIndex = 21;
             this.btnKTSEQPrev.Text = "前工程へ";
             this.btnKTSEQPrev.UseVisualStyleBackColor = false;
-            this.btnKTSEQPrev.Click += new System.EventHandler(this.btnKTSEQPrev_Click);
+            this.btnKTSEQPrev.Click += new System.EventHandler(this.BtnKTSEQPrev_Click);
             // 
             // btnKTSEQNext
             // 
@@ -499,7 +499,7 @@ namespace MPPPS
             this.btnKTSEQNext.TabIndex = 22;
             this.btnKTSEQNext.Text = "次工程へ";
             this.btnKTSEQNext.UseVisualStyleBackColor = false;
-            this.btnKTSEQNext.Click += new System.EventHandler(this.btnKTSEQNext_Click);
+            this.btnKTSEQNext.Click += new System.EventHandler(this.BtnKTSEQNext_Click);
             // 
             // Frm034_CodeSlipMstMaint
             // 

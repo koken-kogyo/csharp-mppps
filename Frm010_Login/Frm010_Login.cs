@@ -235,9 +235,6 @@ namespace MPPPS
             // 未入力チェック
             if (Tbx_UserId.Text.Length == 0)
             {
-                // 復改文字を文字列 (\\n) から制御コード (\n) に変換
-                string msgBody = cmn.CorrectLineFeed(Common.MSG_BODY_EM_DB_CONN_ERR);
-
                 // 未入力
                 Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
                 cmn.ShowMessageBox(Common.KCM_PGM_ID,Common.MSG_CD_100, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error); // 設定ファイルなし
@@ -246,9 +243,6 @@ namespace MPPPS
             }
             if (Tbx_Passwd.Text.Length == 0)
             {
-                // 復改文字を文字列 (\\n) から制御コード (\n) に変換
-                string msgBody = cmn.CorrectLineFeed(Common.MSG_BODY_EM_DB_CONN_ERR);
-
                 // 未入力
                 Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
                 cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_100, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error); // 設定ファイルなし

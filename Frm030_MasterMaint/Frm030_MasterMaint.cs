@@ -90,7 +90,7 @@ namespace MPPPS
         private void Frm030_MasterMaint_Activated(object sender, EventArgs e)
         {
             // フォーム上のクライアント座標を、画面座標に変換する
-            Point sp = this.PointToScreen(new Point(Btn_EqMstMaint.Left, Btn_EqMstMaint.Top));
+            //Point sp = this.PointToScreen(new Point(Btn_EqMstMaint.Left, Btn_EqMstMaint.Top));
 
             // マウスポインタの位置をトップボタンに設定
             //System.Windows.Forms.Cursor.Position = new System.Drawing.Point(sp.X + 10, 

@@ -127,8 +127,8 @@
             this.txtLikeHMCD.Name = "txtLikeHMCD";
             this.txtLikeHMCD.Size = new System.Drawing.Size(229, 34);
             this.txtLikeHMCD.TabIndex = 17;
-            this.txtLikeHMCD.TextChanged += new System.EventHandler(this.txtLikeHMCD_TextChanged);
-            this.txtLikeHMCD.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtLikeHMCD_KeyDown);
+            this.txtLikeHMCD.TextChanged += new System.EventHandler(this.TxtLikeHMCD_TextChanged);
+            this.txtLikeHMCD.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtLikeHMCD_KeyDown);
             // 
             // label6
             // 

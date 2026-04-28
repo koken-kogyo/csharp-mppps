@@ -147,7 +147,7 @@ namespace MPPPS
                 cmn.Fa.促進データPivot集計保存();
 
                 // 集計した工程シート用データを次の処理に使用するため保持
-                object[,] data = cmn.Fa.getWorkSheetUsedRange("集計");
+                object[,] data = cmn.Fa.GetWorkSheetUsedRange("集計");
 
                 // Bookを閉じる
                 cmn.Fa.CloseExcelFile2(false);

@@ -15,8 +15,6 @@ using Microsoft.Office.Interop.Excel;
 using Microsoft.Win32;
 using System.Drawing;
 using System.Threading;
-using System.Windows.Documents;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace MPPPS
 {
@@ -1558,7 +1556,7 @@ namespace MPPPS
             // スマート棚コン用QRコード画像ファイルの作成と保存
             string tempFile1 = @Path.GetTempPath() + Common.QR_HMCD_IMG;
             using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
-                $"{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+                $"{r["HMCD"]}", QRCodeGenerator.ECCLevel.Q))
             using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
             {
                 byte[] qrCodeImage = qrCode.GetGraphic(20);
@@ -1596,7 +1594,7 @@ namespace MPPPS
             // i-Reporter用QRコード画像ファイルの作成と保存
             string tempFile2 = @Path.GetTempPath() + Common.QR_ODRNO_IMG;
             using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
-                $"{r["ODRNO"].ToString()}\t{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+                $"{r["ODRNO"]}\t{r["HMCD"]}", QRCodeGenerator.ECCLevel.Q))
             using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
             {
                 byte[] qrCodeImage = qrCode.GetGraphic(20);
@@ -1727,7 +1725,7 @@ namespace MPPPS
                     range = oWSheet.Range[oWSheet.Rows[row + 0], oWSheet.Rows[row + 53]];
                     range.RowHeight = rh1;
                     // 調整用の行高さを各カードの余白行に設定、雛形シートの55行目をコピー
-                    double rh21 = oWSheet.Rows[21].RowHeight;
+                    //double rh21 = oWSheet.Rows[21].RowHeight;
                     oWSheet.Rows[row + 10].RowHeight = rh11;
                     oWSheet.Rows[row + 21].RowHeight = rh11;
                     oWSheet.Rows[row + 32].RowHeight = rh11;
@@ -1746,12 +1744,12 @@ namespace MPPPS
                     //double thickness = Convert.ToDouble(r["CUTTHICKNESS"].ToString());
                     //int qty = Convert.ToInt32(r["ODRQTY"].ToString());
                     //ans =((len + thickness) * qty) / material;
-                    DataRow[] m = materialDt.Select($"MATESIZE='{r["MATESIZE"].ToString()}'");
+                    DataRow[] m = materialDt.Select($"MATESIZE='{r["MATESIZE"]}'");
                     double necessarylen = Convert.ToDouble(m[0]["NECESSARYLEN"].ToString());
-                    mateStr = $"{necessarylen.ToString("F1")} mm";
+                    mateStr = $"{necessarylen:F1} mm";
                     int material = Convert.ToInt32(r["MATERIALLEN"].ToString()); // 材料長さがコード票に記載されていない
                     double ans = necessarylen / material;
-                    mateStr += $"\n({ans.ToString("F1")} 本)"; // 小数点以下1桁
+                    mateStr += $"\n({ans:F1} 本)"; // 小数点以下1桁
                 }
                 catch
                 {
@@ -1781,7 +1779,7 @@ namespace MPPPS
             // スマート棚コン用QRコード画像ファイルの作成と保存
             string tempFile1 = @Path.GetTempPath() + Common.QR_HMCD_IMG;
             using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
-                $"{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+                $"{r["HMCD"]}", QRCodeGenerator.ECCLevel.Q))
             using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
             {
                 byte[] qrCodeImage = qrCode.GetGraphic(20);
@@ -2045,7 +2043,7 @@ namespace MPPPS
             // スマート棚コン用QRコード画像ファイルの作成と保存
             string tempFile1 = @Path.GetTempPath() + Common.QR_HMCD_IMG;
             using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
-                $"{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+                $"{r["HMCD"]}", QRCodeGenerator.ECCLevel.Q))
             using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
             {
                 byte[] qrCodeImage = qrCode.GetGraphic(20);
@@ -2083,7 +2081,7 @@ namespace MPPPS
             // i-Reporter用QRコード画像ファイルの作成と保存
             string tempFile2 = @Path.GetTempPath() + Common.QR_ODRNO_IMG;
             using (QRCodeData qrCodeData = oQRGenerator.CreateQrCode(
-                $"{r["PLNNO"].ToString().Substring(1)}\t{r["HMCD"].ToString()}", QRCodeGenerator.ECCLevel.Q))
+                $"{r["PLNNO"].ToString().Substring(1)}\t{r["HMCD"]}", QRCodeGenerator.ECCLevel.Q))
             using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
             {
                 byte[] qrCodeImage = qrCode.GetGraphic(20);
@@ -2178,7 +2176,7 @@ namespace MPPPS
                 valueSheet.Range[valueSheet.Cells[1, 4], valueSheet.Cells[1, 12]].NumberFormat = "m/d";
 
                 // !DUMMY行を削除
-                int dummyRow = getRowNo(ref valueSheet, "!DUMMY", 1);
+                int dummyRow = GetRowNo(ref valueSheet, "!DUMMY", 1);
                 valueSheet.Rows[dummyRow].Delete();
 
                 // 列幅自動調整
@@ -2193,7 +2191,7 @@ namespace MPPPS
                 throw ex;
             }
         }
-        public System.Object[,] getWorkSheetUsedRange(string sheetName)
+        public System.Object[,] GetWorkSheetUsedRange(string sheetName)
         {
             var sheet = (Excel.Worksheet)oWBook.Worksheets[sheetName];
             return (System.Object[,])sheet.UsedRange.Value2;
@@ -2349,42 +2347,36 @@ namespace MPPPS
             toolStripStatusLabel.Text = "[TN(2)] 工程 (16/22) を作成中...";
             FilterCopyPaste3("TN(2)", 36
                 , new string[] { "TN1", "TN2", "TN3", "TN4", "TN5", "TN6", "TN" }
-                , new string[] { "1", "2", "3", "4", "5", "6", "TN" }
-                , ref toolStripStatusLabel);
+                , new string[] { "1", "2", "3", "4", "5", "6", "TN" });
             // ⑰SS(2)シートの作成
             toolStripStatusLabel.Text = "[SS(2)] 工程 (17/22) を作成中...";
             FilterCopyPaste3("SS(2)", 21
                 , new string[] { "SS" }
-                , new string[] { "SS" }
-                , ref toolStripStatusLabel);
+                , new string[] { "SS" });
             // ⑱CN(2)シートの作成
             toolStripStatusLabel.Text = "[CN(2)] 工程 (18/22) を作成中...";
             FilterCopyPaste3("CN(2)", 23
                 , new string[] { "CN1", "CN2", "CN3", "CN4" }
-                , new string[] { "CN1", "CN2", "CN3", "CN4" }
-                , ref toolStripStatusLabel);
+                , new string[] { "CN1", "CN2", "CN3", "CN4" });
             // ⑲MS(2)シートの作成
             toolStripStatusLabel.Text = "[MS(2)] 工程 (19/22) を作成中...";
             FilterCopyPaste3("MS(2)", 24
                 , new string[] { "MS1", "MS2", "MS3", "MS4", "MS5", "MS6" }
-                , new string[] { "1", "2", "3", "4", "5", "6" }
-                , ref toolStripStatusLabel);
+                , new string[] { "1", "2", "3", "4", "5", "6" });
             // ⑳XT(2)シートの作成
             toolStripStatusLabel.Text = "[XT(2)] 工程 (20/22) を作成中...";
             FilterCopyPaste3("XT(2)", 22
                 , new string[] { "XT" }
-                , new string[] { "XT" }
-                , ref toolStripStatusLabel);
+                , new string[] { "XT" });
             // ㉑NC(2)シートの作成
             toolStripStatusLabel.Text = "[NC(2)] 工程 (21/22) を作成中...";
-            DirectCopyPaste4(ref toolStripStatusLabel);
+            DirectCopyPaste4();
             //cmn.Fa.ExcelDebug();
             // ㉒SK(2)シートの作成
             toolStripStatusLabel.Text = "[SK(2)] 工程 (22/22) を作成中...";
             FilterCopyPaste3("SK(2)", 34
                 , new string[] { "SK", "XW" }
-                , new string[] { "SK*", "XW" }
-                , ref toolStripStatusLabel);
+                , new string[] { "SK*", "XW" });
 
 
 
@@ -2453,7 +2445,7 @@ namespace MPPPS
             //{
                 OutputRange.AutoFilter(filCol, Criteria1: "<>");                    // １．col列の空白以外をフィルタ
             //}
-            int filteredCount = getFilteredRowCount(ref OutputRange);
+            int filteredCount = GetFilteredRowCount(ref OutputRange);
             if (filteredCount > 0)
             {
                 // コピペ
@@ -2536,9 +2528,8 @@ namespace MPPPS
             , ref ToolStripStatusLabel toolStripStatusLabel)
         {
             //int headerRow = 4;
-            int startRow = 0;
-            int endRow = 0;
-            int rowCount = 0;
+            int startRow;
+            int rowCount;
             Excel.Worksheet sheet;
             sheet = (Excel.Worksheet)oWBook.Worksheets["NC"];
             sheet.Activate();
@@ -2582,10 +2573,9 @@ namespace MPPPS
             {
                 string target = (idx == 9) ? "" : idx.ToString();
                 toolStripStatusLabel.Text = $"[NC{target}] 工程 (14/22) を作成中...";
-                startRow = getRowNo(ref sheet, $"NC{target}", 2);
+                startRow = GetRowNo(ref sheet, $"NC{target}", 2);
                 OutputRange.AutoFilter(26, Criteria1: (idx == 9) ? "NC" : idx.ToString());
-                rowCount = getFilteredRowCount(ref OutputRange);
-                endRow = startRow + rowCount;
+                rowCount = GetFilteredRowCount(ref OutputRange);
                 if (rowCount > 2)
                 {
                     //for (int i = 1; i <= rowCount - 2; i++) sheet.Rows[startRow + 3].Insert(XlInsertShiftDirection.xlShiftDown);
@@ -2631,7 +2621,7 @@ namespace MPPPS
             sheet.Activate();
 
             OutputRange.AutoFilter(filCol, Criteria1: "<>");                    // １．col列の空白以外をフィルタ
-            int filteredCount = getFilteredRowCount(ref OutputRange);
+            int filteredCount = GetFilteredRowCount(ref OutputRange);
             if (filteredCount > 0)
             {
                 // コピペ
@@ -2740,18 +2730,16 @@ namespace MPPPS
         /// <param name="OutputRange">入力データのRange</param>
         private void FilterCopyPaste3(string sheetName, int filCol
             , string[] ktNames
-            , string[] filNames
-            , ref ToolStripStatusLabel toolStripStatusLabel)
+            , string[] filNames)
         {
             int headerRow = 4;
-            int refEndRow = 0;      // 参照先フィルタ前の終了行（データ存在チェックとレンジ設定で使用）
-            int refStartRow = 0;    // 参照先フィルタ後の開始行
-            int startRow = 0;       // 貼り付け先の開始行
-            int rowCount = 0;       // フィルター後の対象件数
+            int refEndRow;          // 参照先フィルタ前の終了行（データ存在チェックとレンジ設定で使用）
+            int refStartRow;        // 参照先フィルタ後の開始行
+            int startRow;           // 貼り付け先の開始行
+            int rowCount;           // フィルター後の対象件数
             Excel.Worksheet refSheet;
             refSheet = (Excel.Worksheet)oWBook.Worksheets[sheetName.Replace("(2)","")];
             refEndRow = refSheet.Cells[headerRow, 2].End(Excel.XlDirection.xlDown).Row;
-            int refEndNoRow = refSheet.Cells[headerRow + 1, 1].End(Excel.XlDirection.xlDown).Row;
             if (refEndRow > 65535) return;
             Excel.Range refRange = refSheet.Range[refSheet.Cells[headerRow, 1], refSheet.Cells[refEndRow, 37 + 3]];
             Excel.Worksheet destSheet;
@@ -2778,9 +2766,9 @@ namespace MPPPS
                 {
                     refRange.AutoFilter(filCol, Criteria1: filNames[idx]);
                 }
-                refStartRow = getFilteredFirstRow(ref refRange);
-                rowCount = getFilteredRowCount(ref refRange);
-                startRow = getRowNo(ref destSheet, $"{ktNames[idx]}", 2);
+                refStartRow = GetFilteredFirstRow(ref refRange);
+                rowCount = GetFilteredRowCount(ref refRange);
+                startRow = GetRowNo(ref destSheet, $"{ktNames[idx]}", 2);
                 if (rowCount > 2)
                 {
                     // for (int i = 1; i <= rowCount - 2; i++) destSheet.Rows[startRow + 3].Insert(XlInsertShiftDirection.xlShiftDown);
@@ -2835,7 +2823,7 @@ namespace MPPPS
         /// NCシートのNC4からのデータをNC(2)シートに複写（専用）
         /// </summary>
         /// <param name="OutputRange">入力データのRange</param>
-        private void DirectCopyPaste4(ref ToolStripStatusLabel toolStripStatusLabel)
+        private void DirectCopyPaste4()
         {
             Excel.Worksheet refSheet;
             refSheet = (Excel.Worksheet)oWBook.Worksheets["NC"];
@@ -2845,17 +2833,17 @@ namespace MPPPS
             refSheet.Range[refSheet.Cells[1, 1], refSheet.Cells[150, 18]].Copy(); // 150行くらいコピペしとけば大丈夫じゃね
             destSheet.Cells[1, 1].PasteSpecial(Excel.XlPasteType.xlPasteAll);
             // ON～NC3までを削除
-            int refStartRow = getRowNo(ref refSheet, "NC4", 2);
+            int refStartRow = GetRowNo(ref refSheet, "NC4", 2);
             destSheet.Rows[$"3:{refStartRow - 1}"].Delete();
             destSheet.Activate();
             destSheet.Cells[1, 1].Select();
             // コピペ後の行高さ調整
-            int row = 0;
+            int row;
             int nextrow = 0;
             string[] mccds = {"NC4", "NC5", "NC6", "NC7", "NC8", "NC" };
             for (int idx = 0; idx < mccds.Length; idx++)
             {
-                row = getRowNo(ref destSheet, mccds[idx], 2); // タイトル12.0、見出し9.6、データ15.6
+                row = GetRowNo(ref destSheet, mccds[idx], 2); // タイトル12.0、見出し9.6、データ15.6
                 destSheet.Rows[row + 0].RowHeight = 12.0d;
                 destSheet.Rows[row + 1].RowHeight = 9.6d;
                 if (idx == mccds.Length - 1)
@@ -2864,7 +2852,7 @@ namespace MPPPS
                 }
                 else
                 {
-                    nextrow = getRowNo(ref destSheet, mccds[idx + 1], 2);
+                    nextrow = GetRowNo(ref destSheet, mccds[idx + 1], 2);
                 }
                 destSheet.Rows[$"{row + 2}:{nextrow - 1}"].RowHeight = 15.6d;
             }
@@ -2880,7 +2868,7 @@ namespace MPPPS
         }
 
         // フィルタ後のデータの先頭行番号を取得
-        private int getFilteredFirstRow(ref Microsoft.Office.Interop.Excel.Range OutputRange)
+        private int GetFilteredFirstRow(ref Microsoft.Office.Interop.Excel.Range OutputRange)
         {
             // フィルター後の可視セルを取得
             var visibleCells = OutputRange.SpecialCells(Excel.XlCellType.xlCellTypeVisible);
@@ -2895,7 +2883,7 @@ namespace MPPPS
         }
 
         // フィルタ後の件数を取得
-        private int getFilteredRowCount(ref Microsoft.Office.Interop.Excel.Range OutputRange)
+        private int GetFilteredRowCount(ref Microsoft.Office.Interop.Excel.Range OutputRange)
         {
             // フィルター後の可視セルを取得
             var visibleCells = OutputRange.SpecialCells(Excel.XlCellType.xlCellTypeVisible);
@@ -2912,7 +2900,7 @@ namespace MPPPS
         }
 
         // 文字列を検索し行番号を返却
-        private int getRowNo(ref Excel.Worksheet sheet, string findstring, int column)
+        private int GetRowNo(ref Excel.Worksheet sheet, string findstring, int column)
         {
             Excel.Range foundCell = sheet.Columns[column].Find(
                 What: findstring.Replace("'",""),
@@ -2921,11 +2909,7 @@ namespace MPPPS
                 SearchOrder: Excel.XlSearchOrder.xlByRows,
                 MatchCase: true                     // 大文字小文字を区別
             );
-            if (foundCell == null)
-            {
-                throw new Exception($"文字列[{findstring}]が列{column}で見つかりませんでした.");
-            }
-            return foundCell.Row;
+            return foundCell == null ? throw new Exception($"文字列[{findstring}]が列{column}で見つかりませんでした.") : foundCell.Row;
         }
 
         // Excelブックが開いているかどうか判定

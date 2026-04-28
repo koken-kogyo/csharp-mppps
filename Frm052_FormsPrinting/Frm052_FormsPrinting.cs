@@ -2,8 +2,6 @@
 using System.Data;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -66,7 +64,7 @@ namespace MPPPS
             // 保存ダイアログ
             using (SaveFileDialog sfd = new SaveFileDialog()
             {
-                FileName = $"手配内示在庫状況_{DateTime.Now.ToString("M")}時点",
+                FileName = $"手配内示在庫状況_{DateTime.Now:M}時点",
                 InitialDirectory = Common.SFD_INIT_DIR, // 既定のディレクトリ名
                 Filter = Common.SFD_FILE_TYPE_XLS,      // [ファイルの種類] の選択肢
                 FilterIndex = 1,                        // [ファイルの種類] の既定値

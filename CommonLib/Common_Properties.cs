@@ -25,33 +25,12 @@ namespace MPPPS
 
         // 切削生産計画システム テーブル
         // 主キー
-        public PkKD8430 PkKD8430 { get; set; }      // KD8430  切削生産計画ファイル 主キー
         public PkKM8400 PkKM8400 { get; set; }      // KM8400 切削生産計画システム利用者マスター 主キー
-        public PkKM8410 PkKM8410 { get; set; }      // KM8410 切削刃具 マスター 主キー
-        public PkKM8420 PkKM8420 { get; set; }      // KM8420 切削設備マスター 主キー
-        public PkKM8430 PkKM8430 { get; set; }      // KM8430 切削コード票マスター 主キー
-        // データレコード
-        public DrKD8430 DrKD8430 { get; set; }      // KD8430  切削生産計画ファイル データ レコード
-        public DrKD8440 DrKD8440 { get; set; }      // KD8440  切削生産計画日程ファイル データ レコード
-        public DrKM8400 DrKM8400 { get; set; }      // KM8400 切削生産計画システム利用者マスター データレコード
-        public DrKM8410 DrKM8410 { get; set; }      // KM8410 作業グループマスタ データレコード
-        public DrKM8420 DrKM8420 { get; set; }      // KM8420 切削設備マスター データレコード
-        public DrKM8430 DrKM8430 { get; set; }      // KM8430 切削コード票マスター データレコード
-
-        // ユニーク キー
-        public UqKD8440 UqKD8440 { get; set; }        // KD8440  切削生産計画日程ファイル ユニーク キー
-
-        // 検索キー
-        public IkKD8430 IkKD8430 { get; set; }      // KD8430  切削生産計画ファイル 検索キー
-        public IkKD8440 IkKD8440 { get; set; }        // KD8440  切削生産計画日程ファイル 検索キー
 
 
         // EM テーブル
         public PkM0010 PkM0010 { get; set; }        // M0010 担当者マスター 主キー
         public IkM0010 IkM0010 { get; set; }        // M0010 担当者マスター 検索キー
-        public IkM0300 IkM0300 { get; set; }        // M0300 手配先名称マスター 検索キー
-        public IkM0410 IkM0410 { get; set; }        // M0410 工程マスター 検索キー
-        public PkM0500 PkM0500 { get; set; }        // M0500 品目マスター 主キー
         public DrCommon DrCommon { get; set; }      // 共通データ レコード
         public FileAccessor Fa { get; set; }        // ファイル アクセサ
         public UserInfo Ui { get; set; }            // ユーザー情報

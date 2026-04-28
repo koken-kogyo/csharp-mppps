@@ -85,7 +85,7 @@ namespace MPPPS
             this.txtHMCD.Name = "txtHMCD";
             this.txtHMCD.Size = new System.Drawing.Size(231, 29);
             this.txtHMCD.TabIndex = 10;
-            this.txtHMCD.TextChanged += new System.EventHandler(this.txtHMCD_TextChanged);
+            this.txtHMCD.TextChanged += new System.EventHandler(this.TxtHMCD_TextChanged);
             // 
             // statusStrip1
             // 
@@ -142,7 +142,7 @@ namespace MPPPS
             this.btnReloadDatabase.TabIndex = 6;
             this.btnReloadDatabase.Text = "再読み込み (F5)";
             this.btnReloadDatabase.UseVisualStyleBackColor = false;
-            this.btnReloadDatabase.Click += new System.EventHandler(this.btnReloadDatabase_Click);
+            this.btnReloadDatabase.Click += new System.EventHandler(this.BtnReloadDatabase_Click);
             // 
             // btnUpdateDatabase
             // 
@@ -153,7 +153,7 @@ namespace MPPPS
             this.btnUpdateDatabase.TabIndex = 5;
             this.btnUpdateDatabase.Text = "データベースに反映 (F9)";
             this.btnUpdateDatabase.UseVisualStyleBackColor = false;
-            this.btnUpdateDatabase.Click += new System.EventHandler(this.btnUpdateDatabase_Click);
+            this.btnUpdateDatabase.Click += new System.EventHandler(this.BtnUpdateDatabase_Click);
             // 
             // toolStripStatusLabel2
             // 
@@ -174,7 +174,7 @@ namespace MPPPS
             this.btnHMCDPaste.TabIndex = 13;
             this.btnHMCDPaste.Text = "貼り付け";
             this.btnHMCDPaste.UseVisualStyleBackColor = true;
-            this.btnHMCDPaste.Click += new System.EventHandler(this.btnHMCDPaste_Click);
+            this.btnHMCDPaste.Click += new System.EventHandler(this.BtnHMCDPaste_Click);
             // 
             // btnFilterClear
             // 
@@ -186,7 +186,7 @@ namespace MPPPS
             this.btnFilterClear.TabIndex = 14;
             this.btnFilterClear.Text = "条件クリア";
             this.btnFilterClear.UseVisualStyleBackColor = true;
-            this.btnFilterClear.Click += new System.EventHandler(this.btnFilterClear_Click);
+            this.btnFilterClear.Click += new System.EventHandler(this.BtnFilterClear_Click);
             // 
             // label2
             // 

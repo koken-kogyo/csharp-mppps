@@ -8,7 +8,7 @@ namespace MPPPS
 {
     public partial class Frm100_VerInfo : Form
     {
-        public Frm100_VerInfo(Common cmn)
+        public Frm100_VerInfo()
         {
             InitializeComponent();
 

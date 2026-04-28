@@ -83,7 +83,7 @@ namespace MPPPS
             this.btnDisplayExpantion.TabIndex = 8;
             this.btnDisplayExpantion.Text = "表示拡大";
             this.btnDisplayExpantion.UseVisualStyleBackColor = true;
-            this.btnDisplayExpantion.Click += new System.EventHandler(this.btnDisplayExpantion_Click);
+            this.btnDisplayExpantion.Click += new System.EventHandler(this.BtnDisplayExpantion_Click);
             // 
             // btnDisplayReduction
             // 
@@ -94,7 +94,7 @@ namespace MPPPS
             this.btnDisplayReduction.TabIndex = 7;
             this.btnDisplayReduction.Text = "表示縮小";
             this.btnDisplayReduction.UseVisualStyleBackColor = true;
-            this.btnDisplayReduction.Click += new System.EventHandler(this.btnDisplayReduction_Click);
+            this.btnDisplayReduction.Click += new System.EventHandler(this.BtnDisplayReduction_Click);
             // 
             // btnColumnsAutoFit
             // 
@@ -105,7 +105,7 @@ namespace MPPPS
             this.btnColumnsAutoFit.TabIndex = 6;
             this.btnColumnsAutoFit.Text = "列幅調整";
             this.btnColumnsAutoFit.UseVisualStyleBackColor = true;
-            this.btnColumnsAutoFit.Click += new System.EventHandler(this.btnColumnsAutoFit_Click);
+            this.btnColumnsAutoFit.Click += new System.EventHandler(this.BtnColumnsAutoFit_Click);
             // 
             // cmbMCGCD
             // 
@@ -116,7 +116,7 @@ namespace MPPPS
             this.cmbMCGCD.Name = "cmbMCGCD";
             this.cmbMCGCD.Size = new System.Drawing.Size(233, 33);
             this.cmbMCGCD.TabIndex = 0;
-            this.cmbMCGCD.SelectedIndexChanged += new System.EventHandler(this.cmbMCGCD_SelectedIndexChanged);
+            this.cmbMCGCD.SelectedIndexChanged += new System.EventHandler(this.CmbMCGCD_SelectedIndexChanged);
             // 
             // label1
             // 
@@ -165,7 +165,7 @@ namespace MPPPS
             this.btnReloadDatabase.TabIndex = 4;
             this.btnReloadDatabase.Text = "初期状態に戻す (F5)";
             this.btnReloadDatabase.UseVisualStyleBackColor = false;
-            this.btnReloadDatabase.Click += new System.EventHandler(this.btnReloadDatabase_Click);
+            this.btnReloadDatabase.Click += new System.EventHandler(this.BtnReloadDatabase_Click);
             // 
             // btnUpdateDatabase
             // 
@@ -176,7 +176,7 @@ namespace MPPPS
             this.btnUpdateDatabase.TabIndex = 3;
             this.btnUpdateDatabase.Text = "データベースに反映 (F9)";
             this.btnUpdateDatabase.UseVisualStyleBackColor = false;
-            this.btnUpdateDatabase.Click += new System.EventHandler(this.btnUpdateDatabase_Click);
+            this.btnUpdateDatabase.Click += new System.EventHandler(this.BtnUpdateDatabase_Click);
             // 
             // Dgv_EquipMst
             // 

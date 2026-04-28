@@ -891,7 +891,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// SQL 構文編集 KD8440：切削オーダーファイル
+        /// SQL 構文編集 KD8450：切削オーダーファイル
         /// </summary>
         /// <returns>SQL 構文</returns>
         private string DivideMpOrderBulkSql()
@@ -1302,7 +1302,7 @@ namespace MPPPS
                     + "WHERE "
                     + "ODRSTS <> '9' "
                     + "and ODCD like '6060%' "
-                    + $"and EDDT between '{targerMonth.AddMonths(-1).ToString()}' and '{targerMonth.AddMonths(2).ToString()}' "
+                    + $"and EDDT between '{targerMonth.AddMonths(-1)}' and '{targerMonth.AddMonths(2)}' "
                     + "GROUP BY EDDT "
                     + "ORDER BY EDDT "
                 ;
@@ -1511,7 +1511,7 @@ namespace MPPPS
                     + "WHERE "
                     + "ODRSTS <> '9' "
                     + "and ODCD like '6060%' "
-                    + $"and EDDT between '{targerMonth.AddMonths(-1).ToString()}' and '{targerMonth.AddMonths(1).ToString()}' "
+                    + $"and EDDT between '{targerMonth.AddMonths(-1)}' and '{targerMonth.AddMonths(1)}' "
                     + "GROUP BY EDDT "
                     + "ORDER BY EDDT "
                 ;
@@ -2466,25 +2466,25 @@ namespace MPPPS
                             if (mcgseqOrg != mcgseq || mcgcdOrg != mcgcd ||
                                 mcseqOrg != mcseq || mccdOrg != mccd)
                             {
-                                string tannm1 = (dgv["TANNM1"].ToString() == "") ? "null" : $"'{dgv["TANNM1"].ToString()}'";
-                                string tannm2 = (dgv["TANNM2"].ToString() == "") ? "null" : $"'{dgv["TANNM2"].ToString()}'";
+                                string tannm1 = (dgv["TANNM1"].ToString() == "") ? "null" : $"'{dgv["TANNM1"]}'";
+                                string tannm2 = (dgv["TANNM2"].ToString() == "") ? "null" : $"'{dgv["TANNM2"]}'";
                                 string thickness = (dgv["CUTTHICKNESS"].ToString() == "") ? "null" : dgv["CUTTHICKNESS"].ToString();
                                 string scrap = (dgv["SCRAPLEN"].ToString() == "") ? "null" : dgv["SCRAPLEN"].ToString();
-                                string setupnm1 = (dgv["SETUPNM1"].ToString() == "") ? "null" : $"'{dgv["SETUPNM1"].ToString()}'";
-                                string setupnm2 = (dgv["SETUPNM2"].ToString() == "") ? "null" : $"'{dgv["SETUPNM2"].ToString()}'";
-                                string setupnm3 = (dgv["SETUPNM3"].ToString() == "") ? "null" : $"'{dgv["SETUPNM3"].ToString()}'";
+                                string setupnm1 = (dgv["SETUPNM1"].ToString() == "") ? "null" : $"'{dgv["SETUPNM1"]}'";
+                                string setupnm2 = (dgv["SETUPNM2"].ToString() == "") ? "null" : $"'{dgv["SETUPNM2"]}'";
+                                string setupnm3 = (dgv["SETUPNM3"].ToString() == "") ? "null" : $"'{dgv["SETUPNM3"]}'";
                                 string sql = "UPDATE km8420 set " +
                                     $"MCGSEQ={mcgseq}" +
                                     $",MCGCD='{mcgcd}'" +
-                                    $",MCGNM='{dgv["MCGNM"].ToString()}'" +
+                                    $",MCGNM='{dgv["MCGNM"]}'" +
                                     $",MCSEQ={mcseq}" +
                                     $",MCCD='{mccd}'" +
-                                    $",MCNM='{dgv["MCNM"].ToString()}'" +
+                                    $",MCNM='{dgv["MCNM"]}'" +
                                     $",TANNM1={tannm1}" +
                                     $",TANNM2={tannm2}" +
                                     $",ONTIME={Convert.ToInt32(dgv["ONTIME"].ToString())}" +
-                                    $",FLG1='{dgv["FLG1"].ToString()}'" +
-                                    $",FLG2='{dgv["FLG2"].ToString()}'" +
+                                    $",FLG1='{dgv["FLG1"]}'" +
+                                    $",FLG2='{dgv["FLG2"]}'" +
                                     $",CUTTHICKNESS={thickness}" + 
                                     $",SCRAPLEN={scrap}" +
                                     $",SETUPNM1={setupnm1}" +
@@ -2619,7 +2619,7 @@ namespace MPPPS
                         // 変更または削除があるかチェック
                         foreach (DataRow r in dtUpdate.Rows)
                         {
-                            DataRow[] dgv = dgvDt.Select($"HMCD='{r["HMCD"].ToString()}'");
+                            DataRow[] dgv = dgvDt.Select($"HMCD='{r["HMCD"]}'");
                             // 削除
                             if (dgv.Length == 0)
                             {
@@ -2654,7 +2654,7 @@ namespace MPPPS
                         // 新規の行が存在するかチェック
                         foreach (DataRow r in dgvDt.Rows)
                         {
-                            DataRow[] dr = dtUpdate.Select($"HMCD='{r["HMCD"].ToString()}'");
+                            DataRow[] dr = dtUpdate.Select($"HMCD='{r["HMCD"]}'");
                             // 挿入
                             if (dr.Length == 0)
                             {
@@ -2886,9 +2886,9 @@ namespace MPPPS
                             // 主キーが変更された場合
                             if (orghmcd != hmcd || orgmcgcd != mcgcd || orgmccd != mccd)
                             {
-                                string indtparam = (dgv["INDT"].ToString() == "") ? ", INDT=null" : $", INDT='{dgv["INDT"].ToString()}'";
-                                string outdtparam = (dgv["OUTDT"].ToString() == "") ? ", OUTDT=null" : $", OUTDT='{dgv["OUTDT"].ToString()}'";
-                                string indtdtparam = (dgv["MPINSTDT"].ToString() == "") ? ", MPINSTDT=null" : $", MPINSTDT='{dgv["MPINSTDT"].ToString()}'";
+                                string indtparam = (dgv["INDT"].ToString() == "") ? ", INDT=null" : $", INDT='{dgv["INDT"]}'";
+                                string outdtparam = (dgv["OUTDT"].ToString() == "") ? ", OUTDT=null" : $", OUTDT='{dgv["OUTDT"]}'";
+                                string indtdtparam = (dgv["MPINSTDT"].ToString() == "") ? ", MPINSTDT=null" : $", MPINSTDT='{dgv["MPINSTDT"]}'";
                                 string sql = "UPDATE kd8460 set " + 
                                     $"HMCD='{hmcd}'"+
                                     $", MCGCD='{mcgcd}'"+
@@ -2896,7 +2896,7 @@ namespace MPPPS
                                     $", ZAIQTY={Convert.ToInt32(dgv["ZAIQTY"].ToString())}" +
                                     indtparam +
                                     outdtparam +
-                                    $", MPINSTID='{dgv["MPINSTID"].ToString()}'" +
+                                    $", MPINSTID='{dgv["MPINSTID"]}'" +
                                     indtdtparam + 
                                     $", MPUPDTID='{cmn.Ui.UserId}'" + 
                                     $", MPUPDTDT=NOW()" + " " +
@@ -2984,7 +2984,7 @@ namespace MPPPS
                         foreach (DataRow r in dtUpdate.Rows)
                         {
                             string MpSTS = r["ODRSTS"].ToString();
-                            DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");
+                            DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"]}'");
                             if (drEM.Length == 1)
                             {
                                 // EMのステータスと相違がないかチェック 2:確定、3:着手、4:完了、9:取消
@@ -3038,7 +3038,7 @@ namespace MPPPS
                         foreach (DataRow r in dtUpdate.Rows)
                         {
                             string MpSTS = r["ODRSTS"].ToString();
-                            DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"].ToString()}'");
+                            DataRow[] drEM = dtEM.Select($"ODRNO='{r["ODRNO"]}'");
                             if (drEM.Length == 1)
                             {
                                 // EMのステータスと相違がないかチェック 2:確定、3:着手、4:完了、9:取消
@@ -3984,7 +3984,7 @@ namespace MPPPS
                     }
                     if (countInsert > 0)
                     {
-                        Console.WriteLine($"[{from[i]}] {countInsert.ToString("#,0")}件 登録しました．");
+                        Console.WriteLine($"[{from[i]}] {countInsert:#,0}件 登録しました．");
                     }
                 }
                 ret = true;

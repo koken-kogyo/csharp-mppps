@@ -23,7 +23,7 @@ namespace MPPPS
         private DateTime targetMonth;
         private DataTable dtS0820working;
 
-        public Frm091_CutStoreDelv(Common cmn, object sender)
+        public Frm091_CutStoreDelv(Common cmn)
         {
             InitializeComponent();
 
@@ -149,8 +149,6 @@ namespace MPPPS
                 else if (shipmentPlanDt.Select($"EDDT='{currentDate}' and 発行済件数=0 and 手配件数>0").Count() != 0)
                 {
                     // 手配あり計画出庫データなし
-                    var totalCount = (long)shipmentPlanDt.Select($"EDDT='{currentDate}'")[0]["手配件数"];
-                    var cardPrint = (long)shipmentPlanDt.Select($"EDDT='{currentDate}'")[0]["発行済件数"];
                     Dgv_Calendar[column, row].Style.BackColor = Color.LightCyan;
                     Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
                 }
@@ -204,8 +202,6 @@ namespace MPPPS
                 else if (shipmentPlanDt.Select($"EDDT='{nextDate}' and 発行済件数=0 and 手配件数>0").Count() != 0)
                 {
                     // 手配あり計画出庫データなし
-                    var totalCount = (long)shipmentPlanDt.Select($"EDDT='{nextDate}'")[0]["手配件数"];
-                    var cardPrint = (long)shipmentPlanDt.Select($"EDDT='{nextDate}'")[0]["発行済件数"];
                     Dgv_Calendar[column, row].Style.BackColor = Color.LightCyan;
                     Dgv_Calendar[column, row].Style.ForeColor = Color.Black;
                 }
@@ -347,7 +343,7 @@ namespace MPPPS
                 if (rowsCount > 0)
                 {
                     toolStripStatusLabel.Text = $"{rowsCount}件の計画出庫データがあります.";
-                    if (cmn.ShowMessageBox(Common.KCM_PGM_ID, $" {planDay.ToString("M/d")}日の計画出庫データを出力しますか？", Common.MSG_TYPE_Q,
+                    if (cmn.ShowMessageBox(Common.KCM_PGM_ID, $" {planDay:M/d}日の計画出庫データを出力しますか？", Common.MSG_TYPE_Q,
                                 MessageBoxButtons.OKCancel, Common.MSGBOX_TXT_INFO, MessageBoxIcon.Question) == DialogResult.OK)
                     {
                         // CSVファイルの作成と出力

@@ -100,13 +100,13 @@ namespace MPPPS
 
             // データグリッドの初期化
             kd8440.Rows.Clear();
-            cmn.Dba.FindMpPlan(ref kd8440, selectSQL(), "1=1 limit 0");
+            cmn.Dba.FindMpPlan(ref kd8440, SelectSQL(), "1=1 limit 0");
             dgv_Order.DataSource = kd8440;
             // ヘッダータイトルを日本語に変換
-            columnHeaderText();
+            ColumnHeaderText();
 
             // ボタンを非活性化
-            setCommandButtons(false);
+            SetCommandButtons(false);
 
             chk_EDDT.Checked = true;
             chk_PLNNO.Checked = false;
@@ -144,7 +144,7 @@ namespace MPPPS
         }
 
         // データグリッドビューに表示するSQL文の項目名（順番もここで決定）
-        private string selectSQL()
+        private string SelectSQL()
         {
             return
                 "if(a.ODRNO is null, concat('P', a.PLNNO), concat('K', a.ODRNO)) PLNNO, " + 
@@ -167,52 +167,53 @@ namespace MPPPS
                 "a.UPDTDT";
         }
         // データグリッドの日本語列名、文字寄せ、幅px、文字フォーマットをここで設定
-        private void columnHeaderText()
+        private void ColumnHeaderText()
         {
             // ヘッダーフォントがデザイナー設定が反映されない
             this.dgv_Order.ColumnHeadersDefaultCellStyle.Font = new Font("Yu Gothic UI", 10);
             // 
-            Dictionary<string, MultipleValues> dic = new Dictionary<string, MultipleValues>();
-            dic.Add("PLNNO", new MultipleValues { JPNAME = "計画No", Width = 130 });
-            dic.Add("KTSEQ", new MultipleValues { JPNAME = "工程順序", Width = 40 });
-            dic.Add("HMCD", new MultipleValues { JPNAME = "品番", Width = 180 });
-            dic.Add("HMNM", new MultipleValues { JPNAME = "品名", Width = 190 });
-            dic.Add("KTCD", new MultipleValues { JPNAME = "工程ｺｰﾄﾞ", Width = 60 });
-            dic.Add("ODRQTY", new MultipleValues { JPNAME = "手配数", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("ODCD", new MultipleValues { JPNAME = "手配先ｺｰﾄﾞ", Width = 60 });
-            dic.Add("NEXTODCD", new MultipleValues { JPNAME = "次手配先コード", Width = 60 });
-            dic.Add("LTTIME", new MultipleValues { JPNAME = "LT", Width = 40 });
-            dic.Add("STDT", new MultipleValues { JPNAME = "着手予定日", Width = 100 });
-            dic.Add("STTIM", new MultipleValues { JPNAME = "着手予定時刻", Width = 60 });
-            dic.Add("EDDT", new MultipleValues { JPNAME = "完了予定日", Width = 120 });
-            dic.Add("EDTM", new MultipleValues { JPNAME = "完了予定時刻", Width = 70 });
-            dic.Add("EDTIM", new MultipleValues { JPNAME = "完了予定時刻", Width = 70 });
-            dic.Add("ODRSTS", new MultipleValues { JPNAME = "手配状況", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
-            dic.Add("ODRSTSNM", new MultipleValues { JPNAME = "手配", Width = 80, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
-            dic.Add("QRCD", new MultipleValues { JPNAME = "QRコード", Width = 100 });
-            dic.Add("JIQTY", new MultipleValues { JPNAME = "実績数", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight });
-            dic.Add("DENPYOKBN", new MultipleValues { JPNAME = "帳票発行区分", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleCenter });
-            dic.Add("DENPYODT", new MultipleValues { JPNAME = "帳票発行日", Width = 100, Format = "MM/dd HH:mm" });
-            dic.Add("NOTE", new MultipleValues { JPNAME = "摘要", Width = 100 });
-            dic.Add("WKNOTE", new MultipleValues { JPNAME = "作業内容", Width = 100 });
-            dic.Add("WKCOMMENT", new MultipleValues { JPNAME = "作業注釈", Width = 100 });
-            dic.Add("DATAKBN", new MultipleValues { JPNAME = "データ区分", Width = 40 });
-            dic.Add("INSTID", new MultipleValues { JPNAME = "登録者", Width = 70 });
-            dic.Add("INSTDT", new MultipleValues { JPNAME = "登録日時", Width = 120, Format = "MM/dd HH:mm" });
-            dic.Add("UPDTID", new MultipleValues { JPNAME = "更新者", Width = 70 });
-            dic.Add("UPDTDT", new MultipleValues { JPNAME = "更新日時", Width = 120, Format = "MM/dd HH:mm" });
-            dic.Add("NAIGAIKBN", new MultipleValues { JPNAME = "社内外区分", Width = 40 });
-            dic.Add("RETKTCD", new MultipleValues { JPNAME = "検索用工程コード", Width = 40 });
-
-            dic.Add("KTKEY", new MultipleValues { JPNAME = "工程キー", Width = 120 });
-            dic.Add("MATERIALCD", new MultipleValues { JPNAME = "切削母材品番", Width = 110 });
-            dic.Add("PLANCARDDT", new MultipleValues { JPNAME = "内示カード発行日", Width = 120, Format = "MM/dd HH:mm" });
-            dic.Add("MPCARDDT", new MultipleValues { JPNAME = "製造指示カード発行日", Width = 100, Format = "MM/dd HH:mm" });
-            dic.Add("MPTANADT", new MultipleValues { JPNAME = "棚コンデータ作成日", Width = 100, Format = "MM/dd HH:mm" });
-            dic.Add("MPINSTID", new MultipleValues { JPNAME = "MP登録者", Width = 100 });
-            dic.Add("MPINSTDT", new MultipleValues { JPNAME = "MP登録日時", Width = 100, Format = "MM/dd HH:mm" });
-            dic.Add("MPUPDTID", new MultipleValues { JPNAME = "MP更新者", Width = 100 });
-            dic.Add("MPUPDTDT", new MultipleValues { JPNAME = "MP更新日時", Width = 100, Format = "MM/dd HH:mm" });
+            Dictionary<string, MultipleValues> dic = new Dictionary<string, MultipleValues>
+            {
+                { "PLNNO", new MultipleValues { JPNAME = "計画No", Width = 130 } },
+                { "KTSEQ", new MultipleValues { JPNAME = "工程順序", Width = 40 } },
+                { "HMCD", new MultipleValues { JPNAME = "品番", Width = 180 } },
+                { "HMNM", new MultipleValues { JPNAME = "品名", Width = 190 } },
+                { "KTCD", new MultipleValues { JPNAME = "工程ｺｰﾄﾞ", Width = 60 } },
+                { "ODRQTY", new MultipleValues { JPNAME = "手配数", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "ODCD", new MultipleValues { JPNAME = "手配先ｺｰﾄﾞ", Width = 60 } },
+                { "NEXTODCD", new MultipleValues { JPNAME = "次手配先コード", Width = 60 } },
+                { "LTTIME", new MultipleValues { JPNAME = "LT", Width = 40 } },
+                { "STDT", new MultipleValues { JPNAME = "着手予定日", Width = 100 } },
+                { "STTIM", new MultipleValues { JPNAME = "着手予定時刻", Width = 60 } },
+                { "EDDT", new MultipleValues { JPNAME = "完了予定日", Width = 120 } },
+                { "EDTM", new MultipleValues { JPNAME = "完了予定時刻", Width = 70 } },
+                { "EDTIM", new MultipleValues { JPNAME = "完了予定時刻", Width = 70 } },
+                { "ODRSTS", new MultipleValues { JPNAME = "手配状況", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleCenter } },
+                { "ODRSTSNM", new MultipleValues { JPNAME = "手配", Width = 80, StyleAlignment = DataGridViewContentAlignment.MiddleCenter } },
+                { "QRCD", new MultipleValues { JPNAME = "QRコード", Width = 100 } },
+                { "JIQTY", new MultipleValues { JPNAME = "実績数", Width = 60, StyleAlignment = DataGridViewContentAlignment.MiddleRight } },
+                { "DENPYOKBN", new MultipleValues { JPNAME = "帳票発行区分", Width = 40, StyleAlignment = DataGridViewContentAlignment.MiddleCenter } },
+                { "DENPYODT", new MultipleValues { JPNAME = "帳票発行日", Width = 100, Format = "MM/dd HH:mm" } },
+                { "NOTE", new MultipleValues { JPNAME = "摘要", Width = 100 } },
+                { "WKNOTE", new MultipleValues { JPNAME = "作業内容", Width = 100 } },
+                { "WKCOMMENT", new MultipleValues { JPNAME = "作業注釈", Width = 100 } },
+                { "DATAKBN", new MultipleValues { JPNAME = "データ区分", Width = 40 } },
+                { "INSTID", new MultipleValues { JPNAME = "登録者", Width = 70 } },
+                { "INSTDT", new MultipleValues { JPNAME = "登録日時", Width = 120, Format = "MM/dd HH:mm" } },
+                { "UPDTID", new MultipleValues { JPNAME = "更新者", Width = 70 } },
+                { "UPDTDT", new MultipleValues { JPNAME = "更新日時", Width = 120, Format = "MM/dd HH:mm" } },
+                { "NAIGAIKBN", new MultipleValues { JPNAME = "社内外区分", Width = 40 } },
+                { "RETKTCD", new MultipleValues { JPNAME = "検索用工程コード", Width = 40 } },
+                { "KTKEY", new MultipleValues { JPNAME = "工程キー", Width = 120 } },
+                { "MATERIALCD", new MultipleValues { JPNAME = "切削母材品番", Width = 110 } },
+                { "PLANCARDDT", new MultipleValues { JPNAME = "内示カード発行日", Width = 120, Format = "MM/dd HH:mm" } },
+                { "MPCARDDT", new MultipleValues { JPNAME = "製造指示カード発行日", Width = 100, Format = "MM/dd HH:mm" } },
+                { "MPTANADT", new MultipleValues { JPNAME = "棚コンデータ作成日", Width = 100, Format = "MM/dd HH:mm" } },
+                { "MPINSTID", new MultipleValues { JPNAME = "MP登録者", Width = 100 } },
+                { "MPINSTDT", new MultipleValues { JPNAME = "MP登録日時", Width = 100, Format = "MM/dd HH:mm" } },
+                { "MPUPDTID", new MultipleValues { JPNAME = "MP更新者", Width = 100 } },
+                { "MPUPDTDT", new MultipleValues { JPNAME = "MP更新日時", Width = 100, Format = "MM/dd HH:mm" } }
+            };
 
             for (int c = 0; c < dgv_Order.Columns.Count; c++)
             {
@@ -232,7 +233,7 @@ namespace MPPPS
             }
         }
         // 各ボタンの活性化、非活性化
-        private void setCommandButtons(bool flg)
+        private void SetCommandButtons(bool flg)
         {
             if (flg == false) // 未実装
             {
@@ -250,18 +251,18 @@ namespace MPPPS
         // ********************** コントロールの初期化関連ここまで ************************
         // ******************************** 条件関連ここから *********************************
         // 手配No条件ボックスの活性、非活性化
-        private void chk_PLNNO_CheckedChanged(object sender, EventArgs e)
+        private void Chk_PLNNO_CheckedChanged(object sender, EventArgs e)
         {
-            checkedFillter();
+            CheckedFillter();
             txt_PLNNO.Enabled = chk_PLNNO.Checked;
             btn_PLNNOPaste.Enabled = chk_PLNNO.Checked;
             if (chk_HMCD.Checked) txt_PLNNO.Focus();
         }
 
         // 品番条件ボックスの活性、非活性化
-        private void chk_HMCD_CheckedChanged(object sender, EventArgs e)
+        private void Chk_HMCD_CheckedChanged(object sender, EventArgs e)
         {
-            checkedFillter();
+            CheckedFillter();
             chk_Like.Enabled = chk_HMCD.Checked;
             txt_HMCD.Enabled = chk_HMCD.Checked;
             btn_HMCDPaste.Enabled = chk_HMCD.Checked;
@@ -269,7 +270,7 @@ namespace MPPPS
         }
 
         // 完了予定日条件ボックスの活性、非活性化
-        private void chk_EDDT_CheckedChanged(object sender, EventArgs e)
+        private void Chk_EDDT_CheckedChanged(object sender, EventArgs e)
         {
             dtp_EDDT_From.Enabled = chk_EDDT.Checked;
             cmb_Condition.Enabled = chk_EDDT.Checked;
@@ -277,9 +278,9 @@ namespace MPPPS
         }
 
         // 受注状態条件ボックスの活性、非活性化
-        private void chk_ODRSTS_CheckedChanged(object sender, EventArgs e)
+        private void Chk_ODRSTS_CheckedChanged(object sender, EventArgs e)
         {
-            checkedFillter();
+            CheckedFillter();
             chk_1.Enabled = chk_ODRSTS.Checked;
             chk_2.Enabled = chk_ODRSTS.Checked;
             chk_3.Enabled = chk_ODRSTS.Checked;
@@ -287,44 +288,44 @@ namespace MPPPS
             chk_9.Enabled = chk_ODRSTS.Checked;
         }
 
-        private void chk_1_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
-        private void chk_2_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
-        private void chk_3_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
-        private void chk_4_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
-        private void chk_9_CheckedChanged(object sender, EventArgs e) { checkedFillter(); }
+        private void Chk_1_CheckedChanged(object sender, EventArgs e) { CheckedFillter(); }
+        private void Chk_2_CheckedChanged(object sender, EventArgs e) { CheckedFillter(); }
+        private void Chk_3_CheckedChanged(object sender, EventArgs e) { CheckedFillter(); }
+        private void Chk_4_CheckedChanged(object sender, EventArgs e) { CheckedFillter(); }
+        private void Chk_9_CheckedChanged(object sender, EventArgs e) { CheckedFillter(); }
 
         // 手配No Enterイベント
-        private void txt_PLNNO_KeyDown(object sender, KeyEventArgs e)
+        private void Txt_PLNNO_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) checkedFillter();
+            if (e.KeyCode == Keys.Enter) CheckedFillter();
         }
 
         // 品番変更イベント
-        private void txt_HMCD_TextChanged(object sender, EventArgs e)
+        private void Txt_HMCD_TextChanged(object sender, EventArgs e)
         {
             var selpos = txt_HMCD.SelectionStart;
             var sellen = txt_HMCD.SelectionLength;
             txt_HMCD.Text = txt_HMCD.Text.ToUpper();
             txt_HMCD.SelectionStart = selpos;
             txt_HMCD.SelectionLength = sellen;
-            checkedFillter();
+            CheckedFillter();
         }
 
         // 手配完了予定日のFromToを表示するかの判定
-        private void cmb_Condition_SelectedIndexChanged(object sender, EventArgs e)
+        private void Cmb_Condition_SelectedIndexChanged(object sender, EventArgs e)
         {
-            dtp_EDDT_To.Visible = (cmb_Condition.SelectedIndex == 0) ? false : true;
+            dtp_EDDT_To.Visible = cmb_Condition.SelectedIndex != 0;
             if (dtp_EDDT_To.Visible) dtp_EDDT_To.Value = dtp_EDDT_From.Value.AddDays(7);
         }
 
-        private void chk_MCCD_CheckedChanged(object sender, EventArgs e)
+        private void Chk_MCCD_CheckedChanged(object sender, EventArgs e)
         {
-            checkedFillter();
+            CheckedFillter();
             // コントロールの活性、非活性化
             cmb_MCGCD.Enabled = chk_MCCD.Checked;
             cmb_MCCD.Enabled = chk_MCCD.Checked;
         }
-        private void cmb_MCGCD_SelectedIndexChanged(object sender, EventArgs e)
+        private void Cmb_MCGCD_SelectedIndexChanged(object sender, EventArgs e)
         {
             cmb_MCCD.Items.Clear();
             // 設備グループドロップダウン設定
@@ -335,19 +336,19 @@ namespace MPPPS
                 .Select(c => c["MCGCD"].ToString() + "-" + c["MCCD"].ToString())
                 .ToList();
             cmb_MCCD.Items.AddRange(mccds.ToArray());
-            checkedFillter();
+            CheckedFillter();
         }
 
-        private void cmb_MCCD_SelectedIndexChanged(object sender, EventArgs e)
+        private void Cmb_MCCD_SelectedIndexChanged(object sender, EventArgs e)
         {
-            checkedFillter();
+            CheckedFillter();
         }
 
         // 現在表示されている各条件を元にフィルター
-        private void checkedFillter()
+        private void CheckedFillter()
         {
             if (kd8440.Rows.Count == 0) return;
-            var f = addFillter();
+            var f = AddFillter();
             if (f == string.Empty)
             {
                 kd8440.DefaultView.RowFilter = string.Empty;
@@ -362,7 +363,7 @@ namespace MPPPS
         }
 
         // 現在表示されている検索条件フィルター文の作成
-        private string addFillter()
+        private string AddFillter()
         {
             string f = "";
             if (chk_PLNNO.Checked && txt_PLNNO.Text != string.Empty)
@@ -446,19 +447,19 @@ namespace MPPPS
         // Form.KeyPreview.KeyDownハンドラー
         private void Frm042_InformationOrder_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F5) btn_Search_Click(sender, e);
-            if (e.KeyCode == Keys.F10) btn_ExportPlan_Click(sender, e);
-            if (e.KeyCode == Keys.F12) btn_PrintPlan_Click(sender, e);
+            if (e.KeyCode == Keys.F5) Btn_Search_Click(sender, e);
+            if (e.KeyCode == Keys.F10) Btn_ExportPlan_Click(sender, e);
+            if (e.KeyCode == Keys.F12) Btn_PrintPlan_Click(sender, e);
             if (e.KeyCode == Keys.Escape) Close();
         }
 
-        private void dtp_EDDT_From_KeyDown(object sender, KeyEventArgs e)
+        private void Dtp_EDDT_From_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) btn_Search_Click(sender, e);
+            if (e.KeyCode == Keys.Enter) Btn_Search_Click(sender, e);
         }
 
         // データグリッド上のセルダブルクリックイベント
-        private void dgv_Order_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void Dgv_Order_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex == -1) return;
             string val = dgv_Order[e.ColumnIndex, e.RowIndex].Value.ToString();
@@ -479,18 +480,18 @@ namespace MPPPS
         }
 
         // クリップボードからペースト
-        private void btn_PLNNOPaste_Click(object sender, EventArgs e)
+        private void Btn_PLNNOPaste_Click(object sender, EventArgs e)
         {
             txt_PLNNO.Text = Clipboard.GetText().Replace("\r\n", "");
         }
 
-        private void btn_HMCDPaste_Click(object sender, EventArgs e)
+        private void Btn_HMCDPaste_Click(object sender, EventArgs e)
         {
             txt_HMCD.Text = Clipboard.GetText().Replace("\r\n", "");
         }
 
         // クリップボードへ品番コピー
-        private void dgv_Order_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        private void Dgv_Order_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
@@ -507,7 +508,7 @@ namespace MPPPS
 
         // ******************************** メイン処理ここから *********************************
         // 検索処理
-        private void btn_Search_Click(object sender, EventArgs e)
+        private void Btn_Search_Click(object sender, EventArgs e)
         {
             // 検索条件チェック
             if (!chk_ODRSTS.Checked && !chk_PLNNO.Checked && !chk_HMCD.Checked && !chk_EDDT.Checked && !chk_MCCD.Checked)
@@ -520,19 +521,19 @@ namespace MPPPS
             kd8440.Rows.Clear();
 
             // 手配検索
-            var where = addFillter();
-            var ret8420 = cmn.Dba.FindMpPlan(ref kd8440, selectSQL(), where);
+            var where = AddFillter();
+            cmn.Dba.FindMpPlan(ref kd8440, SelectSQL(), where);
             dgv_Order.DataSource = kd8440;
 
             // ステータス表示
             if (kd8440.Rows.Count == 0)
             {
-                setCommandButtons(false);
+                SetCommandButtons(false);
                 toolStripStatusLabel1.Text = "データが存在しませんでした．";
             }
             else
             {
-                setCommandButtons(true);
+                SetCommandButtons(true);
                 toolStripStatusLabel1.Text = kd8440.Rows.Count.ToString("#,0") + "件を抽出しました．";
             }
         }
@@ -571,7 +572,7 @@ namespace MPPPS
         }
 
         // 外部出力（F10）
-        private void btn_ExportPlan_Click(object sender, EventArgs e)
+        private void Btn_ExportPlan_Click(object sender, EventArgs e)
         {
             DataTable exportDt = new DataTable();
             GetFilteredRows(dgv_Order, ref exportDt);
@@ -579,7 +580,7 @@ namespace MPPPS
             // 保存ダイアログ
             using (SaveFileDialog sfd = new SaveFileDialog()
             {
-                FileName = $"内示情報_{DateTime.Now.ToString("M")}",
+                FileName = $"内示情報_{DateTime.Now:M}",
                 InitialDirectory = Common.SFD_INIT_DIR, // 既定のディレクトリ名
                 Filter = Common.SFD_FILE_TYPE_XLS,      // [ファイルの種類] の選択肢
                 FilterIndex = 1,                        // [ファイルの種類] の既定値
@@ -617,7 +618,7 @@ namespace MPPPS
         }
 
         // 製造指示カード発行（F12）
-        private async void btn_PrintPlan_Click(object sender, EventArgs e)
+        private async void Btn_PrintPlan_Click(object sender, EventArgs e)
         {
             // モニターの倍率をチェックし雛形ファイルのインデックス番号を取得
             int idx = (cmn.ScreenMagnification == 1d) ? 1 : (cmn.ScreenMagnification == 1.25d) ? 2 : 9;
@@ -712,9 +713,8 @@ namespace MPPPS
 
                     // 収容数で分割
                     decimal odrqty = Decimal.Parse(r["ODRQTY"].ToString());
-                    decimal boxqty = 0;
                     int loopCnt = 1;
-                    if (Decimal.TryParse(r["BOXQTY"].ToString(), out boxqty))
+                    if (Decimal.TryParse(r["BOXQTY"].ToString(), out decimal boxqty))
                     {
                         loopCnt = Decimal.ToInt32(Math.Ceiling((odrqty / boxqty)));
                     }
@@ -767,12 +767,12 @@ namespace MPPPS
             return ret;
         }
 
-        private void btn_DetailPlan_Click(object sender, EventArgs e)
+        private void Btn_DetailPlan_Click(object sender, EventArgs e)
         {
             MessageBox.Show("未実装");
         }
 
-        private void btn_Progress_Click(object sender, EventArgs e)
+        private void Btn_Progress_Click(object sender, EventArgs e)
         {
             MessageBox.Show("未実装");
         }

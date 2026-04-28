@@ -81,7 +81,7 @@ namespace MPPPS
             this.toolStripStatusLabel2.Spring = true;
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.toolStripStatusLabel2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.toolStripStatusLabel2_MouseDown);
+            this.toolStripStatusLabel2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ToolStripStatusLabel2_MouseDown);
             // 
             // panel1
             // 

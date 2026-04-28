@@ -79,7 +79,7 @@ namespace MPPPS
             DataGridDetailSetting();
 
             // EMの在庫数を追加で表示
-            addEMQTY(ref invInfoEMDt);
+            AddEMQTY(ref invInfoEMDt);
 
             // 件数を表示
             toolStripStatusLabel1.Text = (Dgv_InvInfo.Rows.Count - 1) + "件を読み込みました。";
@@ -120,7 +120,7 @@ namespace MPPPS
         }
 
         // EMの在庫数を追記
-        private void addEMQTY(ref DataTable invInfoEMDt)
+        private void AddEMQTY(ref DataTable invInfoEMDt)
         {
             //DataGridViewTextBoxColumn列を作成する
             DataGridViewTextBoxColumn textColumn = new DataGridViewTextBoxColumn
@@ -181,21 +181,21 @@ namespace MPPPS
 
         private void Dgv_InvInfo_Sorted(object sender, EventArgs e)
         {
-            addEMQTY(ref invInfoEMDt);
+            AddEMQTY(ref invInfoEMDt);
         }
 
-        private void txtHMCD_TextChanged(object sender, EventArgs e)
+        private void TxtHMCD_TextChanged(object sender, EventArgs e)
         {
             var selpos = txtHMCD.SelectionStart;
             var sellen = txtHMCD.SelectionLength;
             txtHMCD.Text = txtHMCD.Text.ToUpper();
             txtHMCD.SelectionStart = selpos;
             txtHMCD.SelectionLength = sellen;
-            myFilter();
+            MyFilter();
         }
 
         // 検索条件を設定
-        private void myFilter()
+        private void MyFilter()
         {
             string filter = (txtHMCD.Text.Length == 0) ? string.Empty :
                 $"HMCD LIKE '{txtHMCD.Text}*'";
@@ -205,13 +205,13 @@ namespace MPPPS
             //    $"MATESIZE LIKE '{cmbMaterial.Text}*'";
             // 複数検索条件を設定
             invInfoMPDt.DefaultView.RowFilter = filter;
-            addEMQTY(ref invInfoEMDt);
+            AddEMQTY(ref invInfoEMDt);
         }
 
         private void Frm092_CutStoreInvInfo_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F5) btnReloadDatabase_Click(sender, e);
-            if (e.KeyCode == Keys.F9) btnUpdateDatabase_Click(sender, e);
+            if (e.KeyCode == Keys.F5) BtnReloadDatabase_Click(sender, e);
+            if (e.KeyCode == Keys.F9) BtnUpdateDatabase_Click(sender, e);
             if (e.KeyCode == Keys.Escape) Close();
         }
 
@@ -314,7 +314,7 @@ namespace MPPPS
         }
 
         // データベース反映 (F9)
-        private async void btnUpdateDatabase_Click(object sender, EventArgs e)
+        private async void BtnUpdateDatabase_Click(object sender, EventArgs e)
         {
             int insertCount = 0;
             int modifyCount = 0;
@@ -358,13 +358,13 @@ namespace MPPPS
         }
 
         // 再読み込み (F5)
-        private void btnReloadDatabase_Click(object sender, EventArgs e)
+        private void BtnReloadDatabase_Click(object sender, EventArgs e)
         {
             txtHMCD.Text = string.Empty;
             invInfoMPDt.Clear();
             if (!cmn.Dba.GetInvInfoMPDt(ref invInfoMPDt)) return;
             // EMの在庫数を追加で表示
-            addEMQTY(ref invInfoEMDt);
+            AddEMQTY(ref invInfoEMDt);
             Dgv_InvInfo.Refresh();
             Dgv_InvInfo.Focus();
             // 件数を表示
@@ -407,13 +407,13 @@ namespace MPPPS
         }
 
         // 検索条件クリア
-        private void btnFilterClear_Click(object sender, EventArgs e)
+        private void BtnFilterClear_Click(object sender, EventArgs e)
         {
             txtHMCD.Text = string.Empty;
         }
 
         // 品番入力欄にペースト
-        private void btnHMCDPaste_Click(object sender, EventArgs e)
+        private void BtnHMCDPaste_Click(object sender, EventArgs e)
         {
             txtHMCD.Text = Clipboard.GetText().Replace("\r\n", "");
         }
