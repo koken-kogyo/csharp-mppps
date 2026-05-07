@@ -36,7 +36,7 @@ namespace MPPPS
             this.Btn_Close = new System.Windows.Forms.Button();
             this.btn_PickupTehai = new System.Windows.Forms.Button();
             this.btn_PickupNaiji = new System.Windows.Forms.Button();
-            this.btn_All_Print = new System.Windows.Forms.Button();
+            this.btn_PlanProduct = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip1.SuspendLayout();
@@ -89,33 +89,33 @@ namespace MPPPS
             this.btn_PickupNaiji.UseVisualStyleBackColor = true;
             this.btn_PickupNaiji.Click += new System.EventHandler(this.btn_PickupNaiji_Click);
             // 
-            // btn_All_Print
+            // btn_PlanProduct
             // 
-            this.btn_All_Print.Enabled = false;
-            this.btn_All_Print.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.btn_All_Print.Location = new System.Drawing.Point(12, 56);
-            this.btn_All_Print.Name = "btn_All_Print";
-            this.btn_All_Print.Size = new System.Drawing.Size(300, 38);
-            this.btn_All_Print.TabIndex = 1;
-            this.btn_All_Print.Text = "手配＋内示＋タナコン状況一覧";
-            this.btn_All_Print.UseVisualStyleBackColor = true;
-            this.btn_All_Print.Click += new System.EventHandler(this.btn_All_Print_Click);
+            this.btn_PlanProduct.Enabled = false;
+            this.btn_PlanProduct.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.btn_PlanProduct.Location = new System.Drawing.Point(12, 56);
+            this.btn_PlanProduct.Name = "btn_PlanProduct";
+            this.btn_PlanProduct.Size = new System.Drawing.Size(300, 38);
+            this.btn_PlanProduct.TabIndex = 1;
+            this.btn_PlanProduct.Text = "製造部計画表";
+            this.btn_PlanProduct.UseVisualStyleBackColor = true;
+            this.btn_PlanProduct.Click += new System.EventHandler(this.Btn_PlanProduction_Click);
             // 
             // statusStrip1
             // 
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 236);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 240);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(321, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(321, 22);
             this.statusStrip1.TabIndex = 21;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(151, 20);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // Frm050_MfgCtrl
@@ -123,7 +123,7 @@ namespace MPPPS
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(321, 262);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.btn_All_Print);
+            this.Controls.Add(this.btn_PlanProduct);
             this.Controls.Add(this.btn_PickupNaiji);
             this.Controls.Add(this.btn_PickupTehai);
             this.Controls.Add(this.Btn_Close);
@@ -152,7 +152,7 @@ namespace MPPPS
         private Button Btn_Close;
         private Button btn_PickupTehai;
         private Button btn_PickupNaiji;
-        private Button btn_All_Print;
+        private Button btn_PlanProduct;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel toolStripStatusLabel1;
     }

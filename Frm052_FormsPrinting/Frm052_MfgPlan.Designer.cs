@@ -43,7 +43,7 @@ namespace MPPPS
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "Frm052_PrintSettings";
-            this.Text = "手配＋内示＋タナコン";
+            this.Text = "製造部計画表";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm052_FormsPrinting_KeyDown);
             this.ResumeLayout(false);
 

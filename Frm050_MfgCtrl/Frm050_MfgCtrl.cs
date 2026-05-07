@@ -40,11 +40,12 @@ namespace MPPPS
         // 加工進捗情報表示
         private void Btn_MfgProgress_Click(object sender, EventArgs e)
         {
-            Frm051_OrderDirection frm051 = new Frm051_OrderDirection();
+            Frm051_MfgProgress frm051 = new Frm051_MfgProgress();
             frm051.Show();
         }
 
-        private async void btn_All_Print_Click(object sender, EventArgs e)
+        // 製造部計画表
+        private void Btn_PlanProduction_Click(object sender, EventArgs e)
         {
             Frm052_PrintSettings frm052 = new Frm052_PrintSettings(cmn);
             frm052.Show();
@@ -202,5 +203,6 @@ namespace MPPPS
         private async void btn_PickupNaiji_Click(object sender, EventArgs e)
         {
         }
+
     }
 }

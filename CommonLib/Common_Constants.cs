@@ -91,8 +91,8 @@ namespace MPPPS
         public static readonly string FRM_ID_044 = "#044";  // 内示情報一覧
         public static readonly string FRM_ID_045 = "#045";  // 内示検索
         public static readonly string FRM_ID_050 = "#050";  // 製造管理
-        public static readonly string FRM_ID_051 = "#051";  // 切削オーダー指示書
-        public static readonly string FRM_ID_052 = "#052";  // 帳票出力
+        public static readonly string FRM_ID_051 = "#051";  // 加工進捗状況（進度盤）
+        public static readonly string FRM_ID_052 = "#052";  // 製造部計画表
         public static readonly string FRM_ID_070 = "#070";  // 実績管理
         public static readonly string FRM_ID_071 = "#071";  // 切削ストア受入実績処理
         public static readonly string FRM_ID_072 = "#072";  // 切削ストア受入実績情報表示
@@ -121,8 +121,8 @@ namespace MPPPS
         public static readonly string FRM_NAME_044 = "内示情報一覧";
         public static readonly string FRM_NAME_045 = "内示検索";
         public static readonly string FRM_NAME_050 = "製造管理";
-        public static readonly string FRM_NAME_051 = "切削オーダー指示書";
-        public static readonly string FRM_NAME_052 = "帳票出力";
+        public static readonly string FRM_NAME_051 = "加工進捗状況（進度盤）";
+        public static readonly string FRM_NAME_052 = "製造部計画表";
         public static readonly string FRM_NAME_070 = "実績管理";
         public static readonly string FRM_NAME_071 = "切削ストア受入実績処理";
         public static readonly string FRM_NAME_072 = "切削ストア受入実績情報表示";
@@ -443,17 +443,20 @@ namespace MPPPS
         public const string TABLE_ID_KD8470 = "kd8470";   // 切削内示カードファイル
         public const string TABLE_ID_KD8480 = "kd8480";   // 切削日報兼実績ファイル
         public const string TABLE_ID_KM8400 = "km8400";   // 切削生産計画システム利用者マスター
-        public const string TABLE_ID_KM8410 = "km8410";   // 切削刃具マスター
-        public const string TABLE_ID_KM8420 = "km8420";   // 切削設備マスター
-        public const string TABLE_ID_KM8430 = "km8430";   // 切削コード票マスター
+        public const string TABLE_ID_KM8410 = "km8410";   // 切削刃具マスタ
+        public const string TABLE_ID_KM8420 = "km8420";   // 切削設備マスタ
+        public const string TABLE_ID_KM8430 = "km8430";   // 切削コード票マスタ
+        public const string TABLE_ID_KM8435 = "km8435";   // 切削共通部品マスタ
         public const string TABLE_ID_KW8440 = "kw8440";   // 切削手配日程テンポラリ
 
-        public const string TABLE_NAME_KD8430  = "切削生産計画ファイル (確定)";
-        public const string TABLE_NAME_KD8440  = "切削生産計画ファイル (内示)";
+        public const string TABLE_NAME_KD8430 = "切削手配ファイル";
+        public const string TABLE_NAME_KD8440 = "切削手配日程ファイル";
+        public const string TABLE_NAME_KD8450 = "切削オーダーファイル";
         public const string TABLE_NAME_KM8400 = "切削生産計画システム利用者マスター";
-        public const string TABLE_NAME_KM8410 = "切削刃具 マスター";
-        public const string TABLE_NAME_KM8420 = "切削設備マスター";
-        public const string TABLE_NAME_KM8430 = "切削コード票マスター";
+        public const string TABLE_NAME_KM8410 = "切削刃具マスタ";
+        public const string TABLE_NAME_KM8420 = "切削設備マスタ";
+        public const string TABLE_NAME_KM8430 = "切削コード票マスタ";
+        public const string TABLE_NAME_KM8435 = "切削共通部品マスタ";
 
         // 内製システム共有テーブル (照会のみ)
         public const string TABLE_ID_KS0010 = "KS0010";   // ホスト マスター
@@ -490,247 +493,6 @@ namespace MPPPS
         public const string KM8400_ACTIVE_VALID = "1";    // 有効フラグ: 有効
         public const string KM8400_ACTIVE_EXPIRED = "9";    // 有効フラグ: 失効
 
-        // KM8410 切削刃具 マスター
-
-        // KM8420 切削設備マスター
-        public static readonly string KM8420_ONTIME = "設備稼働時間"; 
-        public static readonly string KM8420_SETUPTM = "段取り時間";   // 段取り時間・1 ～ 段取り時間・3の合計
-
-
-        //public static readonly int KM8420_PKEY_ODCD   = 1;  // 主キー番号 
-        //public static readonly int KM8420_PKEY_WKGRCD = 2;  // 主キー番号 
-        //public static readonly int KM8420_PKEY_HMCD   = 3;  // 主キー番号 
-        //public static readonly int KM8420_PKEY_VALDTF = 4;  // 主キー番号 
-        //public static readonly int KM8420_PKEY_WKSEQ  = 5;  // 主キー番号 
-
-        //public const int KM8420_COLUMN_IDX_ODCD      = 0;  // 列インデックス: 手配先コード
-        //public const int KM8420_COLUMN_IDX_WKGRCD    = 1;  // 列インデックス: 切削刃具 コード
-        //public const int KM8420_COLUMN_IDX_HMCD      = 2;  // 列インデックス: 品番
-        //public const int KM8420_COLUMN_IDX_VALDTF    = 3;  // 列インデックス: 適用年月日
-        //public const int KM8420_COLUMN_IDX_WKSEQ     = 4;  // 列インデックス: 作業順序
-        //public const int KM8420_COLUMN_IDX_WORK      = 5;  // 列インデックス: 作業内容
-        //public const int KM8420_COLUMN_IDX_SETUPTMMP = 6;  // 列インデックス: 切削設備時間 (量産)
-        //public const int KM8420_COLUMN_IDX_SETUPTMSP = 7;  // 列インデックス: 切削設備時間 (補給部品等)
-        //public const int KM8420_COLUMN_IDX_NOTE      = 8;  // 列インデックス: 備考
-        //public const int KM8420_COLUMN_IDX_INSTID    = 9;  // 列インデックス: 登録者
-        //public const int KM8420_COLUMN_IDX_INSTDT    = 10;  // 列インデックス: 登録日時
-        //public const int KM8420_COLUMN_IDX_UPDTID    = 11; // 列インデックス: 更新者
-        //public const int KM8420_COLUMN_IDX_UPDTDT    = 12; // 列インデックス: 更新日時
-
-
-        // テーブル列インデックス
-        // KD8430 切削生産計画ファイル
-        // #042 切削オーダー平準化画面
-        // DataGridView 列インデックス
-        public enum KD8430ClmIdx
-        {
-            OdrNo,    // 手配 No
-            McGcd,    // グループ コード
-            McCd,     // 設備コード
-            HmCd,     // 品番
-            EdDt,     // 完了予定日
-            OdrQty,   // 手配数
-        }
-
-        public static readonly int KD8430_MCGCD_LEN   = 6;     // グループ コード 文字列長
-        public static readonly int KD8430_ODQTY_SCALE = 0;     // 手配数 小数点以下桁数
-        public static readonly string KD8430_PLNNO = "計画No"; // 工程1CT ～ 工程6CT の合計
-
-        public const int KD8430_TARGET_CUR_ALL  = 0;           // 現状全件
-        public const int KD8430_TARGET_SIM_ALL  = 1;           // 変更後全件
-        public const int KD8430_TARGET_SPECIFIC = 2;           // 特定データ
-        public const int KD8430_TARGET_MCGCD    = 3;           // グループのみ
-        public const int KD8430_TARGET_MCCD     = 4;           // 設備のみ
-        public const int KD8430_TARGET_MCTM     = 5;           // 設備時間
-
-
-        // KD8440 切削生産計画日程ファイル
-        // #042 切削オーダー平準化画面
-        // DataGridView 列インデックス
-        public enum KD8440ClmIdx
-        {
-            OdrNo,    // 手配 No
-            McGcd,    // グループ コード
-            McCd,     // 設備コード
-            HmCd,     // 品番
-            EdDt,     // 完了予定日
-            OdrQty,   // 手配数
-        }
-
-        public static readonly int KD8440_ODSEQ_SCALE = 0;      // 手配数 小数点以下桁数
-
-        public const int KD8440_TARGET_CUR_ALL  = 0;            // 現状全件
-        public const int KD8440_TARGET_SIM_ALL  = 1;            // 変更後全件
-        public const int KD8440_TARGET_SPECIFIC = 2;            // 特定データ
-        public const int KD8440_TARGET_MCGCD    = 3;            // グループのみ
-        public const int KD8440_TARGET_MCCD     = 4;            // 設備のみ
-        public const int KD8440_TARGET_MCTM     = 5;            // 設備時間
-
-
-        // KM8430 切削コード票マスター
-        // #22 切削コード票登録画面
-        // DataGridView 列インデックス
-        public enum KM8430ClmIdx
-        {
-            OdCd,     // 手配先コード
-            WkGrCd,   // 切削刃具 コード
-            HmCd,     // 品番
-            ValDtF,   // 適用年月日
-            WkSeq,    // 作業順序
-            CT,       // サイクルタイム
-            Note,     // 備考
-            InstID,   // 登録者
-            InstDt,   // 登録日時
-            UpdtID,   // 更新者
-            UpdtDt,   // 更新日時
-        }
-
-        public static readonly int KM8430_WKSEQ_PRECISION = 3;  // 作業順序 データ精度
-        public static readonly int KM8430_WKSEQ_SCALE = 0;      // 作業順序 小数点以下桁数
-        public static readonly int KM8430_CT_PRECISION = 6;     // サイクルタイム データ精度
-        public static readonly int KM8430_CT_SCALE = 2;         // サイクルタイム 小数点以下桁数
-        public static readonly int KM8430_NOTE_LENGTH = 100;    // 備考 データ長
-
-        public static readonly string KM8430_KT_CT_SUM = "工程CT合計";           // 工程1CT ～ 工程6CT の合計
-        public static readonly string KM8430_KT_DT_SUM = "工程段取り時間合計";   // 工程1段取り時間 ～ 工程6段取り時間 の合計
-        public static readonly string KM8430_KT_OT_SUM = "工程その他時間合計";   // 工程1段取り時間 ～ 工程6段取り時間 の合計
-
-        public const int KM8430_TARGET_ALL = 0; // 全件
-        public const int KM8430_TARGET_SPECIFIC = 1; // 特定データ
-        public const int KM8430_TARGET_HMCD = 2; // 品番のみ
-
-
-        // KM8440 賃率マスター
-        // #23 賃率登録画面
-        // DataGridView 列インデックス
-        public enum KM8440ClmIdx
-        {
-            OdCd,         // 手配先コード
-            KtCd,         // 工程コード
-            ValDtF,       // 適用年月日
-            KtSeq,        // 工程順序
-            KtNm,         // 工程名称
-            EqClass,      // 設備分類
-            Model,        // 機種
-            Manufacturer, // 製造元
-            OpeCost,      // 操業費
-            LaborCost,    // 労務費
-            EqCost,       // 設備費
-            LaborRate,    // 賃率
-            Note,         // 備考
-            InstID,       // 登録者
-            InstDt,       // 登録日時
-            UpdtID,       // 更新者
-            UpdtDt,       // 更新日時
-        }
-
-        public static readonly int KM8440_KTSEQ_PRECISION = 3;   // 工程順序 データ精度
-        public static readonly int KM8440_KTSEQ_SCALE = 0;       // 工程順序 小数点以下桁数
-        public static readonly int KM8440_OUTLINE_LENGTH = 1000; // 工程名称、設備分類、機種、製造元 データ長
-        public static readonly int KM8440_COST_PRECISION = 5;    // 操業費、労務費、設備費 データ精度 
-        public static readonly int KM8440_COST_SCALE = 3;        // 操業費、労務費、設備費 小数点以下桁数
-        public static readonly int KM8440_RATE_PRECISION = 5;    // 賃率 データ精度
-        public static readonly int KM8440_RATE_SCALE = 3;        // 賃率 小数点以下桁数
-        public static readonly int KM8440_NOTE_LENGTH = 100;     // 備考 データ長
-
-        public const int KM8440_TARGET_ALL = 0; // 全件
-        public const int KM8440_TARGET_SPECIFIC = 1; // 特定データ
-
-        // KM8450 製造原価マスター
-        // #24 製造原価登録画面
-        // DataGridView 列インデックス
-        public enum KM8450ClmIdx
-        {
-            HmCd,             // 品番
-            ValDtF,           // 適用年月日
-            KtCd,             // 工程コード
-            PrepWt,           // 仕込み重量
-            ScrapWt,          // スクラップ重量
-            ScrapCost,        // スクラップ単価
-            OSPtsCost,        // 外注部品費
-            OSWages,          // 外注工賃
-            BuySellPtsCost,   // 支給部品費 (有償)
-            PurPtsCost,       // 購買部品費
-            Note,             // 備考
-            InstID,           // 登録者
-            InstDt,           // 登録日時
-            UpdtID,           // 更新者
-            UpdtDt,           // 更新日時
-        }
-
-        public static readonly int KM8450_WT_PRECISION = 5;    // 仕込み重量、スクラップ重量 データ精度
-        public static readonly int KM8450_WT_SCALE = 2;        // 仕込み重量、スクラップ重量 小数点以下桁数
-        public static readonly int KM8450_COST_PRECISION = 9;  // スクラップ単価、外注部品費、外注工賃、支給部品費 (有償)、購買部品費 データ精度
-        public static readonly int KM8450_COST_SCALE = 2;      // スクラップ単価、外注部品費、外注工賃、支給部品費 (有償)、購買部品費 小数点以下桁数
-        public static readonly int KM8450_NOTE_LENGTH = 100;   // 備考 データ長
-
-        public const int KM8450_TARGET_ALL = 0; // 全件
-        public const int KM8450_TARGET_SPECIFIC = 1; // 特定データ
-        public const int KM8450_TARGET_HMCD = 2; // 品番のみ
-
-
-
-        public const string TABLE_ID_A01 = "A01";    // ベンダー工程 (母材用)
-        public const string TABLE_ID_A02 = "A02";    // ベンダー工程 (手配用)
-        public const string TABLE_ID_A03 = "A03";    // ベンダー工程 (所要用)
-        public const string TABLE_ID_A13 = "A13";    // 切削工程コード表
-        public const string TABLE_ID_A14 = "A14";    // 設備マスター
-        public const string TABLE_ID_A15 = "A15";    // 工程内加工リストソート順マスター
-        public const string TABLE_ID_A16 = "A16";    // 部品表工程マスター
-        public const string TABLE_ID_HS02 = "H_S02"; // 切断工程
-        public const string TABLE_ID_HS03 = "H_S03"; // ベンダー工程 (先端末加工)
-        public const string TABLE_ID_HS04 = "H_S04"; // ベンダー工程 (曲げ)
-        public const string TABLE_ID_HS05 = "H_S05"; // ベンダー工程 (後加工)
-        public const string TABLE_ID_HS06 = "H_S06"; // 切削工程
-        public const string TABLE_ID_HS99 = "H_S99"; // その他工程
-
-        // 手配先名称マスター (M0300)
-        public static readonly string M0300_ODCD_ISHIGURO_MFG = "42101";     // 手配先コード: ㈱石黒製作
-        public static readonly string M0300_ODCD_F2_BENDING_FROM = "60300";  // 手配先コード(開始): F2ﾍﾞﾝﾀﾞｰ
-        public static readonly string M0300_ODCD_F2_BENDING_TO = "60330W";   // 手配先コード(終了): F2ﾍﾞﾝﾀﾞｰ
-        public static readonly string M0300_ODCD_HEAD_PROCESSING = "60310";  // 手配先コード: 先端加工
-        public static readonly string M0300_ODCD_BENDING_1 = "60320";        // 手配先コード: 曲げ
-        public static readonly string M0300_ODCD_BENDING_2 = "60302";        // 手配先コード: 曲げ
-        public static readonly string M0300_ODCD_VARTICAL_PRESS_1 = "6033H"; // 手配先コード: 縦ﾌﾟﾚｽ１
-        public static readonly string M0300_ODCD_MP_FROM = "60600";          // 手配先コード(開始): 切削
-        public static readonly string M0300_ODCD_MP_TO = "60610";            // 手配先コード(終了): 切削
-        public static readonly char M0300_IOKBN_INHOUSE = '1';               // 社内外区分: 1: 社内
-        public static readonly char M0300_IOKBN_EXTERNAL = '2';              // 社内外区分: 2: 社外
-        public static readonly char M0300_IOKBN_ALL = '%';                   // 社内外区分: %: 全件
-
-        // 工程マスター (M0410)
-        public static readonly string M0410_ODCD_ISHIGURO_MFG = "42101";     // 手配先コード: ㈱石黒製作
-        public static readonly string M0410_ODCD_F2_BENDING_FROM = "60300";  // 手配先コード(開始): F2ﾍﾞﾝﾀﾞｰ
-        public static readonly string M0410_ODCD_F2_BENDING_TO = "60330W";   // 手配先コード(終了): F2ﾍﾞﾝﾀﾞｰ
-        public static readonly string M0410_ODCD_HEAD_PROCESSING = "60310";  // 手配先コード: 先端加工
-        public static readonly string M0410_ODCD_BENDING_1 = "60320";        // 手配先コード: 曲げ
-        public static readonly string M0410_ODCD_BENDING_2 = "60302";        // 手配先コード: 曲げ
-        public static readonly string M0410_ODCD_VARTICAL_PRESS_1 = "6033H"; // 手配先コード: 縦ﾌﾟﾚｽ１
-        public static readonly string M0410_ODCD_MP_FROM = "60600";          // 手配先コード(開始): 切削
-        public static readonly string M0410_ODCD_MP_TO = "60610";            // 手配先コード(終了): 切削
-        public static readonly char M0410_ODRKBN_INHOUSE = '1';              // 手配区分: 1: 内作
-        public static readonly char M0410_ODRKBN_EXTERNAL = '2';             // 手配区分: 2: 外作
-        public static readonly char M0410_ODRKBN_NYD = '3';                  // 手配区分: 3: 未定
-        public static readonly char M0410_ODRKBN_ALL = '%';                  // 手配区分: %: 全件
-
-
-
-
-        // 品目手順詳細マスター (M0510)
-        public static readonly string M0510_STKTKBN_YES = "1";               // 初工程区分: Yes
-        public static readonly string M0510_WKNOTE_CYCLETIME = "/CT";        // 作業内容: サイクルタイム ("/CT" 直後の小数値)
-        // 手配ファイル (D0410)
-        public static readonly string D0410_ODRSTS_ARRANGED = "2";           // 手配状態: 手配済み
-        public static readonly string D0410_ODRSTS_RECEIVING = "3";          // 手配状態: 受入中
-        // 切削工程生産計画元DT (H_S06)
-        public static readonly int HS06_COLUMNNUM_EQUIPCD = 6;               // 「設備」の列番号 (1 始まり)
-        public static readonly int HS06_COLUMNNUM_MCNO = 7;                  // 「機械番号」の列番号
-        public static readonly int HS06_COLUMNNUM_INPROCESSNUM = 20;         // 「工程内加工数」の列番号
-        public static readonly int HS06_COLUMNNUM_EQUIPCD_MIN = 30;          // 「設備コード」の最小列番号
-        public static readonly int HS06_COLUMNNUM = 44;                      // 列数
-        // 設備マスター (A13)
-        public static readonly int A13_COLUMNNUM_EQUIPCD = 3;                // 「設備コード」の列番号
-        // 部品表工程マスター (A16)
         // Excel
         public static readonly string EXL_SHEETNAME_ORGDATA = "元DT";        // [元DT] シート
         public static readonly string EXL_SHEETNAME_PT = "PT";               // [PT] シート
