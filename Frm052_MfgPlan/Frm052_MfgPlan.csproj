@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{89AB53A0-BEC9-4EA4-B31D-82F8947B4621}</ProjectGuid>
+    <ProjectGuid>{78763093-9AF8-4271-8A2E-19DAFDAF3A0B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Frm051_OrderDirection</RootNamespace>
-    <AssemblyName>Frm051_OrderDirection</AssemblyName>
+    <RootNamespace>Frm052_MfgPlan</RootNamespace>
+    <AssemblyName>Frm052_MfgPlan</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -45,17 +45,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Frm051_MfgProgress.cs">
+    <Compile Include="Frm052_MfgPlan.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Frm051_MfgProgress.Designer.cs">
-      <DependentUpon>Frm051_MfgProgress.cs</DependentUpon>
+    <Compile Include="Frm052_MfgPlan.Designer.cs">
+      <DependentUpon>Frm052_MfgPlan.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Frm051_MfgProgress.resx">
-      <DependentUpon>Frm051_MfgProgress.cs</DependentUpon>
+    <EmbeddedResource Include="Frm052_MfgPlan.resx">
+      <DependentUpon>Frm052_MfgPlan.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

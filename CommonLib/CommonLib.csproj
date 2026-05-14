@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common_Networks.cs" />
+    <Compile Include="DBAccessor_XT.cs" />
     <Compile Include="DBAccessor_PG.cs" />
     <Compile Include="DBAccessor_TN.cs" />
     <Compile Include="Common_Classes.cs" />

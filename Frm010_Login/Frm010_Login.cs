@@ -128,6 +128,7 @@ namespace MPPPS
             {
                 if (!Chk_MemUserId.Checked) Tbx_UserId.Focus();
                 if (Chk_MemUserId.Checked) Tbx_Passwd.Focus();
+                Btn_OK_Click(sender, e);
             }));
 
         }

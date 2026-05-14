@@ -47,7 +47,7 @@ namespace MPPPS
         // 製造部計画表
         private void Btn_PlanProduction_Click(object sender, EventArgs e)
         {
-            Frm052_PrintSettings frm052 = new Frm052_PrintSettings(cmn);
+            Frm052_MfgPlan frm052 = new Frm052_MfgPlan(cmn);
             frm052.Show();
         }
 

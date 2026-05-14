@@ -91,7 +91,6 @@ namespace MPPPS
             // 
             // btn_PlanProduct
             // 
-            this.btn_PlanProduct.Enabled = false;
             this.btn_PlanProduct.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.btn_PlanProduct.Location = new System.Drawing.Point(12, 56);
             this.btn_PlanProduct.Name = "btn_PlanProduct";
