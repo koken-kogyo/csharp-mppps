@@ -21,7 +21,7 @@ namespace MPPPS
     /// <summary>
     /// ファイル管理クラス
     /// </summary>
-    public class FileAccessor
+    public partial class FileAccessor
     {
         // 共通クラス
         private readonly Common cmn;

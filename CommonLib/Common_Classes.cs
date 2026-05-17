@@ -74,6 +74,42 @@ namespace MPPPS
         public string Format { get; set; }      // 例："#,0"; "yyyy/MM/dd HH:mm:ss";
     }
 
+
+    /// <summary>
+    /// 受注 クラス
+    /// DataGridViewのCellに登録する受注(#052で使用)
+    /// </summary>
+    public class Order
+    {
+        public int Qty { get; set; }
+        public string OrderNo { get; set; }
+        public string Note { get; set; }
+
+        public Order()
+        {
+            Qty = 0;
+            OrderNo = Common.NEWORDER;
+            Note = "";
+        }
+        public Order(Order order)
+        {
+            Qty = (order != null) ? order.Qty : 0;
+            OrderNo = (order != null) ? order.OrderNo : Common.NEWORDER;
+            Note = (order != null) ? order.Note : "";
+        }
+        public Order(int qty, string orderNo, string note)
+        {
+            Qty = qty;
+            OrderNo = orderNo;
+            Note = note;
+        }
+        // データグリッド上の表示は数量だけ
+        public override string ToString()
+        {
+            return Qty.ToString();
+        }
+    }
+
     /// <summary>
     /// KS0010 ホストマスタ 主キー クラス
     /// </summary>

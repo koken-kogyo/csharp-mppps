@@ -168,6 +168,9 @@ namespace MPPPS
         public static readonly Color FRM40_COLOR_BLACK = Color.Black;
         public static readonly Color FRM40_COLOR_DIMGRAY = Color.DimGray;
 
+        // #052 製造部計画表
+        public static readonly string NEWORDER = "NewOrder";
+
 
         // 結果コード
         public const int RET_CD_OK_NUMERICAL_NUMBER = 0;  // 正常 (数値)

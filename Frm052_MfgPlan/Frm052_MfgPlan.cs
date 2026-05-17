@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace MPPPS
 {
@@ -14,53 +18,26 @@ namespace MPPPS
         private readonly Common cmn;
 
         // 定数
-        private static readonly int STARTCOL = 6; // 0:品番、1:頭、2:材料、3:CT、4:製品長さ、5:工程数、6:～
-        private static readonly int COLCT = 3;
-        private static readonly int COLHMSIZE = 4;
-        private static readonly string NEWORDER = "NewOrder";
+        private static readonly int STARTCOL = 7; // 0:品番、1:(品名)、2:頭、3:材料、4:(CT)、5:(製品長さ)、6:工程数、7:～
+        private static readonly int COLCT = 4;
+        private static readonly int COLHMSIZE = 5;
 
         // 切削母材マスタ（D0470:切削母材情報をグループ化）
-        Dictionary<string, decimal> matDic = new Dictionary<string, decimal>();
+        Dictionary<string, decimal> matDic = new Dictionary<string, decimal>(); // HMCD:品番、SOLEN:母材品番の全長
 
         // DB から取得したデータを格納するクラス
         private class DBRow
         {
             public string 受注番号 { get; set; }
             public string 品番 { get; set; }
+            public string 品名 { get; set; }
             public DateTime 日付 { get; set; }
             public int 数量 { get; set; }
             public string 材料 { get; set; }
             public decimal CT { get; set; }
             public decimal 製品長さ { get; set; }
             public int 工程数 { get; set; }
-        }
-
-        // セルに表示するクラス（数量と受注番号を格納）
-        private class Order
-        {
-            public int Qty { get; set; }
-            public string OrderNo { get; set; }
-
-            public Order()
-            {
-                Qty = 0;
-                OrderNo = NEWORDER;
-            }
-            public Order(Order order)
-            {
-                Qty = (order != null) ? order.Qty : 0;
-                OrderNo = (order != null) ? order.OrderNo : NEWORDER;
-            }
-            public Order(int qty, string orderNo)
-            {
-                Qty = qty;
-                OrderNo = orderNo;
-            }
-            // データグリッド上の表示は数量だけ
-            public override string ToString()
-            {
-                return Qty.ToString();
-            }
+            public string 備考 { get; set; }
         }
 
         // 元に戻すアクション種類
@@ -121,6 +98,9 @@ namespace MPPPS
         private DataGridViewCell splitTargetCell;
         private bool isRowHeaderDrag = false;
 
+        // ハイライトが偶数週の着色で上書きされてしまうので制御
+        private int highlightedColumnIndex = -1;
+
         // コンストラクタ
         public Frm052_MfgPlan(Common cmn)
         {
@@ -138,16 +118,11 @@ namespace MPPPS
             // 初期設定
             SetInitialValues();
 
-            // １日の段取り回数を表示したいけど時間が・・・（未実装）
-            labelDandoriTitle.ForeColor = SystemColors.Control;
-            labelDandori.ForeColor = SystemColors.Control;
-
             // イベント登録
             dataGridView1.KeyDown += DataGridView1_KeyDown;
             dataGridView1.CellBeginEdit += DataGridView1_CellBeginEdit;         // セル編集開始
             dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;             // 小文字大文字変換
             dataGridView1.CellMouseDown += DataGridView1_CellMouseDown;         // 右クリックメニュー、クリップボード処理DataGridView1_CellFormatting隔週で背景色を変更
-            dataGridView1.CellFormatting += DataGridView1_CellFormatting;       // 隔週で背景色を変更
             dataGridView1.MouseDown += DataGridView1_MouseDown;                 // ドラッグ＆ドロップ
             dataGridView1.MouseMove += DataGridView1_MouseMove;                 // ドラッグ＆ドロップ
             dataGridView1.DragOver += DataGridView1_DragOver;                   // ドラッグ＆ドロップ
@@ -156,6 +131,8 @@ namespace MPPPS
             dataGridView1.RowHeaderMouseClick += DataGridView1_RowHeaderMouseClick;//行移動、行削除
             dataGridView1.SelectionChanged += DataGridView1_SelectionChanged;   // 詳細情報表示
             dataGridView1.AllowDrop = true;                                     // ドラッグ＆ドロップ
+            // チャートイベント登録
+            chart1.MouseClick += chart1_MouseClick;
         }
 
         // 初期設定
@@ -173,19 +150,23 @@ namespace MPPPS
             {
                 DBRow r = new DBRow
                 {
-                    品番 = row["HMCD"].ToString(),
                     受注番号 = row["ODRNO"].ToString(),
+                    品番 = row["HMCD"].ToString(),
+                    品名 = row["HMNM"].ToString(),
                     日付 = (DateTime)row["EDDT"],
                     数量 = (int)row["ODRQTY"],
                     材料 = row["MATESIZE"].ToString(),
                     CT = decimal.Parse(row["CT"].ToString()),
                     製品長さ = decimal.Parse(row["LENGTH"].ToString()),
-                    工程数 = (int)row["KTSU"]
+                    工程数 = (int)row["KTSU"],
+                    備考 = row["NOTE"].ToString()
                 };
                 dbList.Add(r);
             }
             InitializeDataGridView(dataGridView1);      // データーグリッドコントロールの初期設定
             LoadToDataGrid(dataGridView1, dbList);      // DBListデータをセット
+            InitializeChart();
+            UpdateChartFromGrid(dataGridView1);
         }
 
         // データーグリッドの初期枠設定
@@ -195,12 +176,14 @@ namespace MPPPS
 
             // 固定列
             dgv.Columns.Add("品番", "品番");
+            dgv.Columns.Add("品名", "品名");
             dgv.Columns.Add("頭", "頭");
             dgv.Columns.Add("材料", "材料");
             dgv.Columns.Add("CT", "CT");
             dgv.Columns.Add("製品長さ", "製品長さ");
             dgv.Columns.Add("工程数", "工程数");
             dgv.Columns["品番"].Width = 150;
+            dgv.Columns["品名"].Visible = false;        // 非表示にする
             dgv.Columns["頭"].Width = 30;
             dgv.Columns["材料"].Width = 65;
             dgv.Columns["CT"].Visible = false;          // 非表示にする
@@ -235,6 +218,13 @@ namespace MPPPS
                     col.Width = 45;
                     col.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;     // ヘッダー中央寄せ
                     col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;      // セル右寄せ
+                    col.HeaderCell.Style.Font = 
+                        new Font(dataGridView1.Font.FontFamily, 9f, FontStyle.Regular);             // フォントを極端に小さくする
+
+                    // 週番号を取得（ISO週番号）し偶数週だけ薄グレー
+                    var cal = System.Globalization.DateTimeFormatInfo.CurrentInfo.Calendar;
+                    int week = cal.GetWeekOfYear(d, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+                    if (week % 2 == 0) col.DefaultCellStyle.BackColor = Color.WhiteSmoke;
                 }
             }
             // コンテキストメニューの作成
@@ -248,6 +238,7 @@ namespace MPPPS
             splitMenu.Items.Add(new ToolStripMenuItem("隔週分割（2分割）", null, Split2_Click) { Font = f });
             splitMenu.Items.Add(new ToolStripMenuItem("4分割", null, Split4_Click) { Font = f });
         }
+
         // 初期データをデータグリッドに貼り付け
         private void LoadToDataGrid(DataGridView dgv, List<DBRow> dbList)
         {
@@ -262,6 +253,7 @@ namespace MPPPS
                     return new
                     {
                         x.品番,
+                        x.品名,
                         頭,
                         x.材料,
                         サイズ = サイズ数値,
@@ -284,7 +276,7 @@ namespace MPPPS
                     g => g.Key,
                     g => {
                         var x = g.First();
-                        return new Order(x.数量, x.受注番号);
+                        return new Order(x.数量, x.受注番号, x.備考);
                     }
                 );
 
@@ -295,6 +287,7 @@ namespace MPPPS
                 var row = dgv.Rows[rowIndex];
 
                 row.Cells["品番"].Value = hinban.品番;
+                row.Cells["品名"].Value = hinban.品名;
                 row.Cells["頭"].Value = hinban.頭;
                 row.Cells["材料"].Value = hinban.材料;
                 row.Cells["CT"].Value = hinban.CT;
@@ -345,27 +338,6 @@ namespace MPPPS
                 Color.Black,
                 TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter);
         }
-        // 隔週で背景色を変更
-        private void DataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            // 日付列だけ対象
-            if (e.ColumnIndex >= STARTCOL)
-            {
-                string colName = dataGridView1.Columns[e.ColumnIndex].Name; // "0601" など
-                if (DateTime.TryParseExact(colName, "MMdd", null, System.Globalization.DateTimeStyles.None, out DateTime dt))
-                {
-                    // 週番号を取得（ISO週番号）
-                    var cal = System.Globalization.DateTimeFormatInfo.CurrentInfo.Calendar;
-                    int week = cal.GetWeekOfYear(dt, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
-
-                    // 偶数週だけ薄グレー
-                    if (week % 2 == 0)
-                    {
-                        e.CellStyle.BackColor = Color.WhiteSmoke;
-                    }
-                }
-            }
-        }
 
         // ショートカットキー
         private void Frm052_FormsPrinting_KeyDown(object sender, KeyEventArgs e)
@@ -380,6 +352,21 @@ namespace MPPPS
             else if (e.KeyCode == Keys.Escape)
             {
                 Close();
+            }
+        }
+
+        /*
+         *  テキストボックス関連
+        */
+
+        // 「備考」入力
+        private void TextBoxNote_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                Order o = dataGridView1.CurrentCell.Value as Order;
+                o.Note = textBoxNote.Text;
+                dataGridView1.Focus();
             }
         }
 
@@ -416,6 +403,19 @@ namespace MPPPS
             dgv.Rows.RemoveAt(rowIndex);
         }
 
+        // Excelにエクスポート
+        private void ButtonExcelExport_Click(object sender, EventArgs e)
+        {
+            bool ret = cmn.Fa.製造部計画表出力ファイルチェック(out string templateFullPath, out string outputFullPath);
+            if (ret == false) return;
+            cmn.Fa.ExportFromDgvToExcel(templateFullPath, outputFullPath, ref dataGridView1);
+            if (File.Exists(outputFullPath))
+            {
+                // Interop.Excelではなく標準アプリケーションでExcelを開く
+                Process.Start(outputFullPath);
+            }
+        }
+
         // 「元に戻す」ボタン
         private void ButtonUndo_Click(object sender, EventArgs e)
         {
@@ -442,7 +442,7 @@ namespace MPPPS
                     case UndoType.CellEdit:
                         // 「セル編集」を元に戻す
                         dgv[action.EditCol, action.EditRow].Value = 
-                            (action.OldOrder.OrderNo == NEWORDER && action.OldOrder.Qty == 0) ?
+                            (action.OldOrder.OrderNo == Common.NEWORDER && action.OldOrder.Qty == 0) ?
                                 null : action.OldOrder;
                         dgv.CurrentCell = dgv[action.EditCol, action.EditRow];
                         break;
@@ -479,7 +479,7 @@ namespace MPPPS
                     //    break;
                 }
                 if (undoStack.Count == 0) ButtonUndo.Enabled = false;
-                ViewChanged();
+                RefreshPlanInformation();
                 dgv.Focus();
             }
             catch (Exception)
@@ -521,7 +521,7 @@ namespace MPPPS
             ButtonUndo.Enabled = true;
 
             dgv[e.ColumnIndex, e.RowIndex].Value = undoEditNewOrder;
-            ViewChanged();
+            RefreshPlanInformation();
         }
         // 「行ヘッダー」クリック
         private void DataGridView1_RowHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
@@ -650,7 +650,7 @@ namespace MPPPS
                 // ----------------------------------------
                 // 移動先にデータが存在 → 「コンテキストメニュー」
                 // ----------------------------------------
-                dropMenu.Show(Cursor.Position);
+                dropMenu.Show(System.Windows.Forms.Cursor.Position);
                 return;
             }
             else
@@ -683,7 +683,7 @@ namespace MPPPS
             }
             dragSourceCell = null;
             isRowHeaderDrag = false;
-            ViewChanged();
+            RefreshPlanInformation();
         }
         // 「上書き移動」
         private void OverwriteMove_Click(object sender, EventArgs e)
@@ -727,7 +727,7 @@ namespace MPPPS
             ButtonUndo.Enabled = true;
 
             // 合算とクリア
-            var targetOrder = new Order(undoSource.Qty + undoTarget.Qty, undoSource.OrderNo);
+            var targetOrder = new Order(undoSource.Qty + undoTarget.Qty, undoSource.OrderNo, undoSource.Note);
             dragSourceCell.Value = null;
             dropTargetCell.Value = targetOrder;
             dataGridView1.CurrentCell = dropTargetCell;
@@ -737,10 +737,11 @@ namespace MPPPS
         private void DataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
             // クリップボード機能（おまけ）
-            if (e.Button == MouseButtons.Right)
+            if (e.Button == MouseButtons.Right && e.ColumnIndex < STARTCOL)
             {
                 var dgv = dataGridView1;
                 var value = dgv.CurrentCell.Value?.ToString() ?? "";
+                if (value == "") return;
                 Clipboard.SetText(value);
             }
 
@@ -751,7 +752,7 @@ namespace MPPPS
                 splitSourceCell = dataGridView1[e.ColumnIndex, e.RowIndex];
                 dataGridView1.CurrentCell = splitSourceCell;
 
-                splitMenu.Show(Cursor.Position);
+                splitMenu.Show(System.Windows.Forms.Cursor.Position);
             }
         }
         // 「隔週分割」
@@ -796,7 +797,7 @@ namespace MPPPS
             newTargetOrder.Qty += half2;
             splitSourceCell.Value = newSourceOrder;
             splitTargetCell.Value = newTargetOrder;
-            ViewChanged();
+            RefreshPlanInformation();
         }
         // 「4分割」
         private void Split4_Click(object sender, EventArgs e)
@@ -847,13 +848,13 @@ namespace MPPPS
             // 分割値のセット
             int baseQty = undoOrders[0].Qty / 4;
             int first = undoOrders[0].Qty - baseQty * 3; // 端数は最初に寄せる
-            dgv[splitCols[0], row].Value = new Order(first, undoOrders[0].OrderNo);
+            dgv[splitCols[0], row].Value = new Order(first, undoOrders[0].OrderNo, undoOrders[0].Note);
             for (int i = 1; i < 4; i++)
             {
-                dgv[splitCols[i], row].Value = new Order(baseQty, NEWORDER);
+                dgv[splitCols[i], row].Value = new Order(baseQty, Common.NEWORDER, "");
             }
             ButtonUndo.Enabled = true;
-            ViewChanged();
+            RefreshPlanInformation();
         }
 
         private void DataGridView1_KeyDown(object sender, KeyEventArgs e)
@@ -911,7 +912,7 @@ namespace MPPPS
                 // Undo 情報を積む
                 var undoOldOrder = new Order((Order)dgv.CurrentCell.Value);
                 Order undoNewOrder = null;
-                if (undoOldOrder.OrderNo != NEWORDER) {
+                if (undoOldOrder.OrderNo != Common.NEWORDER) {
                     undoNewOrder = new Order((Order)dgv.CurrentCell.Value);
                     undoNewOrder.Qty = 0;
                 }
@@ -928,16 +929,16 @@ namespace MPPPS
 
                 // 値のセット
                 dgv.CurrentCell.Value = undoNewOrder;
-                ViewChanged();
+                RefreshPlanInformation();
             }
         }
         private void DataGridView1_SelectionChanged(object sender, EventArgs e)
         {
-            ViewChanged();
+            RefreshPlanInformation();
         }
 
         // 注文詳細情報、品番詳細情報
-        private void ViewChanged()
+        private void RefreshPlanInformation()
         {
             var dgv = dataGridView1;
             if (dgv.CurrentCell == null) return;
@@ -949,7 +950,8 @@ namespace MPPPS
             labelOrderNo.Text = "";
             labelQty.Text = "";
             labelTime.Text = "";
-            labelDandori.Text = "";
+            textBoxNote.Text = "";
+            textBoxNote.Visible = false;
             // 品目情報クリア
             labelHMCD.Text = "";
             labelCT.Text = "";
@@ -981,14 +983,195 @@ namespace MPPPS
                     labelOrderNo.Text = o.OrderNo;
                     labelQty.Text = o.Qty.ToString();
                     labelTime.Text = (ct == 0) ? "CT未設定" : (x > 3600) ? $"{x / 3600:0.0}時間" : $"{Math.Ceiling(x / 60)}分";
-                    labelDandori.Text = "未実装";
+                    textBoxNote.Text = o.Note;
+                    textBoxNote.Visible = true;
                 }
+
+                // Chartデータの更新
+                UpdateChartFromGrid(dataGridView1);
             }
             catch (Exception ex)
             {
                 labelOrderNo.Text = ex.Message;
             }
         }
+
+        /*
+         *  チャート関連
+         */
+
+        private void InitializeChart()
+        {
+            chart1.Series.Clear();
+            chart1.ChartAreas.Clear();
+
+            var area = new ChartArea("MainArea");
+            chart1.ChartAreas.Add(area);
+
+            chart1.Legends[0].Docking = Docking.Left;               // 凡例を左側に
+            chart1.Legends[0].Alignment = StringAlignment.Near;     // 左寄せ
+
+            var axisX = chart1.ChartAreas["MainArea"].AxisX;
+            axisX.Interval = 1;                         // 毎日表示
+            axisX.LabelStyle.Angle = -45;               // 斜め表示で見やすく
+            axisX.IsLabelAutoFit = false;               // 自動間引きを無効化
+            axisX.MajorGrid.Enabled = false;            // グリッド線なし
+            axisX.LabelStyle.Font = new Font("Meiryo", 9);
+            chart1.ChartAreas["MainArea"].AxisX.IsMarginVisible = true;
+            chart1.ChartAreas["MainArea"].AxisX.MajorGrid.Enabled = false;
+            chart1.ChartAreas["MainArea"].AxisX.LabelStyle.IsEndLabelVisible = true;
+
+            var axisY = chart1.ChartAreas["MainArea"].AxisY;
+            axisY.Title = "生産時間 [時間]";
+            axisY.LabelStyle.Format = "0.0";            // 小数点1桁
+
+            area.AxisY2.Title = "段取り回数";
+            area.AxisY2.Enabled = AxisEnabled.True;
+            area.AxisY2.MajorGrid.Enabled = false;      // グリッド線なし
+
+            // ▼ 棒グラフ（生産時間）
+            var bar = new Series("生産時間")
+            {
+                ChartType = SeriesChartType.Column,
+                XValueType = ChartValueType.String,
+                YValueType = ChartValueType.Double,
+                ChartArea = "MainArea",
+                IsValueShownAsLabel = true,
+                Font = new Font("Meiryo", 7)
+            };
+            bar.LabelFormat = "0.0";
+
+            // ▼ 折れ線（段取り回数）
+            var line = new Series("段取り回数")
+            {
+                ChartType = SeriesChartType.Line,
+                BorderWidth = 3,
+                XValueType = ChartValueType.String,
+                YValueType = ChartValueType.Int32,
+                YAxisType = AxisType.Secondary
+            };
+
+            chart1.Series.Add(bar);
+            chart1.Series.Add(line);
+        }
+        // チャートデータ更新
+        private void UpdateChartFromGrid(DataGridView dgv)
+        {
+            var bar = chart1.Series["生産時間"];
+            var line = chart1.Series["段取り回数"];
+            bar.Font = new Font("Meiryo", 9);
+
+            bar.Points.Clear();
+            line.Points.Clear();
+
+            int dateStartCol = STARTCOL;
+
+            for (int col = dateStartCol; col < dgv.Columns.Count; col++)
+            {
+                string dateLabel = dgv.Columns[col].HeaderText;
+
+                double totalSeconds = 0;
+                HashSet<string> materialSet = new HashSet<string>();
+
+                foreach (DataGridViewRow row in dgv.Rows)
+                {
+                    if (row.IsNewRow) continue;
+
+                    if (row.Cells[col].Value == null) continue;
+                    if (!int.TryParse(row.Cells[col].Value.ToString(), out int qty)) continue;
+                    if (qty == 0) continue;
+
+                    decimal ct = Convert.ToDecimal(row.Cells["CT"].Value);
+
+                    totalSeconds += (double)(ct * qty);
+
+                    string material = row.Cells["材料"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(material))
+                        materialSet.Add(material);
+                }
+
+                double totalHours = totalSeconds / 3600.0;
+                totalHours += materialSet.Count * 0.5d;         // 段取り回数*30分(0.5h)を加算
+
+                // ▼ チャートに追加
+                int pointIndex = bar.Points.AddXY(dateLabel, totalHours);
+                line.Points.AddXY(dateLabel, materialSet.Count);
+
+                // ▼ 週番号を取得して色を決める
+                DateTime dt = DateTime.Parse(dateLabel);
+                var ci = System.Globalization.CultureInfo.CurrentCulture;
+                int week = ci.Calendar.GetWeekOfYear(dt, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+
+                // ▼ 偶数週・奇数週で色を変える
+                if (week % 2 != 0)
+                    bar.Points[pointIndex].Color = Color.SteelBlue;     // 偶数週
+                else
+                    bar.Points[pointIndex].Color = Color.LightGray;     // 奇数週
+            }
+        }
+        // チャート縦棒クリックイベント
+        private void chart1_MouseClick(object sender, MouseEventArgs e)
+        {
+            HitTestResult result = chart1.HitTest(e.X, e.Y);
+
+            if (result.ChartElementType == ChartElementType.DataPoint)
+            {
+                Series series = result.Series;
+                int pointIndex = result.PointIndex;
+                DataPoint point = series.Points[pointIndex];
+
+                string dateLabel = point.AxisLabel;   // 例: "6/12"
+
+                HighlightColumnByDate(dateLabel);
+            }
+        }
+        // データグリッド日付列の背景をハイライトする
+        private void HighlightColumnByDate(string dateLabel)
+        {
+            int dateColIndex = -1;
+            foreach (DataGridViewColumn col in dataGridView1.Columns)
+            {
+                if (col.HeaderText == dateLabel)
+                {
+                    dateColIndex = col.Index;
+                    break;
+                }
+            }
+            if (dateColIndex == -1) return;
+
+            highlightedColumnIndex = dateColIndex;  // イベントコントロール変数
+            ApplyWeeklyColumnColors();              // 週ごとの色を再適用
+            dataGridView1.Columns[highlightedColumnIndex].DefaultCellStyle.BackColor = Color.LightYellow;
+        }
+        // データグリッド日付列の背景をクリア
+        private void ApplyWeeklyColumnColors()
+        {
+            int dateStartCol = STARTCOL;
+
+            for (int col = dateStartCol; col < dataGridView1.Columns.Count; col++)
+            {
+                string header = dataGridView1.Columns[col].HeaderText;
+
+                if (!DateTime.TryParse(header, out DateTime dt))
+                    continue;
+
+                var ci = System.Globalization.CultureInfo.CurrentCulture;
+                int week = ci.Calendar.GetWeekOfYear(dt,
+                    System.Globalization.CalendarWeekRule.FirstFourDayWeek,
+                    DayOfWeek.Monday);
+
+                // 列単位で背景色を設定
+                if (week % 2 == 0)
+                    dataGridView1.Columns[col].DefaultCellStyle.BackColor = Color.WhiteSmoke;
+                else
+                    dataGridView1.Columns[col].DefaultCellStyle.BackColor = Color.White;
+            }
+        }
+
+
+
+
+
 
 
     }
