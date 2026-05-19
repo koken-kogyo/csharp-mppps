@@ -84,24 +84,28 @@ namespace MPPPS
         public int Qty { get; set; }
         public string OrderNo { get; set; }
         public string Note { get; set; }
+        public string EditStatus { get; set; }
 
         public Order()
         {
             Qty = 0;
             OrderNo = Common.NEWORDER;
             Note = "";
+            EditStatus = "";
         }
         public Order(Order order)
         {
             Qty = (order != null) ? order.Qty : 0;
             OrderNo = (order != null) ? order.OrderNo : Common.NEWORDER;
             Note = (order != null) ? order.Note : "";
+            EditStatus = (order != null) ? order.EditStatus : "";
         }
-        public Order(int qty, string orderNo, string note)
+        public Order(int qty, string orderNo, string note, string editstatus)
         {
             Qty = qty;
             OrderNo = orderNo;
             Note = note;
+            EditStatus = editstatus;
         }
         // データグリッド上の表示は数量だけ
         public override string ToString()

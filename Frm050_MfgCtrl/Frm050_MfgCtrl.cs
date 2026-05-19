@@ -82,12 +82,14 @@ namespace MPPPS
         private async void btn_PickupTehai_Click(object sender, EventArgs e)
         {
             // 出力ファイルを設定
+            var f = cmn.FsCd[5];
+            string  fileName = f.FileName.Replace("_雛型", ""); // ①.xlsx
             string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             string filePath1 = Path.Combine(userProfile, "促進.xlsx");
-            string filePath2 = Path.Combine(userProfile, "①.xlsx");
+            string filePath2 = Path.Combine(userProfile, fileName);
 
             // Excelブックが開いているかどうか確認
-            if (cmn.Fa.IsWorkbookOpen("①.xlsx"))
+            if (cmn.Fa.IsWorkbookOpen(fileName))
             {
                 MessageBox.Show("Excelブックが開かれています。書き込み出来ません．", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
@@ -137,7 +139,7 @@ namespace MPPPS
                 }
 
                 // Interop.Excel起動
-                cmn.Fa.ExcelApplication(false);
+                cmn.Fa.ExcelApplication(f.VisibleExcel);
 
                 // Excelにぶち込み一旦保存
                 toolStripStatusLabel1.Text = "[促進.xlsx] を作成中...";
@@ -163,7 +165,7 @@ namespace MPPPS
 
                 // ①_雛形.xlsxを開く
                 toolStripStatusLabel1.Text = "[①.xlsx] に 最新のコード票 を 転送中...";
-                cmn.Fa.OpenExcelFile2($@"{cmn.FsCd[5].RootPath}\{cmn.FsCd[5].FileName}");
+                cmn.Fa.OpenExcelFile2($@"{f.RootPath}\{f.FileName}");
 
                 // ①_雛形シート[1]に最新のコード票マスタを書き込む
                 cmn.Fa.WriteDataTableToExcel(km8430, 38);

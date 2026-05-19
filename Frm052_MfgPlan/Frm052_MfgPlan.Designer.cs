@@ -31,19 +31,22 @@ namespace MPPPS
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm052_MfgPlan));
             this.splitContainerVertical = new System.Windows.Forms.SplitContainer();
             this.splitContainerHorizontal = new System.Windows.Forms.SplitContainer();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.ButtonExcelExport = new System.Windows.Forms.Button();
             this.ButtonEntry = new System.Windows.Forms.Button();
             this.ButtonClose = new System.Windows.Forms.Button();
             this.ButtonRowDelete = new System.Windows.Forms.Button();
             this.ButtonUndo = new System.Windows.Forms.Button();
             this.groupBoxHMCD = new System.Windows.Forms.GroupBox();
+            this.labelHMNM = new System.Windows.Forms.Label();
             this.labelHmSize = new System.Windows.Forms.Label();
             this.labelHmSizeTitle = new System.Windows.Forms.Label();
             this.labelHMCD = new System.Windows.Forms.Label();
@@ -57,6 +60,7 @@ namespace MPPPS
             this.labelHour = new System.Windows.Forms.Label();
             this.labelHourTitle = new System.Windows.Forms.Label();
             this.groupBoxOrder = new System.Windows.Forms.GroupBox();
+            this.labelStatus = new System.Windows.Forms.Label();
             this.textBoxNote = new System.Windows.Forms.TextBox();
             this.labelQty = new System.Windows.Forms.Label();
             this.labelQtyTitle = new System.Windows.Forms.Label();
@@ -64,8 +68,6 @@ namespace MPPPS
             this.labelOrderNo = new System.Windows.Forms.Label();
             this.labelTimeTitle = new System.Windows.Forms.Label();
             this.labelOrderNoTitle = new System.Windows.Forms.Label();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerVertical)).BeginInit();
             this.splitContainerVertical.Panel1.SuspendLayout();
             this.splitContainerVertical.Panel2.SuspendLayout();
@@ -75,12 +77,12 @@ namespace MPPPS
             this.splitContainerHorizontal.Panel2.SuspendLayout();
             this.splitContainerHorizontal.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            this.groupBoxHMCD.SuspendLayout();
-            this.groupBoxOrder.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            this.groupBoxHMCD.SuspendLayout();
+            this.groupBoxOrder.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainerVertical
@@ -104,7 +106,7 @@ namespace MPPPS
             this.splitContainerVertical.Panel2.Controls.Add(this.groupBoxHMCD);
             this.splitContainerVertical.Panel2.Controls.Add(this.groupBoxOrder);
             this.splitContainerVertical.Panel2.Padding = new System.Windows.Forms.Padding(5);
-            this.splitContainerVertical.Size = new System.Drawing.Size(997, 593);
+            this.splitContainerVertical.Size = new System.Drawing.Size(997, 514);
             this.splitContainerVertical.SplitterDistance = 833;
             this.splitContainerVertical.TabIndex = 0;
             // 
@@ -122,8 +124,8 @@ namespace MPPPS
             // splitContainerHorizontal.Panel2
             // 
             this.splitContainerHorizontal.Panel2.Controls.Add(this.splitContainer1);
-            this.splitContainerHorizontal.Size = new System.Drawing.Size(823, 583);
-            this.splitContainerHorizontal.SplitterDistance = 404;
+            this.splitContainerHorizontal.Size = new System.Drawing.Size(823, 504);
+            this.splitContainerHorizontal.SplitterDistance = 377;
             this.splitContainerHorizontal.TabIndex = 1;
             // 
             // dataGridView1
@@ -135,14 +137,49 @@ namespace MPPPS
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 32;
-            this.dataGridView1.Size = new System.Drawing.Size(823, 404);
+            this.dataGridView1.Size = new System.Drawing.Size(823, 377);
             this.dataGridView1.TabIndex = 1;
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.chart1);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.BackColor = System.Drawing.SystemColors.Control;
+            this.splitContainer1.Size = new System.Drawing.Size(823, 123);
+            this.splitContainer1.SplitterDistance = 788;
+            this.splitContainer1.TabIndex = 1;
+            // 
+            // chart1
+            // 
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
+            this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
+            this.chart1.Location = new System.Drawing.Point(0, 0);
+            this.chart1.Name = "chart1";
+            this.chart1.Padding = new System.Windows.Forms.Padding(60, 0, 60, 0);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chart1.Series.Add(series1);
+            this.chart1.Size = new System.Drawing.Size(788, 123);
+            this.chart1.TabIndex = 1;
+            this.chart1.Text = "chart1";
             // 
             // ButtonExcelExport
             // 
             this.ButtonExcelExport.BackColor = System.Drawing.Color.LightGreen;
             this.ButtonExcelExport.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.ButtonExcelExport.Location = new System.Drawing.Point(5, 447);
+            this.ButtonExcelExport.Location = new System.Drawing.Point(5, 368);
             this.ButtonExcelExport.Margin = new System.Windows.Forms.Padding(6);
             this.ButtonExcelExport.Name = "ButtonExcelExport";
             this.ButtonExcelExport.Size = new System.Drawing.Size(150, 47);
@@ -155,19 +192,20 @@ namespace MPPPS
             // 
             this.ButtonEntry.BackColor = System.Drawing.Color.LightCoral;
             this.ButtonEntry.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.ButtonEntry.Location = new System.Drawing.Point(5, 494);
+            this.ButtonEntry.Location = new System.Drawing.Point(5, 415);
             this.ButtonEntry.Margin = new System.Windows.Forms.Padding(6);
             this.ButtonEntry.Name = "ButtonEntry";
             this.ButtonEntry.Size = new System.Drawing.Size(150, 47);
             this.ButtonEntry.TabIndex = 2;
-            this.ButtonEntry.Text = "登録 (F9)";
+            this.ButtonEntry.Text = "保存 (F9)";
             this.ButtonEntry.UseVisualStyleBackColor = false;
+            this.ButtonEntry.Click += new System.EventHandler(this.ButtonEntry_Click);
             // 
             // ButtonClose
             // 
-            this.ButtonClose.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.ButtonClose.BackColor = System.Drawing.SystemColors.Control;
             this.ButtonClose.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.ButtonClose.Location = new System.Drawing.Point(5, 541);
+            this.ButtonClose.Location = new System.Drawing.Point(5, 462);
             this.ButtonClose.Margin = new System.Windows.Forms.Padding(6);
             this.ButtonClose.Name = "ButtonClose";
             this.ButtonClose.Size = new System.Drawing.Size(150, 47);
@@ -180,7 +218,7 @@ namespace MPPPS
             // 
             this.ButtonRowDelete.BackColor = System.Drawing.SystemColors.Control;
             this.ButtonRowDelete.Dock = System.Windows.Forms.DockStyle.Top;
-            this.ButtonRowDelete.Location = new System.Drawing.Point(5, 409);
+            this.ButtonRowDelete.Location = new System.Drawing.Point(5, 456);
             this.ButtonRowDelete.Margin = new System.Windows.Forms.Padding(6);
             this.ButtonRowDelete.Name = "ButtonRowDelete";
             this.ButtonRowDelete.Size = new System.Drawing.Size(150, 47);
@@ -191,19 +229,21 @@ namespace MPPPS
             // 
             // ButtonUndo
             // 
+            this.ButtonUndo.BackColor = System.Drawing.SystemColors.Control;
             this.ButtonUndo.Dock = System.Windows.Forms.DockStyle.Top;
             this.ButtonUndo.Enabled = false;
-            this.ButtonUndo.Location = new System.Drawing.Point(5, 362);
+            this.ButtonUndo.Location = new System.Drawing.Point(5, 409);
             this.ButtonUndo.Margin = new System.Windows.Forms.Padding(6);
             this.ButtonUndo.Name = "ButtonUndo";
             this.ButtonUndo.Size = new System.Drawing.Size(150, 47);
             this.ButtonUndo.TabIndex = 3;
             this.ButtonUndo.Text = "戻す (Ctrl+Z)";
-            this.ButtonUndo.UseVisualStyleBackColor = true;
+            this.ButtonUndo.UseVisualStyleBackColor = false;
             this.ButtonUndo.Click += new System.EventHandler(this.ButtonUndo_Click);
             // 
             // groupBoxHMCD
             // 
+            this.groupBoxHMCD.Controls.Add(this.labelHMNM);
             this.groupBoxHMCD.Controls.Add(this.labelHmSize);
             this.groupBoxHMCD.Controls.Add(this.labelHmSizeTitle);
             this.groupBoxHMCD.Controls.Add(this.labelHMCD);
@@ -220,16 +260,26 @@ namespace MPPPS
             this.groupBoxHMCD.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.groupBoxHMCD.Location = new System.Drawing.Point(5, 154);
             this.groupBoxHMCD.Name = "groupBoxHMCD";
-            this.groupBoxHMCD.Size = new System.Drawing.Size(150, 208);
+            this.groupBoxHMCD.Size = new System.Drawing.Size(150, 255);
             this.groupBoxHMCD.TabIndex = 6;
             this.groupBoxHMCD.TabStop = false;
             this.groupBoxHMCD.Text = "品目情報";
+            // 
+            // labelHMNM
+            // 
+            this.labelHMNM.AutoSize = true;
+            this.labelHMNM.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.labelHMNM.Location = new System.Drawing.Point(20, 48);
+            this.labelHMNM.Name = "labelHMNM";
+            this.labelHMNM.Size = new System.Drawing.Size(47, 17);
+            this.labelHMNM.TabIndex = 29;
+            this.labelHMNM.Text = "製品名";
             // 
             // labelHmSize
             // 
             this.labelHmSize.AutoSize = true;
             this.labelHmSize.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.labelHmSize.Location = new System.Drawing.Point(86, 112);
+            this.labelHmSize.Location = new System.Drawing.Point(86, 132);
             this.labelHmSize.Name = "labelHmSize";
             this.labelHmSize.Size = new System.Drawing.Size(54, 17);
             this.labelHmSize.TabIndex = 27;
@@ -239,7 +289,7 @@ namespace MPPPS
             // 
             this.labelHmSizeTitle.AutoSize = true;
             this.labelHmSizeTitle.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.labelHmSizeTitle.Location = new System.Drawing.Point(7, 112);
+            this.labelHmSizeTitle.Location = new System.Drawing.Point(7, 132);
             this.labelHmSizeTitle.Name = "labelHmSizeTitle";
             this.labelHmSizeTitle.Size = new System.Drawing.Size(76, 17);
             this.labelHmSizeTitle.TabIndex = 26;
@@ -269,7 +319,7 @@ namespace MPPPS
             // 
             this.labelMatSize.AutoSize = true;
             this.labelMatSize.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.labelMatSize.Location = new System.Drawing.Point(86, 137);
+            this.labelMatSize.Location = new System.Drawing.Point(86, 161);
             this.labelMatSize.Name = "labelMatSize";
             this.labelMatSize.Size = new System.Drawing.Size(58, 17);
             this.labelMatSize.TabIndex = 23;
@@ -279,7 +329,7 @@ namespace MPPPS
             // 
             this.labelMatSizeTitle.AutoSize = true;
             this.labelMatSizeTitle.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.labelMatSizeTitle.Location = new System.Drawing.Point(7, 137);
+            this.labelMatSizeTitle.Location = new System.Drawing.Point(7, 161);
             this.labelMatSizeTitle.Name = "labelMatSizeTitle";
             this.labelMatSizeTitle.Size = new System.Drawing.Size(76, 17);
             this.labelMatSizeTitle.TabIndex = 22;
@@ -289,7 +339,7 @@ namespace MPPPS
             // 
             this.labelCT.AutoSize = true;
             this.labelCT.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.labelCT.Location = new System.Drawing.Point(85, 52);
+            this.labelCT.Location = new System.Drawing.Point(85, 76);
             this.labelCT.Name = "labelCT";
             this.labelCT.Size = new System.Drawing.Size(42, 17);
             this.labelCT.TabIndex = 21;
@@ -299,7 +349,7 @@ namespace MPPPS
             // 
             this.labelCTTitle.AutoSize = true;
             this.labelCTTitle.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.labelCTTitle.Location = new System.Drawing.Point(6, 51);
+            this.labelCTTitle.Location = new System.Drawing.Point(6, 75);
             this.labelCTTitle.Name = "labelCTTitle";
             this.labelCTTitle.Size = new System.Drawing.Size(36, 17);
             this.labelCTTitle.TabIndex = 20;
@@ -310,7 +360,7 @@ namespace MPPPS
             this.labelMatQty.AutoSize = true;
             this.labelMatQty.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.labelMatQty.ForeColor = System.Drawing.Color.IndianRed;
-            this.labelMatQty.Location = new System.Drawing.Point(85, 162);
+            this.labelMatQty.Location = new System.Drawing.Point(85, 178);
             this.labelMatQty.Name = "labelMatQty";
             this.labelMatQty.Size = new System.Drawing.Size(35, 17);
             this.labelMatQty.TabIndex = 19;
@@ -320,7 +370,7 @@ namespace MPPPS
             // 
             this.labelMatQtyTitle.AutoSize = true;
             this.labelMatQtyTitle.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.labelMatQtyTitle.Location = new System.Drawing.Point(6, 162);
+            this.labelMatQtyTitle.Location = new System.Drawing.Point(6, 178);
             this.labelMatQtyTitle.Name = "labelMatQtyTitle";
             this.labelMatQtyTitle.Size = new System.Drawing.Size(79, 17);
             this.labelMatQtyTitle.TabIndex = 18;
@@ -331,7 +381,7 @@ namespace MPPPS
             this.labelHour.AutoSize = true;
             this.labelHour.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.labelHour.ForeColor = System.Drawing.Color.IndianRed;
-            this.labelHour.Location = new System.Drawing.Point(85, 75);
+            this.labelHour.Location = new System.Drawing.Point(85, 99);
             this.labelHour.Name = "labelHour";
             this.labelHour.Size = new System.Drawing.Size(35, 17);
             this.labelHour.TabIndex = 17;
@@ -341,7 +391,7 @@ namespace MPPPS
             // 
             this.labelHourTitle.AutoSize = true;
             this.labelHourTitle.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.labelHourTitle.Location = new System.Drawing.Point(6, 75);
+            this.labelHourTitle.Location = new System.Drawing.Point(6, 99);
             this.labelHourTitle.Name = "labelHourTitle";
             this.labelHourTitle.Size = new System.Drawing.Size(79, 17);
             this.labelHourTitle.TabIndex = 16;
@@ -349,6 +399,7 @@ namespace MPPPS
             // 
             // groupBoxOrder
             // 
+            this.groupBoxOrder.Controls.Add(this.labelStatus);
             this.groupBoxOrder.Controls.Add(this.textBoxNote);
             this.groupBoxOrder.Controls.Add(this.labelQty);
             this.groupBoxOrder.Controls.Add(this.labelQtyTitle);
@@ -364,6 +415,16 @@ namespace MPPPS
             this.groupBoxOrder.TabIndex = 4;
             this.groupBoxOrder.TabStop = false;
             this.groupBoxOrder.Text = "注文情報";
+            // 
+            // labelStatus
+            // 
+            this.labelStatus.AutoSize = true;
+            this.labelStatus.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.labelStatus.Location = new System.Drawing.Point(90, 27);
+            this.labelStatus.Name = "labelStatus";
+            this.labelStatus.Size = new System.Drawing.Size(38, 17);
+            this.labelStatus.TabIndex = 13;
+            this.labelStatus.Text = "staus";
             // 
             // textBoxNote
             // 
@@ -434,45 +495,10 @@ namespace MPPPS
             this.labelOrderNoTitle.TabIndex = 0;
             this.labelOrderNoTitle.Text = "番号：";
             // 
-            // splitContainer1
-            // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.chart1);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.BackColor = System.Drawing.SystemColors.Control;
-            this.splitContainer1.Size = new System.Drawing.Size(823, 175);
-            this.splitContainer1.SplitterDistance = 702;
-            this.splitContainer1.TabIndex = 1;
-            // 
-            // chart1
-            // 
-            chartArea2.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea2);
-            this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend2.Name = "Legend1";
-            this.chart1.Legends.Add(legend2);
-            this.chart1.Location = new System.Drawing.Point(0, 0);
-            this.chart1.Name = "chart1";
-            this.chart1.Padding = new System.Windows.Forms.Padding(60, 0, 60, 0);
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            this.chart1.Series.Add(series2);
-            this.chart1.Size = new System.Drawing.Size(702, 175);
-            this.chart1.TabIndex = 1;
-            this.chart1.Text = "chart1";
-            // 
             // Frm052_MfgPlan
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(997, 593);
+            this.ClientSize = new System.Drawing.Size(997, 514);
             this.Controls.Add(this.splitContainerVertical);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -490,14 +516,14 @@ namespace MPPPS
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerHorizontal)).EndInit();
             this.splitContainerHorizontal.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            this.groupBoxHMCD.ResumeLayout(false);
-            this.groupBoxHMCD.PerformLayout();
-            this.groupBoxOrder.ResumeLayout(false);
-            this.groupBoxOrder.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            this.groupBoxHMCD.ResumeLayout(false);
+            this.groupBoxHMCD.PerformLayout();
+            this.groupBoxOrder.ResumeLayout(false);
+            this.groupBoxOrder.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -535,5 +561,7 @@ namespace MPPPS
         private TextBox textBoxNote;
         private SplitContainer splitContainer1;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private Label labelStatus;
+        private Label labelHMNM;
     }
 }

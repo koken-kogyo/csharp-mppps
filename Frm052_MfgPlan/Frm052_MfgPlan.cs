@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -101,6 +103,13 @@ namespace MPPPS
         // ハイライトが偶数週の着色で上書きされてしまうので制御
         private int highlightedColumnIndex = -1;
 
+        // 自動で閉じるメッセージボックスで使用
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern int SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        private const uint WM_CLOSE = 0x0010;
+
         // コンストラクタ
         public Frm052_MfgPlan(Common cmn)
         {
@@ -114,6 +123,9 @@ namespace MPPPS
                       + " <" + Common.FRM_ID_052 + ": " + Common.FRM_NAME_052 + ">";
             // 共通クラス
             this.cmn = cmn;
+
+            // 切削母材情報マスタを非同期で取得
+            Task.Run(() => matDic = cmn.Dba.GetD0470Dictionary());
 
             // 初期設定
             SetInitialValues();
@@ -138,9 +150,6 @@ namespace MPPPS
         // 初期設定
         private void SetInitialValues()
         {
-            // 切削母材情報マスタを非同期で取得
-            Task.Run(() => matDic = cmn.Dba.GetD0470Dictionary());
-
             // データ読み込み
             DataTable xt2OrderDt = new DataTable();
             bool ret = cmn.Dba.ReadXT2(ref xt2OrderDt);
@@ -148,20 +157,27 @@ namespace MPPPS
             List<DBRow> dbList = new List<DBRow>();
             foreach (DataRow row in xt2OrderDt.Rows)
             {
-                DBRow r = new DBRow
+                try
                 {
-                    受注番号 = row["ODRNO"].ToString(),
-                    品番 = row["HMCD"].ToString(),
-                    品名 = row["HMNM"].ToString(),
-                    日付 = (DateTime)row["EDDT"],
-                    数量 = (int)row["ODRQTY"],
-                    材料 = row["MATESIZE"].ToString(),
-                    CT = decimal.Parse(row["CT"].ToString()),
-                    製品長さ = decimal.Parse(row["LENGTH"].ToString()),
-                    工程数 = (int)row["KTSU"],
-                    備考 = row["NOTE"].ToString()
-                };
-                dbList.Add(r);
+                    DBRow r = new DBRow
+                    {
+                        受注番号 = row["ODRNO"].ToString(),
+                        品番 = row["HMCD"].ToString(),
+                        品名 = row["HMNM"].ToString(),
+                        日付 = (DateTime)row["EDDT"],
+                        数量 = (int)row["ODRQTY"],
+                        材料 = row["MATESIZE"].ToString(),
+                        CT = decimal.Parse(row["CT"].ToString()),
+                        製品長さ = (row["LENGTH"] == DBNull.Value) ? 0 : decimal.Parse(row["LENGTH"].ToString()),
+                        工程数 = (int)row["KTSU"],
+                        備考 = row["NOTE"].ToString() // DBNull.Value は "" に変換される
+                    };
+                    dbList.Add(r);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(row["HMCD"].ToString() + "\n" + ex.ToString());
+                }
             }
             InitializeDataGridView(dataGridView1);      // データーグリッドコントロールの初期設定
             LoadToDataGrid(dataGridView1, dbList);      // DBListデータをセット
@@ -276,7 +292,7 @@ namespace MPPPS
                     g => g.Key,
                     g => {
                         var x = g.First();
-                        return new Order(x.数量, x.受注番号, x.備考);
+                        return new Order(x.数量, x.受注番号, x.備考, "");
                     }
                 );
 
@@ -408,7 +424,7 @@ namespace MPPPS
         {
             bool ret = cmn.Fa.製造部計画表出力ファイルチェック(out string templateFullPath, out string outputFullPath);
             if (ret == false) return;
-            cmn.Fa.ExportFromDgvToExcel(templateFullPath, outputFullPath, ref dataGridView1);
+            cmn.Fa.ExportFromDgvToExcel(templateFullPath, outputFullPath, dataGridView1, chart1);
             if (File.Exists(outputFullPath))
             {
                 // Interop.Excelではなく標準アプリケーションでExcelを開く
@@ -509,6 +525,16 @@ namespace MPPPS
             var undoEditNewOrder = new Order(undoEditOldOrder);
             undoEditNewOrder.Qty = int.Parse(dgv[e.ColumnIndex, e.RowIndex].Value?.ToString() ?? "0");
             if (undoEditOldOrder.Qty == undoEditNewOrder.Qty) return;
+            if (undoEditNewOrder.OrderNo == Common.NEWORDER && undoEditNewOrder.Qty == 0)
+            {
+                undoEditNewOrder = null;
+            }
+            else
+            {
+                undoEditNewOrder.EditStatus =
+                    (undoEditNewOrder.OrderNo == Common.NEWORDER) ? "1:NEWORDER" :
+                    (undoEditNewOrder.Qty == 0) ? "9:CANCEL" : "2:MODIFY";
+            }
             var action = new UndoAction()
             {
                 Type = UndoType.CellEdit,
@@ -645,7 +671,7 @@ namespace MPPPS
                 dgv.ClearSelection();
                 dgv.Rows[targetRow].Selected = true;
             }
-            else if (dropTargetCell.Value != null && dropTargetCell.Value.ToString() != "")
+            else if (dropTargetCell.Value != null)
             {
                 // ----------------------------------------
                 // 移動先にデータが存在 → 「コンテキストメニュー」
@@ -656,29 +682,30 @@ namespace MPPPS
             else
             {
                 // ----------------------------------------
-                // 移動先は空セル → 「セル入れ替え」
+                // 移動先は空セル → 「受注移動」
                 // ----------------------------------------
                 if (hit.ColumnIndex < 0)
                     return;
 
                 // Undo情報スタック
+                var undoSource = new Order((Order)dragSourceCell.Value);
                 var action = new UndoAction()
                 {
                     Type = UndoType.CellSwap,
                     SwapSourceRow = dragSourceCell.RowIndex,
                     SwapSourceCol = dragSourceCell.ColumnIndex,
-                    SwapSourceOrder = (Order)dragSourceCell.Value,
+                    SwapSourceOrder = undoSource,
                     SwapTargetCol = dropTargetCell.ColumnIndex,
-                    SwapTargetOrder = (Order)dropTargetCell.Value
+                    SwapTargetOrder = null
                 };
                 undoStack.Push(action);
                 ButtonUndo.Enabled = true;
 
-                // 実際に値の入れ替え
-                object temp = dragSourceCell.Value;
-                dragSourceCell.Value = dropTargetCell.Value;
-                dropTargetCell.Value = temp;
-
+                // 移動
+                var newTarget = new Order(undoSource);
+                newTarget.EditStatus = (undoSource.OrderNo == Common.NEWORDER) ? "1:NEWORDER" : "2:MODIFY";
+                dragSourceCell.Value = null;
+                dropTargetCell.Value = newTarget;
                 dgv.CurrentCell = dropTargetCell;
             }
             dragSourceCell = null;
@@ -704,8 +731,21 @@ namespace MPPPS
             ButtonUndo.Enabled = true;
 
             // 移動
-            dropTargetCell.Value = dragSourceCell.Value;
-            dragSourceCell.Value = null;
+            var newSource = new Order((Order)dragSourceCell.Value);
+            var newTarget = new Order((Order)dropTargetCell.Value);
+            if (newSource.OrderNo == Common.NEWORDER)
+            {
+                newSource = null;
+            }
+            else
+            {
+                newSource.Qty = 0;
+                newSource.EditStatus = "9:CANCEL";
+                newTarget.Qty += undoSource.Qty;
+                newTarget.EditStatus = "2:MODIFY";
+            }
+            dragSourceCell.Value = newSource;
+            dropTargetCell.Value = newTarget;
             dataGridView1.CurrentCell = dropTargetCell;
         }
         // 「合算移動」
@@ -727,8 +767,18 @@ namespace MPPPS
             ButtonUndo.Enabled = true;
 
             // 合算とクリア
-            var targetOrder = new Order(undoSource.Qty + undoTarget.Qty, undoSource.OrderNo, undoSource.Note);
-            dragSourceCell.Value = null;
+            var sourceOrder = new Order(undoSource);
+            if (undoSource.OrderNo == Common.NEWORDER)
+            {
+                dragSourceCell.Value = null;
+            }
+            else
+            {
+                sourceOrder.Qty = 0;
+                sourceOrder.EditStatus = "9:CANCEL";
+                dragSourceCell.Value = sourceOrder;
+            }
+            var targetOrder = new Order(undoSource.Qty + undoTarget.Qty, undoTarget.OrderNo, undoTarget.Note, "2:MODIFY");
             dropTargetCell.Value = targetOrder;
             dataGridView1.CurrentCell = dropTargetCell;
         }
@@ -794,7 +844,10 @@ namespace MPPPS
             var newSourceOrder = new Order((Order)splitSourceCell.Value) ?? new Order();
             var newTargetOrder = new Order((Order)splitTargetCell.Value) ?? new Order();
             newSourceOrder.Qty = half1;
+            newSourceOrder.EditStatus = "2:MODIFY";
             newTargetOrder.Qty += half2;
+            newTargetOrder.EditStatus = 
+                (newTargetOrder.OrderNo == Common.NEWORDER) ? "1:NEWORDER" : "2:MODIFY";
             splitSourceCell.Value = newSourceOrder;
             splitTargetCell.Value = newTargetOrder;
             RefreshPlanInformation();
@@ -811,19 +864,19 @@ namespace MPPPS
             // 分割先セルの計算
             int[] splitCols = new int[4];
             splitCols[0] = col;
-            if (col <= 7) // 1週目 (col3 ～ col7)
+            if (col <= STARTCOL + 4)        // 1週目
             {
                 splitCols[1] = col + 5;
                 splitCols[2] = col + 10;
                 splitCols[3] = col + 15;
             }
-            else if (col < 15) // 2週目 (col8 ～ col12)
+            else if (col < STARTCOL + 9)    // 2週目
             {
                 splitCols[1] = col + 1;
                 splitCols[2] = col + 5;
                 splitCols[3] = col + 10;
             }
-            else
+            else                            //3週目以降
             {
                 splitCols[1] = col + 1;
                 splitCols[2] = col + 2;
@@ -848,10 +901,10 @@ namespace MPPPS
             // 分割値のセット
             int baseQty = undoOrders[0].Qty / 4;
             int first = undoOrders[0].Qty - baseQty * 3; // 端数は最初に寄せる
-            dgv[splitCols[0], row].Value = new Order(first, undoOrders[0].OrderNo, undoOrders[0].Note);
+            dgv[splitCols[0], row].Value = new Order(first, undoOrders[0].OrderNo, undoOrders[0].Note, "2:MODIFY");
             for (int i = 1; i < 4; i++)
             {
-                dgv[splitCols[i], row].Value = new Order(baseQty, Common.NEWORDER, "");
+                dgv[splitCols[i], row].Value = new Order(baseQty, Common.NEWORDER, "", "1:NEWORDER");
             }
             ButtonUndo.Enabled = true;
             RefreshPlanInformation();
@@ -904,6 +957,7 @@ namespace MPPPS
                     dgv.CurrentCell = dgv[c, row];
                     e.Handled = true;
                 }
+                RefreshPlanInformation();
             }
 
             // Deleteキーで注文取消し（数量0）
@@ -915,6 +969,7 @@ namespace MPPPS
                 if (undoOldOrder.OrderNo != Common.NEWORDER) {
                     undoNewOrder = new Order((Order)dgv.CurrentCell.Value);
                     undoNewOrder.Qty = 0;
+                    undoNewOrder.EditStatus = "9:CANCEL";
                 }
                 var action = new UndoAction()
                 {
@@ -952,8 +1007,10 @@ namespace MPPPS
             labelTime.Text = "";
             textBoxNote.Text = "";
             textBoxNote.Visible = false;
+            labelStatus.Text = "";
             // 品目情報クリア
             labelHMCD.Text = "";
+            labelHMNM.Text = "";
             labelCT.Text = "";
             labelHour.Text = "";
             labelHmSize.Text = "";
@@ -964,15 +1021,17 @@ namespace MPPPS
             try
             {
                 string hmcd = dgv[0, row].Value.ToString();
+                string hmnm = dgv[1, row].Value.ToString();
                 decimal ct = (decimal)dgv[COLCT, row].Value;
                 decimal hmsize = (decimal)dgv[COLHMSIZE, row].Value;
-                decimal matsize = matDic[hmcd];
+                decimal matsize = (matDic.ContainsKey(hmcd)) ? matDic[hmcd] : 0m;
                 labelHMCD.Text = hmcd;
+                labelHMNM.Text = hmnm;
                 labelCT.Text = $"{ct}秒";
                 labelHour.Text = (ct == 0) ? "0除算エラー" : $"{Math.Floor(3600 / ct / 10) * 10}本";
                 labelHmSize.Text = $"{hmsize}mm";
-                labelMatSize.Text = $"{matDic[hmcd]:#,0}mm";
-                labelMatQty.Text = (hmsize == 0) ? "0除算エラー" : $"{Math.Floor(matsize / hmsize / 10) * 10}本";
+                labelMatSize.Text = (matsize == 0) ? "切削母材情報なし" : $"{matDic[hmcd]:#,0}mm";
+                labelMatQty.Text = (matsize == 0) ? "切削母材情報なし" : (hmsize == 0) ? "0除算エラー" : $"{Math.Floor(matsize / hmsize / 10) * 10}本";
 
                 // 注文詳細は OrderCell クラスから取得
                 if (col >= STARTCOL)
@@ -985,6 +1044,7 @@ namespace MPPPS
                     labelTime.Text = (ct == 0) ? "CT未設定" : (x > 3600) ? $"{x / 3600:0.0}時間" : $"{Math.Ceiling(x / 60)}分";
                     textBoxNote.Text = o.Note;
                     textBoxNote.Visible = true;
+                    labelStatus.Text = o.EditStatus;
                 }
 
                 // Chartデータの更新
@@ -1168,9 +1228,41 @@ namespace MPPPS
             }
         }
 
+        // 受注登録（保存）
+        private void ButtonEntry_Click(object sender, EventArgs e)
+        {
+            var dgv = dataGridView1;
+            if (cmn.Dba.SavePlanOrder(ref dgv, STARTCOL))
+            {
+                // EditStatusを初期値に戻す
+                for (int row = 0; row < dgv.Rows.Count; row++)
+                {
+                    for (int col = STARTCOL; col < dgv.Columns.Count; ++col)
+                    {
+                        if (dgv[col, row].Value != null)
+                        {
+                            Order o = (Order)dgv[col, row].Value;
+                            o.EditStatus = "";
+                        }
+                    }
+                }
+                // 初期データ読み込み直し
+                SetInitialValues();
 
+                // 新しいスレッドを作成
+                Thread thread = new Thread(ShowMessageBox);
+                thread.Start();
+                Thread.Sleep(1500);
+                IntPtr hWnd = FindWindow(null, "マスタ更新");
+                SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            }
+        }
 
-
+        // 自動で閉じるメッセージボックス
+        private static void ShowMessageBox()
+        {
+            MessageBox.Show("保存しました．", "マスタ更新");
+        }
 
 
 

@@ -325,6 +325,7 @@ namespace MPPPS
                     + "(SELECT HMCD as HMKEY, HMNM, MATERIALCD, KTKEY FROM "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + ") " + Common.TABLE_ID_KM8430 + " "
                     + "WHERE "
+                    + "ODCD like '6060%' and "
                     + "HMCD=HMKEY and "
                     + where
                 ;
@@ -1434,6 +1435,7 @@ namespace MPPPS
                 + "WHERE "
                 + "ODRSTS <> '9' and "
                 + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
+                + "ODCD <> '60699' and "  // 印刷対象外として「60699:内示生産」を新設
                 + "EDDT = '" + planDay.ToString() + "' and "
                 + "MPTANADT is NULL " // 棚コンデータ作成日
                 ;
@@ -1752,6 +1754,7 @@ namespace MPPPS
                 + "a.HMCD = b.HMCD "
                 + "and a.ODRSTS <> '9' "
                 + "and a.ODCD <> '60605' " // 印刷対象外として「60605:タナコン管理外」を新設
+                + "and a.ODCD <> '60699' " // 印刷対象外として「60699:内示生産」を新設
             ;
             // 手配取込時に ODCD like '6060%'をしている
             return sql;
@@ -1793,6 +1796,7 @@ namespace MPPPS
                     + "WHERE "
                     + "ODRSTS <> '9' and "
                     + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
+                    + "ODCD <> '60699' and "  // 印刷対象外として「60699:内示生産」を新設
                     + "MPCARDDT is NULL and " // 製造指示カード発行日
                     + $"EDDT between '{eddtFrom}' and '{eddtTo}'"
                     ;
@@ -1860,6 +1864,7 @@ namespace MPPPS
                     + "WHERE "
                     + "ODRSTS <> '9' and "
                     + "ODCD <> '60605' and "  // 印刷対象外として「60605:タナコン管理外」を新設
+                    + "ODCD <> '60699' and "  // 印刷対象外として「60699:内示生産」を新設
                     + addWhere
                 ;
 
@@ -3126,7 +3131,7 @@ namespace MPPPS
                     "aa.ODRSTS<>'9' and " +
                     $"aa.EDDT between '{from}' and '{to}' " +
                     "GROUP BY " +
-                    swGroupby + 
+                    swGroupby +
                     "aa.HMCD, " +
                     "bb.KTKEY " +
                     "HAVING SUM(aa.ODRQTY) - SUM(aa.JIQTY) > 0"
@@ -3236,7 +3241,7 @@ namespace MPPPS
             string from1 = thisMonday.ToString("yyyy/MM/dd");
             string to1 = thisMonday.AddDays(12).ToString("yyyy/MM/dd");                 // 手配開始日から+12日間(5+7)を手配終了日
             string from2 = thisMonday.AddDays(14).ToString("yyyy/MM/dd");               // 手配開始日から+14日を内示開始日
-            string to2 = thisMonday.AddDays(14+19).ToString("yyyy/MM/dd");              // 内示開始日から19日後(5+7+7)を終了日
+            string to2 = thisMonday.AddDays(14 + 19).ToString("yyyy/MM/dd");              // 内示開始日から19日後(5+7+7)を終了日
 
             MySqlConnection mpCnn = null;
             try
@@ -3256,10 +3261,10 @@ namespace MPPPS
                     "aa.HMCD = bb.HMCD and " +
                     "aa.MCGCD = 'STORE' and " +
                     "(" +
-                        "aa.HMCD in (" + 
+                        "aa.HMCD in (" +
                             $"SELECT yy.HMCD FROM kd8430 yy WHERE yy.EDDT between '{from1}' and '{to1}' and " +
-                            "yy.ODRSTS<>'9' and (yy.ODRQTY - yy.JIQTY) > 0) " + 
-                        "OR " + 
+                            "yy.ODRSTS<>'9' and (yy.ODRQTY - yy.JIQTY) > 0) " +
+                        "OR " +
                         "aa.HMCD in (" +
                             $"SELECT zz.HMCD FROM kd8440 zz WHERE zz.EDDT between '{from2}' and '{to2}' and " +
                             "zz.ODRSTS<>'9' and (zz.ODRQTY - zz.JIQTY) > 0) " +
