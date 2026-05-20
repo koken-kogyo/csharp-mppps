@@ -181,6 +181,8 @@ namespace MPPPS
                     // Interop.Excelではなく標準アプリケーションで開く
                     Process.Start(@filePath2);
 
+                    await Task.Delay(3000);
+                    if (f.VisibleExcel) ShowTopMost("工程別促進表の作成が終了しました．", "RPA処理", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     toolStripStatusLabel1.Text = "促進データの作成が終了しました.";
                 }
                 else
@@ -201,6 +203,29 @@ namespace MPPPS
 
 
         }
+
+        // 画面の最前面にメッセージボックスを表示（Process.Start.Excelより前面に出すTopMost）
+        public static DialogResult ShowTopMost(string text, string caption,
+            MessageBoxButtons buttons = MessageBoxButtons.OK,
+            MessageBoxIcon icon = MessageBoxIcon.None)
+        {
+            using (Form topmost = new Form())
+            {
+                topmost.TopMost = true;
+                topmost.StartPosition = FormStartPosition.CenterScreen;
+                topmost.ShowInTaskbar = false;
+                topmost.FormBorderStyle = FormBorderStyle.None; // 透明には出来なかった
+                topmost.AllowTransparency = true;               // 透明には出来なかった
+                topmost.Opacity = 0.8;                          // 透明には出来なかった
+                topmost.Width = 1;
+                topmost.Height = 1;
+
+                //topmost.Show();
+                return MessageBox.Show(topmost, text, caption, buttons, icon);
+            }
+        }
+
+
 
         private async void btn_PickupNaiji_Click(object sender, EventArgs e)
         {

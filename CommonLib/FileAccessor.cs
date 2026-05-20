@@ -632,6 +632,7 @@ namespace MPPPS
                     {
                         rgn.Value2 = obj;
                     }
+                    if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(0.2));
                 }
                 // タイトル行を固定
                 var rng = oWSheet.Range[oWSheet.Cells[1, 1], oWSheet.Cells[1, exportDt.Columns.Count]];
@@ -641,6 +642,7 @@ namespace MPPPS
 
                 // 列幅自動調整
                 oWSheet.Columns.AutoFit();
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(2));
                 oWBook.SaveAs(filepath);
             }
             catch (Exception ex)
@@ -2145,14 +2147,19 @@ namespace MPPPS
                 // ピボットテーブルのフィールド設定
                 pivotTable.PivotFields("品番").Orientation = Excel.XlPivotFieldOrientation.xlRowField;
                 pivotTable.PivotFields("品番").Subtotals = subtotal;
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
                 pivotTable.PivotFields("品目略称").Orientation = Excel.XlPivotFieldOrientation.xlRowField;
                 pivotTable.PivotFields("品目略称").Subtotals = subtotal;
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
                 pivotTable.PivotFields("完了予定日").Orientation = Excel.XlPivotFieldOrientation.xlColumnField;
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
                 pivotTable.PivotFields("S").Orientation = Excel.XlPivotFieldOrientation.xlDataField;
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
 
                 // 総計を非表示に設定
                 pivotTable.RowGrand = false;        // 行ラベルの総計を非表示
                 pivotTable.ColumnGrand = false;     // 列ラベルの総計を非表示
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(3));
 
                 // 集計シートを作成
                 var valueSheet = (Excel.Worksheet)oWBook.Worksheets.Add();
@@ -2169,11 +2176,13 @@ namespace MPPPS
                 OutputRange.Value2 = data;
                 OutputRange.Font.Size = 10;
                 OutputRange.Font.Name = "ＭＳ ゴシック";
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
 
                 // 先頭行を削除しタイトル名を調整
                 valueSheet.Rows[1].Delete();
                 valueSheet.Cells[1, 3].Value2 = "遅れ";
                 valueSheet.Range[valueSheet.Cells[1, 4], valueSheet.Cells[1, 12]].NumberFormat = "m/d";
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
 
                 // !DUMMY行を削除
                 int dummyRow = GetRowNo(ref valueSheet, "!DUMMY", 1);
@@ -2181,6 +2190,7 @@ namespace MPPPS
 
                 // 列幅自動調整
                 valueSheet.Columns.AutoFit();
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
 
                 // 保存
                 oWBook.Save();
@@ -2210,9 +2220,11 @@ namespace MPPPS
             int rowCount = data.GetLength(0);
             int columnCount = data.GetLength(1);
             Microsoft.Office.Interop.Excel.Range OutputRange = ktSheet.Range[ktSheet.Cells[4, 2], ktSheet.Cells[rowCount + 4 - 1, columnCount + 2 - 1]];
+            if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
 
             // 指定された範囲にオブジェクト型配列の値を書き込む
             OutputRange.Value2 = data;
+            if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
 
 
             // 工程シートのVLOOKUP列で#N/Aが存在するかチェック（17:協力工場列で検証）
@@ -2249,6 +2261,7 @@ namespace MPPPS
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
+            if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
             // ②SW工程
             toolStripStatusLabel.Text = "[SW] 工程 (2/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "SW", 20
@@ -2256,6 +2269,7 @@ namespace MPPPS
                 , 15, XlSortOrder.xlDescending
                 , 2, XlSortOrder.xlAscending
             );
+            if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
             // ③SS工程
             toolStripStatusLabel.Text = "[SS] 工程 (3/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "SS", 21
@@ -2263,6 +2277,7 @@ namespace MPPPS
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
+            if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
             // ④CN工程
             toolStripStatusLabel.Text = "[CN] 工程 (4/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "CN", 23
@@ -2389,6 +2404,7 @@ namespace MPPPS
             // 最終体裁
             ktSheet.Activate();
             ktSheet.Cells[1, 1].Select();
+            if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
 
             // 保存
             //oXls.DisplayAlerts = false; // アラートメッセージ非表示設定
@@ -2963,8 +2979,10 @@ namespace MPPPS
                     rowCount++;
                 }
                 // 設定したオブジェクトをレンジに貼り付け
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
                 oRange = oWSheet.Range[oWSheet.Cells[6, 1], oWSheet.Cells[6 + rowCount - 1, 1 + copyColumns - 1]];
                 oRange.Value = codeSlipObj;
+                if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(2));
             }
             catch (Exception ex)
             {
