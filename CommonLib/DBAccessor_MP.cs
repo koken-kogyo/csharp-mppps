@@ -518,7 +518,15 @@ namespace MPPPS
         /// <param name="mpNaijiTempDt">手配日程テンポラリ</param>
         /// <param name="cardDt">内示カードファイル（手配登録時に印刷済み）</param>
         /// <returns>挿入件数、失敗時-1</returns>
-        public int ImportMpOrder(ref DataTable exceptDt, ref DataTable codeDt, ref DataTable naijiDt, ref DataTable mpNaijiTempDt, ref DataTable cardDt, ref DataTable deleteODRNODt, Color styleBackColor)
+        public int ImportMpOrder(
+            ref DataTable exceptDt
+            , ref DataTable codeDt
+            , ref DataTable naijiDt
+            , ref DataTable mpNaijiTempDt
+            , ref DataTable cardDt
+            , ref DataTable deleteODRNODt
+            , string[] errHMCD
+            , Color styleBackColor)
         {
             Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
@@ -547,6 +555,8 @@ namespace MPPPS
                 {
                     string odrno = r["ODRNO"].ToString();
                     string hmcd = r["HMCD"].ToString();
+
+                    if (errHMCD.Contains(hmcd)) continue;
 
                     // KM8430:コード票マスタの品番抽出
                     DataRow[] mr = codeDt.Select($"HMCD='{hmcd}'");
@@ -593,7 +603,13 @@ namespace MPPPS
                     sb30.Append(ImportMpOrderBulkData(r, MPCARDDT));
 
                     // KD8450:切削オーダーの登録（工程数分をループ）
-                    int ktsu = Convert.ToInt32(mr[0]["KTSU"].ToString());
+                    if (!int.TryParse(mr[0]["KTSU"].ToString(), out int ktsu))
+                    {
+                        MessageBox.Show($"コード票マスタの「工程数」を正しく入力してください．\n\n{hmcd}"
+                            , "コード票マスタエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        throw new Exception("コード票マスタエラー");
+                    }
+
                     for (int kt = 1; kt <= ktsu; kt++)
                     {
                         string mcgcd = mr[0][$"KT{kt}MCGCD"].ToString();

@@ -159,11 +159,11 @@ namespace MPPPS
         public static readonly Color FRM40_BG_COLOR_WORKING = Color.White;
         public static readonly Color FRM40_BG_COLOR_HOLIDAY = Color.LightPink;
         public static readonly Color FRM40_BG_COLOR_SATURDAY = Color.LightBlue;
-        public static readonly Color FRM40_BG_COLOR_ORDERED = Color.MistyRose;
-        public static readonly Color FRM40_BG_COLOR_IMPORTED = Color.LightCyan;
-        public static readonly Color FRM40_BG_COLOR_WARNING = Color.LightCoral;
-        public static readonly Color FRM40_BG_COLOR_PRINTED = Color.LightGreen;
-        public static readonly Color FRM40_BG_COLOR_PLANED = Color.LightGreen;
+        public static readonly Color FRM40_BG_COLOR_ORDERED = Color.MistyRose;      // EMあり、未取込
+        public static readonly Color FRM40_BG_COLOR_IMPORTED = Color.LightCyan;     // MP取込済
+        public static readonly Color FRM40_BG_COLOR_WARNING = Color.LightCoral;     // MPとEMで差異あり
+        public static readonly Color FRM40_BG_COLOR_PRINTED = Color.LightGreen;     // MP印刷済
+        public static readonly Color FRM40_BG_COLOR_PLANED = Color.LightGreen;      // MP内示取込済
         public static readonly Color FRM40_BG_COLOR_OTHERMONTH = Color.WhiteSmoke;
         public static readonly Color FRM40_COLOR_BLACK = Color.Black;
         public static readonly Color FRM40_COLOR_DIMGRAY = Color.DimGray;

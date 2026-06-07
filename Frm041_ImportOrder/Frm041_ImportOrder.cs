@@ -606,7 +606,7 @@ namespace MPPPS
         // 注文データ取込
         private async void Btn_ImportOrder_Click(object sender, EventArgs e)
         {
-            toolStripStatusLabel1.Text = "注文データ取込中...";
+            toolStripStatusLabel1.Text = "注文データ取込準備中...";
             int insCount = 0;
             int delCount = 0;
             // マスタ類データテーブル定義
@@ -617,6 +617,7 @@ namespace MPPPS
             DataTable mpCardReportDt = new DataTable(); // レポート提出用
             DataTable deleteODRNODt = new DataTable();  // 削除したODRNOを控えておくための変数
             DataTable emOdCtrl = new DataTable();       // 手配先管理期間マスタ
+            DataTable emHMCDdt = new DataTable();       // 選択した期間のEM品番一覧
             deleteODRNODt.Columns.Add("ODRNO", typeof(string));
             // 全てのマスタ類の読み込み
             Task taskC = Task.Run(() => cmn.Dba.GetCodeSlipMst(ref mpCodeMDt));
@@ -631,6 +632,35 @@ namespace MPPPS
                         where c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING
                         orderby c.RowIndex, c.ColumnIndex
                         select c;
+
+            // 手配一覧の中の品番がコード票に存在するか最初にチェック
+            var dates = query.Select(c => GetCurrentDateTime(c)).ToList();
+            DateTime minDate = dates.Min();
+            DateTime maxDate = dates.Max();
+            cmn.Dba.GetEmOrderHMCD(ref emHMCDdt, minDate.ToString("yyyy/MM/dd"), maxDate.ToString("yyyy/MM/dd"));
+            string[] errHMCD = emHMCDdt.AsEnumerable()
+                .Where(row =>
+                    !mpCodeMDt.AsEnumerable().Select(col => col["HMCD"]).ToArray()
+                    .Contains(row["HMCD"])
+                ).Select(col => col["HMCD"].ToString()).ToArray();
+            if (errHMCD.Length > 0)
+            {
+                Clipboard.SetText(string.Join("\n", errHMCD));
+                var msg = $"EM手配中の品番がコード票マスタに「{errHMCD.Length}件」存在しません。\n" +
+                    "このまま処理を続行しますか？\n\n" +
+                    "（はい：下記品番を無視して続行 / いいえ：処理を中断）\n\n" +
+                    "品番：" + string.Join(" , ", errHMCD) + "\n" +
+                    "（対象品番をコピーしました．メモ帳などに貼り付けて下さい）";
+                if (MessageBox.Show(msg, "選択", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                    == DialogResult.No)
+                {
+                    toolStripStatusLabel1.Text = "処理を中断しました.";
+                    return;
+                }
+            }
+
+            // 日付セルでループ
+            toolStripStatusLabel1.Text = "注文データ取込中...";
             foreach (DataGridViewCell c in query) // query ← Dgv_Calendar.SelectedCells)
             {
                 // 背景色が薄青、薄赤を対象に条件分を作成
@@ -686,27 +716,16 @@ namespace MPPPS
                     {
                         DataTable exceptDt = new DataTable();
                         exceptDt = insertDr.CopyToDataTable();
-
-                        // 手配品番がコード票に存在するかチェック
-                        string[] errHMCD = exceptDt.AsEnumerable()
-                            .Where(row =>
-                                !mpCodeMDt.AsEnumerable().Select(col => col["HMCD"]).ToArray()
-                                .Contains(row["HMCD"])
-                            ).Select(col => col["HMCD"].ToString()).ToArray();
-                        if (errHMCD.Length > 0)
-                        {
-                            Clipboard.SetText(string.Join("\n", errHMCD));
-                            var msg = "EM手配がコード票マスタに存在しません。\n" + 
-                                "このまま処理を続行しますか？\n\n" + 
-                                "（はい：エラー以外を取込 / いいえ：処理を中断）\n\n" + 
-                                "品番：" + string.Join(" , ", errHMCD) + "\n" + 
-                                "（対象品番をクリップしました．）";
-                            if (MessageBox.Show(msg, "選択", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                                == DialogResult.No) return;
-                        }
-
                         // MPシステム MySQLに集合差分を挿入
-                        insCount = cmn.Dba.ImportMpOrder(ref exceptDt, ref mpCodeMDt, ref mpNaijiDt, ref mpNaijiTempDt, ref mpCardDt, ref deleteODRNODt, c.Style.BackColor);
+                        insCount = cmn.Dba.ImportMpOrder(
+                            ref exceptDt
+                            , ref mpCodeMDt
+                            , ref mpNaijiDt
+                            , ref mpNaijiTempDt
+                            , ref mpCardDt
+                            , ref deleteODRNODt
+                            , errHMCD
+                            , c.Style.BackColor);
                         if (insCount < 0) return;
                     }
                 }

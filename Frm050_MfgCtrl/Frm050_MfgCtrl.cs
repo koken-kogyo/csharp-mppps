@@ -83,7 +83,7 @@ namespace MPPPS
         {
             // 出力ファイルを設定
             var f = cmn.FsCd[5];
-            string  fileName = f.FileName.Replace("_雛型", ""); // ①.xlsx
+            string  fileName = f.FileName.Replace("_雛形", "").Replace("_雛型", ""); // ①.xlsx
             string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             string filePath1 = Path.Combine(userProfile, "促進.xlsx");
             string filePath2 = Path.Combine(userProfile, fileName);

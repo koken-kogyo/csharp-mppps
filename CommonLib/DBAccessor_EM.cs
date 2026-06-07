@@ -373,6 +373,49 @@ namespace MPPPS
         }
 
         /// <summary>
+        /// 手配期間中の品番一覧を取得
+        /// </summary>
+        /// <param name="emHMCDDt">EM品番一覧</param>
+        /// <returns>EM品番一覧</returns>
+        public bool GetEmOrderHMCD(ref DataTable emHMCDDt, string stdt, string eddt)
+        {
+            bool ret = false;
+            OracleConnection emCnn = null;
+
+            try
+            {
+                cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn);
+
+                string yyMM = DateTime.Now.AddMonths(-6).ToString("yyMM");
+                string sql;
+                sql = "SELECT HMCD "
+                    + "FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_EM].Schema + "." + Common.TABLE_ID_D0410 + " "
+                    + "WHERE "
+                    + $"ODRNO > {yyMM}000000 " // EDDTにインデックスが貼ってないので検索対象をまず絞ってから抽出する
+                    + "and ODCD like '6060%' "
+                    + $"and EDDT between '{stdt}' and '{eddt}' "
+                    + "GROUP BY HMCD "
+                ;
+                using (OracleCommand myCmd = new OracleCommand(sql, emCnn))
+                {
+                    using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
+                    {
+                        myDa.Fill(emHMCDDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch
+            {
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
+            cmn.Dbm.CloseOraSchema(emCnn);
+            return ret;
+        }
+
+        /// <summary>
         /// 内示情報データ取得
         /// </summary>
         /// <param name="planDt">内示情報データ</param>
