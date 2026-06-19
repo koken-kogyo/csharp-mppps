@@ -624,9 +624,6 @@ namespace MPPPS
             Task taskD = Task.Run(() => cmn.Dba.GetMpNaiji(ref mpNaijiDt));
             Task taskE = Task.Run(() => cmn.Dba.GetEmOdCtrl(ref emOdCtrl));
             await Task.WhenAll(taskC, taskD, taskE);
-            // 火曜日の取込時のみ内示実績の付け替えを行いたい
-            bool isNotRed = IsSelectedCellsNotRed();
-            cmn.Dba.CreateMpNaijiTemp(ref mpNaijiTempDt, isNotRed);
             // 選択セルの並び替え
             var query = from DataGridViewCell c in Dgv_Calendar.SelectedCells
                         where c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED || c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING
@@ -659,6 +656,10 @@ namespace MPPPS
                 }
             }
 
+            // 火曜日の初回手配取込かを判定
+            bool isFirstSession = cmn.Dba.CheckFirstImportSession(emOdCtrl, minDate, maxDate);
+            cmn.Dba.CreateMpNaijiTemp(ref mpNaijiTempDt, isFirstSession);
+
             // 日付セルでループ
             toolStripStatusLabel1.Text = "注文データ取込中...";
             foreach (DataGridViewCell c in query) // query ← Dgv_Calendar.SelectedCells)
@@ -677,10 +678,14 @@ namespace MPPPS
                     // 全ての読み込みが完了するまで待機する
                     await Task.WhenAll(taskA, taskB);
 
+                    // 内示カードファイル処理（2行選択されていた場合の翌週の処理）
+                    if (c.ColumnIndex == 1 && mpCardDt.Rows.Count > 0)
+                    {
+                        mpCardReportDt.Merge(mpCardDt);
+                        mpCardDt.Rows.Clear();
+                    }
                     // 内示カードファイル処理（初回取込時のみ取得）
-                    if (c.ColumnIndex == 0 && mpCardDt.Rows.Count > 0) mpCardReportDt.Merge(mpCardDt);
-                    if (c.ColumnIndex == 0) mpCardDt.Rows.Clear(); // 2行に渡って選択された場合の初期化処理
-                    if (mpCardDt.Rows.Count == 0 && c.Style.BackColor == Common.FRM40_BG_COLOR_ORDERED)
+                    if (mpCardDt.Rows.Count == 0 && isFirstSession)
                     {
                         // 今週の月曜日を計算
                         int daysSinceMonday = (int)eddt.DayOfWeek - (int)DayOfWeek.Monday;
@@ -745,7 +750,7 @@ namespace MPPPS
             await Task.Run(() => cmn.Dba.HowManyOrders(ref dtS0820working));
 
             // 手配先管理期間マスタ:M0340の更新
-            if (isNotRed)
+            if (isFirstSession)
                 await Task.Run(() => cmn.Dba.UpdateMpOdCtrl(ref emOdCtrl));
 
             // 取込後、再読み込みして表示
@@ -763,18 +768,6 @@ namespace MPPPS
             toolStripStatusLabel2.Text = insCount.ToString("#,0") + "件の登録 ";
             toolStripStatusLabel2.Text += (delCount > 0) ? delCount.ToString("#,0") + "件を削除 " : "";
             toolStripStatusLabel2.Text += "しました．";
-        }
-
-        // セルの背景色に赤が1つでも含まれていたら falseを返却
-        private bool IsSelectedCellsNotRed()
-        {
-            var selectedCells = Dgv_Calendar.SelectedCells;
-            if (selectedCells.Count == 0) return false; // 選択なしは false
-            foreach (DataGridViewCell c in selectedCells)
-            {
-                if (c.Style.BackColor == Common.FRM40_BG_COLOR_WARNING) return false;
-            }
-            return true;
         }
 
         // 内示カードファイルの使用状況をレポート

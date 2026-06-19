@@ -21,10 +21,6 @@ namespace MPPPS
         /// <returns>結果 (false: 失敗, true: 成功)</returns>
         public bool IsConnectOraSchema(int dbConf, ref OracleConnection oraCnn)
         {
-            Common.s_Logger.Debug("{0} Method started", MethodBase.GetCurrentMethod().Name);
-
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             bool ret;
 
             string user = cmn.DbCd[dbConf].User; // ユーザー
@@ -55,8 +51,7 @@ namespace MPPPS
 
                 // Oracle へのコネクションの確立
                 oraCnn.Open();
-                Trace.WriteLine("Oracle に接続しました。");
-                Trace.WriteLine(oraCnn.ServerVersion);
+                Trace.WriteLine($"Oracle {oraCnn.ServerVersion} [{user}] に接続しました。");
                 ret = true;
             }
             catch (Exception e)
@@ -77,8 +72,6 @@ namespace MPPPS
         /// <param name="oraCnn">Oracle データベースへの接続クラス</param>
         public void CloseOraSchema(OracleConnection oraCnn)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 接続を閉じる
             if (oraCnn != null)
             {

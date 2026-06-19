@@ -71,8 +71,6 @@ namespace MPPPS
 
         public FileAccessor(Common cmn)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 共通クラス
             this.cmn = cmn;
         }
@@ -119,8 +117,6 @@ namespace MPPPS
         /// </summary>
         public void ConnectSaveServer()
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 接続情報を設定  
             NETRESOURCE saveNetResource = new NETRESOURCE
             {
@@ -216,8 +212,6 @@ namespace MPPPS
         /// <returns>データベース設定データ配列</returns>
         public DBConfigData[] ReserializeDBConfigFile()
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 設定ファイル名
             string fileName = @cmn.CnfFilePathDb;
 
@@ -244,8 +238,6 @@ namespace MPPPS
         /// <returns>ファイル システム設定データ配列</returns>
         public FSConfigData[] ReserializeFSConfigFile()
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 設定ファイル名
             string fileName = @cmn.CnfFilePathFs;
 

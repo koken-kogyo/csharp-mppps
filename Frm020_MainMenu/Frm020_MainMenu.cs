@@ -51,8 +51,9 @@ namespace MPPPS
             this.Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
                       + " <" + Common.FRM_ID_020 + ": " + Common.FRM_NAME_020 + ">";
 
-            // 共通クラスを取得
-            form.GetCommonClass(ref cmn);
+            // Frm010_Loginフォームインターフェイス
+            form.GetCommonClass(ref cmn);   // 共通クラスを取得
+            form.CloseWindow();             // Loginフォームを破棄
 
             // サブフォーム
             frm030 = new Frm030_MasterMaint(cmn);

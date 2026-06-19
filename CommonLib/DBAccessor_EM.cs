@@ -22,8 +22,6 @@ namespace MPPPS
         /// <returns>権限あり</returns>
         public bool IsAuthrizedEMUser(bool isPasswdFree, ref string tanNm, ref string atgCd)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             bool ret = false;
             OracleConnection cnn = null;
 
@@ -64,18 +62,17 @@ namespace MPPPS
                 {
                     using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
                     {
-                        Debug.WriteLine("Read from DataSet:");
                         using (DataSet myDs = new DataSet())
                         {
                             // 結果取得
                             myDa.Fill(myDs, "emp");
                             foreach (DataRow dr in myDs.Tables[0].Rows)
                             {
-                                Debug.Write("TANCD = " + dr[0] + ", ");
-                                Debug.Write("TANNM = " + dr[1] + ", ");
-                                Debug.Write("PASSWD = " + dr[2] + ", ");
-                                Debug.Write("ATGCD = " + dr[3]);
-                                Debug.WriteLine("");
+                                //Debug.Write("TANCD = " + dr[0] + ", ");
+                                //Debug.Write("TANNM = " + dr[1] + ", ");
+                                //Debug.Write("PASSWD = " + dr[2] + ", ");
+                                //Debug.Write("ATGCD = " + dr[3]);
+                                //Debug.WriteLine("");
                                 tanNm = dr[1].ToString();
                                 atgCd = dr[3].ToString();
                                 ret = true;

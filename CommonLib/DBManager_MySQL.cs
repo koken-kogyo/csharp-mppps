@@ -25,8 +25,6 @@ namespace MPPPS
 
         public DBManager(Common cmn)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 共通クラス
             this.cmn = cmn;
         }
@@ -38,10 +36,6 @@ namespace MPPPS
         /// <returns>結果 (false: 失敗, true: 成功)</returns>
         public bool IsConnectMySqlSchema(ref MySqlConnection mpCnn)
         {
-            Common.s_Logger.Debug("{0} Method started", MethodBase.GetCurrentMethod().Name);
-
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             bool ret;
 
             try
@@ -63,8 +57,7 @@ namespace MPPPS
                 // MySQL への接続
                 mpCnn = new MySqlConnection(connectionString);
                 mpCnn.Open();	// 接続
-                Trace.WriteLine("MySQL に接続しました。");
-                Trace.WriteLine(mpCnn.ServerVersion);
+                Trace.WriteLine($"MySQL {mpCnn.ServerVersion} [{uid}]に接続しました。");
                 ret = true;
             }
             catch (MySqlException me)
@@ -83,8 +76,6 @@ namespace MPPPS
         /// <param name="mpCnn">MySQL データベースへの接続クラス</param>
         public void CloseMySqlSchema(MySqlConnection mpCnn)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 接続を閉じる
             if (mpCnn != null)
             {

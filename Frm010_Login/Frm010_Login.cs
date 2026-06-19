@@ -128,42 +128,9 @@ namespace MPPPS
             {
                 if (!Chk_MemUserId.Checked) Tbx_UserId.Focus();
                 if (Chk_MemUserId.Checked) Tbx_Passwd.Focus();
-                Btn_OK_Click(sender, e);
+                //Btn_OK_Click(sender, e); // Debug時の自動ログイン
             }));
 
-        }
-
-        /// <summary>
-        /// 進捗率設定
-        /// </summary>
-        /// <param name="cmn">共通クラス</param>
-        private void SetStateOfProgress(Common cmn)
-        {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
-            if (cmn.Progress >= 100)
-            {
-                cmn.Progress = 100;
-            }
-            //this.Tsl2.Text = Convert.ToString(cmn.Progress) + "%";
-            //this.toolStripProgressBar1.Value = cmn.Progress;
-            //this.Tsl3.Text = cmn.Step;
-        }
-
-        ///
-        /// インタフェース クラスのメソッド定義
-        ///
-
-        /// <summary>
-        /// 進捗状況設定スレッド
-        /// </summary>
-        /// <param name="progress">進捗率</param>
-        void Interface.SetStateOfProgressThread(object cmn)
-        {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
-            // 進捗率設定
-            Invoke(new Delegate1(SetStateOfProgress), (Common)cmn);
         }
 
         // [メイン メニュー] フォーム宣言
@@ -176,8 +143,6 @@ namespace MPPPS
         /// <param name="e">イベント引数</param>
         private void Btn_OK_Click(object sender, EventArgs e)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // EM データベース接続テスト
             OracleConnection emCnn = null;
             if (!cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_EM, ref emCnn))
@@ -200,8 +165,6 @@ namespace MPPPS
             OracleConnection kkCnn = null;
             if (!cmn.Dbm.IsConnectOraSchema(Common.DB_CONFIG_KK, ref kkCnn))
             {
-                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
-
                 // 復改文字を文字列 (\\n) から制御コード (\n) に変換
                 string msgBody = cmn.CorrectLineFeed(Common.MSG_BODY_KK_DB_CONN_ERR);
 
@@ -356,9 +319,6 @@ namespace MPPPS
             // 認証 OK
             if ((frm020 == null) || frm020.IsDisposed)
             {
-                // 認証情報保存
-                SaveAuthInfo();
-
                 // [ログイン] フォームを隠す
                 this.Hide();
 
@@ -375,7 +335,7 @@ namespace MPPPS
         /// <param name="e">イベント引数</param>
         private void Btn_Cancel_Click(object sender, EventArgs e)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
+            //Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
 
             // [ログイン] フォームを閉じる
             this.Close();
@@ -388,8 +348,6 @@ namespace MPPPS
         /// <param name="e">イベント引数</param>
         private void Frm010_Login_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 認証情報保存
             SaveAuthInfo();
 
@@ -400,8 +358,6 @@ namespace MPPPS
         /// </summary>
         private void SaveAuthInfo()
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 各コントロールの選択値 (表示値) を App.config に書き込む
             // ・接続情報 (Oracle バージョン)
             // ・接続情報 (スキーマ名)
@@ -421,8 +377,6 @@ namespace MPPPS
         /// </summary>
         private void LoadAuthInfo()
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // App.config から認証情報を読み込み各コントロールに設定 (表示) させる
             // 読み込む情報が (前回画面終了時に選択されていた値)
             // ・接続情報 (Oracle バージョン)
@@ -466,8 +420,7 @@ namespace MPPPS
         /// <param name="cmnIntfc"></param>
         void Interface.GetCommonClass(ref Common cmn)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
+            //Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
             cmn = this.cmn;
         }
 
@@ -476,8 +429,7 @@ namespace MPPPS
         /// </summary>
         void Interface.CloseWindow()
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
+            //Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
             Close();
         }
 
@@ -488,8 +440,6 @@ namespace MPPPS
         /// <param name="e">イベント引数</param>
         private void Chk_MemUserId_CheckedChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 「オン」のとき、App.config に認証情報を書き込む
             if (Chk_MemUserId.Checked)
             {

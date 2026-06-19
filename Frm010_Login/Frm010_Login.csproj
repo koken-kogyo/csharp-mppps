@@ -98,7 +98,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -120,6 +119,10 @@
     <ProjectReference Include="..\Frm020_MainMenu\Frm020_MainMenu.csproj">
       <Project>{228f8892-94c1-4b4d-b56f-4a53be54c192}</Project>
       <Name>Frm020_MainMenu</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Frm052_MfgPlan\Frm052_MfgPlan.csproj">
+      <Project>{78763093-9af8-4271-8a2e-19dafdaf3a0b}</Project>
+      <Name>Frm052_MfgPlan</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

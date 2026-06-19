@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -27,8 +28,6 @@ namespace MPPPS
 
         public DBAccessor(Common cmn)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             // 共通クラス
             this.cmn = cmn;
         }
@@ -41,8 +40,6 @@ namespace MPPPS
         /// <returns>権限あり</returns>
         public bool IsAuthrizedMPPPUser(ref string active, ref string authLv)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             bool ret = false;
             MySqlConnection cnn = null;
 
@@ -65,17 +62,16 @@ namespace MPPPS
                 {
                     using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
                     {
-                        Debug.WriteLine("Read from DataSet:");
                         using (DataSet myDs = new DataSet())
                         {
                             // 結果取得
                             myDa.Fill(myDs, "emp");
                             foreach (DataRow dr in myDs.Tables[0].Rows)
                             {
-                                Debug.Write("USERID = " + dr[0] + ", ");
-                                Debug.Write("ACTIVE = " + dr[1] + ", ");
-                                Debug.Write("AUTHLV = " + dr[2]);
-                                Debug.WriteLine("");
+                                //Debug.Write("USERID = " + dr[0] + ", ");
+                                //Debug.Write("ACTIVE = " + dr[1] + ", ");
+                                //Debug.Write("AUTHLV = " + dr[2]);
+                                //Debug.WriteLine("");
                                 active = dr[1].ToString();
                                 authLv = dr[2].ToString();
                                 ret = true;
@@ -442,6 +438,41 @@ namespace MPPPS
             // 接続を閉じる
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
+        }
+
+        /// <summary>
+        /// 火曜日の初回手配取込なのかを判定
+        /// 　①今回確定オーダー作成日とPC日付が同一
+        /// 　②選択した日付範囲のKD8430:切削手配ファイル件数が50件以下
+        /// </summary>
+        /// <param name="emOdCtrl">M0340:手配先管理期間マスタ</param>
+        /// <param name="minDate">最小選択日付</param>
+        /// <param name="maxDate">最大選択日付</param>
+        /// <returns></returns>
+        public bool CheckFirstImportSession(DataTable emOdCtrl, DateTime minDate, DateTime maxDate)
+        {
+            // 処理日確認
+            DateTime 今回確定オーダー作成日 = (DateTime)emOdCtrl.Rows[0]["KKTODDT"];
+            if (今回確定オーダー作成日 != DateTime.Now.Date) return false;
+
+            // 手配数確認
+            MySqlConnection mpCnn = null;
+            try
+            {
+                // MPデータベースへ接続
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+                int count;
+                string sql = "select count(*) from "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                    + $"where ODCD like '6060%' and EDDT between '{minDate}' and '{maxDate}'";
+                using (MySqlCommand cmd = new MySqlCommand(sql, mpCnn))
+                {
+                    count = int.Parse(cmd.ExecuteScalar().ToString());// ExecuteScalar():１件のみ取得
+                }
+                cmn.Dbm.CloseMySqlSchema(mpCnn);
+                if (count < 50) return true; else return false;
+            }
+            catch { throw; }
         }
 
         /// <summary>
@@ -2311,8 +2342,6 @@ namespace MPPPS
         /// <returns>可否</returns>
         public bool GetEquipMstDt(ref DataTable equipMstDt)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             bool ret;
             MySqlConnection mpCnn = null;
 
@@ -2329,7 +2358,6 @@ namespace MPPPS
                 {
                     using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
                     {
-                        Debug.WriteLine("Read from DataTable:");
                         // 結果取得
                         myDa.Fill(equipMstDt);
                         ret = true;
@@ -2563,8 +2591,6 @@ namespace MPPPS
         /// <returns>注文情報データ</returns>
         public bool GetCodeSlipMst(ref DataTable codeSlipDt)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             bool ret;
             MySqlConnection mpCnn = null;
 
@@ -2581,7 +2607,6 @@ namespace MPPPS
                 {
                     using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
                     {
-                        Debug.WriteLine("Read from DataTable:");
                         // 結果取得
                         myDa.Fill(codeSlipDt);
                         ret = true;
@@ -2610,10 +2635,8 @@ namespace MPPPS
         /// <returns>注文情報データ</returns>
         public bool UpdateCodeSlipMst(ref DataTable dgvDt)
         {
-
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             bool ret;
+            List<string> debughmcds = new List<string>();
             MySqlConnection mpCnn = null;
 
             try
@@ -2634,7 +2657,6 @@ namespace MPPPS
                     adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
                     using (var buider = new MySqlCommandBuilder(adapter))
                     {
-                        Debug.WriteLine("Read from DataTable:");
                         adapter.Fill(dtUpdate);
 
                         // 変更または削除があるかチェック
@@ -2644,6 +2666,7 @@ namespace MPPPS
                             // 削除
                             if (dgv.Length == 0)
                             {
+                                debughmcds.Add(r["HMCD"].ToString());
                                 r.Delete();
                                 countDelete++;
                             }
@@ -2661,7 +2684,10 @@ namespace MPPPS
                                 }
                                 //dtUpdate.Rows[0]["UPDTDT"] = DateTime.Now.ToString();
                                 if (r.RowState == DataRowState.Modified)
+                                {
+                                    debughmcds.Add(r["HMCD"].ToString());
                                     countUpdate++;
+                                }
                             }
                             else
                             {
@@ -2681,6 +2707,7 @@ namespace MPPPS
                             {
                                 r["INSTID"] = cmn.Ui.UserId;
                                 dtUpdate.ImportRow(r);
+                                debughmcds.Add(r["HMCD"].ToString());
                                 countInsert++;
                             }
                         }
@@ -2709,6 +2736,8 @@ namespace MPPPS
                 // エラー
                 string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
                 if (AssemblyState.IsDebug) Debug.WriteLine(msg);
+
+                Common.s_Logger.Error(ex + "\n   品番 " + string.Join(",", debughmcds), "例外が発生しました");
 
                 Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
                 cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);

@@ -157,12 +157,12 @@ namespace MPPPS
         // #044 内示取込
         public static readonly Color FRM40_BG_COLOR_CONTROL = SystemColors.Control;
         public static readonly Color FRM40_BG_COLOR_WORKING = Color.White;
-        public static readonly Color FRM40_BG_COLOR_HOLIDAY = Color.LightPink;
+        public static readonly Color FRM40_BG_COLOR_HOLIDAY = Color.LightPink;      // 日曜日（赤ピンク）
         public static readonly Color FRM40_BG_COLOR_SATURDAY = Color.LightBlue;
-        public static readonly Color FRM40_BG_COLOR_ORDERED = Color.MistyRose;      // EMあり、未取込
-        public static readonly Color FRM40_BG_COLOR_IMPORTED = Color.LightCyan;     // MP取込済
-        public static readonly Color FRM40_BG_COLOR_WARNING = Color.LightCoral;     // MPとEMで差異あり
-        public static readonly Color FRM40_BG_COLOR_PRINTED = Color.LightGreen;     // MP印刷済
+        public static readonly Color FRM40_BG_COLOR_ORDERED = Color.MistyRose;      // EMあり、未取込（薄ピンク）
+        public static readonly Color FRM40_BG_COLOR_IMPORTED = Color.LightCyan;     // MP取込済（薄ブルー）
+        public static readonly Color FRM40_BG_COLOR_WARNING = Color.LightCoral;     // MPとEMで差異あり（赤）
+        public static readonly Color FRM40_BG_COLOR_PRINTED = Color.LightGreen;     // MP印刷済（グリーン）
         public static readonly Color FRM40_BG_COLOR_PLANED = Color.LightGreen;      // MP内示取込済
         public static readonly Color FRM40_BG_COLOR_OTHERMONTH = Color.WhiteSmoke;
         public static readonly Color FRM40_COLOR_BLACK = Color.Black;
