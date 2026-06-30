@@ -1,9 +1,7 @@
-﻿using Microsoft.Office.Interop.Excel;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -67,8 +65,11 @@ namespace MPPPS
                         + "v.HMCD = a.HMCD and v.MCGCD = a.MCGCD "
                     + "WHERE "
                     + "a.MCGCD = 'XT' and a.MCCD = 'XT2' and a.ODRSTS <> '9' "
-                    + $"and EDDT between '2026/6/1' and '2026/6/30'"
+                    + $"and EDDT between '2026/6/29' and '2026/7/31'"
                 ;
+                // 6/29〜7/31 の日付列を自動生成
+                DateTime start = new DateTime(2026, 6, 29);
+                DateTime end = new DateTime(2026, 7, 31);
                 using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
                 {
                     using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))

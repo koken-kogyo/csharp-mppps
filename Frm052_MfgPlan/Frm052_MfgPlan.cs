@@ -215,9 +215,9 @@ namespace MPPPS
                 dgv.Columns[i].DefaultCellStyle.BackColor = Color.Azure; // 薄ブルー
             }
 
-            // 6/1〜6/30 の日付列を自動生成
-            DateTime start = new DateTime(2026, 6, 1);
-            DateTime end = new DateTime(2026, 6, 30);
+            // 6/29〜7/31 の日付列を自動生成
+            DateTime start = new DateTime(2026, 6, 29);
+            DateTime end = new DateTime(2026, 7, 31);
 
             for (DateTime d = start; d <= end; d = d.AddDays(1))
             {
@@ -310,9 +310,9 @@ namespace MPPPS
                 row.Cells["製品長さ"].Value = hinban.製品長さ;
                 row.Cells["工程数"].Value = hinban.工程数;
 
-                // 4. 6/1〜6/30 の日付列にデータをセット
-                DateTime start = new DateTime(2026, 6, 1);
-                DateTime end = new DateTime(2026, 6, 30);
+                // 4. 6/29〜7/31 の日付列にデータをセット
+                DateTime start = new DateTime(2026, 6, 29);
+                DateTime end = new DateTime(2026, 7, 31);
 
                 for (DateTime d = start; d <= end; d = d.AddDays(1))
                 {
