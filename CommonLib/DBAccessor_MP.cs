@@ -470,7 +470,8 @@ namespace MPPPS
                     count = int.Parse(cmd.ExecuteScalar().ToString());// ExecuteScalar():１件のみ取得
                 }
                 cmn.Dbm.CloseMySqlSchema(mpCnn);
-                if (count < 50) return true; else return false;
+                double c = (maxDate - minDate).TotalDays + 1;
+                if (count < 10 * c) return true; else return false;
             }
             catch { throw; }
         }
@@ -1612,7 +1613,7 @@ namespace MPPPS
                 // 並び替え順のパターンごとにデータテーブルを取得
                 string sql = GetOrderCardPrintInfoSQL(ref eddtFrom, ref eddtTo);
 
-                // 1.品番番で印刷するパターン（SW）
+                // 1.品番＋納期順で印刷するパターン（SW）
                 string sqlSW = sql +
                     "and b.KT1MCGCD = 'SW' " +
                     "order by a.HMCD, a.EDDT"
@@ -1631,7 +1632,7 @@ namespace MPPPS
                     }
                 }
 
-                // 2.納期の昇順で印刷するパターン（CN）
+                // 2.納期＋品番順で印刷するパターン（CN）
                 string sqlCN = sql + 
                     "and b.KT1MCGCD = 'CN' " + 
                     "order by a.EDDT, a.HMCD"
@@ -1650,9 +1651,28 @@ namespace MPPPS
                     }
                 }
 
-                // 3.設備番号順で印刷するパターン
+                // 3.設備G＋設備番号＋品番＋納期順で印刷するパターン (MS)
+                string sqlMS = sql +
+                    "and b.KT1MCGCD = 'MS' " +
+                    "order by b.KT1MCGCD, b.KT1MCCD, a.HMCD, a.EDDT"
+                ;
+                using (DataTable patternMS = new DataTable())
+                {
+                    using (MySqlCommand myCmd = new MySqlCommand(sqlMS, mpCnn))
+                    {
+                        using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                        {
+                            Debug.WriteLine("Read from DataTable:");
+                            // 結果取得
+                            myDa.Fill(patternMS);
+                            mpDt.Merge(patternMS);
+                        }
+                    }
+                }
+
+                // 4.設備G＋品番＋納期順で印刷するパターン
                 string sqlOT = sql +
-                    "and b.KT1MCGCD<>'SW' and b.KT1MCGCD <> 'CN' " +
+                    "and b.KT1MCGCD<>'SW' and b.KT1MCGCD <> 'CN' and b.KT1MCGCD <> 'MS' " +
                     "order by b.KT1MCGCD, a.HMCD, a.EDDT"
                 ;
                 using (DataTable patternOT = new DataTable())

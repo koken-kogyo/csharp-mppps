@@ -404,17 +404,53 @@ namespace MPPPS
         // データベース反映
         private void BtnUpdateDatabase_Click(object sender, EventArgs e)
         {
+            List<string> debughmcds = new List<string>();
             int insertCount = 0;
             int modifyCount = 0;
             foreach (DataRow r in codeSlipDt.Rows)
             {
-                if (r.RowState == DataRowState.Added) insertCount++;
-                if (r.RowState == DataRowState.Modified) modifyCount++;
+                if (r.RowState == DataRowState.Added || r.RowState == DataRowState.Modified)
+                {
+                    int ktsu = 0;
+                    string ktkey = "";
+                    for (int j = 1; j <= 6; j++)
+                    {
+                        string mcgcd = r[$"KT{j}MCGCD"].ToString();
+                        string mccd = r[$"KT{j}MCCD"].ToString();
+                        if (j == 1 && (mcgcd == "" || mcgcd == ""))
+                        {
+                            MessageBox.Show("設備コードは必ず入力してください．", "調査のお願い", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            Dgv_CodeSlipMst.Focus();
+                            return;
+                        }
+                        if (mcgcd == "" && mccd == "") break;
+                        if (equipMstDt.Select($"MCGCD='{mcgcd}' and MCCD='{mccd}'").Length == 0)
+                        {
+                            MessageBox.Show($"[{mcgcd}-{mccd}] は設備マスタに存在しません．", "再入力のお願い", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            Dgv_CodeSlipMst.Focus();
+                            return;
+                        }
+                        ktkey += mcgcd;
+                        ktkey += "-";
+                        ktkey += mccd;
+                        ktkey += ":";
+                        ktsu++;
+                    }
+                    r["KTSU"] = ktsu;
+                    r["KTKEY"] = ktkey;
+
+                    debughmcds.Add(r["HMCD"].ToString() + ((r.RowState == DataRowState.Added) ? "登録" : "更新"));
+
+                    if (r.RowState == DataRowState.Added) insertCount++;
+                    if (r.RowState == DataRowState.Modified) modifyCount++;
+                }
             }
             // 一括更新
             if (insertCount + modifyCount > 0)
             {
-                if(!cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt)) return;
+                Common.s_Logger.Info("コード票マスタ [" + string.Join(",", debughmcds) + "]");
+
+                if (!cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt)) return;
                 codeSlipDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
                 toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
                 toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
@@ -437,6 +473,7 @@ namespace MPPPS
         // 削除
         private void Btn_HMCDDelete_Click(object sender, EventArgs e)
         {
+            List<string> debughmcds = new List<string>();
             if (Dgv_CodeSlipMst.SelectedRows.Count == 0)
             {
                 MessageBox.Show("削除する行を選択してください．");
@@ -450,6 +487,7 @@ namespace MPPPS
             {
                 string hmcd = r.Cells[0].Value.ToString();
                 codeSlipDt.Select($"HMCD='{hmcd}'")[0].Delete();
+                debughmcds.Add(hmcd + "削除");
                 deleteCount++;
             }
             // 一括更新
@@ -458,6 +496,7 @@ namespace MPPPS
                 codeSlipDt.AcceptChanges();
                 cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
                 toolStripStatusLabel1.Text = $"{deleteCount}件 を削除しました.";
+                Common.s_Logger.Info("コード票マスタ [" + string.Join(",", debughmcds) + "]");
             }
         }
 
@@ -542,9 +581,17 @@ namespace MPPPS
                         int col = 39; // [工程１設備グループ]の列番号 A5M2のカラムタブ№40-1
                         while (ktsu <= 6)
                         {
-                            ktkey += r.Cells[col].Value.ToString();
+                            string mcgcd = r.Cells[col].Value.ToString();
+                            string mccd= r.Cells[col + 1].Value.ToString();
+                            if (equipMstDt.Select($"MCGCD='{mcgcd}' and MCCD='{mccd}'").Length == 0)
+                            {
+                                MessageBox.Show($"[{mcgcd}-{mccd}] は設備マスタに存在しません．"
+                                    , "再入力のお願い", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                return;
+                            }
+                            ktkey += mcgcd;
                             ktkey += "-";
-                            ktkey += r.Cells[col + 1].Value.ToString();
+                            ktkey += mccd;
                             ktkey += ":";
                             if (r.Cells[col + 5].Value.ToString() == "") break;
                             col += 5;
@@ -917,7 +964,10 @@ namespace MPPPS
         private void Frm034_CodeSlipMstMaint_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.F5) BtnRefreshDataGridView_Click(sender, e);
-            if (e.KeyCode == Keys.F9) BtnUpdateDatabase_Click(sender, e);
+            if (e.KeyCode == Keys.F9) {
+                btnUpdateDatabase.Focus();
+                BtnUpdateDatabase_Click(sender, e); 
+            }
             if (e.KeyCode == Keys.F10) Btn_ExportExcel_Click(sender, e);
             if (e.KeyCode == Keys.Escape) Close();
         }
