@@ -93,6 +93,7 @@ namespace MPPPS
         public static readonly string FRM_ID_050 = "#050";  // 製造管理
         public static readonly string FRM_ID_051 = "#051";  // 加工進捗状況（進度盤）
         public static readonly string FRM_ID_052 = "#052";  // 製造部計画表
+        public static readonly string FRM_ID_053 = "#053";  // おかむー
         public static readonly string FRM_ID_070 = "#070";  // 実績管理
         public static readonly string FRM_ID_071 = "#071";  // 切削ストア受入実績処理
         public static readonly string FRM_ID_072 = "#072";  // 切削ストア受入実績情報表示
@@ -123,6 +124,7 @@ namespace MPPPS
         public static readonly string FRM_NAME_050 = "製造管理";
         public static readonly string FRM_NAME_051 = "加工進捗状況（進度盤）";
         public static readonly string FRM_NAME_052 = "製造部計画表";
+        public static readonly string FRM_NAME_053 = "おかむー";
         public static readonly string FRM_NAME_070 = "実績管理";
         public static readonly string FRM_NAME_071 = "切削ストア受入実績処理";
         public static readonly string FRM_NAME_072 = "切削ストア受入実績情報表示";

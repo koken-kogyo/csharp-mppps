@@ -6,13 +6,16 @@ CREATE OR REPLACE VIEW V_BOM_LEAF_PARENT AS
     /*  使用方法: SELECT * FROM V_BOM_LEAF_PARENT WHERE KOHMCD = '129486-59140B'                        **/
     /*  その他  : 親部品から子部品を抽出する場合は V_BOM_LEAF_CHILD を使用                              **/
     /*  作成者  : コーケン工業 渡辺 2026.05.01                                                          **/
+    /*  変更履歴: コーケン工業 渡辺 2026.07.05 「原単位」「経路」を追加                                 **/
     /*****************************************************************************************************/
 
-WITH VREC (OYAHMCD, KOHMCD) AS (
+WITH VREC (OYAHMCD, KOHMCD, 原単位, 経路) AS (
     -- 初期行：全品番を対象
     SELECT 
         OYAHMCD,
-        KOHMCD
+        KOHMCD,
+        KOQTY/OYAQTY,
+        KOHMCD || ' -> '|| OYAHMCD
     FROM
         M0520
 
@@ -21,18 +24,24 @@ WITH VREC (OYAHMCD, KOHMCD) AS (
     -- 再帰で親を辿る
     SELECT
         M52.OYAHMCD,
-        VREC.KOHMCD
+        VREC.KOHMCD,
+        (VREC.原単位 * (KOQTY/OYAQTY)),
+        VREC.経路 || ' -> ' || M52.OYAHMCD
     FROM
         VREC
         INNER JOIN M0520 M52 ON M52.KOHMCD = VREC.OYAHMCD
 )
 SELECT DISTINCT
     OYAHMCD,
-    KOHMCD
+    KOHMCD,
+    原単位,
+    経路
 FROM (
     SELECT
         OYAHMCD,
         KOHMCD,
+        原単位,
+        経路,
         CASE WHEN EXISTS (
             SELECT 1 FROM VREC LEAF WHERE LEAF.KOHMCD = VREC.OYAHMCD
         )

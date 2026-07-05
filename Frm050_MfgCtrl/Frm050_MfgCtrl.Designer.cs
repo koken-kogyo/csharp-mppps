@@ -35,7 +35,7 @@ namespace MPPPS
             this.Btn_MfgProgress = new System.Windows.Forms.Button();
             this.Btn_Close = new System.Windows.Forms.Button();
             this.btn_PickupTehai = new System.Windows.Forms.Button();
-            this.btn_PickupNaiji = new System.Windows.Forms.Button();
+            this.btn_MfgPrediction = new System.Windows.Forms.Button();
             this.btn_PlanProduct = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -77,17 +77,16 @@ namespace MPPPS
             this.btn_PickupTehai.UseVisualStyleBackColor = true;
             this.btn_PickupTehai.Click += new System.EventHandler(this.btn_PickupTehai_Click);
             // 
-            // btn_PickupNaiji
+            // btn_MfgPrediction
             // 
-            this.btn_PickupNaiji.Enabled = false;
-            this.btn_PickupNaiji.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.btn_PickupNaiji.Location = new System.Drawing.Point(12, 144);
-            this.btn_PickupNaiji.Name = "btn_PickupNaiji";
-            this.btn_PickupNaiji.Size = new System.Drawing.Size(300, 38);
-            this.btn_PickupNaiji.TabIndex = 3;
-            this.btn_PickupNaiji.Text = "工程別内示表データ作成";
-            this.btn_PickupNaiji.UseVisualStyleBackColor = true;
-            this.btn_PickupNaiji.Click += new System.EventHandler(this.btn_PickupNaiji_Click);
+            this.btn_MfgPrediction.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.btn_MfgPrediction.Location = new System.Drawing.Point(12, 144);
+            this.btn_MfgPrediction.Name = "btn_MfgPrediction";
+            this.btn_MfgPrediction.Size = new System.Drawing.Size(300, 38);
+            this.btn_MfgPrediction.TabIndex = 3;
+            this.btn_MfgPrediction.Text = "おかむー";
+            this.btn_MfgPrediction.UseVisualStyleBackColor = true;
+            this.btn_MfgPrediction.Click += new System.EventHandler(this.btn_MfgPrediction_Click);
             // 
             // btn_PlanProduct
             // 
@@ -96,7 +95,7 @@ namespace MPPPS
             this.btn_PlanProduct.Name = "btn_PlanProduct";
             this.btn_PlanProduct.Size = new System.Drawing.Size(300, 38);
             this.btn_PlanProduct.TabIndex = 1;
-            this.btn_PlanProduct.Text = "製造部計画表";
+            this.btn_PlanProduct.Text = "内示計画表 (XT工程7月分)";
             this.btn_PlanProduct.UseVisualStyleBackColor = true;
             this.btn_PlanProduct.Click += new System.EventHandler(this.Btn_PlanProduction_Click);
             // 
@@ -123,7 +122,7 @@ namespace MPPPS
             this.ClientSize = new System.Drawing.Size(321, 262);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btn_PlanProduct);
-            this.Controls.Add(this.btn_PickupNaiji);
+            this.Controls.Add(this.btn_MfgPrediction);
             this.Controls.Add(this.btn_PickupTehai);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_MfgProgress);
@@ -150,7 +149,7 @@ namespace MPPPS
         private Button Btn_MfgProgress;
         private Button Btn_Close;
         private Button btn_PickupTehai;
-        private Button btn_PickupNaiji;
+        private Button btn_MfgPrediction;
         private Button btn_PlanProduct;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel toolStripStatusLabel1;

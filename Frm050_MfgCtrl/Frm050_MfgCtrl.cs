@@ -48,7 +48,16 @@ namespace MPPPS
         private void Btn_PlanProduction_Click(object sender, EventArgs e)
         {
             Frm052_MfgPlan frm052 = new Frm052_MfgPlan(cmn);
+            this.Hide();
             frm052.Show();
+        }
+
+        // おかかむー
+        private void btn_MfgPrediction_Click(object sender, EventArgs e)
+        {
+            Frm053_MfgPrediction frm053 = new Frm053_MfgPrediction(cmn);
+            this.Hide();
+            frm053.Show();
         }
 
         // 閉じる
@@ -223,12 +232,6 @@ namespace MPPPS
                 //topmost.Show();
                 return MessageBox.Show(topmost, text, caption, buttons, icon);
             }
-        }
-
-
-
-        private async void btn_PickupNaiji_Click(object sender, EventArgs e)
-        {
         }
 
     }
