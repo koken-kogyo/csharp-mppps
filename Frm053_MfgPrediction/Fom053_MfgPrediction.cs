@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -56,6 +53,18 @@ namespace MPPPS
                 .ToList();
             cmb_MCGCD.Items.AddRange(mcgcds.ToArray());
             cmb_MCGCD.Text = "MS";  // デフォルト値を設定＆イベントを発生させる
+
+            // DataGridView のフォントを全部 MS ゴシック 10pt にする
+            dataGridView1.Font = new Font("MS Gothic", 10);
+            dataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("MS Gothic", 9);
+            dataGridView1.RowHeadersDefaultCellStyle.Font = new Font("MS Gothic", 10);
+            // DataGridViewの明細を2行毎に背景色設定
+            dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightYellow;
+            //DataGridViewの画面ちらつきをおさえるため、DoubleBufferedを有効にする
+            System.Type dgvtype = typeof(DataGridView);
+            System.Reflection.PropertyInfo dgvPropertyInfo = dgvtype.GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            dgvPropertyInfo.SetValue(dataGridView1, true, null);
+
         }
 
 
@@ -90,12 +99,17 @@ namespace MPPPS
         }
 
         // ショートカットキー
-        private void Frm052_FormsPrinting_KeyDown(object sender, KeyEventArgs e)
+        private void Frm053_MfgPrediction_KeyDown(object sender, KeyEventArgs e)
         {
             // 「閉じる」
             if (e.KeyCode == Keys.Escape)
             {
                 Close();
+            }
+            // 「検索」
+            else if (e.KeyCode == Keys.F5)
+            {
+                BtnSearch_Click(sender, e);
             }
         }
 
@@ -116,119 +130,155 @@ namespace MPPPS
         // Excelにエクスポート
         private void ButtonExcelExport_Click(object sender, EventArgs e)
         {
-
+            MessageBox.Show("現在実装中です．しばらくお待ちください。", "手動でExcelにコピペして！Ctrl+A > C > V", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
 
 
-        // 注文詳細情報、品番詳細情報
-        private void RefreshPlanInformation()
+        private DateTime? SafeGetDate(object v)
         {
-            var dgv = dataGridView1;
-            if (dgv.CurrentCell == null) return;
+            if (v == DBNull.Value) return null;
 
-            int row = dgv.CurrentCell.RowIndex;
-            int col = dgv.CurrentCell.ColumnIndex;
+            if (v is DateTime dt) return dt;
 
-            if (dgv.CurrentCell.Value == null) return;
+            if (v is string s && DateTime.TryParse(s, out var dt2))
+                return dt2;
 
-            try
+            return null;
+        }
+
+        private async void BtnSearch_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("データの取得には数十秒かかりますがよろしいですか？", "確認"
+                , MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
             {
-                string hmcd = dgv[0, row].Value.ToString();
-                string hmnm = dgv[1, row].Value.ToString();
-
+                return;
             }
-            catch (Exception ex)
+
+            this.UseWaitCursor = true;   // ★ フォーム全体を処理中カーソルにする
+            btnSearch.Enabled = false;   // ★ 誤操作防止（任意）
+
+            bool ret = false;
+            string mcgcd = cmb_MCGCD.Text;
+            string mccd = cmb_MCCD.Text;
+            string hmcdList = cmn.Dba.GetHMCDListFromMySQL(mcgcd, mccd);
+            DataTable src = new DataTable(); // Oracleから取得した縦持ちデータ
+            await Task.Run(() => ret = cmn.Dba.おかむーリストデータ取得(src, hmcdList));
+
+            this.UseWaitCursor = false;  // ★ カーソルを戻す
+            btnSearch.Enabled = true;
+            if (ret == false) return;
+
+            // ピボット用の結果テーブル
+            DataTable pivot = new DataTable();
+            pivot.Columns.Add("切削品番");
+            pivot.Columns.Add("区分");
+
+            // 月一覧を動的に抽出（DBNull・文字列混在でも絶対に落ちない）
+            var months = src.AsEnumerable()
+                .Select(r =>
+                {
+                    var v = r["集計月"];
+
+                    // DBNull → null
+                    if (v == DBNull.Value) return (DateTime?)null;
+
+                    // 文字列の場合（Oracleからの縦持ちでよくある）
+                    if (v is string s)
+                    {
+                        if (DateTime.TryParse(s, out var dt))
+                            return (DateTime?)dt;
+                        return null; // パース不可 → 無視
+                    }
+
+                    // DateTime の場合
+                    if (v is DateTime dt2)
+                        return (DateTime?)dt2;
+
+                    return null;
+                })
+                .Where(dt => dt.HasValue)
+                .Select(dt => dt.Value)
+                .Distinct()
+                .OrderBy(d => d);
+
+            foreach (var m in months)
             {
+                pivot.Columns.Add(m.ToString("yyyy-MM"), typeof(decimal));
+            }
+
+            // ピボット化
+            // 「切削品番 × 区分」で行を作る
+            var kohmcdList = src.AsEnumerable()
+                .Select(r => new
+                {
+                    品番 = r.Field<string>("切削品番"),
+                    区分 = r.Field<string>("区分")   // ★ Oracle側の列名に合わせて
+                })
+                .Distinct()
+                .OrderBy(x => x.品番)
+                .ThenBy(x => x.区分 == "内示" ? 0 : 1);
+            string prev品番 = null;
+            foreach (var item in kohmcdList)
+            {
+                DataRow row = pivot.NewRow();
+                if (item.品番 != prev品番)
+                    row["切削品番"] = item.品番;
+                else
+                    row["切削品番"] = ""; // ★ 品番が前行と同じなら空白にする
+                row["区分"] = item.区分;
+                foreach (var m in months)
+                {
+                    var qty = src.AsEnumerable()
+                       .Where(r =>
+                           r.Field<string>("切削品番") == item.品番 &&
+                           r.Field<string>("区分") == item.区分 &&
+                           SafeGetDate(r["集計月"]) == m &&
+                           !r.IsNull("注文数")
+                       )
+                       .Select(r => r.Field<decimal>("注文数"))
+                       .FirstOrDefault();
+                    if (qty != 0) row[m.ToString("yyyy-MM")] =  qty;
+                }
+                pivot.Rows.Add(row);
+                prev品番 = item.品番;
+            }
+
+            // DataGridView に表示
+            dataGridView1.DataSource = pivot;
+
+            // 列幅調整
+            dataGridView1.Columns["切削品番"].Width = 130;   // 先頭列は広め
+            dataGridView1.Columns["区分"].Width = 40;
+
+            foreach (DataGridViewColumn col in dataGridView1.Columns)
+            {
+                if (col.Name != "切削品番" && col.Name != "区分")
+                {
+                    col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    col.Width = 50;   // 月列は狭く
+                }
             }
         }
 
-        /*
-①MySQLから検索対象のLike内容を取得
-SELECT
-    CONCAT('(', GROUP_CONCAT(CONCAT('''', hmcd, '''') SEPARATOR ','), ')') AS HMCDLIST,
-    COUNT(*) AS 件数
-FROM km8430
-WHERE ktkey LIKE '%MS-3%';
+        private void btnHMCDPaste_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("現在実装中です．しばらくお待ちください。", "ごめん！", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
 
-②OracleViewから検索対象のLike内容を取得
-with vbom as
-(
-    select * from V_BOM_LEAF_PARENT where KOHMCD in 
-    ('146623-59191','146623-59200','146676-59170','172480-13731','198137-28571','1A7340-48201','1A7750-48581','1A7815-49290','32791-58271-2','3B441-18152-3','3B791-67531','3C134-69311-2','3C581-67532','3C651-62271-2','3C651-62272-2','3F243-82991-2','3U503-04222-2','4198413','44564-75511-2B','4627795','5T150-27791-1','933131-60100','K7561-33421-2','RA021-94241-1','RD819-64021-3','RP471-68651-1','TD170-33411-3','TD170-33425-3','TD270-33421-3','V0511-51781-1','V1311-65031-6') -- MS-3
-)
-select v.KOHMCD 切削品番
-    , '内示' 区分
-    , case when min(HMCD) is null then 'なし' else LISTAGG(distinct v.OYAHMCD, ',') WITHIN GROUP (ORDER BY v.OYAHMCD) end as 注文品番
-    , trunc(JUDT, 'MM') 集計月
-    , sum(JUQTY*原単位) 注文数
-from vbom v
-    left outer join D0030 on HMCD=v.OYAHMCD and JUDT between ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), -12) and  ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 24) - 1
-group by v.KOHMCD, trunc(JUDT, 'MM')
-union all
-select v.KOHMCD 切削品番
-    , '手配' 区分
-    , case when min(HMCD) is null then 'なし' else LISTAGG(distinct v.OYAHMCD, ',') WITHIN GROUP (ORDER BY v.OYAHMCD) end as 注文品番
-    , trunc(JUDT, 'MM') 集計月
-    , sum(JUQTY*原単位) 注文数
-from vbom v
-    left outer join D0010 on HMCD=v.OYAHMCD and JUDT between ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), -12) and  ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 24) - 1 and ODRSTS<>'4' -- 4:中止
-group by v.KOHMCD, trunc(JUDT, 'MM')
-order by 切削品番
+        private void btnFilterClear_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("現在実装中です．しばらくお待ちください。", "ごめん！", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
 
-③C#でPivot化
-DataTable src = oracleResult; // Oracleから取得した縦持ちデータ
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            MessageBox.Show("現在実装中です．しばらくお待ちください。", "ごめん！", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
 
-// ピボット用の結果テーブル
-DataTable pivot = new DataTable();
-pivot.Columns.Add("KOHMCD");
-
-// 月一覧を動的に抽出
-var months = src.AsEnumerable()
-    .Select(r => r.Field<DateTime>("集計月"))
-    .Distinct()
-    .OrderBy(d => d);
-
-foreach (var m in months)
-{
-    pivot.Columns.Add(m.ToString("yyyy-MM"), typeof(decimal));
-}
-
-// ピボット化
-var kohmcdList = src.AsEnumerable()
-    .Select(r => r.Field<string>("KOHMCD"))
-    .Distinct();
-
-foreach (var code in kohmcdList)
-{
-    DataRow row = pivot.NewRow();
-    row["KOHMCD"] = code;
-
-    foreach (var m in months)
-    {
-        var qty = src.AsEnumerable()
-            .Where(r => r.Field<string>("KOHMCD") == code &&
-                        r.Field<DateTime>("集計月") == m)
-            .Select(r => r.Field<decimal>("月合計"))
-            .FirstOrDefault();
-
-        row[m.ToString("yyyy-MM")] = qty;
-    }
-
-    pivot.Rows.Add(row);
-}
-
-// DataGridView に表示
-dataGridView1.DataSource = pivot;
-
-
-
-
-
-
-
-
-        */
-
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            MessageBox.Show("現在実装中です．しばらくお待ちください。", "ごめん！", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
     }
 }
