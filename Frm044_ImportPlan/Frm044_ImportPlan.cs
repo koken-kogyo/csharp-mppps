@@ -538,12 +538,13 @@ namespace MPPPS
             if (!cmn.Dba.IsD0440Today())
             {
                 Debug.WriteLine(Common.MSG_SCHEDULE_NOT_FIXED);
-                MessageBox.Show(Common.MSG_SCHEDULE_NOT_FIXED + "\n\n" + "生産管理に確認してください。", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                if (MessageBox.Show(Common.MSG_SCHEDULE_NOT_FIXED + "\n\n" +
+                    "生産管理に確認してください。" +
+                    "強制的に処理を実行しますか？", "警告", MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning) == DialogResult.No) return;
             }
-
-            if (MessageBox.Show("切削システム内の内示データを再作成します\n" + 
-                "よろしいですか？", "内示データ再作成", MessageBoxButtons.YesNo, 
+            else if (MessageBox.Show("切削システム内の内示データを再作成します\n" +
+                "よろしいですか？", "内示データ再作成", MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question) == DialogResult.No) return;
 
             toolStripStatusLabel1.Text = "内示データ取込中...";
