@@ -479,7 +479,7 @@ namespace MPPPS
         }
 
         /// <summary>
-        /// 内示情報データ取得
+        /// 内示情報データ取得（WEEKEDDTとREPIDをMP用に列追加）
         /// </summary>
         /// <param name="emPlanDt">注文情報データ</param>
         /// <returns>注文情報データ</returns>
@@ -513,6 +513,9 @@ namespace MPPPS
                     using (OracleDataAdapter myDa = new OracleDataAdapter(myCmd))
                     {
                         myDa.Fill(emPlanDt);
+                        // 帳票ID列を独自列として型明示で追加
+                        if (!emPlanDt.Columns.Contains("REPID"))
+                            emPlanDt.Columns.Add("REPID", typeof(int));
                         ret = true;
                     }
                 }
