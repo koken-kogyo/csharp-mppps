@@ -4112,6 +4112,229 @@ namespace MPPPS
             return ret;
         }
 
+        /// <summary>
+        /// 在庫テーブル存在チェック
+        /// </summary>
+        public bool IsKD8460(ref DataTable dt, string hmcd, string mcgcd, string mccd)
+        {
+            bool ret = false;
+            string sql = string.Empty;
+            MySqlConnection cnn = null;
+            try
+            {
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+                sql = "SELECT * FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460 + " "
+                    + $"WHERE HMCD='{hmcd}' and MCGCD='{mcgcd}' and MCCD='{mccd}'";
+                using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        myDa.Fill(dt);
+                        ret = (dt.Rows.Count > 0);
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show(sql, "SQLエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 共通部品マスタチェック
+        /// </summary>
+        public bool IsKM8435(ref DataTable dt, string hmcd, string mcgcd, string mccd)
+        {
+            bool ret = false;
+            string sql = string.Empty;
+            MySqlConnection cnn = null;
+            try
+            {
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+                sql = "SELECT a.* FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8435 + " a, "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8435 + " b "
+                    + $"WHERE b.HMCDS='{hmcd}' and b.MCGCD='{mcgcd}' and b.MCCD='{mccd}' "
+                    + "and a.HMCD=b.HMCD and a.MCGCD=b.MCGCD and a.MCCD=b.MCCD";
+                using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        myDa.Fill(dt);
+                        ret = (dt.Rows.Count > 0);
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show(sql, "SQLエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 切削オーダーチェック
+        /// </summary>
+        public bool IsKD8450(ref DataTable dt, string hmcd, string mcgcd, string mccd)
+        {
+            bool ret = false;
+            string sql = string.Empty;
+            MySqlConnection cnn = null;
+            try
+            {
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+                sql = "SELECT * FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                    + "WHERE EDDT >= date_add(now(), interval -14 day) and ODRSTS in ('1','2','3') "
+                    + $"and MCGCD='{mcgcd}' and MCCD='{mccd}' and HMCD='{hmcd}'";
+                using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        myDa.Fill(dt);
+                        ret = (dt.Rows.Count > 0);
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show(sql, "SQLエラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 在庫テーブル設備更新
+        /// </summary>
+        public bool UpdateKD8460(ref DataTable dt, string mcgcd, string mccd)
+        {
+            bool ret = false;
+            string sql = string.Empty;
+            MySqlConnection cnn = null;
+            try
+            {
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+                var dtUpdate = new DataTable();
+                using (var adapter = new MySqlDataAdapter())
+                {
+                    sql = "SELECT * FROM "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8460 + " "
+                        + "limit 0";
+                    adapter.SelectCommand = new MySqlCommand(sql, cnn);
+                    using (var buider = new MySqlCommandBuilder(adapter))
+                    {
+                        adapter.Fill(dtUpdate);
+                        foreach (DataRow r in dt.Rows)
+                        {
+                            r["MCGCD"] = mcgcd;
+                            r["MCCD"] = mccd;
+                        }
+                        adapter.Update(dt);
+                        ret = true;
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("在庫テーブルの設備更新でエラーが発生しました．", "確認", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 共通部品マスタ設備更新
+        /// </summary>
+        public bool UpdateKM8435(ref DataTable dt, string mcgcd, string mccd)
+        {
+            bool ret = false;
+            string sql = string.Empty;
+            MySqlConnection cnn = null;
+            try
+            {
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+                var dtUpdate = new DataTable();
+                using (var adapter = new MySqlDataAdapter())
+                {
+                    sql = "SELECT * FROM "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8435 + " "
+                        + "limit 0";
+                    adapter.SelectCommand = new MySqlCommand(sql, cnn);
+                    using (var buider = new MySqlCommandBuilder(adapter))
+                    {
+                        adapter.Fill(dtUpdate);
+                        foreach (DataRow r in dt.Rows)
+                        {
+                            r["MCGCD"] = mcgcd;
+                            r["MCCD"] = mccd;
+                        }
+                        adapter.Update(dt);
+                        ret = true;
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("共通部品マスタの設備更新でエラーが発生しました．", "確認", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 切削オーダー設備更新
+        /// </summary>
+        public bool UpdateKD8450(ref DataTable dt, string mcgcd, string mccd)
+        {
+            bool ret = false;
+            string sql = string.Empty;
+            MySqlConnection cnn = null;
+            try
+            {
+                cmn.Dbm.IsConnectMySqlSchema(ref cnn);
+                var dtUpdate = new DataTable();
+                using (var adapter = new MySqlDataAdapter())
+                {
+                    sql = "SELECT * FROM "
+                        + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8450 + " "
+                        + "limit 0";
+                    adapter.SelectCommand = new MySqlCommand(sql, cnn);
+                    using (var buider = new MySqlCommandBuilder(adapter))
+                    {
+                        adapter.Fill(dtUpdate);
+                        foreach (DataRow r in dt.Rows)
+                        {
+                            r["MCGCD"] = mcgcd;
+                            r["MCCD"] = mccd;
+                        }
+                        adapter.Update(dt);
+                        ret = true;
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("切削オーダーの設備更新でエラーが発生しました．", "確認", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ret = false;
+            }
+            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(cnn);
+            return ret;
+        }
+
+
+
+
+
 
 
     }

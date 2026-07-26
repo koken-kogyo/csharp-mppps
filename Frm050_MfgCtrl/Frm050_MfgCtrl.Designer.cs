@@ -84,18 +84,18 @@ namespace MPPPS
             this.btn_MfgPrediction.Name = "btn_MfgPrediction";
             this.btn_MfgPrediction.Size = new System.Drawing.Size(300, 38);
             this.btn_MfgPrediction.TabIndex = 3;
-            this.btn_MfgPrediction.Text = "おかむー";
+            this.btn_MfgPrediction.Text = "出荷品番検索";
             this.btn_MfgPrediction.UseVisualStyleBackColor = true;
             this.btn_MfgPrediction.Click += new System.EventHandler(this.btn_MfgPrediction_Click);
             // 
             // btn_PlanProduct
             // 
+            this.btn_PlanProduct.Enabled = false;
             this.btn_PlanProduct.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.btn_PlanProduct.Location = new System.Drawing.Point(12, 56);
             this.btn_PlanProduct.Name = "btn_PlanProduct";
             this.btn_PlanProduct.Size = new System.Drawing.Size(300, 38);
             this.btn_PlanProduct.TabIndex = 1;
-            this.btn_PlanProduct.Text = "内示計画表 (XT工程7月分)";
             this.btn_PlanProduct.UseVisualStyleBackColor = true;
             this.btn_PlanProduct.Click += new System.EventHandler(this.Btn_PlanProduction_Click);
             // 

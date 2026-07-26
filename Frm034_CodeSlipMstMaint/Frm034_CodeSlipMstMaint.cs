@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
-using System.IO;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
 
 namespace MPPPS
 {
@@ -409,6 +410,7 @@ namespace MPPPS
             int modifyCount = 0;
             foreach (DataRow r in codeSlipDt.Rows)
             {
+                string hmcd = r["HMCD"].ToString();
                 if (r.RowState == DataRowState.Added || r.RowState == DataRowState.Modified)
                 {
                     int ktsu = 0;
@@ -439,10 +441,84 @@ namespace MPPPS
                     r["KTSU"] = ktsu;
                     r["KTKEY"] = ktkey;
 
-                    debughmcds.Add(r["HMCD"].ToString() + ((r.RowState == DataRowState.Added) ? "登録" : "更新"));
+                    debughmcds.Add(hmcd + ((r.RowState == DataRowState.Added) ? "登録" : "更新"));
 
                     if (r.RowState == DataRowState.Added) insertCount++;
                     if (r.RowState == DataRowState.Modified) modifyCount++;
+                }
+                // 設備コードが変更されていた場合、関連するテーブルとの整合性チェック
+                if (r.RowState == DataRowState.Modified)
+                {
+                    for (int j = 1; j <= 6; j++)
+                    {
+                        string mcgcdorg = r[$"KT{j}MCGCD", DataRowVersion.Original].ToString();
+                        string mcgcdnew = r[$"KT{j}MCGCD", DataRowVersion.Current].ToString();
+                        string mccdorg = r[$"KT{j}MCCD", DataRowVersion.Original].ToString();
+                        string mccdnew = r[$"KT{j}MCCD", DataRowVersion.Current].ToString();
+                        if (mcgcdorg != mcgcdnew || mccdorg != mccdnew)
+                        {
+                            DataTable dummy = new DataTable();
+                            // 在庫テーブルチェック
+                            DataTable dtZaiko = new DataTable();
+                            bool retZaiko = cmn.Dba.IsKD8460(ref dtZaiko, hmcd, mcgcdorg, mccdorg);
+                            if (retZaiko && cmn.Dba.IsKD8460(ref dummy, hmcd, mcgcdnew, mccdnew)) {
+                                MessageBox.Show($"「在庫テーブル」に\n" +
+                                    $"変更後の設備データ 「{mcgcdnew}-{mccdnew}」 が既に存在します．\n\n" +
+                                    "情報システム課に問い合わせください．", "確認", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                return;
+                            }
+
+                            // 共通部品マスタチェック
+                            DataTable dtShareParts = new DataTable();
+                            bool retShareParts = cmn.Dba.IsKM8435(ref dtShareParts, hmcd, mcgcdorg, mccdorg);
+                            if (retShareParts && cmn.Dba.IsKM8435(ref dummy, hmcd, mcgcdnew, mccdnew))
+                            {
+                                MessageBox.Show($"「共通部品マスタ」に\n" +
+                                    $"変更後の設備データ 「{mcgcdnew}-{mccdnew}」 が既に存在します．\n\n" +
+                                    "情報システム課に問い合わせください．", "確認", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                return;
+                            }
+
+                            // 切削オーダーチェック
+                            DataTable dtOrder = new DataTable();
+                            bool retOrder = cmn.Dba.IsKD8450(ref dtOrder, hmcd, mcgcdorg, mccdorg);
+                            if (retOrder && cmn.Dba.IsKD8450(ref dummy, hmcd, mcgcdnew, mccdnew))
+                            {
+                                MessageBox.Show($"「切削オーダー」に\n" +
+                                    $"変更後の設備データ 「{mcgcdnew}-{mccdnew}」 が既に存在します．\n\n" +
+                                    "情報システム課に問い合わせください．", "確認", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                return;
+                            }
+
+                            // 確認メッセージ後に更新
+                            if (retZaiko || retShareParts || retOrder)
+                            {
+                                string msg = string.Empty;
+                                msg += (retZaiko) ? "「在庫テーブル」" : "";
+                                msg += (msg != string.Empty && (retShareParts || retOrder)) ? "と" : "";
+                                msg += (retShareParts) ? "「共通部品マスタ」" : "";
+                                msg += (msg != string.Empty && retOrder) ? "と" : "";
+                                msg += (retOrder) ? "「切削オーダー(確定または着手)」" : "";
+                                msg += "に\nデータが存在します． \n\n";
+                                msg += $"[{hmcd}] - 「{mcgcdorg}-{mccdorg}」→「{mcgcdnew}-{mccdnew}」 \n\n";
+                                msg += (Convert.ToInt32(retZaiko) + Convert.ToInt32(retShareParts) + Convert.ToInt32(retOrder) > 1) ? "まとめて" : "";
+                                msg += "更新してもよろしいですか？";
+                                if (MessageBox.Show(msg, "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2)
+                                    == DialogResult.No)
+                                {
+                                    r[$"KT{j}MCGCD"] = r[$"KT{j}MCGCD", DataRowVersion.Original];
+                                    r[$"KT{j}MCCD"] = r[$"KT{j}MCCD", DataRowVersion.Original];
+                                    return;
+                                }
+                                if (retZaiko)
+                                    retZaiko = cmn.Dba.UpdateKD8460(ref dtZaiko, mcgcdnew, mccdnew);
+                                if (retShareParts)
+                                    retShareParts = cmn.Dba.UpdateKM8435(ref dtShareParts, mcgcdnew, mccdnew);
+                                if (retOrder)
+                                    retShareParts = cmn.Dba.UpdateKD8450(ref dtOrder, mcgcdnew, mccdnew);
+                            }
+                        }
+                    }
                 }
             }
             // 一括更新
