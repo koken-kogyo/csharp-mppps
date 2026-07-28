@@ -1143,10 +1143,10 @@ namespace MPPPS
                             {
                                 r["JIQTY"] = emodrqty;
                                 r["ODRSTS"] = "4";
+                                r["REPID"] = naijiJissekiDr[0]["REPID"];
+                                r["DVRQNO"] = naijiJissekiDr[0]["REPIDMAX"]; // 仮にDVRQNOにREPIDMAXを入れておく
                                 naijiJissekiDr[0]["PLNALLOC"] = mpalloc + (emodrqty - emjiqty);
                             }
-                            r["REPID"] = naijiJissekiDr[0]["REPID"];
-                            r["DVRQNO"] = naijiJissekiDr[0]["REPIDMAX"]; // 仮にDVRQNOにREPIDMAXを入れておく
                         }
                     }
 
