@@ -753,7 +753,11 @@ namespace MPPPS
                 DataTable excelCodeSlipDt = new DataTable();
                 await Task.Run(() => excelCodeSlipDt = cmn.Fa.ReadExcelToDatatble2(ofd.FileName));
 
-                if (excelCodeSlipDt == null) return;
+                if (excelCodeSlipDt == null)
+                {
+                    toolStripStatusLabel1.Text = $"[{ofd.FileName}] 「コード票」という名前のシートが見つからない又は、4行目がタイトルではありません！";
+                    return;
+                }
                 if (excelCodeSlipDt.Rows.Count <= 0) return;
 
                 // コード票マスタとExcelコード票とを比較
@@ -850,6 +854,7 @@ namespace MPPPS
                 else
                 {
                     toolStripStatusLabel1.Text = "相違はありませんでした。";
+                    toolStripStatusLabel2.Text = "";
                 }
                 ofd.Dispose();
                 MessageBox.Show("変更点のチェックが完了しました。");

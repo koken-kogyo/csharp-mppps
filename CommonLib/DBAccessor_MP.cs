@@ -2678,6 +2678,8 @@ namespace MPPPS
             List<string> debughmcds = new List<string>();
             MySqlConnection mpCnn = null;
 
+            string machineName = Environment.MachineName; // 更新時の端末IDをUPDTIDとし異常時の検証に使用する
+
             try
             {
                 // MPデータベースへ接続
@@ -2718,7 +2720,7 @@ namespace MPPPS
                                     {
                                         // 変更あり
                                         r[col] = dgv[0][col];
-                                        r["UPDTID"] = cmn.Ui.UserId;
+                                        r["UPDTID"] = machineName; // cmn.Ui.UserId;
                                     }
                                 }
                                 //dtUpdate.Rows[0]["UPDTDT"] = DateTime.Now.ToString();
@@ -2745,6 +2747,7 @@ namespace MPPPS
                             if (dr.Length == 0)
                             {
                                 r["INSTID"] = cmn.Ui.UserId;
+                                r["UPDTID"] = machineName; // cmn.Ui.UserId;
                                 dtUpdate.ImportRow(r);
                                 debughmcds.Add(r["HMCD"].ToString());
                                 countInsert++;

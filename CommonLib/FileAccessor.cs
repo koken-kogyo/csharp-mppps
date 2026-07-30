@@ -692,23 +692,32 @@ namespace MPPPS
                 foreach (Excel.Worksheet sheet in xlSheets)
                 {
                     if (sheet.Name == "コード票" || sheet.Name == "コード表" ||
-                        sheet.Name == "ｺｰﾄﾞ票" || sheet.Name == "ｺｰﾄﾞ表")
+                        sheet.Name == "ｺｰﾄﾞ票" || sheet.Name == "ｺｰﾄﾞ表" ||
+                        sheet.Name == "Sheet1")
                     {
                         xlSheet = sheet;
                         break;
                     }
                 }
+                if (xlSheet == null)
+                {
+                    return null;
+                }
 
                 // 使用列数と行数を取得
-                int rowCount = xlSheet.UsedRange.Rows.Count;
+                int rowCount = xlSheet.UsedRange.Rows.Count + 10;           // 配列10個分、余裕を見ておく
                 int colCount = xlSheet.UsedRange.Columns.Count;             // 例）38列
+
+                // 自分で吐き出したコード票を使用する場合
+                //if (colCount >= 73) colCount = 38;
+                int startRangeRow = (colCount >= 73) ? 1 : 4;
 
                 // ExcelRangeをオブジェクト配列にコピー
                 object[,] values = new object[rowCount, colCount - 1];      // 例）0～37配列
                 try
                 {
                     // ※※※ 4行目がタイトルである事が前提 ※※※
-                    xlRange = xlSheet.Range($"A4:{GetCellA1(colCount)}{rowCount}");
+                    xlRange = xlSheet.Range($"A{startRangeRow}:{GetCellA1(colCount)}{rowCount}");
                     values = xlRange.Value;
                 }
                 finally
