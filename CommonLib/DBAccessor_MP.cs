@@ -359,18 +359,16 @@ namespace MPPPS
         /// <returns>注文情報データ</returns>
         public bool GetMpQRCD(ref DataTable mpOrderDt, string qrcd)
         {
-            Debug.WriteLine("[MethodName] " + MethodBase.GetCurrentMethod().Name);
-
             bool ret;
             MySqlConnection mpCnn = null;
-
             try
             {
-                // MPデータベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                string sql = "SELECT * FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " "
+                string sql = "SELECT a.*, m50.HMNM, m50.HMRNM, m20.TKRNM FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a "
+                    + "inner join m0500 m50 on m50.HMCD = a.HMCD "
+                    + "inner join m0200 m20 on m20.TKCD = m50.TKCD "
                     + "WHERE QRCD = '" + qrcd + "'"
                 ;
                 using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
@@ -384,17 +382,51 @@ namespace MPPPS
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                // エラー
-                string msg = "Exception Source = " + ex.Source + ", Message = " + ex.Message;
-                if (AssemblyState.IsDebug) Debug.WriteLine(msg);
-
-                Debug.WriteLine(Common.MSGBOX_TXT_ERR + ": " + MethodBase.GetCurrentMethod().Name);
                 cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
                 ret = false;
             }
-            // 接続を閉じる
+            cmn.Dbm.CloseMySqlSchema(mpCnn);
+            return ret;
+        }
+
+        /// <summary>
+        /// 注文明細情報データ取得
+        /// </summary>
+        /// <param name="mpOrderDt">注文明細情報データ</param>
+        /// <param name="qrcd">手配データのQRコード</param>
+        /// <returns>注文明細データ</returns>
+        public bool GetMpQRDetail(ref DataTable mpOrderDt, string qrcd)
+        {
+            bool ret;
+            MySqlConnection mpCnn = null;
+            try
+            {
+                cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
+
+                string sql = "SELECT b.*, m.MCSEQ FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8430 + " a "
+                    + "inner join kd8450 b on b.ODRNO = a.ODRNO "
+                    + "inner join KM8420 m on m.MCGCD=b.MCGCD and m.MCCD=b.MCCD "
+                    + "WHERE QRCD = '" + qrcd + "'"
+                ;
+                using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
+                {
+                    using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
+                    {
+                        Debug.WriteLine("Read from DataTable:");
+                        // 結果取得
+                        myDa.Fill(mpOrderDt);
+                        ret = true;
+                    }
+                }
+            }
+            catch
+            {
+                cmn.ShowMessageBox(Common.KCM_PGM_ID, Common.MSG_CD_802, Common.MSG_TYPE_E, MessageBoxButtons.OK, Common.MSGBOX_TXT_ERR, MessageBoxIcon.Error);
+                ret = false;
+            }
             cmn.Dbm.CloseMySqlSchema(mpCnn);
             return ret;
         }
