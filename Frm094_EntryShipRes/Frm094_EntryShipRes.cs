@@ -8,13 +8,13 @@ using System.Windows.Forms;
 
 namespace MPPPS
 {
-    public partial class Frm073_EntryShipRes : Form
+    public partial class Frm094_EntryShipRes : Form
     {
         // 共通クラス
         private readonly Common cmn;
         private DataTable tanaInfoDt = new DataTable(); // EM在庫ファイルを保持
 
-        public Frm073_EntryShipRes(Common cmn)
+        public Frm094_EntryShipRes(Common cmn)
         {
             InitializeComponent();
 
@@ -23,7 +23,7 @@ namespace MPPPS
 
             // フォームのタイトルを設定する
             Text = "[" + Common.MY_PGM_ID + "] " + Common.MY_PGM_NAME + " - Ver." + Common.MY_PGM_VER
-                      + " <" + Common.FRM_ID_073 + ": " + Common.FRM_NAME_073 + ">";
+                      + " <" + Common.FRM_ID_094 + ": " + Common.FRM_NAME_094 + ">";
 
             // 共通クラス
             this.cmn = cmn;

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // アセンブリに関する一般情報は以下を通して制御されます
 // 制御されます。アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
-[assembly: AssemblyTitle("#073: EM への実績入力")]
-[assembly: AssemblyDescription("EM への実績入力")]
+[assembly: AssemblyTitle("#094: 棚卸情報")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Koken Kogyo Co., Ltd.")]
-[assembly: AssemblyProduct("[KMD001SF] 切削生産計画システム - Ver.230613.01a")]
-[assembly: AssemblyCopyright("© 2023 Koken Kogyo Co., Ltd.")]
+[assembly: AssemblyProduct("[KMD001SF] 切削生産計画システム - Ver.260613.01a")]
+[assembly: AssemblyCopyright("© since 2025 Koken Kogyo Co., Ltd.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

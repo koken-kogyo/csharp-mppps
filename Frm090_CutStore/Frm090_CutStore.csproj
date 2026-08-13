@@ -70,6 +70,10 @@
       <Project>{532db9fb-1545-4d7a-998d-db0ba7f854e6}</Project>
       <Name>Frm093_TanaChecker</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Frm094_EntryShipRes\Frm094_EntryShipRes.csproj">
+      <Project>{28504aca-1428-4c00-8186-d85cf904e53d}</Project>
+      <Name>Frm094_EntryShipRes</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Frm090_CutStore.resx">

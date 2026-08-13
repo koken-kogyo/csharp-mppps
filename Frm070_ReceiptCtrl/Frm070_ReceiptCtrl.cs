@@ -31,7 +31,8 @@ namespace MPPPS
         // 切削ストア受入実績処理
         private void Btn_ReceiptProc_Click(object sender, EventArgs e)
         {
-            Frm071_ReceiptProc frm071 = new Frm071_ReceiptProc();
+            Frm071_ReceiptProc frm071 = new Frm071_ReceiptProc(cmn);
+            this.Hide();
             frm071.Show();
         }
 
@@ -40,25 +41,6 @@ namespace MPPPS
         {
             Frm072_ReceiptInfo frm072 = new Frm072_ReceiptInfo();
             frm072.Show();
-        }
-
-        // EM への実績入力
-        private void Btn_EntryShipResults_Click(object sender, EventArgs e)
-        {
-            var host = cmn.DbCd[Common.DB_CONFIG_PG].Host;
-            var port = cmn.DbCd[Common.DB_CONFIG_PG].Port;
-            if (Common.IsNetworkHost(host) == false)
-            {
-                MessageBox.Show("サーバーが見つかりませんでした．", "i-Reporterサーバー", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                return;
-            }
-            if (Common.IsNetworkPort(host, port) == false)
-            {
-                MessageBox.Show("サーバーが起動していないか\n見つかりませんでした．", "i-Reporterサーバー", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                return;
-            }
-            Frm073_EntryShipRes frm073 = new Frm073_EntryShipRes(cmn);
-            frm073.Show();
         }
 
         // 閉じる

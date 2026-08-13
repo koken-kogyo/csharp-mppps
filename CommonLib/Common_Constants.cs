@@ -95,9 +95,8 @@ namespace MPPPS
         public static readonly string FRM_ID_052 = "#052";  // 製造部計画表
         public static readonly string FRM_ID_053 = "#053";  // おかむー
         public static readonly string FRM_ID_070 = "#070";  // 実績管理
-        public static readonly string FRM_ID_071 = "#071";  // 切削ストア受入実績処理
+        public static readonly string FRM_ID_071 = "#071";  // 出荷確認
         public static readonly string FRM_ID_072 = "#072";  // 切削ストア受入実績情報表示
-        public static readonly string FRM_ID_073 = "#073";  // EM への実績入力
         public static readonly string FRM_ID_080 = "#080";  // 材料管理
         public static readonly string FRM_ID_081 = "#081";  // 材料在庫一覧
         public static readonly string FRM_ID_082 = "#082";  // 材料発注処理
@@ -106,6 +105,7 @@ namespace MPPPS
         public static readonly string FRM_ID_091 = "#091";  // 切削ストア出庫
         public static readonly string FRM_ID_092 = "#092";  // 切削ストア在庫情報
         public static readonly string FRM_ID_093 = "#093";  // タナコン在庫情報
+        public static readonly string FRM_ID_094 = "#094";  // 棚卸情報
         public static readonly string FRM_ID_100 = "#100";  // バージョン情報
 
         public static readonly string FRM_NAME_010 = "ログイン";
@@ -126,9 +126,8 @@ namespace MPPPS
         public static readonly string FRM_NAME_052 = "製造部計画表";
         public static readonly string FRM_NAME_053 = "おかむー";
         public static readonly string FRM_NAME_070 = "実績管理";
-        public static readonly string FRM_NAME_071 = "切削ストア受入実績処理";
+        public static readonly string FRM_NAME_071 = "出荷確認";
         public static readonly string FRM_NAME_072 = "切削ストア受入実績情報表示";
-        public static readonly string FRM_NAME_073 = "棚卸情報";
         public static readonly string FRM_NAME_080 = "材料管理";
         public static readonly string FRM_NAME_081 = "材料在庫一覧";
         public static readonly string FRM_NAME_082 = "材料発注処理";
@@ -137,6 +136,7 @@ namespace MPPPS
         public static readonly string FRM_NAME_091 = "切削ストア出庫";
         public static readonly string FRM_NAME_092 = "切削ストア在庫情報";
         public static readonly string FRM_NAME_093 = "タナコン在庫情報";
+        public static readonly string FRM_NAME_094 = "棚卸情報";
         public static readonly string FRM_NAME_100 = "バージョン情報";
 
         public static readonly string FRM_BUTTON_TEXT_CLEAR = "クリア";

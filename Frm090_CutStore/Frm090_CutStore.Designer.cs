@@ -36,6 +36,7 @@ namespace MPPPS
             this.Btn_CutStoreInvInfo = new System.Windows.Forms.Button();
             this.Btn_Close = new System.Windows.Forms.Button();
             this.Btn_TanaChecker = new System.Windows.Forms.Button();
+            this.Btn_EntryShipResults = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Btn_CutStoreDelv
@@ -66,7 +67,7 @@ namespace MPPPS
             // 
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.Btn_Close.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Btn_Close.Location = new System.Drawing.Point(12, 137);
+            this.Btn_Close.Location = new System.Drawing.Point(12, 188);
             this.Btn_Close.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
@@ -87,10 +88,22 @@ namespace MPPPS
             this.Btn_TanaChecker.UseVisualStyleBackColor = true;
             this.Btn_TanaChecker.Click += new System.EventHandler(this.Btn_TanaChecker_Click);
             // 
+            // Btn_EntryShipResults
+            // 
+            this.Btn_EntryShipResults.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
+            this.Btn_EntryShipResults.Location = new System.Drawing.Point(12, 138);
+            this.Btn_EntryShipResults.Name = "Btn_EntryShipResults";
+            this.Btn_EntryShipResults.Size = new System.Drawing.Size(300, 38);
+            this.Btn_EntryShipResults.TabIndex = 4;
+            this.Btn_EntryShipResults.Text = "棚卸情報";
+            this.Btn_EntryShipResults.UseVisualStyleBackColor = true;
+            this.Btn_EntryShipResults.Click += new System.EventHandler(this.Btn_EntryShipResults_Click);
+            // 
             // Frm090_CutStore
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(320, 188);
+            this.ClientSize = new System.Drawing.Size(320, 237);
+            this.Controls.Add(this.Btn_EntryShipResults);
             this.Controls.Add(this.Btn_TanaChecker);
             this.Controls.Add(this.Btn_Close);
             this.Controls.Add(this.Btn_CutStoreInvInfo);
@@ -118,5 +131,6 @@ namespace MPPPS
         private Button Btn_CutStoreInvInfo;
         private Button Btn_Close;
         private Button Btn_TanaChecker;
+        private Button Btn_EntryShipResults;
     }
 }

@@ -77,6 +77,24 @@ namespace MPPPS
             this.Hide();
             frm093.Show();
         }
+
+        private void Btn_EntryShipResults_Click(object sender, EventArgs e)
+        {
+            var host = cmn.DbCd[Common.DB_CONFIG_PG].Host;
+            var port = cmn.DbCd[Common.DB_CONFIG_PG].Port;
+            if (Common.IsNetworkHost(host) == false)
+            {
+                MessageBox.Show("サーバーが見つかりませんでした．", "i-Reporterサーバー", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                return;
+            }
+            if (Common.IsNetworkPort(host, port) == false)
+            {
+                MessageBox.Show("サーバーが起動していないか\n見つかりませんでした．", "i-Reporterサーバー", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                return;
+            }
+            Frm094_EntryShipRes frm094 = new Frm094_EntryShipRes(cmn);
+            frm094.Show();
+        }
     }
 }
 

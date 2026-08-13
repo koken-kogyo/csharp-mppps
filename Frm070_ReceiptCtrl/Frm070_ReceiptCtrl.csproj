@@ -71,10 +71,6 @@
       <Project>{28aedb10-8824-4c9d-8435-e892a4dd8947}</Project>
       <Name>Frm072_ReceiptInfo</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Frm073_EntryShipRes\Frm073_EntryShipRes.csproj">
-      <Project>{28504aca-1428-4c00-8186-d85cf904e53d}</Project>
-      <Name>Frm073_EntryShipRes</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

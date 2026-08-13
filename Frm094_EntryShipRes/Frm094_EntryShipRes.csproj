@@ -7,8 +7,8 @@
     <ProjectGuid>{28504ACA-1428-4C00-8186-D85CF904E53D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Frm073_EntryShipRes</RootNamespace>
-    <AssemblyName>Frm073_EntryShipRes</AssemblyName>
+    <RootNamespace>Frm094_EntryShipRes</RootNamespace>
+    <AssemblyName>Frm094_EntryShipRes</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -45,17 +45,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Frm073_EntryShipRes.cs">
+    <Compile Include="Frm094_EntryShipRes.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Frm073_EntryShipRes.Designer.cs">
-      <DependentUpon>Frm073_EntryShipRes.cs</DependentUpon>
+    <Compile Include="Frm094_EntryShipRes.Designer.cs">
+      <DependentUpon>Frm094_EntryShipRes.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Frm073_EntryShipRes.resx">
-      <DependentUpon>Frm073_EntryShipRes.cs</DependentUpon>
+    <EmbeddedResource Include="Frm094_EntryShipRes.resx">
+      <DependentUpon>Frm094_EntryShipRes.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

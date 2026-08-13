@@ -34,19 +34,17 @@ namespace MPPPS
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm070_ReceiptCtrl));
             this.Btn_ReceiptProc = new System.Windows.Forms.Button();
             this.Btn_ReceiptInfo = new System.Windows.Forms.Button();
-            this.Btn_EntryShipResults = new System.Windows.Forms.Button();
             this.Btn_Close = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Btn_ReceiptProc
             // 
-            this.Btn_ReceiptProc.Enabled = false;
             this.Btn_ReceiptProc.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
             this.Btn_ReceiptProc.Location = new System.Drawing.Point(12, 12);
             this.Btn_ReceiptProc.Name = "Btn_ReceiptProc";
             this.Btn_ReceiptProc.Size = new System.Drawing.Size(300, 38);
             this.Btn_ReceiptProc.TabIndex = 0;
-            this.Btn_ReceiptProc.Text = "切削ストア受入実績処理";
+            this.Btn_ReceiptProc.Text = "出荷確認";
             this.Btn_ReceiptProc.UseVisualStyleBackColor = true;
             this.Btn_ReceiptProc.Click += new System.EventHandler(this.Btn_ReceiptProc_Click);
             // 
@@ -58,25 +56,14 @@ namespace MPPPS
             this.Btn_ReceiptInfo.Name = "Btn_ReceiptInfo";
             this.Btn_ReceiptInfo.Size = new System.Drawing.Size(300, 38);
             this.Btn_ReceiptInfo.TabIndex = 1;
-            this.Btn_ReceiptInfo.Text = "切削ストア受入実績情報表示";
+            this.Btn_ReceiptInfo.Text = "出荷実績情報";
             this.Btn_ReceiptInfo.UseVisualStyleBackColor = true;
             this.Btn_ReceiptInfo.Click += new System.EventHandler(this.Btn_ReceiptInfo_Click);
-            // 
-            // Btn_EntryShipResults
-            // 
-            this.Btn_EntryShipResults.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
-            this.Btn_EntryShipResults.Location = new System.Drawing.Point(12, 101);
-            this.Btn_EntryShipResults.Name = "Btn_EntryShipResults";
-            this.Btn_EntryShipResults.Size = new System.Drawing.Size(300, 38);
-            this.Btn_EntryShipResults.TabIndex = 2;
-            this.Btn_EntryShipResults.Text = "棚卸情報";
-            this.Btn_EntryShipResults.UseVisualStyleBackColor = true;
-            this.Btn_EntryShipResults.Click += new System.EventHandler(this.Btn_EntryShipResults_Click);
             // 
             // Btn_Close
             // 
             this.Btn_Close.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
-            this.Btn_Close.Location = new System.Drawing.Point(12, 145);
+            this.Btn_Close.Location = new System.Drawing.Point(12, 105);
             this.Btn_Close.Name = "Btn_Close";
             this.Btn_Close.Size = new System.Drawing.Size(300, 38);
             this.Btn_Close.TabIndex = 3;
@@ -87,9 +74,8 @@ namespace MPPPS
             // Frm070_ReceiptCtrl
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(319, 193);
+            this.ClientSize = new System.Drawing.Size(319, 153);
             this.Controls.Add(this.Btn_Close);
-            this.Controls.Add(this.Btn_EntryShipResults);
             this.Controls.Add(this.Btn_ReceiptInfo);
             this.Controls.Add(this.Btn_ReceiptProc);
             this.Font = new System.Drawing.Font("Yu Gothic UI", 11F);
@@ -112,7 +98,6 @@ namespace MPPPS
 
         private Button Btn_ReceiptProc;
         private Button Btn_ReceiptInfo;
-        private Button Btn_EntryShipResults;
         private Button Btn_Close;
     }
 }

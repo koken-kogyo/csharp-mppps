@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace MPPPS
 {
-    partial class Frm073_EntryShipRes
+    partial class Frm094_EntryShipRes
     {
         /// <summary>
         /// Required designer variable.
@@ -31,7 +31,7 @@ namespace MPPPS
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm073_EntryShipRes));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm094_EntryShipRes));
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnRefreshDataGridView = new System.Windows.Forms.Button();
             this.btn_ExportExcel = new System.Windows.Forms.Button();

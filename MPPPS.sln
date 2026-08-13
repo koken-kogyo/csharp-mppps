@@ -55,13 +55,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm050_MfgCtrl", "Frm050_Mf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm051_MfgProgress", "Frm051_MfgProgress\Frm051_MfgProgress.csproj", "{89AB53A0-BEC9-4EA4-B31D-82F8947B4621}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm052_MfgPlan", "Frm052_MfgPlan\Frm052_MfgPlan.csproj", "{78763093-9AF8-4271-8A2E-19DAFDAF3A0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm053_MfgPrediction", "Frm053_MfgPrediction\Frm053_MfgPrediction.csproj", "{897BC2B4-C173-4F56-A53D-6ACFABADF647}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm070_ReceiptCtrl", "Frm070_ReceiptCtrl\Frm070_ReceiptCtrl.csproj", "{F08994C4-AD2D-41E1-9B7D-68DAF6173BAF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm071_ReceiptProc", "Frm071_ReceiptProc\Frm071_ReceiptProc.csproj", "{FA8B2B0E-6CA1-46DE-BB34-AE4B10553494}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm072_ReceiptInfo", "Frm072_ReceiptInfo\Frm072_ReceiptInfo.csproj", "{28AEDB10-8824-4C9D-8435-E892A4DD8947}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm073_EntryShipRes", "Frm073_EntryShipRes\Frm073_EntryShipRes.csproj", "{28504ACA-1428-4C00-8186-D85CF904E53D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm080_MatlCtrl", "Frm080_MatlCtrl\Frm080_MatlCtrl.csproj", "{9D81A6B4-B7B2-4FB7-B83A-6E2DD317C7E9}"
 EndProject
@@ -77,9 +79,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm091_CutStoreDelv", "Frm0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm092_CutStoreInvInfo", "Frm092_CutStoreInvInfo\Frm092_CutStoreInvInfo.csproj", "{EE437257-F067-41FB-A67D-6D48AB582D31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm100_VerInfo", "Frm100_VerInfo\Frm100_VerInfo.csproj", "{DEA9B957-3705-4D57-96C4-7C4B7BEA560F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm093_TanaChecker", "Frm093_TanaChecker\Frm093_TanaChecker.csproj", "{532DB9FB-1545-4D7A-998D-DB0BA7F854E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm052_MfgPlan", "Frm052_MfgPlan\Frm052_MfgPlan.csproj", "{78763093-9AF8-4271-8A2E-19DAFDAF3A0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm094_EntryShipRes", "Frm094_EntryShipRes\Frm094_EntryShipRes.csproj", "{28504ACA-1428-4C00-8186-D85CF904E53D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm100_VerInfo", "Frm100_VerInfo\Frm100_VerInfo.csproj", "{DEA9B957-3705-4D57-96C4-7C4B7BEA560F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sounds", "sounds", "{3985AF92-03E9-45F0-9B7A-28F760F7BAD6}"
 	ProjectSection(SolutionItems) = preProject
@@ -87,14 +91,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sounds", "sounds", "{3985AF
 		Resources\sounds\pinpon1.wav = Resources\sounds\pinpon1.wav
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm093_TanaChecker", "Frm093_TanaChecker\Frm093_TanaChecker.csproj", "{532DB9FB-1545-4D7A-998D-DB0BA7F854E6}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目", "ソリューション項目", "{2022CB0F-8BAF-F49E-0C48-8EF4C96EC109}"
 	ProjectSection(SolutionItems) = preProject
 		NLog.config = NLog.config
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frm053_MfgPrediction", "Frm053_MfgPrediction\Frm053_MfgPrediction.csproj", "{897BC2B4-C173-4F56-A53D-6ACFABADF647}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
