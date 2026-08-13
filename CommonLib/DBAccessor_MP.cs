@@ -538,8 +538,8 @@ namespace MPPPS
                     string tancd = cmn.IkM0010.TanCd;
                     string insertSql = "insert into " +
                         cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440 + " " +
-                        "(HMCD, JIQTY, ODRALLOC, PLNALLOC, INSTID, UPDTID) " +
-                        $"select HMCD, sum(JIQTY), 0, 0, '{tancd}','{tancd}' from " +
+                        "(HMCD, JIDT, JIQTY, ODRALLOC, PLNALLOC, INSTID, UPDTID) " +
+                        $"select HMCD, min(JIDT), sum(JIQTY), 0, 0, '{tancd}','{tancd}' from " +
                         cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " " +
                         "group by HMCD having sum(JIQTY) > 0 order by HMCD";
                     cmd.CommandText = insertSql;
@@ -683,6 +683,8 @@ namespace MPPPS
                         string odrsts = r["ODRSTS"].ToString();
 
                         int repid = 0; // 帳票ID
+                        string jidtstr = "null"; // 実績日
+
                         // 追加処理の場合は実績数とステータスをいじらない
                         if (styleBackColor == Common.FRM40_BG_COLOR_WARNING)
                         {
@@ -713,6 +715,11 @@ namespace MPPPS
                                     {
                                         repid = Convert.ToInt32(nr[0]["REPID"].ToString());
                                     }
+                                    // kw8440:実績日が存在していれば
+                                    if (wr[0]["JIDT"].ToString() != "")
+                                    {
+                                        jidtstr = $"'{wr[0]["JIDT"].ToString()}'";
+                                    }
                                 }
                                 else
                                 {
@@ -725,7 +732,7 @@ namespace MPPPS
 
                         // KD8450:切削オーダーファイルの登録（各設備毎に分解）
                         // sql = DivideMpOrderSql(odrno, jiqty, kt, mcgcd, mccd, odrsts);
-                        sb50.Append(DivideMpOrderBulkData(r, appendqty, kt, mcgcd, mccd, odrsts, repid));
+                        sb50.Append(DivideMpOrderBulkData(r, appendqty, kt, mcgcd, mccd, odrsts, repid, jidtstr));
 
                     }   // kt ループ
                     insCount++;
@@ -1002,13 +1009,14 @@ namespace MPPPS
                 + "JIQTY,"
                 + "ODRSTS,"
                 + "REPID,"
+                + "WKEDDT,"
                 + "MPINSTID,"
                 + "MPUPDTID"
                 + ") values "
                 ;
             return sql;
         }
-        private string DivideMpOrderBulkData(DataRow r, int appendqty, int kt, string mcgcd, string mccd, string odrsts, int repid)
+        private string DivideMpOrderBulkData(DataRow r, int appendqty, int kt, string mcgcd, string mccd, string odrsts, int repid, string jidtstr)
         {
             string data =
                 "("
@@ -1022,6 +1030,7 @@ namespace MPPPS
                 + (Convert.ToInt32(r["JIQTY"].ToString()) + appendqty) + ","
                 + $"'{odrsts}',"
                 + (repid == 0 ? "null," : $"{repid},")
+                + jidtstr + ","
                 + $"'{cmn.IkM0010.TanCd}',"
                 + $"'{cmn.IkM0010.TanCd}'"
                 + "),"
@@ -1114,6 +1123,8 @@ namespace MPPPS
             MySqlConnection mpCnn = null;
             MySqlTransaction transaction = null;
 
+            string sql = string.Empty;
+
             try
             {
                 // 切削生産計画システム データベースへ接続
@@ -1126,14 +1137,14 @@ namespace MPPPS
                     Connection = mpCnn
                 };
 
-                string sql = string.Empty;
-
                 // １．切削内示ファイルの実績数を集計
                 DataTable naijiJissekiDt = new DataTable();
-                sql = "select HMCD, SUM(JIQTY) as JIQTY, 0 as PLNALLOC" +
-                    ", min(REPID) as REPID, max(REPID) as REPIDMAX from " +
-                    cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " " +
-                    "group by HMCD having sum(JIQTY) > 0 order by HMCD";
+                sql = "select HMCD, SUM(JIQTY) as JIQTY, 0 as PLNALLOC "
+                    + ", min(REPID) as REPID, max(REPID) as REPIDMAX "
+                    + ", min(JIDT) as JIDT, max(JIDT) as JIDTMAX "
+                    + "from "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KD8440 + " "
+                    + "group by HMCD having sum(JIQTY) > 0 order by HMCD";
                 using (MySqlCommand myCmd = new MySqlCommand(sql, mpCnn))
                 {
                     using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
@@ -1176,6 +1187,7 @@ namespace MPPPS
                                 r["JIQTY"] = emodrqty;
                                 r["ODRSTS"] = "4";
                                 r["REPID"] = naijiJissekiDr[0]["REPID"];
+                                r["JIDT"] = naijiJissekiDr[0]["JIDT"];
                                 r["DVRQNO"] = naijiJissekiDr[0]["REPIDMAX"]; // 仮にDVRQNOにREPIDMAXを入れておく
                                 naijiJissekiDr[0]["PLNALLOC"] = mpalloc + (emodrqty - emjiqty);
                             }
@@ -1215,17 +1227,23 @@ namespace MPPPS
                 if (naijiJissekiDt.Rows.Count > 0)
                     sb.Append("insert into "
                     + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KW8440
-                    + "(HMCD, JIQTY, PLNALLOC, INSTID, UPDTID) values ");
+                    + "(HMCD, JIDT, JIQTY, PLNALLOC, INSTID, UPDTID) values ");
                 for (int i = 0; i < naijiJissekiDt.Rows.Count; i++)
                 {
                     var row = naijiJissekiDt.Rows[i];
-                    sb.AppendFormat("('{0}',{1},{2},'{3}','{4}'),"
-                        , row["HMCD"].ToString(), row["JIQTY"], row["PLNALLOC"], userid, userid);
+                    sb.AppendFormat("('{0}',{1},{2},{3},'{4}','{5}'),"
+                        , row["HMCD"].ToString()
+                        ,(row["JIDT"].ToString() == "" ? "null" : "'" + row["JIDT"] + "'")
+                        , row["JIQTY"]
+                        , row["PLNALLOC"]
+                        , userid
+                        , userid);
                 }
                 if (sb.Length > 0)
                 {
                     sb.Remove(sb.Length - 1, 1); // 最後の1文字(,)を削除
-                    cmd.CommandText = sb.ToString();
+                    sql = sb.ToString();
+                    cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
                 }
 
@@ -1303,7 +1321,8 @@ namespace MPPPS
                 + "JIQTY, "
                 + "SEQ, "
                 + "WEEKEDDT, "
-                + "REPID "
+                + "REPID, "
+                + "JIDT "
                 + ") values ";
             return sql;
         }
@@ -1353,7 +1372,8 @@ namespace MPPPS
                 + r["JIQTY"] + ","
                 + r["SEQ"] + ","
                 + "'" + r["WEEKEDDT"] + "',"
-                + (r["REPID"].ToString() == "" ? "null" : r["REPID"])
+                + (r["REPID"].ToString() == "" ? "null" : r["REPID"]) + ","
+                + (r["JIDT"].ToString() == "" ? "null" : "'" + r["JIDT"] + "'")
                 + "),"
                 ;
             return data;

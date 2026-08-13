@@ -516,6 +516,9 @@ namespace MPPPS
                         // 帳票ID列を独自列として型明示で追加
                         if (!emPlanDt.Columns.Contains("REPID"))
                             emPlanDt.Columns.Add("REPID", typeof(int));
+                        // 実績日を独自列として型明示で追加
+                        if (!emPlanDt.Columns.Contains("JIDT"))
+                            emPlanDt.Columns.Add("JIDT", typeof(DateTime));
                         ret = true;
                     }
                 }
