@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
 
 namespace MPPPS
 {
@@ -446,80 +445,115 @@ namespace MPPPS
                     if (r.RowState == DataRowState.Added) insertCount++;
                     if (r.RowState == DataRowState.Modified) modifyCount++;
                 }
-                // 設備コードが変更されていた場合、関連するテーブルとの整合性チェック
+                // 設備コードが変更されているかをここで判定
                 if (r.RowState == DataRowState.Modified)
                 {
-                    for (int j = 1; j <= 6; j++)
+                    int ktsuOrg = Convert.ToInt32(r["KTSU", DataRowVersion.Original]);
+                    int ktsuNew = Convert.ToInt32(r["KTSU", DataRowVersion.Current]);
+
+                    string ktkeyOrg = r["KTKEY", DataRowVersion.Original].ToString();
+                    string ktkeyNew = r["KTKEY", DataRowVersion.Current].ToString();
+
+                    if (ktkeyNew != ktkeyOrg)
                     {
-                        string mcgcdorg = r[$"KT{j}MCGCD", DataRowVersion.Original].ToString();
-                        string mcgcdnew = r[$"KT{j}MCGCD", DataRowVersion.Current].ToString();
-                        string mccdorg = r[$"KT{j}MCCD", DataRowVersion.Original].ToString();
-                        string mccdnew = r[$"KT{j}MCCD", DataRowVersion.Current].ToString();
-                        if (mcgcdorg != mcgcdnew || mccdorg != mccdnew)
+                        // 追加工程リスト
+                        List<(string mcgcd, string mccd)> addedList = new List<(string, string)>();
+
+                        // 追加工程のマスタが既に存在しているかをチェック
+                        for (int j = 1; j <= ktsuNew; j++)
                         {
-                            DataTable dummy = new DataTable();
-                            // 在庫テーブルチェック
-                            DataTable dtZaiko = new DataTable();
-                            bool retZaiko = cmn.Dba.IsKD8460(ref dtZaiko, hmcd, mcgcdorg, mccdorg);
-                            if (retZaiko && cmn.Dba.IsKD8460(ref dummy, hmcd, mcgcdnew, mccdnew)) {
-                                MessageBox.Show($"「在庫テーブル」に\n" +
-                                    $"変更後の設備データ 「{mcgcdnew}-{mccdnew}」 が既に存在します．\n\n" +
-                                    "情報システム課に問い合わせください．", "確認", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                                return;
-                            }
-
-                            // 共通部品マスタチェック
-                            DataTable dtShareParts = new DataTable();
-                            bool retShareParts = cmn.Dba.IsKM8435(ref dtShareParts, hmcd, mcgcdorg, mccdorg);
-                            if (retShareParts && cmn.Dba.IsKM8435(ref dummy, hmcd, mcgcdnew, mccdnew))
+                            string mcgcdNew = r[$"KT{j}MCGCD", DataRowVersion.Current].ToString();
+                            string mccdNew = r[$"KT{j}MCCD", DataRowVersion.Current].ToString();
+                            string ktNew = mcgcdNew + "-" + mccdNew + ":";
+                            if (ktkeyOrg.Contains(ktNew) == false)
                             {
-                                MessageBox.Show($"「共通部品マスタ」に\n" +
-                                    $"変更後の設備データ 「{mcgcdnew}-{mccdnew}」 が既に存在します．\n\n" +
-                                    "情報システム課に問い合わせください．", "確認", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                                return;
-                            }
-
-                            // 切削オーダーチェック
-                            DataTable dtOrder = new DataTable();
-                            bool retOrder = cmn.Dba.IsKD8450(ref dtOrder, hmcd, mcgcdorg, mccdorg);
-                            if (retOrder && cmn.Dba.IsKD8450(ref dummy, hmcd, mcgcdnew, mccdnew))
-                            {
-                                MessageBox.Show($"「切削オーダー」に\n" +
-                                    $"変更後の設備データ 「{mcgcdnew}-{mccdnew}」 が既に存在します．\n\n" +
-                                    "情報システム課に問い合わせください．", "確認", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                                return;
-                            }
-
-                            // 確認メッセージ後に更新
-                            if (retZaiko || retShareParts || retOrder)
-                            {
-                                string msg = string.Empty;
-                                msg += (retZaiko) ? "「在庫テーブル」" : "";
-                                msg += (msg != string.Empty && (retShareParts || retOrder)) ? "と" : "";
-                                msg += (retShareParts) ? "「共通部品マスタ」" : "";
-                                msg += (msg != string.Empty && retOrder) ? "と" : "";
-                                msg += (retOrder) ? "「切削オーダー(確定または着手)」" : "";
-                                msg += "に\nデータが存在します． \n\n";
-                                msg += $"[{hmcd}] - 「{mcgcdorg}-{mccdorg}」→「{mcgcdnew}-{mccdnew}」 \n\n";
-                                msg += (Convert.ToInt32(retZaiko) + Convert.ToInt32(retShareParts) + Convert.ToInt32(retOrder) > 1) ? "まとめて" : "";
-                                msg += "更新してもよろしいですか？";
-                                if (MessageBox.Show(msg, "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2)
-                                    == DialogResult.No)
+                                DataTable dummy = new DataTable();
+                                // 在庫テーブルチェック
+                                bool retZaiko = cmn.Dba.IsKD8460(ref dummy, hmcd, mcgcdNew, mccdNew);
+                                if (retZaiko)
                                 {
-                                    r[$"KT{j}MCGCD"] = r[$"KT{j}MCGCD", DataRowVersion.Original];
-                                    r[$"KT{j}MCCD"] = r[$"KT{j}MCCD", DataRowVersion.Original];
+                                    MessageBox.Show($"「在庫テーブル」に\n" +
+                                        $"変更後の設備データ 「{mcgcdNew}-{mccdNew}」 が既に存在します．\n\n" +
+                                        "情報システム課に問い合わせください．", "更新できません", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                                     return;
                                 }
-                                if (retZaiko)
-                                    retZaiko = cmn.Dba.UpdateKD8460(ref dtZaiko, mcgcdnew, mccdnew);
+
+                                // 共通部品マスタチェック
+                                bool retShareParts = cmn.Dba.IsKM8435(ref dummy, hmcd, mcgcdNew, mccdNew);
                                 if (retShareParts)
-                                    retShareParts = cmn.Dba.UpdateKM8435(ref dtShareParts, mcgcdnew, mccdnew);
-                                if (retOrder)
-                                    retShareParts = cmn.Dba.UpdateKD8450(ref dtOrder, mcgcdnew, mccdnew);
+                                {
+                                    MessageBox.Show($"「共通部品マスタ」に\n" +
+                                        $"変更後の設備データ 「{mcgcdNew}-{mccdNew}」 が既に存在します．\n\n" +
+                                        "情報システム課に問い合わせください．", "更新できません", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                    return;
+                                }
+                                // 追加工程リスト
+                                addedList.Add((mcgcdNew, mccdNew));
+                            }
+                        }
+                        // 削除工程のマスタが既に存在しているかをチェック
+                        for (int j = 1; j <= ktsuOrg; j++)
+                        {
+                            string mcgcdOrg = r[$"KT{j}MCGCD", DataRowVersion.Original].ToString();
+                            string mccdOrg = r[$"KT{j}MCCD", DataRowVersion.Original].ToString();
+                            string ktOrg = mcgcdOrg + "-" + mccdOrg + ":";
+                            if (ktkeyNew.Contains(ktOrg) == false)
+                            {
+                                // 在庫テーブルチェック
+                                DataTable dtZaiko = new DataTable();
+                                bool retZaiko = cmn.Dba.IsKD8460(ref dtZaiko, hmcd, mcgcdOrg, mccdOrg);
+                                // 共通部品マスタチェック
+                                DataTable dtShareParts = new DataTable();
+                                bool retShareParts = cmn.Dba.IsKM8435(ref dtShareParts, hmcd, mcgcdOrg, mccdOrg);
+
+                                // 削除工程に使用済みのデータが存在していたらエラー
+                                if (addedList.Count == 0 && (retZaiko || retShareParts))
+                                {
+                                    string msg = string.Empty;
+                                    msg += (retZaiko) ? "「在庫テーブル」" : "";
+                                    msg += (msg != string.Empty && (retShareParts)) ? "と" : "";
+                                    msg += (retShareParts) ? "「共通部品マスタ」" : "";
+                                    MessageBox.Show($"{msg}に\n" +
+                                        $"変更前の設備データ 「{mcgcdOrg}-{mccdOrg}」 が存在します．\n\n" +
+                                        "情報システム課に問い合わせください．", "更新できません", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                    return;
+                                }
+
+                                // 削除工程＝設備変更かを確認しながら更新
+                                else if (addedList.Count > 0 && (retZaiko || retShareParts))
+                                {
+                                    for (int i = addedList.Count - 1; i >= 0; i--)   // ★逆順ループが重要
+                                    {
+                                        var item = addedList[i];
+                                        string mcgcdNew = item.mcgcd;
+                                        string mccdNew = item.mccd;
+
+                                        string msg = string.Empty;
+                                        msg += (retZaiko) ? "「在庫テーブル」" : "";
+                                        msg += (msg != string.Empty && (retShareParts)) ? "と" : "";
+                                        msg += (retShareParts) ? "「共通部品マスタ」" : "";
+                                        msg += "\nを更新してもよろしいでしょうか？";
+                                        msg += $"\n\n[{hmcd}] -「{mcgcdOrg}-{mccdOrg}」→「{mcgcdNew}-{mccdNew}」";
+
+                                        if (MessageBox.Show(msg, "コード票を変更する前にマスタを先に更新"
+                                            , MessageBoxButtons.YesNo
+                                            , MessageBoxIcon.Question
+                                            , MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                                        {
+                                            if (retZaiko)
+                                                retZaiko = cmn.Dba.UpdateKD8460(ref dtZaiko, mcgcdNew, mccdNew);
+                                            if (retShareParts)
+                                                retShareParts = cmn.Dba.UpdateKM8435(ref dtShareParts, mcgcdNew, mccdNew);
+                                            // ★使ったら削除（取り崩し）
+                                            addedList.RemoveAt(i);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
+                // 設備コード変更チェック終了
             }
             // 一括更新
             if (insertCount + modifyCount > 0)
@@ -527,7 +561,6 @@ namespace MPPPS
                 Common.s_Logger.Info("コード票マスタ [" + string.Join(",", debughmcds) + "]");
 
                 if (!cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt)) return;
-                codeSlipDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
                 toolStripStatusLabel1.Text = (insertCount > 0) ? $"{insertCount}件 を追加 " : "";
                 toolStripStatusLabel1.Text += (modifyCount > 0) ? $"{modifyCount}件 を更新 " : "";
                 toolStripStatusLabel1.Text += "しました．";
@@ -569,7 +602,6 @@ namespace MPPPS
             // 一括更新
             if (deleteCount > 0)
             {
-                codeSlipDt.AcceptChanges();
                 cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
                 toolStripStatusLabel1.Text = $"{deleteCount}件 を削除しました.";
                 Common.s_Logger.Info("コード票マスタ [" + string.Join(",", debughmcds) + "]");
@@ -687,7 +719,6 @@ namespace MPPPS
             if (modifyCount > 0)
             {
                 cmn.Dba.UpdateCodeSlipMst(ref codeSlipDt);
-                codeSlipDt.AcceptChanges(); // これを実行しないと何回も更新されてしまう
                 toolStripStatusLabel1.Text = $"{modifyCount}件 を更新しました．";
                 statusStrip1.Refresh();
 

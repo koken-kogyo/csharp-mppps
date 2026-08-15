@@ -2737,7 +2737,6 @@ namespace MPPPS
                 // MPデータベースへ接続
                 cmn.Dbm.IsConnectMySqlSchema(ref mpCnn);
 
-                var dtUpdate = new DataTable();
                 var countInsert = 0;
                 var countUpdate = 0;
                 var countDelete = 0;
@@ -2746,73 +2745,47 @@ namespace MPPPS
                     string sql = "SELECT * "
                         + "FROM "
                         + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8430 + " "
+                        + "limit 0"
                     ;
                     adapter.SelectCommand = new MySqlCommand(sql, mpCnn);
                     using (var buider = new MySqlCommandBuilder(adapter))
                     {
-                        adapter.Fill(dtUpdate);
+                        DataTable dummy = new DataTable();
+                        adapter.Fill(dummy);
 
-                        // 変更または削除があるかチェック
-                        foreach (DataRow r in dtUpdate.Rows)
-                        {
-                            DataRow[] dgv = dgvDt.Select($"HMCD='{r["HMCD"]}'");
-                            // 削除
-                            if (dgv.Length == 0)
-                            {
-                                debughmcds.Add(r["HMCD"].ToString());
-                                r.Delete();
-                                countDelete++;
-                            }
-                            // 変更
-                            else if (dgv.Length == 1)
-                            {
-                                for (int col = 0; col < dtUpdate.Columns.Count; col++)
-                                {
-                                    if (r[col].ToString() != dgv[0][col].ToString() && col != dtUpdate.Columns.IndexOf("UPDTID"))
-                                    {
-                                        // 変更あり
-                                        r[col] = dgv[0][col];
-                                        r["UPDTID"] = machineName; // cmn.Ui.UserId;
-                                        r["UPDTDT"] = DateTime.Now.ToString();
-                                    }
-                                }
-                                //dtUpdate.Rows[0]["UPDTDT"] = DateTime.Now.ToString();
-                                if (r.RowState == DataRowState.Modified)
-                                {
-                                    debughmcds.Add(r["HMCD"].ToString());
-                                    countUpdate++;
-                                }
-                            }
-                            else
-                            {
-                                throw new Exception("品番に制約違反が発生");
-                            }
-                        }
-                        // 追加更新削除があれば自動更新
-                        if (countDelete + countUpdate > 0) adapter.Update(dtUpdate);
-
-
-                        // 新規の行が存在するかチェック
+                        // 行ステータスチェック
                         foreach (DataRow r in dgvDt.Rows)
                         {
-                            DataRow[] dr = dtUpdate.Select($"HMCD='{r["HMCD"]}'");
-                            // 挿入
-                            if (dr.Length == 0)
+                            // 新規行
+                            if (r.RowState == DataRowState.Added)
                             {
                                 r["INSTID"] = cmn.Ui.UserId;
                                 r["INSTDT"] = DateTime.Now.ToString();
                                 r["UPDTID"] = machineName; // cmn.Ui.UserId;
                                 r["UPDTDT"] = DateTime.Now.ToString();
-                                dtUpdate.ImportRow(r);
                                 debughmcds.Add(r["HMCD"].ToString());
                                 countInsert++;
                             }
-                        }
-                        if (countInsert > 0) adapter.Update(dtUpdate);
+                            // 変更
+                            if (r.RowState == DataRowState.Modified)
+                            {
+                                r["UPDTID"] = machineName; // cmn.Ui.UserId;
+                                r["UPDTDT"] = DateTime.Now.ToString();
+                                debughmcds.Add(r["HMCD"].ToString());
+                                countUpdate++;
+                            }
+                            // 削除
+                            if (r.RowState == DataRowState.Deleted)
+                            {
+                                debughmcds.Add(r["HMCD",DataRowVersion.Original].ToString());
+                                countDelete++;
+                            }
 
-                        // 結果
+                        }
+                        // コマンドビルダーにて一括更新
                         if (countInsert + countUpdate + countDelete > 0)
                         {
+                            adapter.Update(dgvDt);
                             Console.WriteLine("新規件数：" + String.Format("{0:#,0}", countInsert) + " 件");
                             Console.WriteLine("更新件数：" + String.Format("{0:#,0}", countUpdate) + " 件");
                             Console.WriteLine("削除件数：" + String.Format("{0:#,0}", countDelete) + " 件");
@@ -4231,11 +4204,9 @@ namespace MPPPS
             try
             {
                 cmn.Dbm.IsConnectMySqlSchema(ref cnn);
-                sql = "SELECT a.* FROM "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8435 + " a, "
-                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8435 + " b "
-                    + $"WHERE b.HMCDS='{hmcd}' and b.MCGCD='{mcgcd}' and b.MCCD='{mccd}' "
-                    + "and a.HMCD=b.HMCD and a.MCGCD=b.MCGCD and a.MCCD=b.MCCD";
+                sql = "SELECT * FROM "
+                    + cmn.DbCd[Common.DB_CONFIG_MP].Schema + "." + Common.TABLE_ID_KM8435 + " "
+                    + $"WHERE HMCDS='{hmcd}' and MCGCD='{mcgcd}' and MCCD='{mccd}' ";
                 using (MySqlCommand myCmd = new MySqlCommand(sql, cnn))
                 {
                     using (MySqlDataAdapter myDa = new MySqlDataAdapter(myCmd))
