@@ -734,7 +734,7 @@ namespace MPPPS
                                 .Select(i => 前回確定開始日.AddDays(i))
                                 .Where(d => d.DayOfWeek == DayOfWeek.Tuesday)
                                 .ToList();
-                            前回火曜日 = tuesdays[0];
+                            前回火曜日 = tuesdays[tuesdays.Count - 1]; // 夏休みなどの長期連休後、複数火曜日のうち最後の火曜日を取得
                         }
                     }
                 }
