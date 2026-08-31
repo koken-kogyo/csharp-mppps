@@ -49,6 +49,19 @@ namespace MPPPS
 
             // 初期設定
             SetInitialValues();
+
+            // 閲覧権限設定
+            if (cmn.Ui.AtgCd == "FT")
+            {
+                Dgv_CodeSlipMst.ReadOnly = true;
+                btnUpdateDatabase.Enabled = false;
+                btnUpdateDatabase.BackColor = SystemColors.Control;
+                btn_HMCDDelete.Enabled = false;
+                btn_HMCDDelete.BackColor = SystemColors.Control;
+                btnReadExcelMaster.Enabled = false;
+                btnReadExcelMaster.BackColor = SystemColors.Control;
+                btnNextDiffer.BackColor = SystemColors.Control;
+            }
         }
 
         // コントロールの初期化

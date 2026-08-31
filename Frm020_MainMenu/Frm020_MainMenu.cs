@@ -66,6 +66,15 @@ namespace MPPPS
             // 利用者表示
             this.Lbl_UserName.Text = cmn.Ui.UserName + " (" + cmn.Ui.UserId + ")";
 
+            // 閲覧権限設定
+            if (cmn.Ui.AtgCd == "FT")
+            {
+                Btn_MasterMaint.Text = "マスター情報";
+                Btn_OrderCtrl.Enabled = false;
+                Btn_MatlCtrl.Enabled = false;
+                Btn_MfgCtrl.Enabled = false;
+            }
+
             // データベース関連情報をステータスストリップに表示
             toolStripStatusLabel1.Text = "OracleEM : " + cmn.DbCd[Common.DB_CONFIG_EM].Schema;
             toolStripStatusLabel1.Text += " / 内製 : " + cmn.DbCd[Common.DB_CONFIG_KK].Schema;

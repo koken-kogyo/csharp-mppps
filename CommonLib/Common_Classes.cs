@@ -166,7 +166,7 @@ namespace MPPPS
         public string UserId;       // ユーザー ID
         public string Passwd;       // パスワード
         public string UserName;     // ユーザー名称
-        public string AtgCd;        // EM 権限グループ コード
+        public string AtgCd;        // EM 権限グループ コード（FT：製造、FC：生産管理、Kx：営業総務、等）
         public string Active;       // 切削生産計画システム有効フラグ
         public string AuthLv;       // 切削生産計画システム権限レベル
         public bool MemAuthInfo;    // 認証情報記憶

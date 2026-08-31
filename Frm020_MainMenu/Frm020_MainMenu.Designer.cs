@@ -93,13 +93,13 @@ namespace MPPPS
             // 
             this.印刷PToolStripMenuItem.Enabled = false;
             this.印刷PToolStripMenuItem.Name = "印刷PToolStripMenuItem";
-            this.印刷PToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.印刷PToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
             this.印刷PToolStripMenuItem.Text = "印刷(&P)";
             // 
             // 終了XToolStripMenuItem
             // 
             this.終了XToolStripMenuItem.Name = "終了XToolStripMenuItem";
-            this.終了XToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.終了XToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
             this.終了XToolStripMenuItem.Text = "終了(&X)";
             this.終了XToolStripMenuItem.Click += new System.EventHandler(this.終了XToolStripMenuItem_Click);
             // 
@@ -256,7 +256,7 @@ namespace MPPPS
             this.Btn_CutStore.Name = "Btn_CutStore";
             this.Btn_CutStore.Size = new System.Drawing.Size(300, 38);
             this.Btn_CutStore.TabIndex = 5;
-            this.Btn_CutStore.Text = "切削ストア";
+            this.Btn_CutStore.Text = "在庫管理";
             this.Btn_CutStore.UseVisualStyleBackColor = true;
             this.Btn_CutStore.Click += new System.EventHandler(this.Btn_CutStore_Click);
             this.Btn_CutStore.MouseEnter += new System.EventHandler(this.Btn_CutStore_MouseEnter);

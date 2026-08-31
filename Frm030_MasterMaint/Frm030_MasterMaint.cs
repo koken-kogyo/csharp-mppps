@@ -26,6 +26,13 @@ namespace MPPPS
 
             // 共通クラス
             this.cmn = cmn;
+
+            // 閲覧権限設定
+            if (cmn.Ui.AtgCd == "FT")
+            {
+                Btn_EqMstMaint.Text = "設備マスタ情報";
+                Btn_CodeSlipMstMaint.Text = "コード票マスタ情報";
+            }
         }
 
         // 初期ロード後に画面をアクティブ化

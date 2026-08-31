@@ -43,6 +43,14 @@ namespace MPPPS
 
             // 初期設定
             SetInitialValues();
+
+            // 閲覧権限設定
+            if (cmn.Ui.AtgCd == "FT")
+            {
+                Dgv_EquipMst.ReadOnly = true;
+                btnUpdateDatabase.Enabled = false;
+                btnUpdateDatabase.BackColor = SystemColors.Control;
+            }
         }
 
         // コントロールの初期化
