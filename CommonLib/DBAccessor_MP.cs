@@ -1722,9 +1722,9 @@ namespace MPPPS
                     }
                 }
 
-                // 3.設備G＋設備番号＋品番＋納期順で印刷するパターン (MS)
+                // 3.設備G＋設備番号＋品番＋納期順で印刷するパターン (MS, SS)
                 string sqlMS = sql +
-                    "and b.KT1MCGCD = 'MS' " +
+                    "and b.KT1MCGCD in ('MS','SS') " +
                     "order by b.KT1MCGCD, b.KT1MCCD, a.HMCD, a.EDDT"
                 ;
                 using (DataTable patternMS = new DataTable())
@@ -1743,7 +1743,7 @@ namespace MPPPS
 
                 // 4.設備G＋品番＋納期順で印刷するパターン
                 string sqlOT = sql +
-                    "and b.KT1MCGCD<>'SW' and b.KT1MCGCD <> 'CN' and b.KT1MCGCD <> 'MS' " +
+                    "and b.KT1MCGCD<>'SW' and b.KT1MCGCD <> 'CN' and b.KT1MCGCD <> 'MS' and b.KT1MCGCD <> 'SS' " +
                     "order by b.KT1MCGCD, a.HMCD, a.EDDT"
                 ;
                 using (DataTable patternOT = new DataTable())

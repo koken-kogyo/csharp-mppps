@@ -1290,7 +1290,7 @@ namespace MPPPS
             }
             else if (mccd.StartsWith("ED"))
             {
-                return ""; // エンドレスは1台しかない 2025.06.26 益田
+                return mccd; // エンドレスは1台しかない 2025.06.26 益田
             }
             return mccd;
         }
@@ -1522,6 +1522,11 @@ namespace MPPPS
                 else if (tmp.StartsWith("EX-F"))
                 {
                     obj[17, 1] += "\n平行度";
+                    obj[17, 2] += "\n" + tmp;
+                }
+                else if (tmp.StartsWith("EX-ED"))
+                {
+                    obj[17, 1] += "\nｴﾝﾄﾞﾚｽ";
                     obj[17, 2] += "\n" + tmp;
                 }
                 else
@@ -2274,7 +2279,7 @@ namespace MPPPS
             // ③SS工程
             toolStripStatusLabel.Text = "[SS] 工程 (3/22) を作成中...";
             FilterCopyPasteSort(ref OutputRange, "SS", 21
-                , 21, XlSortOrder.xlDescending
+                , 21, XlSortOrder.xlAscending
                 , 2, XlSortOrder.xlAscending
                 , 0, XlSortOrder.xlAscending
             );
@@ -2367,8 +2372,8 @@ namespace MPPPS
             // ⑰SS(2)シートの作成
             toolStripStatusLabel.Text = "[SS(2)] 工程 (17/22) を作成中...";
             FilterCopyPaste3("SS(2)", 21
-                , new string[] { "SS" }
-                , new string[] { "SS" });
+                , new string[] { "SS1", "SS2" }
+                , new string[] { "SS1", "SS2" });
             // ⑱CN(2)シートの作成
             toolStripStatusLabel.Text = "[CN(2)] 工程 (18/22) を作成中...";
             FilterCopyPaste3("CN(2)", 23
@@ -2761,6 +2766,7 @@ namespace MPPPS
             Excel.Range refRange = refSheet.Range[refSheet.Cells[headerRow, 1], refSheet.Cells[refEndRow, 37 + 3]];
             Excel.Worksheet destSheet;
             destSheet = (Excel.Worksheet)oWBook.Worksheets[sheetName];
+            destSheet.Activate();
 
             // 設備対象で処理をループ
             for (int idx = 0; idx < ktNames.Length; idx++)
@@ -2980,6 +2986,7 @@ namespace MPPPS
                     rowCount++;
                 }
                 // 設定したオブジェクトをレンジに貼り付け
+                oWSheet.Activate();
                 if (oXls.Visible) oXls.Wait(DateTime.Now.AddSeconds(1));
                 oRange = oWSheet.Range[oWSheet.Cells[6, 1], oWSheet.Cells[6 + rowCount - 1, 1 + copyColumns - 1]];
                 oRange.Value = codeSlipObj;
