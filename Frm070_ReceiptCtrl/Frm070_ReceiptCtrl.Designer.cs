@@ -44,7 +44,7 @@ namespace MPPPS
             this.Btn_ReceiptProc.Name = "Btn_ReceiptProc";
             this.Btn_ReceiptProc.Size = new System.Drawing.Size(300, 38);
             this.Btn_ReceiptProc.TabIndex = 0;
-            this.Btn_ReceiptProc.Text = "出荷確認";
+            this.Btn_ReceiptProc.Text = "入出庫確認";
             this.Btn_ReceiptProc.UseVisualStyleBackColor = true;
             this.Btn_ReceiptProc.Click += new System.EventHandler(this.Btn_ReceiptProc_Click);
             // 

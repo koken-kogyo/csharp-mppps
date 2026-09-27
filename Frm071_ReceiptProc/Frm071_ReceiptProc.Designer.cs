@@ -44,6 +44,7 @@ namespace MPPPS
             this.label3 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.txtHMRNM = new System.Windows.Forms.TextBox();
             this.txtHMNM = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.txtTKRNM = new System.Windows.Forms.TextBox();
@@ -73,7 +74,6 @@ namespace MPPPS
             this.lblTitle1 = new System.Windows.Forms.Label();
             this.lblKT1 = new System.Windows.Forms.Label();
             this.lblKT2 = new System.Windows.Forms.Label();
-            this.txtHMRNM = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -242,6 +242,17 @@ namespace MPPPS
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(382, 261);
             this.panel1.TabIndex = 12;
+            // 
+            // txtHMRNM
+            // 
+            this.txtHMRNM.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtHMRNM.Enabled = false;
+            this.txtHMRNM.Font = new System.Drawing.Font("Yu Gothic UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.txtHMRNM.Location = new System.Drawing.Point(99, 202);
+            this.txtHMRNM.Name = "txtHMRNM";
+            this.txtHMRNM.Size = new System.Drawing.Size(262, 29);
+            this.txtHMRNM.TabIndex = 23;
+            this.txtHMRNM.Text = "JOINT〇44X69SW-NC-MC";
             // 
             // txtHMNM
             // 
@@ -672,17 +683,6 @@ namespace MPPPS
             this.lblKT2.Text = "NC-8";
             this.lblKT2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // txtHMRNM
-            // 
-            this.txtHMRNM.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtHMRNM.Enabled = false;
-            this.txtHMRNM.Font = new System.Drawing.Font("Yu Gothic UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.txtHMRNM.Location = new System.Drawing.Point(99, 202);
-            this.txtHMRNM.Name = "txtHMRNM";
-            this.txtHMRNM.Size = new System.Drawing.Size(262, 29);
-            this.txtHMRNM.TabIndex = 23;
-            this.txtHMRNM.Text = "JOINT〇44X69SW-NC-MC";
-            // 
             // Frm071_ReceiptProc
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -695,7 +695,7 @@ namespace MPPPS
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Frm071_ReceiptProc";
-            this.Text = "Frm071 出庫確認";
+            this.Text = "Frm071 入出庫確認";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Frm071_ReceiptProc_KeyDown);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

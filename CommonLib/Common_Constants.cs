@@ -20,7 +20,7 @@ namespace MPPPS
         public static readonly string KEN_PGM_ID = "KMD000ZZ";                  // 製造部プログラム ID
         public static readonly string MY_PGM_ID = "KMD001SF";                   // プログラム ID
         public static readonly string MY_PGM_NAME = "切削生産計画システム";     // プログラム名称
-        public static readonly string MY_PGM_VER = "260815.01";                 // プログラム バージョン
+        public static readonly string MY_PGM_VER = "260901.01";                 // プログラム バージョン
         public static readonly string PGM_STS_CD_ALPHA = "a";                   // プログラムの状態 (α版)
         public static readonly string PGM_STS_CD_BETA = "b";                    // プログラムの状態 (β版)
         public static readonly string PGM_STS_TXT_ALPHA = "アルファ版";         // プログラムの状態 (α版)
@@ -95,7 +95,7 @@ namespace MPPPS
         public static readonly string FRM_ID_052 = "#052";  // 製造部計画表
         public static readonly string FRM_ID_053 = "#053";  // おかむー
         public static readonly string FRM_ID_070 = "#070";  // 実績管理
-        public static readonly string FRM_ID_071 = "#071";  // 出荷確認
+        public static readonly string FRM_ID_071 = "#071";  // 入出庫確認
         public static readonly string FRM_ID_072 = "#072";  // 切削ストア受入実績情報表示
         public static readonly string FRM_ID_080 = "#080";  // 材料管理
         public static readonly string FRM_ID_081 = "#081";  // 材料在庫一覧
@@ -126,7 +126,7 @@ namespace MPPPS
         public static readonly string FRM_NAME_052 = "製造部計画表";
         public static readonly string FRM_NAME_053 = "おかむー";
         public static readonly string FRM_NAME_070 = "実績管理";
-        public static readonly string FRM_NAME_071 = "出荷確認";
+        public static readonly string FRM_NAME_071 = "入出庫確認";
         public static readonly string FRM_NAME_072 = "切削ストア受入実績情報表示";
         public static readonly string FRM_NAME_080 = "材料管理";
         public static readonly string FRM_NAME_081 = "材料在庫一覧";

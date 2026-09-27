@@ -278,7 +278,7 @@ namespace MPPPS
             this.Lbl_User.AutoSize = true;
             this.Lbl_User.BackColor = System.Drawing.Color.Transparent;
             this.Lbl_User.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Lbl_User.Location = new System.Drawing.Point(365, 47);
+            this.Lbl_User.Location = new System.Drawing.Point(345, 47);
             this.Lbl_User.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_User.Name = "Lbl_User";
             this.Lbl_User.Size = new System.Drawing.Size(57, 20);
@@ -291,7 +291,7 @@ namespace MPPPS
             this.Lbl_UserName.AutoSize = true;
             this.Lbl_UserName.BackColor = System.Drawing.Color.Transparent;
             this.Lbl_UserName.Font = new System.Drawing.Font("Yu Gothic UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Lbl_UserName.Location = new System.Drawing.Point(446, 47);
+            this.Lbl_UserName.Location = new System.Drawing.Point(414, 47);
             this.Lbl_UserName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Lbl_UserName.Name = "Lbl_UserName";
             this.Lbl_UserName.Size = new System.Drawing.Size(93, 20);

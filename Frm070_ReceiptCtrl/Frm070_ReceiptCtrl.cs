@@ -28,7 +28,7 @@ namespace MPPPS
             this.Activate();
         }
 
-        // 切削ストア受入実績処理
+        // 入出庫確認処理
         private void Btn_ReceiptProc_Click(object sender, EventArgs e)
         {
             Frm071_ReceiptProc frm071 = new Frm071_ReceiptProc(cmn);

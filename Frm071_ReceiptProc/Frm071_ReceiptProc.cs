@@ -255,15 +255,15 @@ namespace MPPPS
             {
                 lblResult.BackColor = Color.LightGreen;
                 lblResult.ForeColor = Color.Blue;
-                lblResult.Text = "出荷可能";
-                toolStripStatusLabel1.Text = "出荷可能です．";
+                lblResult.Text = "入出庫可能";
+                toolStripStatusLabel1.Text = "入出庫可能です．";
                 ok.Play(); // OK音
             }
             else
             {
                 lblResult.BackColor = Color.Orange;
                 lblResult.ForeColor = Color.Red;
-                lblResult.Text = "出荷停止！";
+                lblResult.Text = "入出庫停止！";
                 toolStripStatusLabel1.Text = "チェックシートを確認してください．";
                 ng.Play(); // NG音
             }
